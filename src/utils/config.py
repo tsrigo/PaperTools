@@ -64,7 +64,7 @@ PAPER_FILTER_PROMPT = """你是一位顶尖的人工智能研究员，正在为�
 第三步：排除标准——论文是否主要聚焦于以下领域？（只要主要焦点是其一，就应排除）
 - 多模态与视觉: Vision, Vision-Language, MLLMs, VLMs, Video Understanding, 3D Vision, Reconstruction, Diffusion Models
 - 特定应用领域: Medical, Chemical, Biological, Sociological, Robotic, Robot Control, Domain Specific Applications
-- 模型可靠性（应用层面）: Watermarking, Safety, Security (注意：如果研究是为了从根本上提升模型能力而非仅作为应用层面的防御，则可考虑保留)
+- 模型可靠性（应用层面）: Watermarking, Safety, Security 
 
 第四步：处理特殊和模糊情况
 - 智能体/工具使用: 如果是提出一种通用的智能体协作框架或工具使用方法来增强LLM的通用问题解决能力，应该保留。如果只是将智能体/工具应用在特定领域（如"用于化学实验自动化的智能体"），应该排除。
