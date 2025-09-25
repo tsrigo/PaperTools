@@ -9,7 +9,7 @@
         "subjects": "Multiagent Systems, Artificial Intelligence",
         "date": "2025-09-23",
         "category": "cs.MA",
-        "crawl_time": "2025-09-25T12:59:30.918109"
+        "crawl_time": "2025-09-25T17:17:45.642394"
     },
     {
         "index": "#2",
@@ -21,7 +21,7 @@
         "subjects": "Multiagent Systems, Artificial Intelligence",
         "date": "2025-09-23",
         "category": "cs.MA",
-        "crawl_time": "2025-09-25T12:59:30.918323"
+        "crawl_time": "2025-09-25T17:17:45.642624"
     },
     {
         "index": "#3",
@@ -33,7 +33,7 @@
         "subjects": "Systems and Control, Artificial Intelligence, Multiagent Systems, Dynamical Systems",
         "date": "2025-09-24",
         "category": "cs.MA",
-        "crawl_time": "2025-09-25T12:59:30.918524"
+        "crawl_time": "2025-09-25T17:17:45.642832"
     },
     {
         "index": "#4",
@@ -45,7 +45,7 @@
         "subjects": "Systems and Control, Multiagent Systems, Robotics, Dynamical Systems, Optimization and Control",
         "date": "2025-09-24",
         "category": "cs.MA",
-        "crawl_time": "2025-09-25T12:59:30.918720"
+        "crawl_time": "2025-09-25T17:17:45.643073"
     },
     {
         "index": "#5",
@@ -57,7 +57,7 @@
         "subjects": "Computer Science and Game Theory, Machine Learning, Multiagent Systems, Systems and Control",
         "date": "2025-09-24",
         "category": "cs.MA",
-        "crawl_time": "2025-09-25T12:59:30.918907"
+        "crawl_time": "2025-09-25T17:17:45.643306"
     },
     {
         "index": "#6",
@@ -69,6 +69,6 @@
         "subjects": "Robotics",
         "date": "2025-09-17",
         "category": "cs.MA",
-        "crawl_time": "2025-09-25T12:59:30.919205"
+        "crawl_time": "2025-09-25T17:17:45.643529"
     }
 ]

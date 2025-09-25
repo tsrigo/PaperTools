@@ -178,6 +178,15 @@ def generate_complete_html() -> str:
                 <div class="text-sm text-slate-600 dark:text-slate-400">
                     总计 <span id="total-papers">0</span> 篇论文
                 </div>
+                <!-- 筛选按钮 -->
+                <div class="flex items-center space-x-2">
+                    <button id="filter-starred" class="px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 rounded-md hover:bg-slate-200 dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition-colors">
+                        只看收藏
+                    </button>
+                    <button id="filter-all" class="px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                        显示全部
+                    </button>
+                </div>
                 <!-- 中英文摘要切换按钮 -->
                 <button id="summary-toggle" class="px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 rounded-md hover:bg-slate-200 dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition-colors">
                     中文摘要
@@ -219,6 +228,7 @@ def generate_complete_html() -> str:
         let deletedPapers = new Set();
         let pendingDeletes = new Map();
         let showChineseSummary = true; // 默认显示中文摘要
+        let showOnlyStarred = false; // 筛选状态：是否只显示收藏的论文
 
         // 从localStorage加载状态
         function loadState() {{
@@ -284,53 +294,79 @@ def generate_complete_html() -> str:
             undoBtn.addEventListener('click', onUndoClick);
         }}
 
+        // 显示简单的提示信息
+        function showSimpleToast(message) {{
+            // 创建一个简单的toast元素
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-all duration-300';
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
+            // 3秒后自动消失
+            setTimeout(() => {{
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-10px)';
+                setTimeout(() => {{
+                    document.body.removeChild(toast);
+                }}, 300);
+            }}, 3000);
+        }}
+
+        // 通过按钮删除论文（避免JavaScript字符串转义问题）
+        function deletePaperByButton(button) {{
+            const arxivId = button.getAttribute('data-arxiv-id');
+            const title = button.getAttribute('data-title');
+            deletePaper(arxivId, title);
+        }}
+
         // 删除论文
         function deletePaper(arxivId, title) {{
             const paperEl = document.querySelector(`[data-arxiv-id="${{arxivId}}"]`);
             if (!paperEl) return;
             
-            // 立即隐藏
-            paperEl.classList.add('hidden-paper');
-            deletedPapers.add(arxivId);
-            saveState();
-            updateStats();
+            // 添加删除动画效果
+            paperEl.style.transition = 'all 0.3s ease-out';
+            paperEl.style.transform = 'scale(0.95)';
+            paperEl.style.opacity = '0.5';
             
-            // 设置撤销计时器
-            const timerId = setTimeout(() => {{
-                paperEl.remove();
-                pendingDeletes.delete(arxivId);
-                updateStats();
-            }}, 5000);
-            
-            pendingDeletes.set(arxivId, timerId);
-            
-            showUndoToast('已删除，5秒内可撤销', 5, () => {{
-                // 撤销删除
-                paperEl.classList.remove('hidden-paper');
-                deletedPapers.delete(arxivId);
-                const t = pendingDeletes.get(arxivId);
-                if (t) {{ 
-                    clearTimeout(t); 
-                    pendingDeletes.delete(arxivId); 
-                }}
+            setTimeout(() => {{
+                // 立即删除并保存状态
+                deletedPapers.add(arxivId);
                 saveState();
+                
+                // 移除DOM元素
+                paperEl.remove();
                 updateStats();
-            }});
+                
+                // 显示简单的删除提示
+                showSimpleToast(`已删除: ${{title}}`);
+            }}, 300);
         }}
 
         // 切换星标状态
         function toggleStar(arxivId) {{
-            const starBtn = document.querySelector(`[data-arxiv-id="${{arxivId}}"] .star-button`);
-            if (!starBtn) return;
-            
             if (starredPapers.has(arxivId)) {{
                 starredPapers.delete(arxivId);
-                starBtn.classList.remove('starred');
             }} else {{
                 starredPapers.add(arxivId);
-                starBtn.classList.add('starred');
             }}
             saveState();
+            
+            // 如果当前是只看收藏模式，需要重新渲染
+            if (showOnlyStarred) {{
+                renderPapers();
+            }} else {{
+                // 否则只更新星标按钮状态
+                const starBtn = document.querySelector(`[data-arxiv-id="${{arxivId}}"] .star-button`);
+                if (starBtn) {{
+                    if (starredPapers.has(arxivId)) {{
+                        starBtn.classList.add('starred');
+                    }} else {{
+                        starBtn.classList.remove('starred');
+                    }}
+                }}
+            }}
         }}
 
         // 切换已读状态
@@ -381,8 +417,18 @@ def generate_complete_html() -> str:
             const isRead = readPapers.has(paper.arxiv_id);
             const isDeleted = deletedPapers.has(paper.arxiv_id);
             
+            // 如果论文已被删除，直接返回空字符串，不渲染
+            if (isDeleted) {{
+                return '';
+            }}
+            
+            // 如果启用了只看收藏筛选，且论文未被收藏，则不渲染
+            if (showOnlyStarred && !isStarred) {{
+                return '';
+            }}
+            
             return `
-                <div class="paper-item bg-white dark:bg-slate-800/50 rounded-lg shadow-sm p-6 ${{isDeleted ? 'hidden-paper' : ''}}" data-arxiv-id="${{paper.arxiv_id}}">
+                <div class="paper-item bg-white dark:bg-slate-800/50 rounded-lg shadow-sm p-6" data-arxiv-id="${{paper.arxiv_id}}">
                     <!-- 论文标题和操作按钮 -->
                     <div class="flex items-start justify-between mb-4">
                         <div class="flex items-start space-x-3 flex-1">
@@ -396,7 +442,7 @@ def generate_complete_html() -> str:
                             <h3 class="text-lg font-semibold text-black dark:text-white leading-tight">${{paper.title}}</h3>
                         </div>
                         <!-- 删除按钮 -->
-                        <button class="delete-button text-slate-400 hover:text-red-500 ml-4 flex-shrink-0" onclick="deletePaper('${{paper.arxiv_id}}', '${{paper.title.replace(/'/g, "\\\\'")}}'))" title="删除">
+                        <button class="delete-button text-slate-400 hover:text-red-500 ml-4 flex-shrink-0" onclick="deletePaperByButton(this)" data-arxiv-id="${{paper.arxiv_id}}" data-title="${{paper.title.replace(/"/g, '&quot;')}}" title="删除">
                             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                             </svg>
@@ -482,16 +528,24 @@ def generate_complete_html() -> str:
         function createCategoryHTML(category, date) {{
             const categoryId = `category-${{date}}-${{category.name.replace(/\\s+/g, '-')}}`;
             let papersHTML = '';
+            let visiblePaperCount = 0;
             
             if (category.papers && category.papers.length > 0) {{
                 category.papers.forEach(paper => {{
-                    papersHTML += `
-                        <li>
-                            ${{createPaperHTML(paper, date)}}
-                        </li>
-                    `;
+                    const paperHTML = createPaperHTML(paper, date);
+                    if (paperHTML) {{ // 只添加非空的论文HTML
+                        papersHTML += `
+                            <li>
+                                ${{paperHTML}}
+                            </li>
+                        `;
+                        visiblePaperCount++;
+                    }}
                 }});
-            }} else {{
+            }}
+            
+            // 如果没有可见的论文，显示提示信息
+            if (visiblePaperCount === 0) {{
                 papersHTML = '<li class="pl-7 text-sm text-slate-500 dark:text-slate-400">此分类下暂无论文。</li>';
             }}
             
@@ -504,7 +558,7 @@ def generate_complete_html() -> str:
                             </svg>
                             <span class="font-medium text-sky-700 dark:text-sky-400">${{category.name}}</span>
                         </div>
-                        <span class="text-xs font-mono bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full px-2 py-0.5">${{category.count}}</span>
+                        <span class="text-xs font-mono bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full px-2 py-0.5">${{visiblePaperCount}}</span>
                     </div>
                     <div id="${{categoryId}}" class="category-content hidden pl-1 pt-2 border-l border-slate-200 dark:border-slate-700 ml-4">
                         <ul class="space-y-4">
@@ -520,7 +574,9 @@ def generate_complete_html() -> str:
             const mainContent = document.getElementById('main-content');
             const loading = document.getElementById('loading');
             
-            loading.classList.add('hidden');
+            if (loading) {{
+                loading.classList.add('hidden');
+            }}
             
             let html = '';
             let totalPapers = 0;
@@ -529,18 +585,38 @@ def generate_complete_html() -> str:
                 const categories = allPapers[date];
                 if (categories.length === 0) continue;
                 
-                const dateTotal = categories.reduce((sum, cat) => sum + cat.count, 0);
-                totalPapers += dateTotal;
+                // 计算实际可见的论文数量
+                let dateVisibleTotal = 0;
+                const categoryHTMLs = [];
+                
+                categories.forEach(category => {{
+                    const categoryHTML = createCategoryHTML(category, date);
+                    categoryHTMLs.push(categoryHTML);
+                    // 计算该分类下可见的论文数
+                    if (category.papers) {{
+                        category.papers.forEach(paper => {{
+                            if (!deletedPapers.has(paper.arxiv_id) && 
+                                (!showOnlyStarred || starredPapers.has(paper.arxiv_id))) {{
+                                dateVisibleTotal++;
+                            }}
+                        }});
+                    }}
+                }});
+                
+                totalPapers += dateVisibleTotal;
+                
+                // 如果该日期下没有可见论文，跳过
+                if (dateVisibleTotal === 0) continue;
                 
                 html += `
                     <section class="mb-8">
-                        <h2 class="text-lg font-medium text-slate-500 dark:text-slate-400 mb-4">${{date}} (${{dateTotal}} 篇论文)</h2>
+                        <h2 class="text-lg font-medium text-slate-500 dark:text-slate-400 mb-4">${{date}} (${{dateVisibleTotal}} 篇论文)</h2>
                         <div class="bg-white dark:bg-slate-800/50 rounded-lg shadow-sm p-4 sm:p-6">
                             <ul class="space-y-2">
                 `;
                 
-                categories.forEach(category => {{
-                    html += createCategoryHTML(category, date);
+                categoryHTMLs.forEach(categoryHTML => {{
+                    html += categoryHTML;
                 }});
                 
                 html += `
@@ -615,11 +691,46 @@ def generate_complete_html() -> str:
             summaryToggleBtn.addEventListener('click', toggleSummaryLanguage);
         }}
 
+        // 设置筛选功能
+        function setupFilter() {{
+            const filterStarredBtn = document.getElementById('filter-starred');
+            const filterAllBtn = document.getElementById('filter-all');
+            
+            filterStarredBtn.addEventListener('click', () => {{
+                showOnlyStarred = true;
+                updateFilterButtons();
+                renderPapers();
+            }});
+            
+            filterAllBtn.addEventListener('click', () => {{
+                showOnlyStarred = false;
+                updateFilterButtons();
+                renderPapers();
+            }});
+            
+            updateFilterButtons();
+        }}
+
+        // 更新筛选按钮状态
+        function updateFilterButtons() {{
+            const filterStarredBtn = document.getElementById('filter-starred');
+            const filterAllBtn = document.getElementById('filter-all');
+            
+            if (showOnlyStarred) {{
+                filterStarredBtn.className = 'px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors';
+                filterAllBtn.className = 'px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 rounded-md hover:bg-slate-200 dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition-colors';
+            }} else {{
+                filterStarredBtn.className = 'px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 rounded-md hover:bg-slate-200 dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition-colors';
+                filterAllBtn.className = 'px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors';
+            }}
+        }}
+
         // 初始化应用
         document.addEventListener('DOMContentLoaded', function() {{
             loadState();
             setupThemeToggle();
             setupSummaryToggle();
+            setupFilter();
             renderPapers();
         }});
     </script>
