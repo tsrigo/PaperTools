@@ -1,0 +1,67 @@
+name: Deploy MyArxiv Website
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        
+    - name: Create config file
+      run: |
+        cat > src/utils/config.py << EOF
+        import os
+        
+        # API配置 - 在GitHub Actions中这些不会被使用，因为我们只部署已生成的网页
+        API_KEY = os.getenv('OPENAI_API_KEY', '')
+        BASE_URL = os.getenv('OPENAI_BASE_URL', '')
+        MODEL = os.getenv('MODEL', 'gpt-3.5-turbo')
+        TEMPERATURE = float(os.getenv('TEMPERATURE', '0.7'))
+        
+        # 目录配置
+        ARXIV_PAPER_DIR = "arxiv_paper"
+        DOMAIN_PAPER_DIR = "domain_paper" 
+        SUMMARY_DIR = "summary"
+        WEBPAGES_DIR = "webpages"
+        
+        # 爬取配置
+        CRAWL_CATEGORIES = ['cs.AI', 'cs.CL', 'cs.LG', 'cs.CV']
+        MAX_PAPERS_PER_CATEGORY = 25
+        MAX_WORKERS = 4
+        
+        # 网页配置
+        ENABLE_TIME_BASED_STRUCTURE = True
+        DATE_FORMAT = "%Y-%m-%d"
+        EOF
+        
+    - name: Generate website (if data exists)
+      run: |
+        if [ -d "summary" ] && [ "$(find summary -name '*.json' | wc -l)" -gt 0 ]; then
+          echo "Found paper data, generating website..."
+          python src/core/generate_unified_index.py
+        else
+          echo "No paper data found, skipping website generation"
+        fi
+        
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./webpages
+        # 保持历史记录
+        keep_files: true
