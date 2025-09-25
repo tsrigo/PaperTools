@@ -1,0 +1,74 @@
+[
+    {
+        "index": "#1",
+        "title": "Proactive-reactive detection and mitigation of intermittent faults in robot swarms",
+        "link": "/arxiv/2509.19246",
+        "arxiv_id": "2509.19246",
+        "authors": "Sinan Oğuz, Emanuele Garone, Marco Dorigo, Mary Katherine Heinrich",
+        "summary": "Intermittent faults are transient errors that sporadically appear and disappear. Although intermittent faults pose substantial challenges to reliability and coordination, existing studies of fault tolerance in robot swarms focus instead on permanent faults. One reason for this is that intermittent faults are prohibitively difficult to detect in the fully self-organized ad-hoc networks typical of robot swarms, as their network topologies are transient and often unpredictable. However, in the recently introduced self-organizing nervous systems (SoNS) approach, robot swarms are able to self-organize persistent network structures for the first time, easing the problem of detecting intermittent faults. To address intermittent faults in robot swarms that have persistent networks, we propose a novel proactive-reactive strategy to detection and mitigation, based on self-organized backup layers and distributed consensus in a multiplex network. Proactively, the robots self-organize dynamic backup paths before faults occur, adapting to changes in the primary network topology and the robots' relative positions. Reactively, robots use one-shot likelihood ratio tests to compare information received along different paths in the multiplex network, enabling early fault detection. Upon detection, communication is temporarily rerouted in a self-organized way, until the detected fault resolves. We validate the approach in representative scenarios of faulty positional data occurring during formation control, demonstrating that intermittent faults are prevented from disrupting convergence to desired formations, with high fault detection accuracy and low rates of false positives.",
+        "subjects": "Robotics, Multiagent Systems, Systems and Control",
+        "date": "2025-09-23",
+        "category": "cs.MA",
+        "crawl_time": "2025-09-25T09:45:33.943781"
+    },
+    {
+        "index": "#2",
+        "title": "Application Management in C-ITS: Orchestrating Demand-Driven Deployments and Reconfigurations",
+        "link": "/arxiv/2509.18793",
+        "arxiv_id": "2509.18793",
+        "authors": "Lukas Zanger, Bastian Lampe, Lennart Reiher, Lutz Eckstein",
+        "summary": "Vehicles are becoming increasingly automated and interconnected, enabling the formation of cooperative intelligent transport systems (C-ITS) and the use of offboard services. As a result, cloud-native techniques, such as microservices and container orchestration, play an increasingly important role in their operation. However, orchestrating applications in a large-scale C-ITS poses unique challenges due to the dynamic nature of the environment and the need for efficient resource utilization. In this paper, we present a demand-driven application management approach that leverages cloud-native techniques - specifically Kubernetes - to address these challenges. Taking into account the demands originating from different entities within the C-ITS, the approach enables the automation of processes, such as deployment, reconfiguration, update, upgrade, and scaling of microservices. Executing these processes on demand can, for example, reduce computing resource consumption and network traffic. A demand may include a request for provisioning an external supporting service, such as a collective environment model. The approach handles changing and new demands by dynamically reconciling them through our proposed application management framework built on Kubernetes and the Robot Operating System (ROS 2). We demonstrate the operation of our framework in the C-ITS use case of collective environment perception and make the source code of the prototypical framework publicly available at https://github.com/ika-rwth-aachen/application_manager .",
+        "subjects": "Robotics, Multiagent Systems, Software Engineering",
+        "date": "2025-09-23",
+        "category": "cs.MA",
+        "crawl_time": "2025-09-25T09:45:33.944229"
+    },
+    {
+        "index": "#3",
+        "title": "Policy Gradient with Self-Attention for Model-Free Distributed Nonlinear Multi-Agent Games",
+        "link": "/arxiv/2509.18371",
+        "arxiv_id": "2509.18371",
+        "authors": "Eduardo Sebastián, Maitrayee Keskar, Eeman Iqbal, Eduardo Montijano, Carlos Sagüés, Nikolay Atanasov",
+        "summary": "Multi-agent games in dynamic nonlinear settings are challenging due to the time-varying interactions among the agents and the non-stationarity of the (potential) Nash equilibria. In this paper we consider model-free games, where agent transitions and costs are observed without knowledge of the transition and cost functions that generate them. We propose a policy gradient approach to learn distributed policies that follow the communication structure in multi-team games, with multiple agents per team. Our formulation is inspired by the structure of distributed policies in linear quadratic games, which take the form of time-varying linear feedback gains. In the nonlinear case, we model the policies as nonlinear feedback gains, parameterized by self-attention layers to account for the time-varying multi-agent communication topology. We demonstrate that our distributed policy gradient approach achieves strong performance in several settings, including distributed linear and nonlinear regulation, and simulated and real multi-robot pursuit-and-evasion games.",
+        "subjects": "Systems and Control, Multiagent Systems, Robotics",
+        "date": "2025-09-22",
+        "category": "cs.MA",
+        "crawl_time": "2025-09-25T09:45:33.944469"
+    },
+    {
+        "index": "#4",
+        "title": "Change in Quantitative Bipolar Argumentation: Sufficient, Necessary, and Counterfactual Explanations",
+        "link": "/arxiv/2509.18215",
+        "arxiv_id": "2509.18215",
+        "authors": "Timotheus Kampik, Kristijonas Čyras, José Ruiz Alarcón",
+        "summary": "This paper presents a formal approach to explaining change of inference in Quantitative Bipolar Argumentation Frameworks (QBAFs). When drawing conclusions from a QBAF and updating the QBAF to then again draw conclusions (and so on), our approach traces changes -- which we call strength inconsistencies -- in the partial order over argument strengths that a semantics establishes on some arguments of interest, called topic arguments. We trace the causes of strength inconsistencies to specific arguments, which then serve as explanations. We identify sufficient, necessary, and counterfactual explanations for strength inconsistencies and show that strength inconsistency explanations exist if and only if an update leads to strength inconsistency. We define a heuristic-based approach to facilitate the search for strength inconsistency explanations, for which we also provide an implementation.",
+        "subjects": "Artificial Intelligence, Logic in Computer Science, Multiagent Systems",
+        "date": "2025-09-21",
+        "category": "cs.MA",
+        "crawl_time": "2025-09-25T09:45:33.944659"
+    },
+    {
+        "index": "#5",
+        "title": "MMCD: Multi-Modal Collaborative Decision-Making for Connected Autonomy with Knowledge Distillation",
+        "link": "/arxiv/2509.18198",
+        "arxiv_id": "2509.18198",
+        "authors": "Rui Liu, Zikang Wang, Peng Gao, Yu Shen, Pratap Tokekar, Ming Lin",
+        "summary": "Autonomous systems have advanced significantly, but challenges persist in accident-prone environments where robust decision-making is crucial. A single vehicle's limited sensor range and obstructed views increase the likelihood of accidents. Multi-vehicle connected systems and multi-modal approaches, leveraging RGB images and LiDAR point clouds, have emerged as promising solutions. However, existing methods often assume the availability of all data modalities and connected vehicles during both training and testing, which is impractical due to potential sensor failures or missing connected vehicles. To address these challenges, we introduce a novel framework MMCD (Multi-Modal Collaborative Decision-making) for connected autonomy. Our framework fuses multi-modal observations from ego and collaborative vehicles to enhance decision-making under challenging conditions. To ensure robust performance when certain data modalities are unavailable during testing, we propose an approach based on cross-modal knowledge distillation with a teacher-student model structure. The teacher model is trained with multiple data modalities, while the student model is designed to operate effectively with reduced modalities. In experiments on $\\textit{connected autonomous driving with ground vehicles}$ and $\\textit{aerial-ground vehicles collaboration}$, our method improves driving safety by up to ${\\it 20.7}\\%$, surpassing the best-existing baseline in detecting potential accidents and making safe driving decisions. More information can be found on our website https://ruiiu.github.io/mmcd.",
+        "subjects": "Artificial Intelligence, Multiagent Systems, Robotics",
+        "date": "2025-09-19",
+        "category": "cs.MA",
+        "crawl_time": "2025-09-25T09:45:33.944865"
+    },
+    {
+        "index": "#6",
+        "title": "Introducing a novel Location-Assignment Algorithm for Activity-Based Transport Models: CARLA",
+        "link": "/arxiv/2509.18191",
+        "arxiv_id": "2509.18191",
+        "authors": "Felix Petre, Lasse Bienzeisler, Bernhard Friedrich",
+        "summary": "This paper introduces CARLA (spatially Constrained Anchor-based Recursive Location Assignment), a recursive algorithm for assigning secondary or any activity locations in activity-based travel models. CARLA minimizes distance deviations while integrating location potentials, ensuring more realistic activity distributions. The algorithm decomposes trip chains into smaller subsegments, using geometric constraints and configurable heuristics to efficiently search the solution space. Compared to a state-of-the-art relaxation-discretization approach, CARLA achieves significantly lower mean deviations, even under limited runtimes. It is robust to real-world data inconsistencies, such as infeasible distances, and can flexibly adapt to various priorities, such as emphasizing location attractiveness or distance accuracy. CARLA's versatility and efficiency make it a valuable tool for improving the spatial accuracy of activity-based travel models and agent-based transport simulations. Our implementation is available at https://github.com/tnoud/carla.",
+        "subjects": "Other Computer Science, Computers and Society, Multiagent Systems, Optimization and Control",
+        "date": "2025-09-19",
+        "category": "cs.MA",
+        "crawl_time": "2025-09-25T09:45:33.945062"
+    }
+]
