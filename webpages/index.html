@@ -78,7 +78,14 @@
                 <!-- 统计信息 -->
                 <div class="text-sm text-slate-600 dark:text-slate-400">
                     总计 <span id="total-papers">0</span> 篇论文
+                    <span id="deleted-count" class="ml-2 text-red-500" style="display: none;">
+                        (<span id="deleted-number">0</span> 篇已删除)
+                    </span>
                 </div>
+                <!-- 恢复删除按钮 -->
+                <button id="restore-deleted" class="px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-md hover:bg-red-100 dark:hover:bg-red-900/40 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors" style="display: none;">
+                    恢复已删除
+                </button>
                 <!-- 中英文摘要切换按钮 -->
                 <button id="summary-toggle" class="px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 rounded-md hover:bg-slate-200 dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition-colors">
                     中文摘要
@@ -871,37 +878,28 @@
             undoBtn.addEventListener('click', onUndoClick);
         }
 
-        // 删除论文
+        // 删除论文（基于localStorage的实现）
         function deletePaper(arxivId, title) {
             const paperEl = document.querySelector(`[data-arxiv-id="${arxivId}"]`);
             if (!paperEl) return;
             
-            // 立即隐藏
-            paperEl.classList.add('hidden-paper');
+            // 立即添加到删除列表并隐藏
             deletedPapers.add(arxivId);
+            paperEl.style.display = 'none';
             saveState();
             updateStats();
             
-            // 设置撤销计时器
-            const timerId = setTimeout(() => {
-                paperEl.remove();
-                pendingDeletes.delete(arxivId);
-                updateStats();
-            }, 5000);
-            
-            pendingDeletes.set(arxivId, timerId);
-            
-            showUndoToast('已删除，5秒内可撤销', 5, () => {
+            // 显示撤销提示（延长到8秒）
+            const shortTitle = title.length > 30 ? title.substring(0, 30) + '...' : title;
+            showUndoToast(`已删除: ${shortTitle}`, 8, () => {
                 // 撤销删除
-                paperEl.classList.remove('hidden-paper');
                 deletedPapers.delete(arxivId);
-                const t = pendingDeletes.get(arxivId);
-                if (t) { 
-                    clearTimeout(t); 
-                    pendingDeletes.delete(arxivId); 
-                }
+                paperEl.style.display = 'block';
                 saveState();
                 updateStats();
+            }, () => {
+                // 时间到期后不做任何操作，论文保持隐藏状态
+                console.log(`论文 ${arxivId} 已永久删除（仅在本地隐藏）`);
             });
         }
 
@@ -958,8 +956,45 @@
 
         // 更新统计信息
         function updateStats() {
-            const visiblePapers = document.querySelectorAll('.paper-item:not(.hidden-paper)').length;
+            const allPapers = document.querySelectorAll('.paper-item');
+            const hiddenPapers = document.querySelectorAll('.paper-item[style*="display: none"]');
+            const visiblePapers = allPapers.length - hiddenPapers.length;
+            const deletedCount = deletedPapers.size;
+            
             document.getElementById('total-papers').textContent = visiblePapers;
+            document.getElementById('deleted-number').textContent = deletedCount;
+            
+            // 显示或隐藏删除相关的UI元素
+            const deletedCountEl = document.getElementById('deleted-count');
+            const restoreBtn = document.getElementById('restore-deleted');
+            
+            if (deletedCount > 0) {
+                deletedCountEl.style.display = 'inline';
+                restoreBtn.style.display = 'inline-block';
+            } else {
+                deletedCountEl.style.display = 'none';
+                restoreBtn.style.display = 'none';
+            }
+        }
+
+        // 恢复所有已删除的论文
+        function restoreAllDeleted() {
+            if (deletedPapers.size === 0) return;
+            
+            const restoredCount = deletedPapers.size;
+            deletedPapers.forEach(arxivId => {
+                const paperEl = document.querySelector(`[data-arxiv-id="${arxivId}"]`);
+                if (paperEl) {
+                    paperEl.style.display = 'block';
+                }
+            });
+            
+            deletedPapers.clear();
+            saveState();
+            updateStats();
+            
+            // 显示恢复成功的提示
+            showUndoToast(`已恢复 ${restoredCount} 篇论文`, 3, null, null);
         }
 
         // 创建论文HTML
@@ -1138,6 +1173,15 @@
             }
             
             mainContent.innerHTML = html;
+            
+            // 隐藏已删除的论文
+            deletedPapers.forEach(arxivId => {
+                const paperEl = document.querySelector(`[data-arxiv-id="${arxivId}"]`);
+                if (paperEl) {
+                    paperEl.style.display = 'none';
+                }
+            });
+            
             updateStats();
             
             // 应用当前摘要语言设置
@@ -1207,6 +1251,10 @@
             loadState();
             setupThemeToggle();
             setupSummaryToggle();
+            
+            // 绑定恢复删除按钮事件
+            document.getElementById('restore-deleted').addEventListener('click', restoreAllDeleted);
+            
             renderPapers();
         });
     </script>
