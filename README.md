@@ -112,6 +112,40 @@ MODEL=glm-4.5-flash
 JINA_API_TOKEN=your_jina_token_here
 ```
 
+### `config.py` 的作用与配置项
+
+`src/utils/config.py` 是项目的集中配置入口，用于：
+- 统一读取 `.env` 中的敏感信息（API 密钥、基址、模型名等）
+- 定义默认运行参数（如温度、超时、并发等）
+- 约定目录结构与缓存策略
+- 维护论文筛选 Prompt 模板与爬取策略
+
+主要配置项一览（默认值见 `src/utils/config.py`）：
+- **API 配置**：`OPENAI_API_KEY`、`OPENAI_BASE_URL`、`MODEL`（从 `.env` 读取）
+- **处理参数**：`TEMPERATURE`、`REQUEST_TIMEOUT`、`REQUEST_DELAY`
+- **目录结构**：`ARXIV_PAPER_DIR`、`DOMAIN_PAPER_DIR`、`SUMMARY_DIR`、`WEBPAGES_DIR`
+- **时间划分**：`DATE_FORMAT`、`ENABLE_TIME_BASED_STRUCTURE`
+- **缓存设置**：`CACHE_DIR`、`ENABLE_CACHE`、`CACHE_EXPIRY_DAYS`
+- **爬取限制**：`MAX_PAPERS_PER_CATEGORY`、`CRAWL_CATEGORIES`
+- **并发控制**：`MAX_WORKERS`
+- **筛选模板**：`PAPER_FILTER_PROMPT`
+- **Jina API**：`JINA_API_TOKEN`、`JINA_MAX_REQUESTS_PER_MINUTE`、`JINA_MAX_RETRIES`、`JINA_BACKOFF_FACTOR`
+
+覆盖与优先级建议：
+- 与密钥/端点/模型相关的字段，优先在 `.env` 中配置（不建议直接改代码）。
+- 与数量、类别、日期等运行期选项，优先使用命令行参数覆盖（见下方“使用示例”），其效果通常优先于代码默认值。
+- 其他通用默认值（如并发、缓存、目录），可视需要修改 `src/utils/config.py` 后重跑。
+
+典型自定义示例：
+```bash
+# 通过 .env 切换到自建网关与模型
+OPENAI_BASE_URL=https://api.your-gateway.com/v1
+MODEL=your-model-name
+
+# 运行时临时指定类别与数量（覆盖 config 默认）
+python papertools.py run --categories cs.AI cs.CL --max-papers-total 200
+```
+
 ### 使用示例
 
 ```bash

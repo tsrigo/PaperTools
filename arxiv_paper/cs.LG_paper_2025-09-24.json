@@ -9,7 +9,7 @@
         "subjects": "Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.550567"
+        "crawl_time": "2025-09-26T09:20:55.694724"
     },
     {
         "index": "#2",
@@ -21,19 +21,7 @@
         "subjects": "Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.550937"
-    },
-    {
-        "index": "#3",
-        "title": "Uncovering Graph Reasoning in Decoder-only Transformers with Circuit Tracing",
-        "link": "/arxiv/2509.20336",
-        "arxiv_id": "2509.20336",
-        "authors": "Xinnan Dai, Chung-Hsiang Lo, Kai Guo, Shenglai Zeng, Dongsheng Luo, Jiliang Tang",
-        "summary": "Transformer-based LLMs demonstrate strong performance on graph reasoning tasks, yet their internal mechanisms remain underexplored. To uncover these reasoning process mechanisms in a fundamental and unified view, we set the basic decoder-only transformers and explain them using the circuit-tracer framework. Through this lens, we visualize reasoning traces and identify two core mechanisms in graph reasoning: token merging and structural memorization, which underlie both path reasoning and substructure extraction tasks. We further quantify these behaviors and analyze how they are influenced by graph density and model size. Our study provides a unified interpretability framework for understanding structural reasoning in decoder-only Transformers.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-24",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.551309"
+        "crawl_time": "2025-09-26T09:20:55.695150"
     },
     {
         "index": "#4",
@@ -45,7 +33,7 @@
         "subjects": "Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.551540"
+        "crawl_time": "2025-09-26T09:20:55.696232"
     },
     {
         "index": "#6",
@@ -57,7 +45,7 @@
         "subjects": "Machine Learning, Optimization and Control, Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.552057"
+        "crawl_time": "2025-09-26T09:20:55.696960"
     },
     {
         "index": "#7",
@@ -69,7 +57,7 @@
         "subjects": "Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.552241"
+        "crawl_time": "2025-09-26T09:20:55.697203"
     },
     {
         "index": "#8",
@@ -81,31 +69,7 @@
         "subjects": "Machine Learning, Statistics Theory",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.552472"
-    },
-    {
-        "index": "#9",
-        "title": "When Judgment Becomes Noise: How Design Failures in LLM Judge Benchmarks Silently Undermine Validity",
-        "link": "/arxiv/2509.20293",
-        "arxiv_id": "2509.20293",
-        "authors": "Benjamin Feuer, Chiung-Yi Tseng, Astitwa Sarthak Lathe, Oussama Elachqar, John P Dickerson",
-        "summary": "LLM-judged benchmarks are increasingly used to evaluate complex model behaviors, yet their design introduces failure modes absent in conventional ground-truth based benchmarks. We argue that without tight objectives and verifiable constructions, benchmark rankings can produce high-confidence rankings that are in fact largely noise. We introduce two mechanisms to diagnose these issues. Schematic adherence quantifies how much of a judge's overall verdict is explained by the explicit evaluation schema, revealing unexplained variance when judges deviate from their own rubric. Psychometric validity aggregates internal consistency and discriminant validity signals to quantify irreducible uncertainty in any benchmarking run. Applying these tools to Arena-Hard Auto, we find severe schema incoherence and factor collapse across popular judges: for example, unexplained variance exceeding 90 percent for DeepSeek-R1-32B and factor correlations above 0.93 for most criteria. We also show that the ELO-style aggregation used by Arena-Hard Auto collapses and masks genuine ranking uncertainty. Our results highlight design failures that undermine validity and offer actionable principles for building better-scoped, reliability-aware LLM-judged benchmarks. We release our code at https://anonymous.4open.science/r/judgment-to-noise-947D/README.md",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-24",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.552686"
-    },
-    {
-        "index": "#10",
-        "title": "PGCLODA: Prompt-Guided Graph Contrastive Learning for Oligopeptide-Infectious Disease Association Prediction",
-        "link": "/arxiv/2509.20290",
-        "arxiv_id": "2509.20290",
-        "authors": "Dayu Tan, Jing Chen, Xiaoping Zhou, Yansen Su, Chunhou Zheng",
-        "summary": "Infectious diseases continue to pose a serious threat to public health, underscoring the urgent need for effective computational approaches to screen novel anti-infective agents. Oligopeptides have emerged as promising candidates in antimicrobial research due to their structural simplicity, high bioavailability, and low susceptibility to resistance. Despite their potential, computational models specifically designed to predict associations between oligopeptides and infectious diseases remain scarce. This study introduces a prompt-guided graph-based contrastive learning framework (PGCLODA) to uncover potential associations. A tripartite graph is constructed with oligopeptides, microbes, and diseases as nodes, incorporating both structural and semantic information. To preserve critical regions during contrastive learning, a prompt-guided graph augmentation strategy is employed to generate meaningful paired views. A dual encoder architecture, integrating Graph Convolutional Network (GCN) and Transformer, is used to jointly capture local and global features. The fused embeddings are subsequently input into a multilayer perceptron (MLP) classifier for final prediction. Experimental results on a benchmark dataset indicate that PGCLODA consistently outperforms state-of-the-art models in AUROC, AUPRC, and accuracy. Ablation and hyperparameter studies confirm the contribution of each module. Case studies further validate the generalization ability of PGCLODA and its potential to uncover novel, biologically relevant associations. These findings offer valuable insights for mechanism-driven discovery and oligopeptide-based drug development. The source code of PGCLODA is available online at https://github.com/jjnlcode/PGCLODA.",
-        "subjects": "Machine Learning, Artificial Intelligence, Quantitative Methods",
-        "date": "2025-09-24",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.552905"
+        "crawl_time": "2025-09-26T09:20:55.697451"
     },
     {
         "index": "#11",
@@ -117,7 +81,7 @@
         "subjects": "Machine Learning, Materials Science",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.553094"
+        "crawl_time": "2025-09-26T09:20:55.698633"
     },
     {
         "index": "#14",
@@ -129,7 +93,7 @@
         "subjects": "Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.553760"
+        "crawl_time": "2025-09-26T09:20:55.704818"
     },
     {
         "index": "#15",
@@ -141,43 +105,7 @@
         "subjects": "Machine Learning, Distributed, Parallel, and Cluster Computing",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.554040"
-    },
-    {
-        "index": "#16",
-        "title": "A HyperGraphMamba-Based Multichannel Adaptive Model for ncRNA Classification",
-        "link": "/arxiv/2509.20240",
-        "arxiv_id": "2509.20240",
-        "authors": "Xin An, Ruijie Li, Qiao Ning, Hui Li, Qian Ma, Shikai Guo",
-        "summary": "Non-coding RNAs (ncRNAs) play pivotal roles in gene expression regulation and the pathogenesis of various diseases. Accurate classification of ncRNAs is essential for functional annotation and disease diagnosis. To address existing limitations in feature extraction depth and multimodal fusion, we propose HGMamba-ncRNA, a HyperGraphMamba-based multichannel adaptive model, which integrates sequence, secondary structure, and optionally available expression features of ncRNAs to enhance classification performance. Specifically, the sequence of ncRNA is modeled using a parallel Multi-scale Convolution and LSTM architecture (MKC-L) to capture both local patterns and long-range dependencies of nucleotides. The structure modality employs a multi-scale graph transformer (MSGraphTransformer) to represent the multi-level topological characteristics of ncRNA secondary structures. The expression modality utilizes a Chebyshev Polynomial-based Kolmogorov-Arnold Network (CPKAN) to effectively model and interpret high-dimensional expression profiles. Finally, by incorporating virtual nodes to facilitate efficient and comprehensive multimodal interaction, HyperGraphMamba is proposed to adaptively align and integrate multichannel heterogeneous modality features. Experiments conducted on three public datasets demonstrate that HGMamba-ncRNA consistently outperforms state-of-the-art methods in terms of accuracy and other metrics. Extensive empirical studies further confirm the model's robustness, effectiveness, and strong transferability, offering a novel and reliable strategy for complex ncRNA functional classification. Code and datasets are available at https://anonymous.4open.science/r/HGMamba-ncRNA-94D0.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-24",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.554271"
-    },
-    {
-        "index": "#17",
-        "title": "Beyond Sharp Minima: Robust LLM Unlearning via Feedback-Guided Multi-Point Optimization",
-        "link": "/arxiv/2509.20230",
-        "arxiv_id": "2509.20230",
-        "authors": "Wenhan Wu, Zheyuan Liu, Chongyang Gao, Ren Wang, Kaize Ding",
-        "summary": "Current LLM unlearning methods face a critical security vulnerability that undermines their fundamental purpose: while they appear to successfully remove sensitive or harmful knowledge, this ``forgotten\" information remains precariously recoverable through relearning attacks. We identify that the root cause is that conventional methods optimizing the forgetting loss at individual data points will drive model parameters toward sharp minima in the loss landscape. In these unstable regions, even minimal parameter perturbations can drastically alter the model's behaviors. Consequently, relearning attacks exploit this vulnerability by using just a few fine-tuning samples to navigate the steep gradients surrounding these unstable regions, thereby rapidly recovering knowledge that was supposedly erased. This exposes a critical robustness gap between apparent unlearning and actual knowledge removal. To address this issue, we propose StableUN, a bi-level feedback-guided optimization framework that explicitly seeks more stable parameter regions via neighborhood-aware optimization. It integrates forgetting feedback, which uses adversarial perturbations to probe parameter neighborhoods, with remembering feedback to preserve model utility, aligning the two objectives through gradient projection. Experiments on WMDP and MUSE benchmarks demonstrate that our method is significantly more robust against both relearning and jailbreaking attacks while maintaining competitive utility performance.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-24",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.554473"
-    },
-    {
-        "index": "#18",
-        "title": "Q-Palette: Fractional-Bit Quantizers Toward Optimal Bit Allocation for Efficient LLM Deployment",
-        "link": "/arxiv/2509.20214",
-        "arxiv_id": "2509.20214",
-        "authors": "Deokjae Lee, Hyun Oh Song",
-        "summary": "We study weight-only post-training quantization (PTQ), which quantizes the weights of a large language model (LLM) without retraining, using little or no calibration data. Weight-only PTQ is crucial for reducing the memory footprint and latency of LLM inference, especially in memory-bound, small-batch inference scenarios, such as personalized inference on edge devices. Despite its importance, irregular weight distributions with heavy-tailed outliers in LLMs complicate quantization, recently motivating rotation-based methods that transform weights into near-Gaussian distributions, which are more regular with fewer outliers, thereby reducing quantization error. In this work, we first derive the information-theoretically optimal bit allocation for Gaussianized weights under given bit budgets, revealing that fine-grained fractional-bit quantizers approaching the Gaussian distortion-rate bound are essential to achieve near-optimal quantization performance. To bridge this theoretical insight and practical implementation, we introduce Q-Palette, a versatile collection of fractional-bit quantizers that range from trellis-coded quantizers offering near-optimal distortion to simpler vector and scalar quantizers optimized for faster inference, all efficiently implemented with optimized CUDA kernels across various bitwidths. Furthermore, leveraging Q-Palette as a foundational component, we propose a novel mixed-scheme quantization framework, jointly optimizing quantizer choices and layer fusion decisions given resource constraints. The code is available at https://github.com/snu-mllab/Q-Palette.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-24",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.554651"
+        "crawl_time": "2025-09-26T09:20:55.705129"
     },
     {
         "index": "#19",
@@ -189,7 +117,7 @@
         "subjects": "Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.554835"
+        "crawl_time": "2025-09-26T09:20:55.706196"
     },
     {
         "index": "#20",
@@ -201,7 +129,7 @@
         "subjects": "Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.555033"
+        "crawl_time": "2025-09-26T09:20:55.706524"
     },
     {
         "index": "#21",
@@ -213,7 +141,7 @@
         "subjects": "Machine Learning, Differential Geometry, Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.560747"
+        "crawl_time": "2025-09-26T09:20:55.706962"
     },
     {
         "index": "#22",
@@ -225,19 +153,7 @@
         "subjects": "Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.561294"
-    },
-    {
-        "index": "#23",
-        "title": "An Improved Time Series Anomaly Detection by Applying Structural Similarity",
-        "link": "/arxiv/2509.20184",
-        "arxiv_id": "2509.20184",
-        "authors": "Tiejun Wang, Rui Wang, Xudong Mou, Mengyuan Ma, Tianyu Wo, Renyu Yang, Xudong Liu",
-        "summary": "Effective anomaly detection in time series is pivotal for modern industrial applications and financial systems. Due to the scarcity of anomaly labels and the high cost of manual labeling, reconstruction-based unsupervised approaches have garnered considerable attention. However, accurate anomaly detection remains an unsettled challenge, since the optimization objectives of reconstruction-based methods merely rely on point-by-point distance measures, ignoring the potential structural characteristics of time series and thus failing to tackle complex pattern-wise anomalies. In this paper, we propose StrAD, a novel structure-enhanced anomaly detection approach to enrich the optimization objective by incorporating structural information hidden in the time series and steering the data reconstruction procedure to better capture such structural features. StrAD accommodates the trend, seasonality, and shape in the optimization objective of the reconstruction model to learn latent structural characteristics and capture the intrinsic pattern variation of time series. The proposed structure-aware optimization objective mechanism can assure the alignment between the original data and the reconstructed data in terms of structural features, thereby keeping consistency in global fluctuation and local characteristics. The mechanism is pluggable and applicable to any reconstruction-based methods, enhancing the model sensitivity to both point-wise anomalies and pattern-wise anomalies. Experimental results show that StrAD improves the performance of state-of-the-art reconstruction-based models across five real-world anomaly detection datasets.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-24",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.561774"
+        "crawl_time": "2025-09-26T09:20:55.707377"
     },
     {
         "index": "#24",
@@ -249,7 +165,7 @@
         "subjects": "Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.562211"
+        "crawl_time": "2025-09-26T09:20:55.708172"
     },
     {
         "index": "#25",
@@ -261,7 +177,7 @@
         "subjects": "Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.562405"
+        "crawl_time": "2025-09-26T09:20:55.708620"
     },
     {
         "index": "#26",
@@ -273,19 +189,7 @@
         "subjects": "Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.562622"
-    },
-    {
-        "index": "#27",
-        "title": "Discovering Association Rules in High-Dimensional Small Tabular Data",
-        "link": "/arxiv/2509.20113",
-        "arxiv_id": "2509.20113",
-        "authors": "Erkan Karabulut, Daniel Daza, Paul Groth, Victoria Degeler",
-        "summary": "Association Rule Mining (ARM) aims to discover patterns between features in datasets in the form of propositional rules, supporting both knowledge discovery and interpretable machine learning in high-stakes decision-making. However, in high-dimensional settings, rule explosion and computational overhead render popular algorithmic approaches impractical without effective search space reduction, challenges that propagate to downstream tasks. Neurosymbolic methods, such as Aerial+, have recently been proposed to address the rule explosion in ARM. While they tackle the high dimensionality of the data, they also inherit limitations of neural networks, particularly reduced performance in low-data regimes. This paper makes three key contributions to association rule discovery in high-dimensional tabular data. First, we empirically show that Aerial+ scales one to two orders of magnitude better than state-of-the-art algorithmic and neurosymbolic baselines across five real-world datasets. Second, we introduce the novel problem of ARM in high-dimensional, low-data settings, such as gene expression data from the biomedicine domain with around 18k features and 50 samples. Third, we propose two fine-tuning approaches to Aerial+ using tabular foundation models. Our proposed approaches are shown to significantly improve rule quality on five real-world datasets, demonstrating their effectiveness in low-data, high-dimensional scenarios.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-24",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.562897"
+        "crawl_time": "2025-09-26T09:20:55.708938"
     },
     {
         "index": "#28",
@@ -297,7 +201,7 @@
         "subjects": "Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.563110"
+        "crawl_time": "2025-09-26T09:20:55.709455"
     },
     {
         "index": "#29",
@@ -309,31 +213,7 @@
         "subjects": "Machine Learning, Quantum Physics",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.563381"
-    },
-    {
-        "index": "#30",
-        "title": "One Filters All: A Generalist Filter for State Estimation",
-        "link": "/arxiv/2509.20051",
-        "arxiv_id": "2509.20051",
-        "authors": "Shiqi Liu, Wenhan Cao, Chang Liu, Zeyu He, Tianyi Zhang, Shengbo Eben Li",
-        "summary": "Estimating hidden states in dynamical systems, also known as optimal filtering, is a long-standing problem in various fields of science and engineering. In this paper, we introduce a general filtering framework, \\textbf{LLM-Filter}, which leverages large language models (LLMs) for state estimation by embedding noisy observations with text prototypes. In various experiments for classical dynamical systems, we find that first, state estimation can significantly benefit from the reasoning knowledge embedded in pre-trained LLMs. By achieving proper modality alignment with the frozen LLM, LLM-Filter outperforms the state-of-the-art learning-based approaches. Second, we carefully design the prompt structure, System-as-Prompt (SaP), incorporating task instructions that enable the LLM to understand the estimation tasks. Guided by these prompts, LLM-Filter exhibits exceptional generalization, capable of performing filtering tasks accurately in changed or even unseen environments. We further observe a scaling-law behavior in LLM-Filter, where accuracy improves with larger model sizes and longer training times. These findings make LLM-Filter a promising foundation model of filtering.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-24",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.563618"
-    },
-    {
-        "index": "#31",
-        "title": "Diffusion-Augmented Contrastive Learning: A Noise-Robust Encoder for Biosignal Representations",
-        "link": "/arxiv/2509.20048",
-        "arxiv_id": "2509.20048",
-        "authors": "Rami Zewail",
-        "summary": "Learning robust representations for biosignals is often hampered by the challenge of designing effective data augmentations.Traditional methods can fail to capture the complex variations inherent in physiological data. Within this context, we propose a novel hybrid framework, Diffusion-Augmented Contrastive Learning (DACL), that fuses concepts from diffusion models and supervised contrastive learning. The DACL framework operates on a latent space created by a lightweight Variational Autoencoder (VAE) trained on our novel Scattering Transformer (ST) features [12]. It utilizes the diffusion forward process as a principled data augmentation technique to generate multiple noisy views of these latent embeddings. A U-Net style encoder is then trained with a supervised contrastive objective to learn a representation that balances class discrimination with robustness to noise across various diffusion time steps. We evaluated this proof-of-concept method on the PhysioNet 2017 ECG dataset, achieving a competitive AUROC of 0.7815. This work establishes a new paradigm for representation learning by using the diffusion process itself to drive the contrastive objective, creating noise-invariant embeddings that demonstrate a strong foundation for class separability.",
-        "subjects": "Machine Learning, Artificial Intelligence, Signal Processing",
-        "date": "2025-09-24",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.563805"
+        "crawl_time": "2025-09-26T09:20:55.709690"
     },
     {
         "index": "#32",
@@ -345,7 +225,7 @@
         "subjects": "Machine Learning, Cryptography and Security",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.563994"
+        "crawl_time": "2025-09-26T09:20:55.711734"
     },
     {
         "index": "#33",
@@ -357,7 +237,7 @@
         "subjects": "Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.564172"
+        "crawl_time": "2025-09-26T09:20:55.711966"
     },
     {
         "index": "#34",
@@ -369,7 +249,7 @@
         "subjects": "Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.564379"
+        "crawl_time": "2025-09-26T09:20:55.712271"
     },
     {
         "index": "#35",
@@ -381,7 +261,7 @@
         "subjects": "Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.564573"
+        "crawl_time": "2025-09-26T09:20:55.712563"
     },
     {
         "index": "#36",
@@ -393,7 +273,7 @@
         "subjects": "Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.564753"
+        "crawl_time": "2025-09-26T09:20:55.712989"
     },
     {
         "index": "#37",
@@ -405,7 +285,7 @@
         "subjects": "Machine Learning, Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.564930"
+        "crawl_time": "2025-09-26T09:20:55.713582"
     },
     {
         "index": "#38",
@@ -417,19 +297,7 @@
         "subjects": "Machine Learning, Dynamical Systems, Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.565126"
-    },
-    {
-        "index": "#39",
-        "title": "TABFAIRGDT: A Fast Fair Tabular Data Generator using Autoregressive Decision Trees",
-        "link": "/arxiv/2509.19927",
-        "arxiv_id": "2509.19927",
-        "authors": "Emmanouil Panagiotou, Benoît Ronval, Arjun Roy, Ludwig Bothmann, Bernd Bischl, Siegfried Nijssen, Eirini Ntoutsi",
-        "summary": "Ensuring fairness in machine learning remains a significant challenge, as models often inherit biases from their training data. Generative models have recently emerged as a promising approach to mitigate bias at the data level while preserving utility. However, many rely on deep architectures, despite evidence that simpler models can be highly effective for tabular data. In this work, we introduce TABFAIRGDT, a novel method for generating fair synthetic tabular data using autoregressive decision trees. To enforce fairness, we propose a soft leaf resampling technique that adjusts decision tree outputs to reduce bias while preserving predictive performance. Our approach is non-parametric, effectively capturing complex relationships between mixed feature types, without relying on assumptions about the underlying data distributions. We evaluate TABFAIRGDT on benchmark fairness datasets and demonstrate that it outperforms state-of-the-art (SOTA) deep generative models, achieving better fairness-utility trade-off for downstream tasks, as well as higher synthetic data quality. Moreover, our method is lightweight, highly efficient, and CPU-compatible, requiring no data pre-processing. Remarkably, TABFAIRGDT achieves a 72% average speedup over the fastest SOTA baseline across various dataset sizes, and can generate fair synthetic data for medium-sized datasets (10 features, 10K samples) in just one second on a standard CPU, making it an ideal solution for real-world fairness-sensitive applications.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-24",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.565398"
+        "crawl_time": "2025-09-26T09:20:55.713938"
     },
     {
         "index": "#40",
@@ -441,19 +309,7 @@
         "subjects": "Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.565595"
-    },
-    {
-        "index": "#41",
-        "title": "Exploration with Foundation Models: Capabilities, Limitations, and Hybrid Approaches",
-        "link": "/arxiv/2509.19924",
-        "arxiv_id": "2509.19924",
-        "authors": "Remo Sasso, Michelangelo Conserva, Dominik Jeurissen, Paulo Rauber",
-        "summary": "Exploration in reinforcement learning (RL) remains challenging, particularly in sparse-reward settings. While foundation models possess strong semantic priors, their capabilities as zero-shot exploration agents in classic RL benchmarks are not well understood. We benchmark LLMs and VLMs on multi-armed bandits, Gridworlds, and sparse-reward Atari to test zero-shot exploration. Our investigation reveals a key limitation: while VLMs can infer high-level objectives from visual input, they consistently fail at precise low-level control: the \"knowing-doing gap\". To analyze a potential bridge for this gap, we investigate a simple on-policy hybrid framework in a controlled, best-case scenario. Our results in this idealized setting show that VLM guidance can significantly improve early-stage sample efficiency, providing a clear analysis of the potential and constraints of using foundation models to guide exploration rather than for end-to-end control.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-24",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.571303"
+        "crawl_time": "2025-09-26T09:20:55.714383"
     },
     {
         "index": "#42",
@@ -465,7 +321,7 @@
         "subjects": "Machine Learning, Cryptography and Security, Computer Science and Game Theory",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.571781"
+        "crawl_time": "2025-09-26T09:20:55.714804"
     },
     {
         "index": "#43",
@@ -477,7 +333,7 @@
         "subjects": "Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.572208"
+        "crawl_time": "2025-09-26T09:20:55.715043"
     },
     {
         "index": "#44",
@@ -489,19 +345,7 @@
         "subjects": "Machine Learning, Computer Science and Game Theory, Statistics Theory, Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.572609"
-    },
-    {
-        "index": "#46",
-        "title": "Towards Self-Supervised Foundation Models for Critical Care Time Series",
-        "link": "/arxiv/2509.19885",
-        "arxiv_id": "2509.19885",
-        "authors": "Katja Naasunnguaq Jagd, Rachael DeVries, Ole Winther",
-        "summary": "Domain-specific foundation models for healthcare have expanded rapidly in recent years, yet foundation models for critical care time series remain relatively underexplored due to the limited size and availability of datasets. In this work, we introduce an early-stage pre-trained foundation model for critical care time-series based on the Bi-Axial Transformer (BAT), trained on pooled electronic health record datasets. We demonstrate effective transfer learning by fine-tuning the model on a dataset distinct from the training sources for mortality prediction, where it outperforms supervised baselines, particularly for small datasets ($<5,000$). These contributions highlight the potential of self-supervised foundation models for critical care times series to support generalizable and robust clinical applications in resource-limited settings.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-24",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.573109"
+        "crawl_time": "2025-09-26T09:20:55.715330"
     },
     {
         "index": "#47",
@@ -513,19 +357,7 @@
         "subjects": "Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.573381"
-    },
-    {
-        "index": "#48",
-        "title": "Advancing Universal Deep Learning for Electronic-Structure Hamiltonian Prediction of Materials",
-        "link": "/arxiv/2509.19877",
-        "arxiv_id": "2509.19877",
-        "authors": "Shi Yin, Zujian Dai, Xinyang Pan, Lixin He",
-        "summary": "Deep learning methods for electronic-structure Hamiltonian prediction has offered significant computational efficiency advantages over traditional DFT methods, yet the diversity of atomic types, structural patterns, and the high-dimensional complexity of Hamiltonians pose substantial challenges to the generalization performance. In this work, we contribute on both the methodology and dataset sides to advance universal deep learning paradigm for Hamiltonian prediction. On the method side, we propose NextHAM, a neural E(3)-symmetry and expressive correction method for efficient and generalizable materials electronic-structure Hamiltonian prediction. First, we introduce the zeroth-step Hamiltonians, which can be efficiently constructed by the initial charge density of DFT, as informative descriptors of neural regression model in the input level and initial estimates of the target Hamiltonian in the output level, so that the regression model directly predicts the correction terms to the target ground truths, thereby significantly simplifying the input-output mapping for learning. Second, we present a neural Transformer architecture with strict E(3)-Symmetry and high non-linear expressiveness for Hamiltonian prediction. Third, we propose a novel training objective to ensure the accuracy performance of Hamiltonians in both real space and reciprocal space, preventing error amplification and the occurrence of \"ghost states\" caused by the large condition number of the overlap matrix. On the dataset side, we curate a high-quality broad-coverage large benchmark, namely Materials-HAM-SOC, comprising 17,000 material structures spanning 68 elements from six rows of the periodic table and explicitly incorporating SOC effects. Experimental results on Materials-HAM-SOC demonstrate that NextHAM achieves excellent accuracy and efficiency in predicting Hamiltonians and band structures.",
-        "subjects": "Machine Learning, Materials Science, Artificial Intelligence, Computational Physics",
-        "date": "2025-09-24",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.573605"
+        "crawl_time": "2025-09-26T09:20:55.716318"
     },
     {
         "index": "#49",
@@ -537,19 +369,7 @@
         "subjects": "Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.573854"
-    },
-    {
-        "index": "#50",
-        "title": "Analyzing Generalization in Pre-Trained Symbolic Regression",
-        "link": "/arxiv/2509.19849",
-        "arxiv_id": "2509.19849",
-        "authors": "Henrik Voigt, Paul Kahlmeyer, Kai Lawonn, Michael Habeck, Joachim Giesen",
-        "summary": "Symbolic regression algorithms search a space of mathematical expressions for formulas that explain given data. Transformer-based models have emerged as a promising, scalable approach shifting the expensive combinatorial search to a large-scale pre-training phase. However, the success of these models is critically dependent on their pre-training data. Their ability to generalize to problems outside of this pre-training distribution remains largely unexplored. In this work, we conduct a systematic empirical study to evaluate the generalization capabilities of pre-trained, transformer-based symbolic regression. We rigorously test performance both within the pre-training distribution and on a series of out-of-distribution challenges for several state of the art approaches. Our findings reveal a significant dichotomy: while pre-trained models perform well in-distribution, the performance consistently degrades in out-of-distribution scenarios. We conclude that this generalization gap is a critical barrier for practitioners, as it severely limits the practical use of pre-trained approaches for real-world applications.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-24",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.574065"
+        "crawl_time": "2025-09-26T09:20:55.716919"
     },
     {
         "index": "#51",
@@ -561,19 +381,7 @@
         "subjects": "Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.574287"
-    },
-    {
-        "index": "#52",
-        "title": "On the Rate of Convergence of Kolmogorov-Arnold Network Regression Estimators",
-        "link": "/arxiv/2509.19830",
-        "arxiv_id": "2509.19830",
-        "authors": "Wei Liu, Eleni Chatzi, Zhilu Lai",
-        "summary": "Kolmogorov-Arnold Networks (KANs) offer a structured and interpretable framework for multivariate function approximation by composing univariate transformations through additive or multiplicative aggregation. This paper establishes theoretical convergence guarantees for KANs when the univariate components are represented by B-splines. We prove that both additive and hybrid additive-multiplicative KANs attain the minimax-optimal convergence rate $O(n^{-2r/(2r+1)})$ for functions in Sobolev spaces of smoothness $r$. We further derive guidelines for selecting the optimal number of knots in the B-splines. The theory is supported by simulation studies that confirm the predicted convergence rates. These results provide a theoretical foundation for using KANs in nonparametric regression and highlight their potential as a structured alternative to existing methods.",
-        "subjects": "Machine Learning, Artificial Intelligence, Machine Learning",
-        "date": "2025-09-24",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.574500"
+        "crawl_time": "2025-09-26T09:20:55.717518"
     },
     {
         "index": "#53",
@@ -585,19 +393,7 @@
         "subjects": "Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.574691"
-    },
-    {
-        "index": "#55",
-        "title": "RDAR: Reward-Driven Agent Relevance Estimation for Autonomous Driving",
-        "link": "/arxiv/2509.19789",
-        "arxiv_id": "2509.19789",
-        "authors": "Carlo Bosio, Greg Woelki, Noureldin Hendy, Nicholas Roy, Byungsoo Kim",
-        "summary": "Human drivers focus only on a handful of agents at any one time. On the other hand, autonomous driving systems process complex scenes with numerous agents, regardless of whether they are pedestrians on a crosswalk or vehicles parked on the side of the road. While attention mechanisms offer an implicit way to reduce the input to the elements that affect decisions, existing attention mechanisms for capturing agent interactions are quadratic, and generally computationally expensive. We propose RDAR, a strategy to learn per-agent relevance -- how much each agent influences the behavior of the controlled vehicle -- by identifying which agents can be excluded from the input to a pre-trained behavior model. We formulate the masking procedure as a Markov Decision Process where the action consists of a binary mask indicating agent selection. We evaluate RDAR on a large-scale driving dataset, and demonstrate its ability to learn an accurate numerical measure of relevance by achieving comparable driving performance, in terms of overall progress, safety and performance, while processing significantly fewer agents compared to a state of the art behavior model.",
-        "subjects": "Machine Learning, Artificial Intelligence, Robotics",
-        "date": "2025-09-24",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.575126"
+        "crawl_time": "2025-09-26T09:20:55.718070"
     },
     {
         "index": "#56",
@@ -609,91 +405,7 @@
         "subjects": "Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.575338"
-    },
-    {
-        "index": "#57",
-        "title": "PPGFlowECG: Latent Rectified Flow with Cross-Modal Encoding for PPG-Guided ECG Generation and Cardiovascular Disease Detection",
-        "link": "/arxiv/2509.19774",
-        "arxiv_id": "2509.19774",
-        "authors": "Xiaocheng Fang, Jiarui Jin, Haoyu Wang, Che Liu, Jieyi Cai, Guangkun Nie, Jun Li, Hongyan Li, Shenda Hong",
-        "summary": "In clinical practice, electrocardiography (ECG) remains the gold standard for cardiac monitoring, providing crucial insights for diagnosing a wide range of cardiovascular diseases (CVDs). However, its reliance on specialized equipment and trained personnel limits feasibility for continuous routine monitoring. Photoplethysmography (PPG) offers accessible, continuous monitoring but lacks definitive electrophysiological information, preventing conclusive diagnosis. Generative models present a promising approach to translate PPG into clinically valuable ECG signals, yet current methods face substantial challenges, including the misalignment of physiological semantics in generative models and the complexity of modeling in high-dimensional signals. To this end, we propose PPGFlowECG, a two-stage framework that aligns PPG and ECG in a shared latent space via the CardioAlign Encoder and employs latent rectified flow to generate ECGs with high fidelity and interpretability. To the best of our knowledge, this is the first study to experiment on MCMED, a newly released clinical-grade dataset comprising over 10 million paired PPG-ECG samples from more than 118,000 emergency department visits with expert-labeled cardiovascular disease annotations. Results demonstrate the effectiveness of our method for PPG-to-ECG translation and cardiovascular disease detection. Moreover, cardiologist-led evaluations confirm that the synthesized ECGs achieve high fidelity and improve diagnostic reliability, underscoring our method's potential for real-world cardiovascular screening.",
-        "subjects": "Machine Learning, Artificial Intelligence, Signal Processing",
-        "date": "2025-09-24",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.575574"
-    },
-    {
-        "index": "#58",
-        "title": "Sobolev acceleration for neural networks",
-        "link": "/arxiv/2509.19773",
-        "arxiv_id": "2509.19773",
-        "authors": "Jong Kwon Oh, Hanbaek Lyu, Hwijae Son",
-        "summary": "Sobolev training, which integrates target derivatives into the loss functions, has been shown to accelerate convergence and improve generalization compared to conventional $L^2$ training. However, the underlying mechanisms of this training method remain only partially understood. In this work, we present the first rigorous theoretical framework proving that Sobolev training accelerates the convergence of Rectified Linear Unit (ReLU) networks. Under a student-teacher framework with Gaussian inputs and shallow architectures, we derive exact formulas for population gradients and Hessians, and quantify the improvements in conditioning of the loss landscape and gradient-flow convergence rates. Extensive numerical experiments validate our theoretical findings and show that the benefits of Sobolev training extend to modern deep learning tasks.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-24",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.575811"
-    },
-    {
-        "index": "#59",
-        "title": "Frictional Q-Learning",
-        "link": "/arxiv/2509.19771",
-        "arxiv_id": "2509.19771",
-        "authors": "Hyunwoo Kim, Hyo Kyung Lee",
-        "summary": "We draw an analogy between static friction in classical mechanics and extrapolation error in off-policy RL, and use it to formulate a constraint that prevents the policy from drifting toward unsupported actions. In this study, we present Frictional Q-learning, a deep reinforcement learning algorithm for continuous control, which extends batch-constrained reinforcement learning. Our algorithm constrains the agent's action space to encourage behavior similar to that in the replay buffer, while maintaining a distance from the manifold of the orthonormal action space. The constraint preserves the simplicity of batch-constrained, and provides an intuitive physical interpretation of extrapolation error. Empirically, we further demonstrate that our algorithm is robustly trained and achieves competitive performance across standard continuous control benchmarks.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-24",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.576019"
-    },
-    {
-        "index": "#60",
-        "title": "Cuffless Blood Pressure Prediction from Speech Sentences using Deep Learning Methods",
-        "link": "/arxiv/2509.19750",
-        "arxiv_id": "2509.19750",
-        "authors": "Kainat",
-        "summary": "This research presents a novel method for noninvasive arterial blood pressure ABP prediction using speech signals employing a BERT based regression model Arterial blood pressure is a vital indicator of cardiovascular health and accurate monitoring is essential in preventing hypertension related complications Traditional cuff based methods often yield inconsistent results due to factors like whitecoat and masked hypertension Our approach leverages the acoustic characteristics of speech capturing voice features to establish correlations with blood pressure levels Utilizing advanced deep learning techniques we analyze speech signals to extract relevant patterns enabling real time monitoring without the discomfort of conventional methods In our study we employed a dataset comprising recordings from 95 participants ensuring diverse representation The BERT model was fine tuned on extracted features from speech leading to impressive performance metrics achieving a mean absolute error MAE of 136 mmHg for systolic blood pressure SBP and 124 mmHg for diastolic blood pressure DBP with R scores of 099 and 094 respectively These results indicate the models robustness in accurately predicting blood pressure levels Furthermore the training and validation loss analysis demonstrates effective learning and minimal overfitting Our findings suggest that integrating deep learning with speech analysis presents a viable alternative for blood pressure monitoring paving the way for improved applications in telemedicine and remote health monitoring By providing a user friendly and accurate method for blood pressure assessment this research has significant implications for enhancing patient care and proactive management of cardiovascular health",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-24",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.576195"
-    },
-    {
-        "index": "#61",
-        "title": "Causal Machine Learning for Surgical Interventions",
-        "link": "/arxiv/2509.19705",
-        "arxiv_id": "2509.19705",
-        "authors": "J. Ben Tamo, Nishant S. Chouhan, Micky C. Nnamdi, Yining Yuan, Shreya S. Chivilkar, Wenqi Shi, Steven W. Hwang, B. Randall Brenn, May D. Wang",
-        "summary": "Surgical decision-making is complex and requires understanding causal relationships between patient characteristics, interventions, and outcomes. In high-stakes settings like spinal fusion or scoliosis correction, accurate estimation of individualized treatment effects (ITEs) remains limited due to the reliance on traditional statistical methods that struggle with complex, heterogeneous data. In this study, we develop a multi-task meta-learning framework, X-MultiTask, for ITE estimation that models each surgical decision (e.g., anterior vs. posterior approach, surgery vs. no surgery) as a distinct task while learning shared representations across tasks. To strengthen causal validity, we incorporate the inverse probability weighting (IPW) into the training objective. We evaluate our approach on two datasets: (1) a public spinal fusion dataset (1,017 patients) to assess the effect of anterior vs. posterior approaches on complication severity; and (2) a private AIS dataset (368 patients) to analyze the impact of posterior spinal fusion (PSF) vs. non-surgical management on patient-reported outcomes (PROs). Our model achieves the highest average AUC (0.84) in the anterior group and maintains competitive performance in the posterior group (0.77). It outperforms baselines in treatment effect estimation with the lowest overall $\\epsilon_{\\text{NN-PEHE}}$ (0.2778) and $\\epsilon_{\\text{ATE}}$ (0.0763). Similarly, when predicting PROs in AIS, X-MultiTask consistently shows superior performance across all domains, with $\\epsilon_{\\text{NN-PEHE}}$ = 0.2551 and $\\epsilon_{\\text{ATE}}$ = 0.0902. By providing robust, patient-specific causal estimates, X-MultiTask offers a powerful tool to advance personalized surgical care and improve patient outcomes. The code is available at https://github.com/Wizaaard/X-MultiTask.",
-        "subjects": "Machine Learning, Artificial Intelligence, Applications, Methodology",
-        "date": "2025-09-24",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.588572"
-    },
-    {
-        "index": "#62",
-        "title": "Linear Transformers Implicitly Discover Unified Numerical Algorithms",
-        "link": "/arxiv/2509.19702",
-        "arxiv_id": "2509.19702",
-        "authors": "Patrick Lutz, Aditya Gangrade, Hadi Daneshmand, Venkatesh Saligrama",
-        "summary": "We train a linear attention transformer on millions of masked-block matrix completion tasks: each prompt is masked low-rank matrix whose missing block may be (i) a scalar prediction target or (ii) an unseen kernel slice of Nyström extrapolation. The model sees only input-output pairs and a mean-squared loss; it is given no normal equations, no handcrafted iterations, and no hint that the tasks are related. Surprisingly, after training, algebraic unrolling reveals the same parameter-free update rule across three distinct computational regimes (full visibility, rank-limited updates, and distributed computation). We prove that this rule achieves second-order convergence on full-batch problems, cuts distributed iteration complexity, and remains accurate with rank-limited attention. Thus, a transformer trained solely to patch missing blocks implicitly discovers a unified, resource-adaptive iterative solver spanning prediction, estimation, and Nyström extrapolation, highlighting a powerful capability of in-context learning.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-24",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.588854"
-    },
-    {
-        "index": "#63",
-        "title": "A Unified Noise-Curvature View of Loss of Trainability",
-        "link": "/arxiv/2509.19698",
-        "arxiv_id": "2509.19698",
-        "authors": "Gunbir Singh Baveja, Mark Schmidt",
-        "summary": "Loss of trainability (LoT) in continual learning occurs when gradient steps no longer yield improvement as tasks evolve, so accuracy stalls or degrades despite adequate capacity and supervision. We analyze LoT incurred with Adam through an optimization lens and find that single indicators such as Hessian rank, sharpness level, weight or gradient norms, gradient-to-parameter ratios, and unit-sign entropy are not reliable predictors. Instead we introduce two complementary criteria: a batch-size-aware gradient-noise bound and a curvature volatility-controlled bound that combine into a per-layer predictive threshold that anticipates trainability behavior. Using this threshold, we build a simple per-layer scheduler that keeps each layers effective step below a safe limit, stabilizing training and improving accuracy across concatenated ReLU (CReLU), Wasserstein regularization, and L2 weight decay, with learned learning-rate trajectories that mirror canonical decay.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-24",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.589067"
+        "crawl_time": "2025-09-26T09:20:55.719100"
     },
     {
         "index": "#65",
@@ -705,7 +417,7 @@
         "subjects": "Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.589457"
+        "crawl_time": "2025-09-26T09:20:55.721583"
     },
     {
         "index": "#66",
@@ -717,7 +429,7 @@
         "subjects": "Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.589655"
+        "crawl_time": "2025-09-26T09:20:55.721880"
     },
     {
         "index": "#67",
@@ -729,7 +441,7 @@
         "subjects": "Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.589833"
+        "crawl_time": "2025-09-26T09:20:55.722094"
     },
     {
         "index": "#68",
@@ -741,19 +453,7 @@
         "subjects": "Machine Learning, Atmospheric and Oceanic Physics",
         "date": "2025-09-10",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.590040"
-    },
-    {
-        "index": "#70",
-        "title": "Mamba Modulation: On the Length Generalization of Mamba",
-        "link": "/arxiv/2509.19633",
-        "arxiv_id": "2509.19633",
-        "authors": "Peng Lu, Jerry Huang, Qiuhao Zeng, Xinyu Wang, Boxing Wang, Philippe Langlais, Yufei Cui",
-        "summary": "The quadratic complexity of the attention mechanism in Transformer models has motivated the development of alternative architectures with sub-quadratic scaling, such as state-space models. Among these, Mamba has emerged as a leading architecture, achieving state-of-the-art results across a range of language modeling tasks. However, Mamba's performance significantly deteriorates when applied to contexts longer than those seen during pre-training, revealing a sharp sensitivity to context length extension. Through detailed analysis, we attribute this limitation to the out-of-distribution behaviour of its state-space dynamics, particularly within the parameterization of the state transition matrix $\\mathbf{A}$. Unlike recent works which attribute this sensitivity to the vanished accumulation of discretization time steps, $\\exp(-\\sum_{t=1}^N\\Delta_t)$, we establish a connection between state convergence behavior as the input length approaches infinity and the spectrum of the transition matrix $\\mathbf{A}$, offering a well-founded explanation of its role in length extension. Next, to overcome this challenge, we propose an approach that applies spectrum scaling to pre-trained Mamba models to enable robust long-context generalization by selectively modulating the spectrum of $\\mathbf{A}$ matrices in each layer. We show that this can significantly improve performance in settings where simply modulating $\\Delta_t$ fails, validating our insights and providing avenues for better length generalization of state-space models with structured transition matrices.",
-        "subjects": "Machine Learning, Artificial Intelligence, Machine Learning",
-        "date": "2025-09-23",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.590535"
+        "crawl_time": "2025-09-26T09:20:55.722417"
     },
     {
         "index": "#71",
@@ -765,7 +465,7 @@
         "subjects": "Machine Learning",
         "date": "2025-09-23",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.590723"
+        "crawl_time": "2025-09-26T09:20:55.723978"
     },
     {
         "index": "#72",
@@ -777,7 +477,7 @@
         "subjects": "Machine Learning",
         "date": "2025-09-23",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.590982"
+        "crawl_time": "2025-09-26T09:20:55.724214"
     },
     {
         "index": "#73",
@@ -789,43 +489,7 @@
         "subjects": "Machine Learning, Systems and Control",
         "date": "2025-09-23",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.591191"
-    },
-    {
-        "index": "#74",
-        "title": "A Foundation Chemical Language Model for Comprehensive Fragment-Based Drug Discovery",
-        "link": "/arxiv/2509.19586",
-        "arxiv_id": "2509.19586",
-        "authors": "Alexander Ho, Sukyeong Lee, Francis T. F. Tsai",
-        "summary": "We introduce FragAtlas-62M, a specialized foundation model trained on the largest fragment dataset to date. Built on the complete ZINC-22 fragment subset comprising over 62 million molecules, it achieves unprecedented coverage of fragment chemical space. Our GPT-2 based model (42.7M parameters) generates 99.90% chemically valid fragments. Validation across 12 descriptors and three fingerprint methods shows generated fragments closely match the training distribution (all effect sizes < 0.4). The model retains 53.6% of known ZINC fragments while producing 22% novel structures with practical relevance. We release FragAtlas-62M with training code, preprocessed data, documentation, and model weights to accelerate adoption.",
-        "subjects": "Machine Learning, Artificial Intelligence, Biomolecules",
-        "date": "2025-09-23",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.591385"
-    },
-    {
-        "index": "#75",
-        "title": "Learning Dynamics of Deep Learning -- Force Analysis of Deep Neural Networks",
-        "link": "/arxiv/2509.19554",
-        "arxiv_id": "2509.19554",
-        "authors": "Yi Ren",
-        "summary": "This thesis explores how deep learning models learn over time, using ideas inspired by force analysis. Specifically, we zoom in on the model's training procedure to see how one training example affects another during learning, like analyzing how forces move objects. We break this influence into two parts: how similar the two examples are, and how strong the updating force is. This framework helps us understand a wide range of the model's behaviors in different real systems. For example, it explains why certain examples have non-trivial learning paths, why (and why not) some LLM finetuning methods work, and why simpler, more structured patterns tend to be learned more easily. We apply this approach to various learning tasks and uncover new strategies for improving model training. While the method is still developing, it offers a new way to interpret models' behaviors systematically.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-23",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.591554"
-    },
-    {
-        "index": "#76",
-        "title": "DAWM: Diffusion Action World Models for Offline Reinforcement Learning via Action-Inferred Transitions",
-        "link": "/arxiv/2509.19538",
-        "arxiv_id": "2509.19538",
-        "authors": "Zongyue Li, Xiao Han, Yusong Li, Niklas Strauss, Matthias Schubert",
-        "summary": "Diffusion-based world models have demonstrated strong capabilities in synthesizing realistic long-horizon trajectories for offline reinforcement learning (RL). However, many existing methods do not directly generate actions alongside states and rewards, limiting their compatibility with standard value-based offline RL algorithms that rely on one-step temporal difference (TD) learning. While prior work has explored joint modeling of states, rewards, and actions to address this issue, such formulations often lead to increased training complexity and reduced performance in practice. We propose \\textbf{DAWM}, a diffusion-based world model that generates future state-reward trajectories conditioned on the current state, action, and return-to-go, paired with an inverse dynamics model (IDM) for efficient action inference. This modular design produces complete synthetic transitions suitable for one-step TD-based offline RL, enabling effective and computationally efficient training. Empirically, we show that conservative offline RL algorithms such as TD3BC and IQL benefit significantly from training on these augmented trajectories, consistently outperforming prior diffusion-based baselines across multiple tasks in the D4RL benchmark.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-23",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.591766"
+        "crawl_time": "2025-09-26T09:20:55.724708"
     },
     {
         "index": "#77",
@@ -837,7 +501,7 @@
         "subjects": "Machine Learning, Systems and Control",
         "date": "2025-09-23",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.591952"
+        "crawl_time": "2025-09-26T09:20:55.725760"
     },
     {
         "index": "#78",
@@ -849,7 +513,7 @@
         "subjects": "Machine Learning",
         "date": "2025-09-23",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.592134"
+        "crawl_time": "2025-09-26T09:20:55.725970"
     },
     {
         "index": "#79",
@@ -861,7 +525,7 @@
         "subjects": "Machine Learning",
         "date": "2025-09-23",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.592311"
+        "crawl_time": "2025-09-26T09:20:55.726285"
     },
     {
         "index": "#80",
@@ -873,7 +537,7 @@
         "subjects": "Machine Learning",
         "date": "2025-09-23",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.592477"
+        "crawl_time": "2025-09-26T09:20:55.726472"
     },
     {
         "index": "#81",
@@ -885,31 +549,7 @@
         "subjects": "Machine Learning, Numerical Analysis",
         "date": "2025-09-23",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.592662"
-    },
-    {
-        "index": "#82",
-        "title": "A Realistic Evaluation of Cross-Frequency Transfer Learning and Foundation Forecasting Models",
-        "link": "/arxiv/2509.19465",
-        "arxiv_id": "2509.19465",
-        "authors": "Kin G. Olivares, Malcolm Wolff, Tatiana Konstantinova, Shankar Ramasubramanian, Andrew Gordon Wilson, Andres Potapczynski, Willa Potosnak, Mengfei Cao, Boris Oreshkin, Dmitry Efimov",
-        "summary": "Cross-frequency transfer learning (CFTL) has emerged as a popular framework for curating large-scale time series datasets to pre-train foundation forecasting models (FFMs). Although CFTL has shown promise, current benchmarking practices fall short of accurately assessing its performance. This shortcoming stems from many factors: an over-reliance on small-scale evaluation datasets; inadequate treatment of sample size when computing summary statistics; reporting of suboptimal statistical models; and failing to account for non-negligible risks of overlap between pre-training and test datasets. To address these limitations, we introduce a unified reimplementation of widely-adopted neural forecasting networks, adapting them for the CFTL setup; we pre-train only on proprietary and synthetic data, being careful to prevent test leakage; and we evaluate on 15 large, diverse public forecast competition datasets. Our empirical analysis reveals that statistical models' accuracy is frequently underreported. Notably, we confirm that statistical models and their ensembles consistently outperform existing FFMs by more than 8.2% in sCRPS, and by more than 20% MASE, across datasets. However, we also find that synthetic dataset pre-training does improve the accuracy of a FFM by 7% percent.",
-        "subjects": "Machine Learning, Artificial Intelligence, Applications",
-        "date": "2025-09-23",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.592946"
-    },
-    {
-        "index": "#83",
-        "title": "Probabilistic Runtime Verification, Evaluation and Risk Assessment of Visual Deep Learning Systems",
-        "link": "/arxiv/2509.19419",
-        "arxiv_id": "2509.19419",
-        "authors": "Birk Torpmann-Hagen, Pål Halvorsen, Michael A. Riegler, Dag Johansen",
-        "summary": "Despite achieving excellent performance on benchmarks, deep neural networks often underperform in real-world deployment due to sensitivity to minor, often imperceptible shifts in input data, known as distributional shifts. These shifts are common in practical scenarios but are rarely accounted for during evaluation, leading to inflated performance metrics. To address this gap, we propose a novel methodology for the verification, evaluation, and risk assessment of deep learning systems. Our approach explicitly models the incidence of distributional shifts at runtime by estimating their probability from outputs of out-of-distribution detectors. We combine these estimates with conditional probabilities of network correctness, structuring them in a binary tree. By traversing this tree, we can compute credible and precise estimates of network accuracy. We assess our approach on five different datasets, with which we simulate deployment conditions characterized by differing frequencies of distributional shift. Our approach consistently outperforms conventional evaluation, with accuracy estimation errors typically ranging between 0.01 and 0.1. We further showcase the potential of our approach on a medical segmentation benchmark, wherein we apply our methods towards risk assessment by associating costs with tree nodes, informing cost-benefit analyses and value-judgments. Ultimately, our approach offers a robust framework for improving the reliability and trustworthiness of deep learning systems, particularly in safety-critical applications, by providing more accurate performance estimates and actionable risk assessments.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-23",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.593152"
+        "crawl_time": "2025-09-26T09:20:55.726832"
     },
     {
         "index": "#84",
@@ -921,7 +561,7 @@
         "subjects": "Machine Learning, Statistics Theory",
         "date": "2025-09-23",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.593407"
+        "crawl_time": "2025-09-26T09:20:55.727538"
     },
     {
         "index": "#85",
@@ -933,151 +573,7 @@
         "subjects": "Machine Learning, Applications",
         "date": "2025-09-23",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.593621"
-    },
-    {
-        "index": "#86",
-        "title": "TimeMosaic: Temporal Heterogeneity Guided Time Series Forecasting via Adaptive Granularity Patch and Segment-wise Decoding",
-        "link": "/arxiv/2509.19406",
-        "arxiv_id": "2509.19406",
-        "authors": "Kuiye Ding, Fanda Fan, Chunyi Hou, Zheya Wang, Lei Wang, Zhengxin Yang, Jianfeng Zhan",
-        "summary": "Multivariate time series forecasting is essential in domains such as finance, transportation, climate, and energy. However, existing patch-based methods typically adopt fixed-length segmentation, overlooking the heterogeneity of local temporal dynamics and the decoding heterogeneity of forecasting. Such designs lose details in information-dense regions, introduce redundancy in stable segments, and fail to capture the distinct complexities of short-term and long-term horizons. We propose TimeMosaic, a forecasting framework that aims to address temporal heterogeneity. TimeMosaic employs adaptive patch embedding to dynamically adjust granularity according to local information density, balancing motif reuse with structural clarity while preserving temporal continuity. In addition, it introduces segment-wise decoding that treats each prediction horizon as a related subtask and adapts to horizon-specific difficulty and information requirements, rather than applying a single uniform decoder. Extensive evaluations on benchmark datasets demonstrate that TimeMosaic delivers consistent improvements over existing methods, and our model trained on the large-scale corpus with 321 billion observations achieves performance competitive with state-of-the-art TSFMs.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-23",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.593838"
-    },
-    {
-        "index": "#87",
-        "title": "OmniFed: A Modular Framework for Configurable Federated Learning from Edge to HPC",
-        "link": "/arxiv/2509.19396",
-        "arxiv_id": "2509.19396",
-        "authors": "Sahil Tyagi, Andrei Cozma, Olivera Kotevska, Feiyi Wang",
-        "summary": "Federated Learning (FL) is critical for edge and High Performance Computing (HPC) where data is not centralized and privacy is crucial. We present OmniFed, a modular framework designed around decoupling and clear separation of concerns for configuration, orchestration, communication, and training logic. Its architecture supports configuration-driven prototyping and code-level override-what-you-need customization. We also support different topologies, mixed communication protocols within a single deployment, and popular training algorithms. It also offers optional privacy mechanisms including Differential Privacy (DP), Homomorphic Encryption (HE), and Secure Aggregation (SA), as well as compression strategies. These capabilities are exposed through well-defined extension points, allowing users to customize topology and orchestration, learning logic, and privacy/compression plugins, all while preserving the integrity of the core system. We evaluate multiple models and algorithms to measure various performance metrics. By unifying topology configuration, mixed-protocol communication, and pluggable modules in one stack, OmniFed streamlines FL deployment across heterogeneous environments. Github repository is available at https://github.com/at-aaims/OmniFed.",
-        "subjects": "Machine Learning, Artificial Intelligence, Cryptography and Security, Distributed, Parallel, and Cluster Computing",
-        "date": "2025-09-23",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.594050"
-    },
-    {
-        "index": "#88",
-        "title": "TensLoRA: Tensor Alternatives for Low-Rank Adaptation",
-        "link": "/arxiv/2509.19391",
-        "arxiv_id": "2509.19391",
-        "authors": "Axel Marmoret, Reda Bensaid, Jonathan Lys, Vincent Gripon, François Leduc-Primeau",
-        "summary": "Low-Rank Adaptation (LoRA) is widely used to efficiently adapt Transformers by adding trainable low-rank matrices to attention projections. While effective, these matrices are considered independent for each attention projection (Query, Key, and Value) and each layer. Recent extensions have considered joint, tensor-based adaptations, but only in limited forms and without a systematic framework. We introduce TensLoRA, a unified framework that aggregates LoRA updates into higher-order tensors and models a broad family of tensor-based low-rank adaptations. Our formulation generalizes existing tensor-based methods and enables mode-specific compression rates, allowing parameter budgets to be tailored according to the modality and task. Experiments on vision and language benchmarks reveal that the tensor construction directly impacts performance, sometimes better than standard LoRA under similar parameter counts.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-22",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.594262"
-    },
-    {
-        "index": "#89",
-        "title": "Learning from Observation: A Survey of Recent Advances",
-        "link": "/arxiv/2509.19379",
-        "arxiv_id": "2509.19379",
-        "authors": "Returaj Burnwal, Hriday Mehta, Nirav Pravinbhai Bhatt, Balaraman Ravindran",
-        "summary": "Imitation Learning (IL) algorithms offer an efficient way to train an agent by mimicking an expert's behavior without requiring a reward function. IL algorithms often necessitate access to state and action information from expert demonstrations. Although expert actions can provide detailed guidance, requiring such action information may prove impractical for real-world applications where expert actions are difficult to obtain. To address this limitation, the concept of learning from observation (LfO) or state-only imitation learning (SOIL) has recently gained attention, wherein the imitator only has access to expert state visitation information. In this paper, we present a framework for LfO and use it to survey and classify existing LfO methods in terms of their trajectory construction, assumptions and algorithm's design choices. This survey also draws connections between several related fields like offline RL, model-based RL and hierarchical RL. Finally, we use our framework to identify open problems and suggest future research directions.",
-        "subjects": "Machine Learning, Artificial Intelligence, Robotics, Machine Learning",
-        "date": "2025-09-20",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.594481"
-    },
-    {
-        "index": "#90",
-        "title": "Solving Freshness in RAG: A Simple Recency Prior and the Limits of Heuristic Trend Detection",
-        "link": "/arxiv/2509.19376",
-        "arxiv_id": "2509.19376",
-        "authors": "Matthew Grofsky",
-        "summary": "We address temporal failures in RAG systems using two methods on cybersecurity data. A simple recency prior achieved an accuracy of 1.00 on freshness tasks. In contrast, a clustering heuristic for topic evolution failed (0.08 F1-score), showing trend detection requires methods beyond simple heuristics.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-20",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.594661"
-    },
-    {
-        "index": "#91",
-        "title": "Uncertainty Quantification of Large Language Models using Approximate Bayesian Computation",
-        "link": "/arxiv/2509.19375",
-        "arxiv_id": "2509.19375",
-        "authors": "Mridul Sharma, Adeetya Patel, Zaneta D' Souza, Samira Abbasgholizadeh Rahimi, Siva Reddy, Sreenath Madathil",
-        "summary": "Despite their widespread applications, Large Language Models (LLMs) often struggle to express uncertainty, posing a challenge for reliable deployment in high stakes and safety critical domains like clinical diagnostics. Existing standard baseline methods such as model logits and elicited probabilities produce overconfident and poorly calibrated estimates. In this work, we propose Approximate Bayesian Computation (ABC), a likelihood-free Bayesian inference, based approach that treats LLMs as a stochastic simulator to infer posterior distributions over predictive probabilities. We evaluate our ABC approach on two clinically relevant benchmarks: a synthetic oral lesion diagnosis dataset and the publicly available GretelAI symptom-to-diagnosis dataset. Compared to standard baselines, our approach improves accuracy by up to 46.9\\%, reduces Brier scores by 74.4\\%, and enhances calibration as measured by Expected Calibration Error (ECE) and predictive entropy.",
-        "subjects": "Machine Learning, Artificial Intelligence, Machine Learning",
-        "date": "2025-09-19",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.594924"
-    },
-    {
-        "index": "#92",
-        "title": "Representation-based Broad Hallucination Detectors Fail to Generalize Out of Distribution",
-        "link": "/arxiv/2509.19372",
-        "arxiv_id": "2509.19372",
-        "authors": "Zuzanna Dubanowska, Maciej Żelaszczyk, Michał Brzozowski, Paolo Mandica, Michał Karpowicz",
-        "summary": "We critically assess the efficacy of the current SOTA in hallucination detection and find that its performance on the RAGTruth dataset is largely driven by a spurious correlation with data. Controlling for this effect, state-of-the-art performs no better than supervised linear probes, while requiring extensive hyperparameter tuning across datasets. Out-of-distribution generalization is currently out of reach, with all of the analyzed methods performing close to random. We propose a set of guidelines for hallucination detection and its evaluation.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-19",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.595141"
-    },
-    {
-        "index": "#93",
-        "title": "Unsupervised Outlier Detection in Audit Analytics: A Case Study Using USA Spending Data",
-        "link": "/arxiv/2509.19366",
-        "arxiv_id": "2509.19366",
-        "authors": "Buhe Li, Berkay Kaplan, Maksym Lazirko, Aleksandr Kogan",
-        "summary": "This study investigates the effectiveness of unsupervised outlier detection methods in audit analytics, utilizing USA spending data from the U.S. Department of Health and Human Services (DHHS) as a case example. We employ and compare multiple outlier detection algorithms, including Histogram-based Outlier Score (HBOS), Robust Principal Component Analysis (PCA), Minimum Covariance Determinant (MCD), and K-Nearest Neighbors (KNN) to identify anomalies in federal spending patterns. The research addresses the growing need for efficient and accurate anomaly detection in large-scale governmental datasets, where traditional auditing methods may fall short. Our methodology involves data preparation, algorithm implementation, and performance evaluation using precision, recall, and F1 scores. Results indicate that a hybrid approach, combining multiple detection strategies, enhances the robustness and accuracy of outlier identification in complex financial data. This study contributes to the field of audit analytics by providing insights into the comparative effectiveness of various outlier detection models and demonstrating the potential of unsupervised learning techniques in improving audit quality and efficiency. The findings have implications for auditors, policymakers, and researchers seeking to leverage advanced analytics in governmental financial oversight and risk management.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-19",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.595341"
-    },
-    {
-        "index": "#94",
-        "title": "Analyzing the Impact of Credit Card Fraud on Economic Fluctuations of American Households Using an Adaptive Neuro-Fuzzy Inference System",
-        "link": "/arxiv/2509.19363",
-        "arxiv_id": "2509.19363",
-        "authors": "Zhuqi Wang, Qinghe Zhang, Zhuopei Cheng",
-        "summary": "Credit card fraud is assuming growing proportions as a major threat to the financial position of American household, leading to unpredictable changes in household economic behavior. To solve this problem, in this paper, a new hybrid analysis method is presented by using the Enhanced ANFIS. The model proposes several advances of the conventional ANFIS framework and employs a multi-resolution wavelet decomposition module and a temporal attention mechanism. The model performs discrete wavelet transformations on historical transaction data and macroeconomic indicators to generate localized economic shock signals. The transformed features are then fed into a deep fuzzy rule library which is based on Takagi-Sugeno fuzzy rules with adaptive Gaussian membership functions. The model proposes a temporal attention encoder that adaptively assigns weights to multi-scale economic behavior patterns, increasing the effectiveness of relevance assessment in the fuzzy inference stage and enhancing the capture of long-term temporal dependencies and anomalies caused by fraudulent activities. The proposed method differs from classical ANFIS which has fixed input-output relations since it integrates fuzzy rule activation with the wavelet basis selection and the temporal correlation weights via a modular training procedure. Experimental results show that the RMSE was reduced by 17.8% compared with local neuro-fuzzy models and conventional LSTM models.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-18",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.595522"
-    },
-    {
-        "index": "#95",
-        "title": "DeepACTIF: Efficient Feature Attribution via Activation Traces in Neural Sequence Models",
-        "link": "/arxiv/2509.19362",
-        "arxiv_id": "2509.19362",
-        "authors": "Benedikt W. Hosp",
-        "summary": "Feature attribution is essential for interpreting deep learning models, particularly in time-series domains such as healthcare, biometrics, and human-AI interaction. However, standard attribution methods, such as Integrated Gradients or SHAP, are computationally intensive and not well-suited for real-time applications. We present DeepACTIF, a lightweight and architecture-aware feature attribution method that leverages internal activations of sequence models to estimate feature importance efficiently. Focusing on LSTM-based networks, we introduce an inverse-weighted aggregation scheme that emphasises stability and magnitude of activations across time steps. Our evaluation across three biometric gaze datasets shows that DeepACTIF not only preserves predictive performance under severe feature reduction (top 10% of features) but also significantly outperforms established methods, including SHAP, IG, and DeepLIFT, in terms of both accuracy and statistical robustness. Using Wilcoxon signed-rank tests and effect size analysis, we demonstrate that DeepACTIF yields more informative feature rankings with significantly lower error across all top-k conditions (10 - 40%). Our experiments demonstrate that DeepACTIF not only reduces computation time and memory usage by orders of magnitude but also preserves model accuracy when using only top-ranked features. That makes DeepACTIF a viable solution for real-time interpretability on edge devices such as mobile XR headsets or embedded health monitors.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-18",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.595693"
-    },
-    {
-        "index": "#96",
-        "title": "Anti-Money Laundering Systems Using Deep Learning",
-        "link": "/arxiv/2509.19359",
-        "arxiv_id": "2509.19359",
-        "authors": "Mashkhal Abdalwahid Sidiq, Yimamu Kirubel Wondaferew",
-        "summary": "In this paper, we focused on using deep learning methods for detecting money laundering in financial transaction networks, in order to demonstrate that it can be used as a complement or instead of the more commonly used rule-based systems and conventional Anti-Money Laundering (AML) systems. The paper explores the pivotal role played by Anti-Money Laundering (AML) activities in the global financial industry. It underscores the drawbacks of conventional AML systems, which exhibit high rates of false positives and lack the sophistication to uncover intricate money laundering schemes. To tackle these challenges, the paper proposes an advanced AML system that capitalizes on link analysis using deep learning techniques. At the heart of this system lies the utilization of centrality algorithms like Degree Centrality, Closeness Centrality, Betweenness Centrality, and PageRank. These algorithms enhance the system's capability to identify suspicious activities by examining the influence and interconnections within networks of financial transactions. The significance of Anti-Money Laundering (AML) efforts within the global financial sector is discussed in this paper. It highlights the limitations of traditional AML systems. The results showed the practicality and superiority of the new implementation of the GCN model, which is a preferable method for connectively structured data, meaning that a transaction or account is analyzed in the context of its financial environment. In addition, the paper delves into the prospects of Anti-Money Laundering (AML) efforts, proposing the integration of emerging technologies such as deep learning and centrality algorithms. This integration holds promise for enhancing the effectiveness of AML systems by refining their capabilities.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-18",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.595876"
-    },
-    {
-        "index": "#97",
-        "title": "Wavelet Fourier Diffuser: Frequency-Aware Diffusion Model for Reinforcement Learning",
-        "link": "/arxiv/2509.19305",
-        "arxiv_id": "2509.19305",
-        "authors": "Yifu Luo, Yongzhe Chang, Xueqian Wang",
-        "summary": "Diffusion probability models have shown significant promise in offline reinforcement learning by directly modeling trajectory sequences. However, existing approaches primarily focus on time-domain features while overlooking frequency-domain features, leading to frequency shift and degraded performance according to our observation. In this paper, we investigate the RL problem from a new perspective of the frequency domain. We first observe that time-domain-only approaches inadvertently introduce shifts in the low-frequency components of the frequency domain, which results in trajectory instability and degraded performance. To address this issue, we propose Wavelet Fourier Diffuser (WFDiffuser), a novel diffusion-based RL framework that integrates Discrete Wavelet Transform to decompose trajectories into low- and high-frequency components. To further enhance diffusion modeling for each component, WFDiffuser employs Short-Time Fourier Transform and cross attention mechanisms to extract frequency-domain features and facilitate cross-frequency interaction. Extensive experiment results on the D4RL benchmark demonstrate that WFDiffuser effectively mitigates frequency shift, leading to smoother, more stable trajectories and improved decision-making performance over existing methods.",
-        "subjects": "Machine Learning, Artificial Intelligence, Signal Processing",
-        "date": "2025-09-04",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.596077"
+        "crawl_time": "2025-09-26T09:20:55.727740"
     },
     {
         "index": "#98",
@@ -1089,7 +585,7 @@
         "subjects": "Methodology, Machine Learning, Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.596283"
+        "crawl_time": "2025-09-26T09:20:55.730883"
     },
     {
         "index": "#101",
@@ -1101,7 +597,7 @@
         "subjects": "Instrumentation and Methods for Astrophysics, Earth and Planetary Astrophysics, Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.597029"
+        "crawl_time": "2025-09-26T09:20:55.731542"
     },
     {
         "index": "#102",
@@ -1113,7 +609,7 @@
         "subjects": "Data Structures and Algorithms, Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.597292"
+        "crawl_time": "2025-09-26T09:20:55.731745"
     },
     {
         "index": "#104",
@@ -1125,7 +621,7 @@
         "subjects": "Machine Learning, Machine Learning, Computational Finance, Pricing of Securities, Applications",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.597820"
+        "crawl_time": "2025-09-26T09:20:55.732724"
     },
     {
         "index": "#108",
@@ -1137,7 +633,7 @@
         "subjects": "Computational Physics, Machine Learning, Numerical Analysis",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.604249"
+        "crawl_time": "2025-09-26T09:20:55.733930"
     },
     {
         "index": "#110",
@@ -1149,7 +645,7 @@
         "subjects": "Software Engineering, Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.604929"
+        "crawl_time": "2025-09-26T09:20:55.734755"
     },
     {
         "index": "#112",
@@ -1161,7 +657,7 @@
         "subjects": "Information Retrieval, Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.605542"
+        "crawl_time": "2025-09-26T09:20:55.735350"
     },
     {
         "index": "#114",
@@ -1173,7 +669,7 @@
         "subjects": "Machine Learning, Information Theory, Machine Learning, Statistics Theory, Data Analysis, Statistics and Probability, Populations and Evolution",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.606003"
+        "crawl_time": "2025-09-26T09:20:55.735864"
     },
     {
         "index": "#115",
@@ -1185,19 +681,7 @@
         "subjects": "Networking and Internet Architecture, Machine Learning, Software Engineering",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.606202"
-    },
-    {
-        "index": "#116",
-        "title": "Projective Kolmogorov Arnold Neural Networks (P-KANs): Entropy-Driven Functional Space Discovery for Interpretable Machine Learning",
-        "link": "/arxiv/2509.20049",
-        "arxiv_id": "2509.20049",
-        "authors": "Alastair Poole, Stig McArthur, Saravan Kumar",
-        "summary": "Kolmogorov-Arnold Networks (KANs) relocate learnable nonlinearities from nodes to edges, demonstrating remarkable capabilities in scientific machine learning and interpretable modeling. However, current KAN implementations suffer from fundamental inefficiencies due to redundancy in high-dimensional spline parameter spaces, where numerous distinct parameterisations yield functionally equivalent behaviors. This redundancy manifests as a \"nuisance space\" in the model's Jacobian, leading to susceptibility to overfitting and poor generalization. We introduce Projective Kolmogorov-Arnold Networks (P-KANs), a novel training framework that guides edge function discovery towards interpretable functional representations through entropy-minimisation techniques from signal analysis and sparse dictionary learning. Rather than constraining functions to predetermined spaces, our approach maintains spline space flexibility while introducing \"gravitational\" terms that encourage convergence towards optimal functional representations. Our key insight recognizes that optimal representations can be identified through entropy analysis of projection coefficients, compressing edge functions to lower-parameter projective spaces (Fourier, Chebyshev, Bessel). P-KANs demonstrate superior performance across multiple domains, achieving up to 80% parameter reduction while maintaining representational capacity, significantly improved robustness to noise compared to standard KANs, and successful application to industrial automated fiber placement prediction. Our approach enables automatic discovery of mixed functional representations where different edges converge to different optimal spaces, providing both compression benefits and enhanced interpretability for scientific machine learning applications.",
-        "subjects": "Neural and Evolutionary Computing, Artificial Intelligence, Machine Learning",
-        "date": "2025-09-24",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.606479"
+        "crawl_time": "2025-09-26T09:20:55.736079"
     },
     {
         "index": "#118",
@@ -1209,7 +693,7 @@
         "subjects": "Programming Languages, Machine Learning, Mathematical Software, Symbolic Computation",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.607008"
+        "crawl_time": "2025-09-26T09:20:55.736857"
     },
     {
         "index": "#121",
@@ -1221,7 +705,7 @@
         "subjects": "Machine Learning, Machine Learning, Quantitative Methods",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.607734"
+        "crawl_time": "2025-09-26T09:20:55.738862"
     },
     {
         "index": "#122",
@@ -1233,7 +717,7 @@
         "subjects": "Machine Learning, Machine Learning, Computational Physics, Data Analysis, Statistics and Probability",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.607961"
+        "crawl_time": "2025-09-26T09:20:55.739119"
     },
     {
         "index": "#123",
@@ -1245,7 +729,7 @@
         "subjects": "Systems and Control, Machine Learning, Optimization and Control",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.608164"
+        "crawl_time": "2025-09-26T09:20:55.739329"
     },
     {
         "index": "#124",
@@ -1257,7 +741,7 @@
         "subjects": "Machine Learning, Machine Learning, Applications",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.608362"
+        "crawl_time": "2025-09-26T09:20:55.739531"
     },
     {
         "index": "#125",
@@ -1269,19 +753,7 @@
         "subjects": "Machine Learning, Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.608534"
-    },
-    {
-        "index": "#127",
-        "title": "Intuition to Evidence: Measuring AI's True Impact on Developer Productivity",
-        "link": "/arxiv/2509.19708",
-        "arxiv_id": "2509.19708",
-        "authors": "Anand Kumar, Vishal Khare, Deepak Sharma, Satyam Kumar, Vijay Saini, Anshul Yadav, Sachendra Jain, Ankit Rana, Pratham Verma, Vaibhav Meena, Avinash Edubilli",
-        "summary": "We present a comprehensive real-world evaluation of AI-assisted software development tools deployed at enterprise scale. Over one year, 300 engineers across multiple teams integrated an in-house AI platform (DeputyDev) that combines code generation and automated review capabilities into their daily workflows. Through rigorous cohort analysis, our study demonstrates statistically significant productivity improvements, including an overall 31.8% reduction in PR review cycle time. Developer adoption was strong, with 85% satisfaction for code review features and 93% expressing a desire to continue using the platform. Adoption patterns showed systematic scaling from 4% engagement in month 1 to 83% peak usage by month 6, stabilizing at 60% active engagement. Top adopters achieved a 61% increase in code volume pushed to production, contributing to approximately 30 to 40% of code shipped to production through this tool, accounting for an overall 28% increase in code shipment volume. Unlike controlled benchmark evaluations, our longitudinal analysis provides empirical evidence from production environments, revealing both the transformative potential and practical deployment challenges of integrating AI into enterprise software development workflows.",
-        "subjects": "Software Engineering, Artificial Intelligence, Machine Learning",
-        "date": "2025-09-24",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.614573"
+        "crawl_time": "2025-09-26T09:20:55.739710"
     },
     {
         "index": "#128",
@@ -1293,19 +765,7 @@
         "subjects": "Machine Learning, Machine Learning, Computation, Methodology",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.615014"
-    },
-    {
-        "index": "#129",
-        "title": "Diffusion-Based Impedance Learning for Contact-Rich Manipulation Tasks",
-        "link": "/arxiv/2509.19696",
-        "arxiv_id": "2509.19696",
-        "authors": "Noah Geiger, Tamim Asfour, Neville Hogan, Johannes Lachner",
-        "summary": "Learning methods excel at motion generation in the information domain but are not primarily designed for physical interaction in the energy domain. Impedance Control shapes physical interaction but requires task-aware tuning by selecting feasible impedance parameters. We present Diffusion-Based Impedance Learning, a framework that combines both domains. A Transformer-based Diffusion Model with cross-attention to external wrenches reconstructs a simulated Zero-Force Trajectory (sZFT). This captures both translational and rotational task-space behavior. For rotations, we introduce a novel SLERP-based quaternion noise scheduler that ensures geometric consistency. The reconstructed sZFT is then passed to an energy-based estimator that updates stiffness and damping parameters. A directional rule is applied that reduces impedance along non task axes while preserving rigidity along task directions. Training data were collected for a parkour scenario and robotic-assisted therapy tasks using teleoperation with Apple Vision Pro. With only tens of thousands of samples, the model achieved sub-millimeter positional accuracy and sub-degree rotational accuracy. Its compact model size enabled real-time torque control and autonomous stiffness adaptation on a KUKA LBR iiwa robot. The controller achieved smooth parkour traversal within force and velocity limits and 30/30 success rates for cylindrical, square, and star peg insertions without any peg-specific demonstrations in the training data set. All code for the Transformer-based Diffusion Model, the robot controller, and the Apple Vision Pro telemanipulation framework is publicly available. These results mark an important step towards Physical AI, fusing model-based control for physical interaction with learning-based methods for trajectory generation.",
-        "subjects": "Robotics, Artificial Intelligence, Machine Learning",
-        "date": "2025-09-24",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.615239"
+        "crawl_time": "2025-09-26T09:20:55.740435"
     },
     {
         "index": "#130",
@@ -1317,19 +777,7 @@
         "subjects": "Robotics, Machine Learning, Systems and Control, Optimization and Control",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.615451"
-    },
-    {
-        "index": "#131",
-        "title": "Thinking While Listening: Simple Test Time Scaling For Audio Classification",
-        "link": "/arxiv/2509.19676",
-        "arxiv_id": "2509.19676",
-        "authors": "Prateek Verma, Mert Pilanci",
-        "summary": "We propose a framework that enables neural models to \"think while listening\" to everyday sounds, thereby enhancing audio classification performance. Motivated by recent advances in the reasoning capabilities of large language models, we address two central questions: (i) how can thinking be incorporated into existing audio classification pipelines to enable reasoning in the category space and improve performance, and (ii) can a new architecture be designed from the ground up to support both thinking and test-time scaling? We demonstrate that in both settings, our models exhibit improved classification accuracy. Leveraging test-time scaling, we observe consistent gains as the number of sampled traces increases. Furthermore, we evaluate two open-source reasoning models, GPT-OSS-20B and Qwen3-14B, showing that while such models are capable of zero-shot reasoning, a lightweight approach--retraining only the embedding matrix of a frozen, smaller model like GPT-2--can surpass the performance of billion-parameter text-based reasoning models.",
-        "subjects": "Sound, Artificial Intelligence, Machine Learning, Audio and Speech Processing",
-        "date": "2025-09-24",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.615721"
+        "crawl_time": "2025-09-26T09:20:55.740898"
     },
     {
         "index": "#132",
@@ -1341,7 +789,7 @@
         "subjects": "Optimization and Control, Machine Learning",
         "date": "2025-09-24",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.615929"
+        "crawl_time": "2025-09-26T09:20:55.741352"
     },
     {
         "index": "#135",
@@ -1353,19 +801,7 @@
         "subjects": "Space Physics, Machine Learning, Plasma Physics",
         "date": "2025-09-23",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.616617"
-    },
-    {
-        "index": "#136",
-        "title": "What Does Your Benchmark Really Measure? A Framework for Robust Inference of AI Capabilities",
-        "link": "/arxiv/2509.19590",
-        "arxiv_id": "2509.19590",
-        "authors": "Nathanael Jo, Ashia Wilson",
-        "summary": "Evaluations of generative models on benchmark data are now ubiquitous, and their outcomes critically shape public and scientific expectations of AI's capabilities. Yet growing skepticism surrounds their reliability. How can we know that a reported accuracy genuinely reflects a model's true performance? Evaluations are often presented as simple measurements, but in reality they are inferences: to treat benchmark scores as evidence of capability is already to assume a theory of what capability is and how it manifests in a test. We make this step explicit by proposing a principled framework for evaluation as inference: begin from a theory of capability, and then derive methods for estimating it. This perspective, familiar in fields such as psychometrics, has not yet become commonplace in AI evaluation. As a proof of concept, we address a central challenge that undermines reliability: sensitivity to perturbations. After formulating a model of ability, we introduce methods that infer ability while accounting for uncertainty from sensitivity and finite samples, including an adaptive algorithm that significantly reduces sample complexity. Together, these contributions lay the groundwork for more reliable and trustworthy estimates of AI capabilities as measured through benchmarks.",
-        "subjects": "Artificial Intelligence, Computers and Society, Machine Learning",
-        "date": "2025-09-23",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.616803"
+        "crawl_time": "2025-09-26T09:20:55.742102"
     },
     {
         "index": "#137",
@@ -1377,7 +813,7 @@
         "subjects": "Chemical Physics, Machine Learning",
         "date": "2025-09-23",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.616999"
+        "crawl_time": "2025-09-26T09:20:55.742494"
     },
     {
         "index": "#138",
@@ -1389,7 +825,7 @@
         "subjects": "Machine Learning, Machine Learning",
         "date": "2025-09-23",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.617209"
+        "crawl_time": "2025-09-26T09:20:55.742694"
     },
     {
         "index": "#140",
@@ -1401,7 +837,7 @@
         "subjects": "Machine Learning, Machine Learning, Computation",
         "date": "2025-09-23",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.617669"
+        "crawl_time": "2025-09-26T09:20:55.743134"
     },
     {
         "index": "#142",
@@ -1413,19 +849,7 @@
         "subjects": "Robotics, Machine Learning",
         "date": "2025-09-23",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.618106"
-    },
-    {
-        "index": "#144",
-        "title": "AIRwaves at CheckThat! 2025: Retrieving Scientific Sources for Implicit Claims on Social Media with Dual Encoders and Neural Re-Ranking",
-        "link": "/arxiv/2509.19509",
-        "arxiv_id": "2509.19509",
-        "authors": "Cem Ashbaugh, Leon Baumgärtner, Tim Gress, Nikita Sidorov, Daniel Werner",
-        "summary": "Linking implicit scientific claims made on social media to their original publications is crucial for evidence-based fact-checking and scholarly discourse, yet it is hindered by lexical sparsity, very short queries, and domain-specific language. Team AIRwaves ranked second in Subtask 4b of the CLEF-2025 CheckThat! Lab with an evidence-retrieval approach that markedly outperforms the competition baseline. The optimized sparse-retrieval baseline(BM25) achieves MRR@5 = 0.5025 on the gold label blind test set. To surpass this baseline, a two-stage retrieval pipeline is introduced: (i) a first stage that uses a dual encoder based on E5-large, fine-tuned using in-batch and mined hard negatives and enhanced through chunked tokenization and rich document metadata; and (ii) a neural re-ranking stage using a SciBERT cross-encoder. Replacing purely lexical matching with neural representations lifts performance to MRR@5 = 0.6174, and the complete pipeline further improves to MRR@5 = 0.6828. The findings demonstrate that coupling dense retrieval with neural re-rankers delivers a powerful and efficient solution for tweet-to-study matching and provides a practical blueprint for future evidence-retrieval pipelines.",
-        "subjects": "Information Retrieval, Artificial Intelligence, Machine Learning",
-        "date": "2025-09-23",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.618493"
+        "crawl_time": "2025-09-26T09:20:55.743552"
     },
     {
         "index": "#145",
@@ -1437,7 +861,7 @@
         "subjects": "Robotics, Machine Learning",
         "date": "2025-09-23",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.618694"
+        "crawl_time": "2025-09-26T09:20:55.744980"
     },
     {
         "index": "#146",
@@ -1449,31 +873,7 @@
         "subjects": "Functional Analysis, Machine Learning, Numerical Analysis",
         "date": "2025-09-23",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.624104"
-    },
-    {
-        "index": "#147",
-        "title": "Evaluation-Aware Reinforcement Learning",
-        "link": "/arxiv/2509.19464",
-        "arxiv_id": "2509.19464",
-        "authors": "Shripad Vilasrao Deshmukh, Will Schwarzer, Scott Niekum",
-        "summary": "Policy evaluation is often a prerequisite for deploying safety- and performance-critical systems. Existing evaluation approaches frequently suffer from high variance due to limited data and long-horizon tasks, or high bias due to unequal support or inaccurate environmental models. We posit that these challenges arise, in part, from the standard reinforcement learning (RL) paradigm of policy learning without explicit consideration of evaluation. As an alternative, we propose evaluation-aware reinforcement learning (EvA-RL), in which a policy is trained to maximize expected return while simultaneously minimizing expected evaluation error under a given value prediction scheme -- in other words, being \"easy\" to evaluate. We formalize a framework for EvA-RL and design an instantiation that enables accurate policy evaluation, conditioned on a small number of rollouts in an assessment environment that can be different than the deployment environment. However, our theoretical analysis and empirical results show that there is often a tradeoff between evaluation accuracy and policy performance when using a fixed value-prediction scheme within EvA-RL. To mitigate this tradeoff, we extend our approach to co-learn an assessment-conditioned state-value predictor alongside the policy. Empirical results across diverse discrete and continuous action domains demonstrate that EvA-RL can substantially reduce evaluation error while maintaining competitive returns. This work lays the foundation for a broad new class of RL methods that treat reliable evaluation as a first-class principle during training.",
-        "subjects": "Artificial Intelligence, Machine Learning",
-        "date": "2025-09-23",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.624499"
-    },
-    {
-        "index": "#148",
-        "title": "Self-evolved Imitation Learning in Simulated World",
-        "link": "/arxiv/2509.19460",
-        "arxiv_id": "2509.19460",
-        "authors": "Yifan Ye, Jun Cen, Jing Chen, Zhihe Lu",
-        "summary": "Imitation learning has been a trend recently, yet training a generalist agent across multiple tasks still requires large-scale expert demonstrations, which are costly and labor-intensive to collect. To address the challenge of limited supervision, we propose Self-Evolved Imitation Learning (SEIL), a framework that progressively improves a few-shot model through simulator interactions. The model first attempts tasksin the simulator, from which successful trajectories are collected as new demonstrations for iterative refinement. To enhance the diversity of these demonstrations, SEIL employs dual-level augmentation: (i) Model-level, using an Exponential Moving Average (EMA) model to collaborate with the primary model, and (ii) Environment-level, introducing slight variations in initial object positions. We further introduce a lightweight selector that filters complementary and informative trajectories from the generated pool to ensure demonstration quality. These curated samples enable the model to achieve competitive performance with far fewer training examples. Extensive experiments on the LIBERO benchmark show that SEIL achieves a new state-of-the-art performance in few-shot imitation learning scenarios. Code is available at https://github.com/Jasper-aaa/SEIL.git.",
-        "subjects": "Robotics, Artificial Intelligence, Machine Learning",
-        "date": "2025-09-23",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.624819"
+        "crawl_time": "2025-09-26T09:20:55.745178"
     },
     {
         "index": "#149",
@@ -1485,7 +885,7 @@
         "subjects": "Machine Learning, Machine Learning, Probability",
         "date": "2025-09-23",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.625142"
+        "crawl_time": "2025-09-26T09:20:55.745810"
     },
     {
         "index": "#151",
@@ -1497,7 +897,7 @@
         "subjects": "Instrumentation and Methods for Astrophysics, Machine Learning",
         "date": "2025-09-23",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.625839"
+        "crawl_time": "2025-09-26T09:20:55.746282"
     },
     {
         "index": "#153",
@@ -1509,7 +909,7 @@
         "subjects": "High Energy Physics - Phenomenology, Machine Learning, High Energy Physics - Experiment",
         "date": "2025-09-23",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.626327"
+        "crawl_time": "2025-09-26T09:20:55.746710"
     },
     {
         "index": "#154",
@@ -1521,19 +921,7 @@
         "subjects": "Networking and Internet Architecture, Human-Computer Interaction, Machine Learning",
         "date": "2025-09-23",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.626537"
-    },
-    {
-        "index": "#155",
-        "title": "Online Adaptation via Dual-Stage Alignment and Self-Supervision for Fast-Calibration Brain-Computer Interfaces",
-        "link": "/arxiv/2509.19403",
-        "arxiv_id": "2509.19403",
-        "authors": "Sheng-Bin Duan, Jian-Long Hao, Tian-Yu Xiang, Xiao-Hu Zhou, Mei-Jiang Gui, Xiao-Liang Xie, Shi-Qi Liu, Zeng-Guang Hou",
-        "summary": "Individual differences in brain activity hinder the online application of electroencephalogram (EEG)-based brain computer interface (BCI) systems. To overcome this limitation, this study proposes an online adaptation algorithm for unseen subjects via dual-stage alignment and self-supervision. The alignment process begins by applying Euclidean alignment in the EEG data space and then updates batch normalization statistics in the representation space. Moreover, a self-supervised loss is designed to update the decoder. The loss is computed by soft pseudo-labels derived from the decoder as a proxy for the unknown ground truth, and is calibrated by Shannon entropy to facilitate self-supervised training. Experiments across five public datasets and seven decoders show the proposed algorithm can be integrated seamlessly regardless of BCI paradigm and decoder architecture. In each iteration, the decoder is updated with a single online trial, which yields average accuracy gains of 4.9% on steady-state visual evoked potentials (SSVEP) and 3.6% on motor imagery. These results support fast-calibration operation and show that the proposed algorithm has great potential for BCI applications.",
-        "subjects": "Signal Processing, Artificial Intelligence, Machine Learning",
-        "date": "2025-09-23",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.626768"
+        "crawl_time": "2025-09-26T09:20:55.746952"
     },
     {
         "index": "#156",
@@ -1545,19 +933,7 @@
         "subjects": "Signal Processing, Machine Learning",
         "date": "2025-09-23",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.626959"
-    },
-    {
-        "index": "#157",
-        "title": "Self-Alignment Learning to Improve Myocardial Infarction Detection from Single-Lead ECG",
-        "link": "/arxiv/2509.19397",
-        "arxiv_id": "2509.19397",
-        "authors": "Jiarui Jin, Xiaocheng Fang, Haoyu Wang, Jun Li, Che Liu, Donglin Xie, Hongyan Li, Shenda Hong",
-        "summary": "Myocardial infarction is a critical manifestation of coronary artery disease, yet detecting it from single-lead electrocardiogram (ECG) remains challenging due to limited spatial information. An intuitive idea is to convert single-lead into multiple-lead ECG for classification by pre-trained models, but generative methods optimized at the signal level in most cases leave a large latent space gap, ultimately degrading diagnostic performance. This naturally raises the question of whether latent space alignment could help. However, most prior ECG alignment methods focus on learning transformation invariance, which mismatches the goal of single-lead detection. To address this issue, we propose SelfMIS, a simple yet effective alignment learning framework to improve myocardial infarction detection from single-lead ECG. Discarding manual data augmentations, SelfMIS employs a self-cutting strategy to pair multiple-lead ECG with their corresponding single-lead segments and directly align them in the latent space. This design shifts the learning objective from pursuing transformation invariance to enriching the single-lead representation, explicitly driving the single-lead ECG encoder to learn a representation capable of inferring global cardiac context from the local signal. Experimentally, SelfMIS achieves superior performance over baseline models across nine myocardial infarction types while maintaining a simpler architecture and lower computational overhead, thereby substantiating the efficacy of direct latent space alignment. Our code and checkpoint will be publicly available after acceptance.",
-        "subjects": "Signal Processing, Artificial Intelligence, Machine Learning",
-        "date": "2025-09-23",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.627184"
+        "crawl_time": "2025-09-26T09:20:55.747504"
     },
     {
         "index": "#158",
@@ -1569,7 +945,7 @@
         "subjects": "Signal Processing, Machine Learning, Applications, Machine Learning",
         "date": "2025-09-22",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.627392"
+        "crawl_time": "2025-09-26T09:20:55.748008"
     },
     {
         "index": "#159",
@@ -1581,19 +957,7 @@
         "subjects": "Signal Processing, Machine Learning",
         "date": "2025-09-21",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.627588"
-    },
-    {
-        "index": "#160",
-        "title": "Data-Driven Reconstruction of Significant Wave Heights from Sparse Observations",
-        "link": "/arxiv/2509.19384",
-        "arxiv_id": "2509.19384",
-        "authors": "Hongyuan Shi, Yilin Zhai, Ping Dong, Zaijin You, Chao Zhan, Qing Wang",
-        "summary": "Reconstructing high-resolution regional significant wave height fields from sparse and uneven buoy observations remains a core challenge for ocean monitoring and risk-aware operations. We introduce AUWave, a hybrid deep learning framework that fuses a station-wise sequence encoder (MLP) with a multi-scale U-Net enhanced by a bottleneck self-attention layer to recover 32$\\times$32 regional SWH fields. A systematic Bayesian hyperparameter search with Optuna identifies the learning rate as the dominant driver of generalization, followed by the scheduler decay and the latent dimension. Using NDBC buoy observations and ERA5 reanalysis over the Hawaii region, AUWave attains a minimum validation loss of 0.043285 and a slightly right-skewed RMSE distribution. Spatial errors are lowest near observation sites and increase with distance, reflecting identifiability limits under sparse sampling. Sensitivity experiments show that AUWave consistently outperforms a representative baseline in data-richer configurations, while the baseline is only marginally competitive in the most underdetermined single-buoy cases. The architecture's multi-scale and attention components translate into accuracy gains when minimal but non-trivial spatial anchoring is available. Error maps and buoy ablations reveal key anchor stations whose removal disproportionately degrades performance, offering actionable guidance for network design. AUWave provides a scalable pathway for gap filling, high-resolution priors for data assimilation, and contingency reconstruction.",
-        "subjects": "Signal Processing, Artificial Intelligence, Machine Learning, Atmospheric and Oceanic Physics",
-        "date": "2025-09-21",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.627873"
+        "crawl_time": "2025-09-26T09:20:55.748309"
     },
     {
         "index": "#161",
@@ -1605,7 +969,7 @@
         "subjects": "Signal Processing, Information Theory, Machine Learning",
         "date": "2025-09-21",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.628099"
+        "crawl_time": "2025-09-26T09:20:55.748858"
     },
     {
         "index": "#163",
@@ -1617,7 +981,7 @@
         "subjects": "Signal Processing, Machine Learning",
         "date": "2025-09-19",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.628539"
+        "crawl_time": "2025-09-26T09:20:55.749262"
     },
     {
         "index": "#164",
@@ -1629,19 +993,7 @@
         "subjects": "Signal Processing, Machine Learning, Machine Learning",
         "date": "2025-09-19",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.628789"
-    },
-    {
-        "index": "#166",
-        "title": "The Impact of Structural Changes on Learning Capacity in the Fly Olfactory Neural Circuit",
-        "link": "/arxiv/2509.19351",
-        "arxiv_id": "2509.19351",
-        "authors": "Katherine Xie, Gabriel Koch Ocker",
-        "summary": "The Drosophila mushroom body (MB) is known to be involved in olfactory learning and memory; the synaptic plasticity of the Kenyon cell (KC) to mushroom body output neuron (MBON) synapses plays a key role in the learning process. Previous research has focused on projection neuron (PN) to Kenyon cell (KC) connectivity within the MB; we examine how perturbations to the mushroom body circuit structure and changes in connectivity, specifically within the KC to mushroom body output neuron (MBON) neural circuit, affect the MBONs' ability to distinguish between odor classes. We constructed a neural network that incorporates the connectivity between PNs, KCs, and MBONs. To train our model, we generated ten artificial input classes, which represent the projection neuron activity in response to different odors. We collected data on the number of KC-to-MBON connections, MBON error rates, and KC-to-MBON synaptic weights, among other metrics. We observed that MBONs with very few presynaptic KCs consistently performed worse than others in the odor classification task. The developmental types of KCs also played a significant role in each MBON's output. We performed random and targeted KC ablation and observed that ablating developmentally mature KCs had a greater negative impact on MBONs' learning capacity than ablating immature KCs. Random and targeted pruning of KC-MBON synaptic connections yielded results largely consistent with the ablation experiments. To further explore the various types of KCs, we also performed rewiring experiments in the PN to KC circuit. Our study furthers our understanding of olfactory neuroplasticity and provides important clues to understanding learning and memory in general. Understanding how the olfactory circuits process and learn can also have potential applications in artificial intelligence and treatments for neurodegenerative diseases.",
-        "subjects": "Neurons and Cognition, Artificial Intelligence, Machine Learning, Neural and Evolutionary Computing",
-        "date": "2025-09-18",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.634103"
+        "crawl_time": "2025-09-26T09:20:55.749816"
     },
     {
         "index": "#168",
@@ -1653,19 +1005,7 @@
         "subjects": "Signal Processing, Information Theory, Machine Learning",
         "date": "2025-09-16",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.634863"
-    },
-    {
-        "index": "#169",
-        "title": "Fine-Grained AI Model Caching and Downloading With Coordinated Multipoint Broadcasting in Multi-Cell Edge Networks",
-        "link": "/arxiv/2509.19341",
-        "arxiv_id": "2509.19341",
-        "authors": "Yang Fu, Peng Qin, Yueyue Zhang, Yifei Wang",
-        "summary": "6G networks are envisioned to support on-demand AI model downloading to accommodate diverse inference requirements of end users. By proactively caching models at edge nodes, users can retrieve the requested models with low latency for on-device AI inference. However, the substantial size of contemporary AI models poses significant challenges for edge caching under limited storage capacity, as well as for the concurrent delivery of heterogeneous models over wireless channels. To address these challenges, we propose a fine-grained AI model caching and downloading system that exploits parameter reusability, stemming from the common practice of fine-tuning task-specific models from a shared pre-trained model with frozen parameters. This system selectively caches model parameter blocks (PBs) at edge nodes, eliminating redundant storage of reusable parameters across different cached models. Additionally, it incorporates coordinated multipoint (CoMP) broadcasting to simultaneously deliver reusable PBs to multiple users, thereby enhancing downlink spectrum utilization. Under this arrangement, we formulate a model downloading delay minimization problem to jointly optimize PB caching, migration (among edge nodes), and broadcasting beamforming. To tackle this intractable problem, we develop a distributed multi-agent learning framework that enables edge nodes to explicitly learn mutual influence among their actions, thereby facilitating cooperation. Furthermore, a data augmentation approach is proposed to adaptively generate synthetic training samples through a predictive model, boosting sample efficiency and accelerating policy learning. Both theoretical analysis and simulation experiments validate the superior convergence performance of the proposed learning framework.",
-        "subjects": "Networking and Internet Architecture, Artificial Intelligence, Machine Learning",
-        "date": "2025-09-16",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.635216"
+        "crawl_time": "2025-09-26T09:20:55.751904"
     },
     {
         "index": "#170",
@@ -1677,43 +1017,7 @@
         "subjects": "Signal Processing, Machine Learning",
         "date": "2025-09-15",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.635429"
-    },
-    {
-        "index": "#171",
-        "title": "Holographic Transformers for Complex-Valued Signal Processing: Integrating Phase Interference into Self-Attention",
-        "link": "/arxiv/2509.19331",
-        "arxiv_id": "2509.19331",
-        "authors": "Enhao Huang, Zhiyu Zhang, Tianxiang Xu, Chunshu Xia, Kaichun Hu, Yuchen Yang, Tongtong Pan, Dong Dong, Zhan Qin",
-        "summary": "Complex-valued signals encode both amplitude and phase, yet most deep models treat attention as real-valued correlation, overlooking interference effects. We introduce the Holographic Transformer, a physics-inspired architecture that incorporates wave interference principles into self-attention. Holographic attention modulates interactions by relative phase and coherently superimposes values, ensuring consistency between amplitude and phase. A dual-headed decoder simultaneously reconstructs the input and predicts task outputs, preventing phase collapse when losses prioritize magnitude over phase. We demonstrate that holographic attention implements a discrete interference operator and maintains phase consistency under linear mixing. Experiments on PolSAR image classification and wireless channel prediction show strong performance, achieving high classification accuracy and F1 scores, low regression error, and increased robustness to phase perturbations. These results highlight that enforcing physical consistency in attention leads to generalizable improvements in complex-valued learning and provides a unified, physics-based framework for coherent signal modeling. The code is available at https://github.com/EonHao/Holographic-Transformers.",
-        "subjects": "Signal Processing, Artificial Intelligence, Machine Learning",
-        "date": "2025-09-14",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.635725"
-    },
-    {
-        "index": "#172",
-        "title": "LibEMER: A novel benchmark and algorithms library for EEG-based Multimodal Emotion Recognition",
-        "link": "/arxiv/2509.19330",
-        "arxiv_id": "2509.19330",
-        "authors": "Zejun Liu, Yunshan Chen, Chengxi Xie, Huan Liu",
-        "summary": "EEG-based multimodal emotion recognition(EMER) has gained significant attention and witnessed notable advancements, the inherent complexity of human neural systems has motivated substantial efforts toward multimodal approaches. However, this field currently suffers from three critical limitations: (i) the absence of open-source implementations. (ii) the lack of standardized and transparent benchmarks for fair performance analysis. (iii) in-depth discussion regarding main challenges and promising research directions is a notable scarcity. To address these challenges, we introduce LibEMER, a unified evaluation framework that provides fully reproducible PyTorch implementations of curated deep learning methods alongside standardized protocols for data preprocessing, model realization, and experimental setups. This framework enables unbiased performance assessment on three widely-used public datasets across two learning tasks. The open-source library is publicly accessible at: https://anonymous.4open.science/r/2025ULUIUBUEUMUEUR485384",
-        "subjects": "Signal Processing, Artificial Intelligence, Human-Computer Interaction, Machine Learning, Multimedia",
-        "date": "2025-09-14",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.635962"
-    },
-    {
-        "index": "#173",
-        "title": "Human Activity Recognition Based on Electrocardiogram Data Only",
-        "link": "/arxiv/2509.19328",
-        "arxiv_id": "2509.19328",
-        "authors": "Sina Montazeri, Waltenegus Dargie, Yunhe Feng, Kewei Sha",
-        "summary": "Human activity recognition is critical for applications such as early intervention and health analytics. Traditional activity recognition relies on inertial measurement units (IMUs), which are resource intensive and require calibration. Although electrocardiogram (ECG)-based methods have been explored, these have typically served as supplements to IMUs or have been limited to broad categorical classification such as fall detection or active vs. inactive in daily activities. In this paper, we advance the field by demonstrating, for the first time, robust recognition of activity only with ECG in six distinct activities, which is beyond the scope of previous work. We design and evaluate three new deep learning models, including a CNN classifier with Squeeze-and-Excitation blocks for channel-wise feature recalibration, a ResNet classifier with dilated convolutions for multiscale temporal dependency capture, and a novel CNNTransformer hybrid combining convolutional feature extraction with attention mechanisms for long-range temporal relationship modeling. Tested on data from 54 subjects for six activities, all three models achieve over 94% accuracy for seen subjects, while CNNTransformer hybrid reaching the best accuracy of 72% for unseen subjects, a result that can be further improved by increasing the training population. This study demonstrates the first successful ECG-only activity classification in multiple physical activities, offering significant potential for developing next-generation wearables capable of simultaneous cardiac monitoring and activity recognition without additional motion sensors.",
-        "subjects": "Signal Processing, Artificial Intelligence, Machine Learning",
-        "date": "2025-09-14",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.636164"
+        "crawl_time": "2025-09-26T09:20:55.752734"
     },
     {
         "index": "#174",
@@ -1725,19 +1029,7 @@
         "subjects": "Signal Processing, Machine Learning",
         "date": "2025-09-11",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.636373"
-    },
-    {
-        "index": "#175",
-        "title": "Advancing Few-Shot Pediatric Arrhythmia Classification with a Novel Contrastive Loss and Multimodal Learning",
-        "link": "/arxiv/2509.19315",
-        "arxiv_id": "2509.19315",
-        "authors": "Yiqiao Chen, Zijian Huang, Zhenghui Feng",
-        "summary": "Pediatric arrhythmias are a major risk factor for disability and sudden cardiac death, yet their automated classification remains challenging due to class imbalance, few-shot categories, and complex signal characteristics, which severely limit the efficiency and reliability of early screening and clinical intervention. To address this problem, we propose a multimodal end-to-end deep learning framework that combines dual-branch convolutional encoders for ECG and IEGM, semantic attention for cross-modal feature alignment, and a lightweight Transformer encoder for global dependency modeling. In addition, we introduce a new contrastive loss fucntion named Adaptive Global Class-Aware Contrastive Loss (AGCACL) to enhance intra-class compactness and inter-class separability through class prototypes and a global similarity matrix. To the best of our knowledge, this is the first systematic study based on the Leipzig Heart Center pediatric/congenital ECG+IEGM dataset, for which we also provide a complete and reproducible preprocessing pipeline. Experimental results demonstrate that the proposed method achieves the overall best performance on this dataset, including 97.76\\% Top-1 Accuracy, 94.08\\% Macro Precision, 91.97\\% Macro Recall, 92.97\\% Macro F1, and 92.36\\% Macro F2, with improvements of +13.64, +15.96, +19.82, and +19.44 percentage points over the strongest baseline in Macro Precision/Recall/F1/F2, respectively. These findings indicate that the framework significantly improves the detectability and robustness for minority arrhythmia classes, offering potential clinical value for rhythm screening, pre-procedural assessment, and postoperative follow-up in pediatric and congenital heart disease populations.",
-        "subjects": "Signal Processing, Artificial Intelligence, Machine Learning",
-        "date": "2025-09-10",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.636567"
+        "crawl_time": "2025-09-26T09:20:55.753795"
     },
     {
         "index": "#176",
@@ -1749,19 +1041,7 @@
         "subjects": "Signal Processing, Machine Learning",
         "date": "2025-09-09",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.636761"
-    },
-    {
-        "index": "#177",
-        "title": "E2E Learning Massive MIMO for Multimodal Semantic Non-Orthogonal Transmission and Fusion",
-        "link": "/arxiv/2509.19312",
-        "arxiv_id": "2509.19312",
-        "authors": "Minghui Wu, Zhen Gao",
-        "summary": "Massive multiple-input multiple-output (MIMO) promises high spectral efficiency but also leads to high-dimensional downlink channel state information (CSI), which complicates real-time channel acquisition and precoding. To address this, we propose an end-to-end (E2E) uplink-downlink CSI fusion precoding network that jointly models downlink CSI reference signal (CSI-RS) design, CSI feedback, and base-station (BS) precoding within a single E2E neural architecture. Concretely, a projection network built on the MAXIM architecture takes uplink sounding reference signals (SRS) as input and outputs frequency-, beam-, and port-domain projection matrices for designing downlink CSI-RS. User equipment (UE) then compresses/quantizes the resulting CSI-RS observations and feeds back a compact representation. At the base station (BS), two complementary branches produce candidate precoders: one is a feedback-only precoding network driven by quantized downlink observations, and the other is an SRS-only precoding network driven by uplink SRS. These candidate precoders are subsequently combined by a fusion precoding network to yield the final transmit precoder. All the modules are trained with a spectral-efficiency-oriented loss under a three-stage schedule. Simulation results show that the proposed approach effectively harnesses both SRS-derived information and UE feedback, achieving markedly better performance than conventional baselines.",
-        "subjects": "Signal Processing, Artificial Intelligence, Information Theory, Machine Learning",
-        "date": "2025-09-09",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.636951"
+        "crawl_time": "2025-09-26T09:20:55.754407"
     },
     {
         "index": "#178",
@@ -1773,18 +1053,6 @@
         "subjects": "Signal Processing, Machine Learning",
         "date": "2025-09-05",
         "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.637144"
-    },
-    {
-        "index": "#179",
-        "title": "GAUSS: Benchmarking Structured Mathematical Skills for Large Language Models",
-        "link": "/arxiv/2509.18122",
-        "arxiv_id": "2509.18122",
-        "authors": "Yue Zhang, Jiaxin Zhang, Qiuyu Ren, Tahsin Saffat, Xiaoxuan Liu, Zitong Yang, Banghua Zhu, Yi Ma",
-        "summary": "We introduce \\textbf{GAUSS} (\\textbf{G}eneral \\textbf{A}ssessment of \\textbf{U}nderlying \\textbf{S}tructured \\textbf{S}kills in Mathematics), a benchmark that evaluates LLMs' mathematical abilities across twelve core skill dimensions, grouped into three domains: knowledge and understanding, problem solving and communication, and meta-skills and creativity. By categorizing problems according to cognitive skills and designing tasks that isolate specific abilities, GAUSS constructs comprehensive, fine-grained, and interpretable profiles of models' mathematical abilities. These profiles faithfully represent their underlying mathematical intelligence. To exemplify how to use the \\textsc{GAUSS} benchmark, we have derived the skill profile of \\textsc{GPT-5-thinking}, revealing its strengths and weaknesses as well as its differences relative to \\textsc{o4-mini-high}, thereby underscoring the value of multidimensional, skill-based evaluation.",
-        "subjects": "Computation and Language",
-        "date": "2025-09-10",
-        "category": "cs.LG",
-        "crawl_time": "2025-09-25T17:17:46.637360"
+        "crawl_time": "2025-09-26T09:20:55.754910"
     }
 ]
