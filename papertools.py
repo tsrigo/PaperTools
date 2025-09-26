@@ -113,6 +113,8 @@ def run_pipeline(args):
         cmd.extend(['--categories'] + args.categories)
     if args.max_papers_total:
         cmd.extend(['--max-papers-total', str(args.max_papers_total)])
+    if args.skip_serve:
+        cmd.extend(['--skip-serve'])
     
     print("🚀 启动论文处理流水线...")
     subprocess.run(cmd)
@@ -142,6 +144,7 @@ def main():
                            default=['cs.AI', 'cs.CL', 'cs.CV', 'cs.LG', 'cs.MA'],
                            help='论文类别')
     run_parser.add_argument('--max-papers-total', type=int, help='总处理数量')
+    run_parser.add_argument('--skip-serve', action='store_true', help='跳过启动服务器步骤')
     
     # serve 子命令
     subparsers.add_parser('serve', help='启动网页服务器')

@@ -16,7 +16,6 @@ MODEL = os.getenv("MODEL")
 
 # 处理参数
 TEMPERATURE = 0.1
-MAX_TOKENS = 4000
 REQUEST_TIMEOUT = 300  # 增加到5分钟
 REQUEST_DELAY = 3  # 增加请求间隔
 
@@ -28,7 +27,6 @@ WEBPAGES_DIR = "webpages"
 
 # 时间划分配置
 DATE_FORMAT = "%Y-%m-%d"  # 日期格式
-DATETIME_FORMAT = "%Y-%m-%d_%H-%M-%S"  # 日期时间格式
 ENABLE_TIME_BASED_STRUCTURE = True  # 是否启用按时间划分的目录结构
 
 # 缓存配置
