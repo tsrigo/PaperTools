@@ -9,7 +9,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.256037"
+        "crawl_time": "2025-09-27T15:52:23.140286"
     },
     {
         "index": "#3",
@@ -21,7 +21,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.256516"
+        "crawl_time": "2025-09-27T15:52:23.141351"
     },
     {
         "index": "#4",
@@ -33,7 +33,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.256679"
+        "crawl_time": "2025-09-27T15:52:23.141757"
     },
     {
         "index": "#5",
@@ -45,7 +45,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.256868"
+        "crawl_time": "2025-09-27T15:52:23.142228"
     },
     {
         "index": "#6",
@@ -57,7 +57,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.257045"
+        "crawl_time": "2025-09-27T15:52:23.142671"
     },
     {
         "index": "#7",
@@ -69,7 +69,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.257235"
+        "crawl_time": "2025-09-27T15:52:23.143147"
     },
     {
         "index": "#9",
@@ -81,7 +81,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.257610"
+        "crawl_time": "2025-09-27T15:52:23.144124"
     },
     {
         "index": "#12",
@@ -93,19 +93,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.258434"
-    },
-    {
-        "index": "#14",
-        "title": "Combinatorial Creativity: A New Frontier in Generalization Abilities",
-        "link": "/arxiv/2509.21043",
-        "arxiv_id": "2509.21043",
-        "authors": "Samuel Schapiro, Sumuk Shashidhar, Alexi Gladstone, Jonah Black, Royce Moon, Dilek Hakkani-Tur, Lav R. Varshney",
-        "summary": "Artificial intelligence (AI) systems, and large language models (LLMs) in particular, are increasingly employed for creative tasks like scientific idea generation, constituting a form of generalization from training data unaddressed by existing conceptual frameworks. Though in many ways similar to forms of compositional generalization (CG), combinatorial creativity (CC) is an open-ended ability. Instead of evaluating for accuracy or correctness against fixed targets, which would contradict the open-ended nature of CC, we propose a theoretical framework and algorithmic task for evaluating outputs by their degrees of novelty and utility. From here, we make several important empirical contributions: (1) We obtain the first insights into the scaling behavior of creativity for LLMs. (2) We discover that, for fixed compute budgets, there exist optimal model depths and widths for creative ability. (3) We find that the ideation-execution gap, whereby LLMs excel at generating novel scientific ideas but struggle to ensure their practical feasibility, may be explained by a more fundamental novelty-utility tradeoff characteristic of creativity algorithms in general. Importantly, this tradeoff remains persistent even at scale, casting doubt on the long-term creative potential of LLMs in their current form. Together, our conceptual framework and empirical findings provide a foundation for understanding and improving creativity in modern AI models, marking a new frontier in generalization abilities.",
-        "subjects": "Artificial Intelligence, Machine Learning",
-        "date": "2025-09-25",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.258861"
+        "crawl_time": "2025-09-27T15:52:23.145946"
     },
     {
         "index": "#16",
@@ -117,7 +105,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.259233"
+        "crawl_time": "2025-09-27T15:52:23.147900"
     },
     {
         "index": "#17",
@@ -129,7 +117,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.259399"
+        "crawl_time": "2025-09-27T15:52:23.148362"
     },
     {
         "index": "#18",
@@ -141,7 +129,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.259595"
+        "crawl_time": "2025-09-27T15:52:23.148807"
     },
     {
         "index": "#19",
@@ -153,7 +141,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.259767"
+        "crawl_time": "2025-09-27T15:52:23.149075"
     },
     {
         "index": "#20",
@@ -165,7 +153,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.259957"
+        "crawl_time": "2025-09-27T15:52:23.149383"
     },
     {
         "index": "#21",
@@ -177,7 +165,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.260214"
+        "crawl_time": "2025-09-27T15:52:23.149695"
     },
     {
         "index": "#22",
@@ -189,7 +177,7 @@
         "subjects": "Artificial Intelligence, Software Engineering",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.260450"
+        "crawl_time": "2025-09-27T15:52:23.150044"
     },
     {
         "index": "#23",
@@ -201,7 +189,7 @@
         "subjects": "Artificial Intelligence, Robotics",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.265926"
+        "crawl_time": "2025-09-27T15:52:23.150341"
     },
     {
         "index": "#24",
@@ -213,7 +201,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.266155"
+        "crawl_time": "2025-09-27T15:52:23.150605"
     },
     {
         "index": "#26",
@@ -225,7 +213,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.266707"
+        "crawl_time": "2025-09-27T15:52:23.151342"
     },
     {
         "index": "#27",
@@ -237,7 +225,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.266897"
+        "crawl_time": "2025-09-27T15:52:23.151620"
     },
     {
         "index": "#28",
@@ -249,7 +237,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.267068"
+        "crawl_time": "2025-09-27T15:52:23.151899"
     },
     {
         "index": "#29",
@@ -261,31 +249,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-09-24",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.267251"
-    },
-    {
-        "index": "#30",
-        "title": "A Compound Classification System Based on Fuzzy Relations Applied to the Noise-Tolerant Control of a Bionic Hand via EMG Signal Recognition",
-        "link": "/arxiv/2509.20523",
-        "arxiv_id": "2509.20523",
-        "authors": "Pawel Trajdos, Marek Kurzynski",
-        "summary": "Modern anthropomorphic upper limb bioprostheses are typically controlled by electromyographic (EMG) biosignals using a pattern recognition scheme. Unfortunately, there are many factors originating from the human source of objects to be classified and from the human-prosthesis interface that make it difficult to obtain an acceptable classification quality. One of these factors is the high susceptibility of biosignals to contamination, which can considerably reduce the quality of classification of a recognition system. In the paper, the authors propose a new recognition system intended for EMG based control of the hand prosthesis with detection of contaminated biosignals in order to mitigate the adverse effect of contaminations. The system consists of two ensembles: the set of one-class classifiers (OCC) to assess the degree of contamination of individual channels and the ensemble of K-nearest neighbours (KNN) classifier to recognise the patient's intent. For all recognition systems, an original, coherent fuzzy model was developed, which allows the use of a uniform soft (fuzzy) decision scheme throughout the recognition process. The experimental evaluation was conducted using real biosignals from a public repository. The goal was to provide an experimental comparative analysis of the parameters and procedures of the developed method on which the quality of the recognition system depends. The proposed fuzzy recognition system was also compared with similar systems described in the literature.",
-        "subjects": "Artificial Intelligence, Machine Learning",
-        "date": "2025-09-24",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.267425"
-    },
-    {
-        "index": "#31",
-        "title": "Adaptive Approach to Enhance Machine Learning Scheduling Algorithms During Runtime Using Reinforcement Learning in Metascheduling Applications",
-        "link": "/arxiv/2509.20520",
-        "arxiv_id": "2509.20520",
-        "authors": "Samer Alshaer, Ala Khalifeh, Roman Obermaisser",
-        "summary": "Metascheduling in time-triggered architectures has been crucial in adapting to dynamic and unpredictable environments, ensuring the reliability and efficiency of task execution. However, traditional approaches face significant challenges when training Artificial Intelligence (AI) scheduling inferences offline, particularly due to the complexities involved in constructing a comprehensive Multi-Schedule Graph (MSG) that accounts for all possible scenarios. The process of generating an MSG that captures the vast probability space, especially when considering context events like hardware failures, slack variations, or mode changes, is resource-intensive and often infeasible. To address these challenges, we propose an adaptive online learning unit integrated within the metascheduler to enhance performance in real-time. The primary motivation for developing this unit stems from the limitations of offline training, where the MSG created is inherently a subset of the complete space, focusing only on the most probable and critical context events. In the online mode, Reinforcement Learning (RL) plays a pivotal role by continuously exploring and discovering new scheduling solutions, thus expanding the MSG and enhancing system performance over time. This dynamic adaptation allows the system to handle unexpected events and complex scheduling scenarios more effectively. Several RL models were implemented within the online learning unit, each designed to address specific challenges in scheduling. These models not only facilitate the discovery of new solutions but also optimize existing schedulers, particularly when stricter deadlines or new performance criteria are introduced. By continuously refining the AI inferences through real-time training, the system remains flexible and capable of meeting evolving demands, thus ensuring robustness and efficiency in large-scale, safety-critical environments.",
-        "subjects": "Artificial Intelligence, Distributed, Parallel, and Cluster Computing, Machine Learning",
-        "date": "2025-09-24",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.267619"
+        "crawl_time": "2025-09-27T15:52:23.152180"
     },
     {
         "index": "#32",
@@ -297,19 +261,7 @@
         "subjects": "Artificial Intelligence, Distributed, Parallel, and Cluster Computing",
         "date": "2025-09-24",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.267800"
-    },
-    {
-        "index": "#34",
-        "title": "Philosophy-informed Machine Learning",
-        "link": "/arxiv/2509.20370",
-        "arxiv_id": "2509.20370",
-        "authors": "MZ Naser",
-        "summary": "Philosophy-informed machine learning (PhIML) directly infuses core ideas from analytic philosophy into ML model architectures, objectives, and evaluation protocols. Therefore, PhIML promises new capabilities through models that respect philosophical concepts and values by design. From this lens, this paper reviews conceptual foundations to demonstrate philosophical gains and alignment. In addition, we present case studies on how ML users/designers can adopt PhIML as an agnostic post-hoc tool or intrinsically build it into ML model architectures. Finally, this paper sheds light on open technical barriers alongside philosophical, practical, and governance challenges and outlines a research roadmap toward safe, philosophy-aware, and ethically responsible PhIML.",
-        "subjects": "Artificial Intelligence, Computers and Society, Machine Learning",
-        "date": "2025-09-18",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.268272"
+        "crawl_time": "2025-09-27T15:52:23.153017"
     },
     {
         "index": "#35",
@@ -321,7 +273,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-09-16",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.268515"
+        "crawl_time": "2025-09-27T15:52:23.153893"
     },
     {
         "index": "#36",
@@ -333,31 +285,7 @@
         "subjects": "Artificial Intelligence, Emerging Technologies",
         "date": "2025-08-19",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.268698"
-    },
-    {
-        "index": "#39",
-        "title": "No Prior, No Leakage: Revisiting Reconstruction Attacks in Trained Neural Networks",
-        "link": "/arxiv/2509.21296",
-        "arxiv_id": "2509.21296",
-        "authors": "Yehonatan Refael, Guy Smorodinsky, Ofir Lindenbaum, Itay Safran",
-        "summary": "The memorization of training data by neural networks raises pressing concerns for privacy and security. Recent work has shown that, under certain conditions, portions of the training set can be reconstructed directly from model parameters. Some of these methods exploit implicit bias toward margin maximization, suggesting that properties often regarded as beneficial for generalization may actually compromise privacy. Yet despite striking empirical demonstrations, the reliability of these attacks remains poorly understood and lacks a solid theoretical foundation. In this work, we take a complementary perspective: rather than designing stronger attacks, we analyze the inherent weaknesses and limitations of existing reconstruction methods and identify conditions under which they fail. We rigorously prove that, without incorporating prior knowledge about the data, there exist infinitely many alternative solutions that may lie arbitrarily far from the true training set, rendering reconstruction fundamentally unreliable. Empirically, we further demonstrate that exact duplication of training examples occurs only by chance. Our results refine the theoretical understanding of when training set leakage is possible and offer new insights into mitigating reconstruction attacks. Remarkably, we demonstrate that networks trained more extensively, and therefore satisfying implicit bias conditions more strongly -- are, in fact, less susceptible to reconstruction attacks, reconciling privacy with the need for strong generalization in this setting.",
-        "subjects": "Machine Learning, Artificial Intelligence, Machine Learning",
-        "date": "2025-09-25",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.269415"
-    },
-    {
-        "index": "#41",
-        "title": "It's Not You, It's Clipping: A Soft Trust-Region via Probability Smoothing for LLM RL",
-        "link": "/arxiv/2509.21282",
-        "arxiv_id": "2509.21282",
-        "authors": "Madeleine Dwyer, Adam Sobey, Adriane Chapman",
-        "summary": "Training large language models (LLMs) with reinforcement learning (RL) methods such as PPO and GRPO commonly relies on ratio clipping to stabilise updates. While effective at preventing instability, clipping discards information and introduces gradient discontinuities. We propose Probability Smoothing Policy Optimisation (PSPO), which smooths the current policy's probabilities toward the old (behaviour) policy before computing the importance ratio, analogous to label smoothing. Unlike clipping, PSPO preserves gradient signal, while interpolation toward the old policy creates a soft trust region that discourages large, destabilising updates, with formal guarantees. We instantiate PSPO within GRPO (GR-PSPO) and fine-tune Qwen2.5-0.5B and Qwen2.5-1.5B on GSM8K, evaluating on GSM8K test and the cross-dataset generalisation on SVAMP, ASDiv, and MATH-500. Relative to unclipped GRPO (single iteration; no data reuse, ratio always = 1), GR-PSPO achieves similar performance but improves the reasoning leading to clearer and more concise responses which are more logical. Compared to clipped GRPO, GR-PSPO substantially improves performance both the 0.5B and 1.5B models, with a boost of over 20% on GSM8K (39.7% vs. 17.6% for 0.5B, 59.4% vs. 37.8% for 1.5B).",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-25",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.269842"
+        "crawl_time": "2025-09-27T15:52:23.154148"
     },
     {
         "index": "#43",
@@ -369,19 +297,7 @@
         "subjects": "Distributed, Parallel, and Cluster Computing, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.270268"
-    },
-    {
-        "index": "#45",
-        "title": "A Causality-Aware Spatiotemporal Model for Multi-Region and Multi-Pollutant Air Quality Forecasting",
-        "link": "/arxiv/2509.21260",
-        "arxiv_id": "2509.21260",
-        "authors": "Junxin Lu, Shiliang Sun",
-        "summary": "Air pollution, a pressing global problem, threatens public health, environmental sustainability, and climate stability. Achieving accurate and scalable forecasting across spatially distributed monitoring stations is challenging due to intricate multi-pollutant interactions, evolving meteorological conditions, and region specific spatial heterogeneity. To address this challenge, we propose AirPCM, a novel deep spatiotemporal forecasting model that integrates multi-region, multi-pollutant dynamics with explicit meteorology-pollutant causality modeling. Unlike existing methods limited to single pollutants or localized regions, AirPCM employs a unified architecture to jointly capture cross-station spatial correlations, temporal auto-correlations, and meteorology-pollutant dynamic causality. This empowers fine-grained, interpretable multi-pollutant forecasting across varying geographic and temporal scales, including sudden pollution episodes. Extensive evaluations on multi-scale real-world datasets demonstrate that AirPCM consistently surpasses state-of-the-art baselines in both predictive accuracy and generalization capability. Moreover, the long-term forecasting capability of AirPCM provides actionable insights into future air quality trends and potential high-risk windows, offering timely support for evidence-based environmental governance and carbon mitigation planning.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-25",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.270742"
+        "crawl_time": "2025-09-27T15:52:23.156341"
     },
     {
         "index": "#46",
@@ -393,31 +309,7 @@
         "subjects": "Networking and Internet Architecture, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.276227"
-    },
-    {
-        "index": "#51",
-        "title": "Explaining Fine Tuned LLMs via Counterfactuals A Knowledge Graph Driven Framework",
-        "link": "/arxiv/2509.21241",
-        "arxiv_id": "2509.21241",
-        "authors": "Yucheng Wang, Ziyang Chen, Md Faisal Kabir",
-        "summary": "The widespread adoption of Low-Rank Adaptation (LoRA) has enabled large language models (LLMs) to acquire domain-specific knowledge with remarkable efficiency. However, understanding how such a fine-tuning mechanism alters a model's structural reasoning and semantic behavior remains an open challenge. This work introduces a novel framework that explains fine-tuned LLMs via counterfactuals grounded in knowledge graphs. Specifically, we construct BioToolKG, a domain-specific heterogeneous knowledge graph in bioinformatics tools and design a counterfactual-based fine-tuned LLMs explainer (CFFTLLMExplainer) that learns soft masks over graph nodes and edges to generate minimal structural perturbations that induce maximum semantic divergence. Our method jointly optimizes structural sparsity and semantic divergence while enforcing interpretability preserving constraints such as entropy regularization and edge smoothness. We apply this framework to a fine-tuned LLaMA-based LLM and reveal that counterfactual masking exposes the model's structural dependencies and aligns with LoRA-induced parameter shifts. This work provides new insights into the internal mechanisms of fine-tuned LLMs and highlights counterfactual graphs as a potential tool for interpretable AI.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-25",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.278054"
-    },
-    {
-        "index": "#52",
-        "title": "Tree Search for LLM Agent Reinforcement Learning",
-        "link": "/arxiv/2509.21240",
-        "arxiv_id": "2509.21240",
-        "authors": "Yuxiang Ji, Ziyu Ma, Yong Wang, Guanhua Chen, Xiangxiang Chu, Liaoni Wu",
-        "summary": "Recent advances in reinforcement learning (RL) have significantly enhanced the agentic capabilities of large language models (LLMs). In long-term and multi-turn agent tasks, existing approaches driven solely by outcome rewards often suffer from the problem of sparse supervision. To address the challenge, we propose Tree-based Group Relative Policy Optimization (Tree-GRPO), a grouped agent RL method based on tree search, where each tree node represents the complete agent interaction step. By sharing common prefixes, the tree search sampling increases the number of rollouts achievable within a fixed budget of tokens or tool calls. Moreover, we find that the tree-structured trajectory naturally allows the construction of step-wise process supervised signals even using only the outcome reward. Based on this, Tree-GRPO estimates the grouped relative advantages both on intra-tree and inter-tree levels. Through theoretical analysis, we demonstrate that the objective of intra-tree level group relative policy optimization is equivalent to that of step-level direct preference learning. Experiments across 11 datasets and 3 types of QA tasks demonstrate the superiority of the proposed tree-based RL over the chain-based RL method.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-25",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.278269"
+        "crawl_time": "2025-09-27T15:52:23.157221"
     },
     {
         "index": "#53",
@@ -429,19 +321,7 @@
         "subjects": "Social and Information Networks, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.278454"
-    },
-    {
-        "index": "#55",
-        "title": "Towards Foundation Models for Zero-Shot Time Series Anomaly Detection: Leveraging Synthetic Data and Relative Context Discrepancy",
-        "link": "/arxiv/2509.21190",
-        "arxiv_id": "2509.21190",
-        "authors": "Tian Lan, Hao Duong Le, Jinbo Li, Wenjun He, Meng Wang, Chenghao Liu, Chen Zhang",
-        "summary": "Time series anomaly detection (TSAD) is a critical task, but developing models that generalize to unseen data in a zero-shot manner remains a major challenge. Prevailing foundation models for TSAD predominantly rely on reconstruction-based objectives, which suffer from a fundamental objective mismatch: they struggle to identify subtle anomalies while often misinterpreting complex normal patterns, leading to high rates of false negatives and positives. To overcome these limitations, we introduce \\texttt{TimeRCD}, a novel foundation model for TSAD built upon a new pre-training paradigm: Relative Context Discrepancy (RCD). Instead of learning to reconstruct inputs, \\texttt{TimeRCD} is explicitly trained to identify anomalies by detecting significant discrepancies between adjacent time windows. This relational approach, implemented with a standard Transformer architecture, enables the model to capture contextual shifts indicative of anomalies that reconstruction-based methods often miss. To facilitate this paradigm, we develop a large-scale, diverse synthetic corpus with token-level anomaly labels, providing the rich supervisory signal necessary for effective pre-training. Extensive experiments demonstrate that \\texttt{TimeRCD} significantly outperforms existing general-purpose and anomaly-specific foundation models in zero-shot TSAD across diverse datasets. Our results validate the superiority of the RCD paradigm and establish a new, effective path toward building robust and generalizable foundation models for time series anomaly detection.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-25",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.278917"
+        "crawl_time": "2025-09-27T15:52:23.159482"
     },
     {
         "index": "#57",
@@ -453,7 +333,7 @@
         "subjects": "Human-Computer Interaction, Artificial Intelligence, Computers and Society, Information Retrieval",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.279306"
+        "crawl_time": "2025-09-27T15:52:23.160797"
     },
     {
         "index": "#59",
@@ -465,43 +345,7 @@
         "subjects": "Software Engineering, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.279748"
-    },
-    {
-        "index": "#60",
-        "title": "GRPO is Secretly a Process Reward Model",
-        "link": "/arxiv/2509.21154",
-        "arxiv_id": "2509.21154",
-        "authors": "Michael Sullivan",
-        "summary": "We prove theoretically that the GRPO RL algorithm induces a non-trivial process reward model (PRM), under certain assumptions regarding within-group overlap of token sequences across completions. We then show empirically that these assumptions are met under real-world conditions: GRPO does in fact induce a non-trivial PRM. Leveraging the framework of GRPO-as-a-PRM, we identify a flaw in the GRPO objective: non-uniformly distributed process steps hinder both exploration and exploitation (under different conditions). We propose a simple modification to the algorithm to mitigate this defect ($\\lambda$-GRPO), and show that LLMs trained with $\\lambda$-GRPO achieve higher validation accuracy and performance on downstream reasoning tasks$-$and reach peak performance more rapidly$-$than LLMs trained with standard GRPO. Our results call into question the advantage of costly, explicitly-defined PRMs for GRPO: we show that it is possible to instead leverage the hidden, built-in PRM structure within the vanilla GRPO algorithm to boost model performance with a negligible impact on training time and cost.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-25",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.279973"
-    },
-    {
-        "index": "#62",
-        "title": "LAVA: Explainability for Unsupervised Latent Embeddings",
-        "link": "/arxiv/2509.21149",
-        "arxiv_id": "2509.21149",
-        "authors": "Ivan Stresec, Joana P. Gonçalves",
-        "summary": "Unsupervised black-box models can be drivers of scientific discovery, but remain difficult to interpret. Crucially, discovery hinges on understanding the model output, which is often a multi-dimensional latent embedding rather than a well-defined target. While explainability for supervised learning usually seeks to uncover how input features are used to predict a target, its unsupervised counterpart should relate input features to the structure of the learned latent space. Adaptations of supervised model explainability for unsupervised learning provide either single-sample or dataset-wide summary explanations. However, without automated strategies of relating similar samples to one another guided by their latent proximity, explanations remain either too fine-grained or too reductive to be meaningful. This is especially relevant for manifold learning methods that produce no mapping function, leaving us only with the relative spatial organization of their embeddings. We introduce Locality-Aware Variable Associations (LAVA), a post-hoc model-agnostic method designed to explain local embedding organization through its relationship with the input features. To achieve this, LAVA represents the latent space as a series of localities (neighborhoods) described in terms of correlations between the original features, and then reveals reoccurring patterns of correlations across the entire latent space. Based on UMAP embeddings of MNIST and a single-cell kidney dataset, we show that LAVA captures relevant feature associations, with visually and biologically relevant local patterns shared among seemingly distant regions of the latent spaces.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-25",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.280374"
-    },
-    {
-        "index": "#63",
-        "title": "Emerging Paradigms for Securing Federated Learning Systems",
-        "link": "/arxiv/2509.21147",
-        "arxiv_id": "2509.21147",
-        "authors": "Amr Akmal Abouelmagd, Amr Hilal",
-        "summary": "Federated Learning (FL) facilitates collaborative model training while keeping raw data decentralized, making it a conduit for leveraging the power of IoT devices while maintaining privacy of the locally collected data. However, existing privacy- preserving techniques present notable hurdles. Methods such as Multi-Party Computation (MPC), Homomorphic Encryption (HE), and Differential Privacy (DP) often incur high compu- tational costs and suffer from limited scalability. This survey examines emerging approaches that hold promise for enhancing both privacy and efficiency in FL, including Trusted Execution Environments (TEEs), Physical Unclonable Functions (PUFs), Quantum Computing (QC), Chaos-Based Encryption (CBE), Neuromorphic Computing (NC), and Swarm Intelligence (SI). For each paradigm, we assess its relevance to the FL pipeline, outlining its strengths, limitations, and practical considerations. We conclude by highlighting open challenges and prospective research avenues, offering a detailed roadmap for advancing secure and scalable FL systems.",
-        "subjects": "Cryptography and Security, Artificial Intelligence, Emerging Technologies, Machine Learning",
-        "date": "2025-09-25",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.280565"
+        "crawl_time": "2025-09-27T15:52:23.161455"
     },
     {
         "index": "#64",
@@ -513,79 +357,7 @@
         "subjects": "Sound, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.280773"
-    },
-    {
-        "index": "#65",
-        "title": "Teaching RL Agents to Act Better: VLM as Action Advisor for Online Reinforcement Learning",
-        "link": "/arxiv/2509.21126",
-        "arxiv_id": "2509.21126",
-        "authors": "Xiefeng Wu, Jing Zhao, Shu Zhang, Mingyu Hu",
-        "summary": "Online reinforcement learning in complex tasks is time-consuming, as massive interaction steps are needed to learn the optimal Q-function.Vision-language action (VLA) policies represent a promising direction for solving diverse tasks; however, their performance on low-level control remains limited, and effective deployment often requires task-specific expert demonstrations for fine-tuning. In this paper, we propose \\textbf{VARL} (\\textbf{V}LM as \\textbf{A}ction advisor for online \\textbf{R}einforcement \\textbf{L}earning), a framework that leverages the domain knowledge of vision-language models (VLMs) to provide action suggestions for reinforcement learning agents. Unlike previous methods, VARL provides action suggestions rather than designing heuristic rewards, thereby guaranteeing unchanged optimality and convergence. The suggested actions increase sample diversity and ultimately improve sample efficiency, especially in sparse-reward tasks. To validate the effectiveness of VARL, we evaluate it across diverse environments and agent settings. Results show that VARL greatly improves sample efficiency without introducing significant computational overhead. These advantages make VARL a general framework for online reinforcement learning and make it feasible to directly apply reinforcement learning from scratch in real-world environments.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-25",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.280958"
-    },
-    {
-        "index": "#67",
-        "title": "GraphUniverse: Enabling Systematic Evaluation of Inductive Generalization",
-        "link": "/arxiv/2509.21097",
-        "arxiv_id": "2509.21097",
-        "authors": "Louis Van Langendonck, Guillermo Bernárdez, Nina Miolane, Pere Barlet-Ros",
-        "summary": "A fundamental challenge in graph learning is understanding how models generalize to new, unseen graphs. While synthetic benchmarks offer controlled settings for analysis, existing approaches are confined to single-graph, transductive settings where models train and test on the same graph structure. Addressing this gap, we introduce GraphUniverse, a framework for generating entire families of graphs to enable the first systematic evaluation of inductive generalization at scale. Our core innovation is the generation of graphs with persistent semantic communities, ensuring conceptual consistency while allowing fine-grained control over structural properties like homophily and degree distributions. This enables crucial but underexplored robustness tests, such as performance under controlled distribution shifts. Benchmarking a wide range of architectures -- from GNNs to graph transformers and topological architectures -- reveals that strong transductive performance is a poor predictor of inductive generalization. Furthermore, we find that robustness to distribution shift is highly sensitive not only to model architecture choice but also to the initial graph regime (e.g., high vs. low homophily). Beyond benchmarking, GraphUniverse's flexibility and scalability can facilitate the development of robust and truly generalizable architectures -- including next-generation graph foundation models. An interactive demo is available at https://graphuniverse.streamlit.app.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-25",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.286792"
-    },
-    {
-        "index": "#68",
-        "title": "Best-of-$\\infty$ -- Asymptotic Performance of Test-Time Compute",
-        "link": "/arxiv/2509.21091",
-        "arxiv_id": "2509.21091",
-        "authors": "Junpei Komiyama, Daisuke Oba, Masafumi Oyamada",
-        "summary": "We study best-of-$N$ for large language models (LLMs) where the selection is based on majority voting. In particular, we analyze the limit $N \\to \\infty$, which we denote as Best-of-$\\infty$. While this approach achieves impressive performance in the limit, it requires an infinite test-time budget. To address this, we propose an adaptive generation scheme that selects $N$ based on answer agreement, thereby efficiently allocating inference-time computation. Beyond adaptivity, we extend the framework to weighted ensembles of multiple LLMs, showing that such mixtures can outperform any individual model. The optimal ensemble weighting is formulated and efficiently computed as a mixed-integer linear program. Extensive experiments demonstrate the effectiveness of our approach.",
-        "subjects": "Machine Learning, Artificial Intelligence, Machine Learning",
-        "date": "2025-09-25",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.287125"
-    },
-    {
-        "index": "#70",
-        "title": "TyphoonMLA: A Mixed Naive-Absorb MLA Kernel For Shared Prefix",
-        "link": "/arxiv/2509.21081",
-        "arxiv_id": "2509.21081",
-        "authors": "Ahmet Caner Yüzügüler, Ahmet Çelik, Jiawei Zhuang, Lukas Cavigelli",
-        "summary": "Multi-Head Latent Attention (MLA) is a recent attention mechanism adopted in state-of-the-art LLMs such as DeepSeek-v3 and Kimi K2. Thanks to its novel formulation, MLA allows two functionally equivalent but computationally distinct kernel implementations: naive and absorb. While the naive kernels (e.g., FlashAttention) are typically preferred in training and prefill for their computational efficiency, existing decoding kernels (e.g., FlashMLA) rely on the absorb method to minimize HBM bandwidth usage. However, the compute-bound nature of the absorb implementations prohibits performance benefits from data reuse opportunities in attention calculations, such as shared prefixes. In this work, we introduce TyphoonMLA, a hybrid approach that combines naive and absorb formulations to harness the strengths of both. TyphoonMLA effectively leverages the shared prefix by applying the naive formulation to the compute-bound parts of attention calculations, while reducing the bandwidth requirements for non-shared parts by using the absorb formulation. As a result, TyphoonMLA improves the throughput of attention calculations in MLA architectures by up to 3x and 3.24x on NPU and GPUs, with only a 3% overhead in HBM size.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-25",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.287558"
-    },
-    {
-        "index": "#75",
-        "title": "GeoRef: Referring Expressions in Geometry via Task Formulation, Synthetic Supervision, and Reinforced MLLM-based Solutions",
-        "link": "/arxiv/2509.21050",
-        "arxiv_id": "2509.21050",
-        "authors": "Bing Liu, Wenqiang Yv, Xuzheng Yang, Shichang Wang, Junzhuo Liu, Peng Wang, Guoqing Wang, Yang Yang, Heng Tao Shen",
-        "summary": "AI-driven geometric problem solving is a complex vision-language task that requires accurate diagram interpretation, mathematical reasoning, and robust cross-modal grounding. A foundational yet underexplored capability for this task is the ability to identify and interpret geometric elements based on natural language queries. To address this, we introduce the task of Referring Expression Comprehension (REC) for geometric problems, which evaluates whether models can localize points, shapes, and spatial relations in diagrams in response to textual prompts. We present GeoRef, a benchmark dataset constructed from existing geometric problem corpora, featuring diverse, high-quality annotations and queries. Due to the lack of annotated data for this task, we generate a large-scale synthetic training dataset using a structured geometric formal language, enabling broad coverage of geometric concepts and facilitating model adaptation. We explore two fine-tuning approaches: Supervised Fine-Tuning (SFT) and Group Relative Policy Optimization (GRPO). Our results show that GRPO significantly outperforms SFT by better aligning model behavior with task-specific rewards. Furthermore, we propose a verify-and-regenerate mechanism that detects incorrect predictions and re-infers answers using contextual reasoning history, further boosting accuracy. Notably, even state-of-the-art Multimodal Large Language Models (MLLMs) struggle with this task, underscoring the necessity of explicitly evaluating and strengthening geometric grounding as a prerequisite for robust geometric problem solving. Moreover, models trained on GeoRef demonstrate measurable improvements on downstream geometric reasoning tasks, highlighting the broader value of REC as a foundation for multimodal mathematical understanding.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-25",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.288774"
-    },
-    {
-        "index": "#76",
-        "title": "Reinforcement Learning Fine-Tuning Enhances Activation Intensity and Diversity in the Internal Circuitry of LLMs",
-        "link": "/arxiv/2509.21044",
-        "arxiv_id": "2509.21044",
-        "authors": "Honglin Zhang, Qianyue Hao, Fengli Xu, Yong Li",
-        "summary": "Large language models (LLMs) acquire extensive prior knowledge through large-scale pretraining and can be further enhanced via supervised fine-tuning (SFT) or reinforcement learning (RL)-based post-training. A growing body of evidence has shown that RL fine-tuning improves the capability of LLMs beyond what SFT alone achieves. However, the underlying mechanisms why RL fine-tuning is able to enhance the capability of various LLMs with distinct intrinsic characteristics remain underexplored. In this study, we draw inspiration from prior work on edge attribution patching (EAP) to investigate the internal differences of LLMs before and after RL fine-tuning. Our analysis across multiple model families shows two robust effects of online RL post-training: (i) an overall increase in activation intensity, indicating that more internal pathways are engaged and their signals become stronger, and (ii) greater diversity in activation patterns, reflected by higher entropy and less concentrated edge distributions. These changes suggest that RL reshapes information flow to be both more redundant and more flexible, which may explain its advantage in generalization. Notably, models fine-tuned with Direct Preference Optimization (DPO) deviate from these trends, exhibiting substantially weaker or inconsistent internal changes compared to PPO- and GRPO-based training. Together, our findings provide a unified view of how RL fine-tuning systematically alters the internal circuitry of LLMs and highlight the methodological distinctions between online RL and preference-based approaches. Our code is open source at https://anonymous.4open.science/r/llm_rl_probing_analysis-F673.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-25",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.288960"
+        "crawl_time": "2025-09-27T15:52:23.162886"
     },
     {
         "index": "#78",
@@ -597,19 +369,7 @@
         "subjects": "Sound, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.289349"
-    },
-    {
-        "index": "#79",
-        "title": "Efficient Ensemble Conditional Independence Test Framework for Causal Discovery",
-        "link": "/arxiv/2509.21021",
-        "arxiv_id": "2509.21021",
-        "authors": "Zhengkang Guan, Kun Kuang",
-        "summary": "Constraint-based causal discovery relies on numerous conditional independence tests (CITs), but its practical applicability is severely constrained by the prohibitive computational cost, especially as CITs themselves have high time complexity with respect to the sample size. To address this key bottleneck, we introduce the Ensemble Conditional Independence Test (E-CIT), a general and plug-and-play framework. E-CIT operates on an intuitive divide-and-aggregate strategy: it partitions the data into subsets, applies a given base CIT independently to each subset, and aggregates the resulting p-values using a novel method grounded in the properties of stable distributions. This framework reduces the computational complexity of a base CIT to linear in the sample size when the subset size is fixed. Moreover, our tailored p-value combination method offers theoretical consistency guarantees under mild conditions on the subtests. Experimental results demonstrate that E-CIT not only significantly reduces the computational burden of CITs and causal discovery but also achieves competitive performance. Notably, it exhibits an improvement in complex testing scenarios, particularly on real-world datasets.",
-        "subjects": "Machine Learning, Artificial Intelligence, Machine Learning",
-        "date": "2025-09-25",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.289533"
+        "crawl_time": "2025-09-27T15:52:23.167089"
     },
     {
         "index": "#80",
@@ -621,19 +381,7 @@
         "subjects": "Systems and Control, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.289737"
-    },
-    {
-        "index": "#81",
-        "title": "Predicting LLM Reasoning Performance with Small Proxy Model",
-        "link": "/arxiv/2509.21013",
-        "arxiv_id": "2509.21013",
-        "authors": "Woosung Koh, Juyoung Suk, Sungjun Han, Se-Young Yun, Jay Shin",
-        "summary": "Given the prohibitive cost of pre-training large language models, it is essential to leverage smaller proxy models to optimize datasets before scaling up. However, this approach becomes challenging for reasoning capabilities, which exhibit emergent behavior that only appear reliably at larger model sizes, often exceeding 7B parameters. To address this, we introduce rBridge, showing that small proxies ($\\leq$1B) can effectively predict large-model reasoning by aligning more closely with (1) the pre-training objective and (2) the target task. rBridge achieves this by weighting negative log-likelihood with task alignment, using reasoning traces from frontier models as gold labels. In our experiments, rBridge (i) reduces dataset ranking costs by over 100x relative to the best baseline, (ii) achieves the strongest correlation across six reasoning benchmarks at 1B to 32B scale, and (iii) zero-shot transfers predictive relationships across pre-training datasets at 1B to 7B scale. These findings indicate that rBridge offers a practical path for exploring reasoning-oriented pre-training at lower cost.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-25",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.289929"
+        "crawl_time": "2025-09-27T15:52:23.167679"
     },
     {
         "index": "#83",
@@ -645,19 +393,7 @@
         "subjects": "Cryptography and Security, Artificial Intelligence, Software Engineering",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.290391"
-    },
-    {
-        "index": "#84",
-        "title": "ExMolRL: Phenotype-Target Joint Generation of De Novo Molecules via Multi-Objective Reinforcement Learning",
-        "link": "/arxiv/2509.21010",
-        "arxiv_id": "2509.21010",
-        "authors": "Haotian Guo, Hui Liu",
-        "summary": "The generation of high-quality candidate molecules remains a central challenge in AI-driven drug design. Current phenotype-based and target-based strategies each suffer limitations, either incurring high experimental costs or overlook system-level cellular responses. To bridge this gap, we propose ExMoIRL, a novel generative framework that synergistically integrates phenotypic and target-specific cues for de novo molecular generation. The phenotype-guided generator is first pretrained on expansive drug-induced transcriptional profiles and subsequently fine-tuned via multi-objective reinforcement learning (RL). Crucially, the reward function fuses docking affinity and drug-likeness scores, augmented with ranking loss, prior-likelihood regularization, and entropy maximization. The multi-objective RL steers the model toward chemotypes that are simultaneously potent, diverse, and aligned with the specified phenotypic effects. Extensive experiments demonstrate ExMoIRL's superior performance over state-of-the-art phenotype-based and target-based models across multiple well-characterized targets. Our generated molecules exhibit favorable drug-like properties, high target affinity, and inhibitory potency (IC50) against cancer cells. This unified framework showcases the synergistic potential of combining phenotype-guided and target-aware strategies, offering a more effective solution for de novo drug discovery.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-25",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.290571"
+        "crawl_time": "2025-09-27T15:52:23.168573"
     },
     {
         "index": "#86",
@@ -669,19 +405,7 @@
         "subjects": "Robotics, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.290974"
-    },
-    {
-        "index": "#87",
-        "title": "Lossless Compression: A New Benchmark for Time Series Model Evaluation",
-        "link": "/arxiv/2509.21002",
-        "arxiv_id": "2509.21002",
-        "authors": "Meng Wan, Benxi Tian, Jue Wang, Cui Hui, Ningming Nie, Tiantian Liu, Zongguo Wang, Cao Rongqiang, Peng Shi, Yangang Wang",
-        "summary": "The evaluation of time series models has traditionally focused on four canonical tasks: forecasting, imputation, anomaly detection, and classification. While these tasks have driven significant progress, they primarily assess task-specific performance and do not rigorously measure whether a model captures the full generative distribution of the data. We introduce lossless compression as a new paradigm for evaluating time series models, grounded in Shannon's source coding theorem. This perspective establishes a direct equivalence between optimal compression length and the negative log-likelihood, providing a strict and unified information-theoretic criterion for modeling capacity. Then We define a standardized evaluation protocol and metrics. We further propose and open-source a comprehensive evaluation framework TSCom-Bench, which enables the rapid adaptation of time series models as backbones for lossless compression. Experiments across diverse datasets on state-of-the-art models, including TimeXer, iTransformer, and PatchTST, demonstrate that compression reveals distributional weaknesses overlooked by classic benchmarks. These findings position lossless compression as a principled task that complements and extends existing evaluation for time series modeling.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-25",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.291198"
+        "crawl_time": "2025-09-27T15:52:23.169439"
     },
     {
         "index": "#90",
@@ -693,31 +417,7 @@
         "subjects": "Information Retrieval, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.297334"
-    },
-    {
-        "index": "#93",
-        "title": "FracAug: Fractional Augmentation boost Graph-level Anomaly Detection under Limited Supervision",
-        "link": "/arxiv/2509.20978",
-        "arxiv_id": "2509.20978",
-        "authors": "Xiangyu Dong, Xingyi Zhang, Sibo Wang",
-        "summary": "Graph-level anomaly detection (GAD) is critical in diverse domains such as drug discovery, yet high labeling costs and dataset imbalance hamper the performance of Graph Neural Networks (GNNs). To address these issues, we propose FracAug, an innovative plug-in augmentation framework that enhances GNNs by generating semantically consistent graph variants and pseudo-labeling with mutual verification. Unlike previous heuristic methods, FracAug learns semantics within given graphs and synthesizes fractional variants, guided by a novel weighted distance-aware margin loss. This captures multi-scale topology to generate diverse, semantic-preserving graphs unaffected by data imbalance. Then, FracAug utilizes predictions from both original and augmented graphs to pseudo-label unlabeled data, iteratively expanding the training set. As a model-agnostic module compatible with various GNNs, FracAug demonstrates remarkable universality and efficacy: experiments across 14 GNNs on 12 real-world datasets show consistent gains, boosting average AUROC, AUPRC, and F1-score by up to 5.72%, 7.23%, and 4.18%, respectively.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-25",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.298323"
-    },
-    {
-        "index": "#94",
-        "title": "Knowledgeable Language Models as Black-Box Optimizers for Personalized Medicine",
-        "link": "/arxiv/2509.20975",
-        "arxiv_id": "2509.20975",
-        "authors": "Michael S. Yao, Osbert Bastani, Alma Andersson, Tommaso Biancalani, Aïcha Bentaieb, Claudia Iriondo",
-        "summary": "The goal of personalized medicine is to discover a treatment regimen that optimizes a patient's clinical outcome based on their personal genetic and environmental factors. However, candidate treatments cannot be arbitrarily administered to the patient to assess their efficacy; we often instead have access to an in silico surrogate model that approximates the true fitness of a proposed treatment. Unfortunately, such surrogate models have been shown to fail to generalize to previously unseen patient-treatment combinations. We hypothesize that domain-specific prior knowledge - such as medical textbooks and biomedical knowledge graphs - can provide a meaningful alternative signal of the fitness of proposed treatments. To this end, we introduce LLM-based Entropy-guided Optimization with kNowledgeable priors (LEON), a mathematically principled approach to leverage large language models (LLMs) as black-box optimizers without any task-specific fine-tuning, taking advantage of their ability to contextualize unstructured domain knowledge to propose personalized treatment plans in natural language. In practice, we implement LEON via 'optimization by prompting,' which uses LLMs as stochastic engines for proposing treatment designs. Experiments on real-world optimization tasks show LEON outperforms both traditional and LLM-based methods in proposing individualized treatments for patients.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-25",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.298537"
+        "crawl_time": "2025-09-27T15:52:23.170627"
     },
     {
         "index": "#95",
@@ -729,7 +429,7 @@
         "subjects": "Cryptography and Security, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.298734"
+        "crawl_time": "2025-09-27T15:52:23.172070"
     },
     {
         "index": "#96",
@@ -741,19 +441,7 @@
         "subjects": "Sound, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.298993"
-    },
-    {
-        "index": "#98",
-        "title": "Flow Matching in the Low-Noise Regime: Pathologies and a Contrastive Remedy",
-        "link": "/arxiv/2509.20952",
-        "arxiv_id": "2509.20952",
-        "authors": "Weili Zeng, Yichao Yan",
-        "summary": "Flow matching has recently emerged as a powerful alternative to diffusion models, providing a continuous-time formulation for generative modeling and representation learning. Yet, we show that this framework suffers from a fundamental instability in the low-noise regime. As noise levels approach zero, arbitrarily small perturbations in the input can induce large variations in the velocity target, causing the condition number of the learning problem to diverge. This ill-conditioning not only slows optimization but also forces the encoder to reallocate its limited Jacobian capacity toward noise directions, thereby degrading semantic representations. We provide the first theoretical analysis of this phenomenon, which we term the low-noise pathology, establishing its intrinsic link to the structure of the flow matching objective. Building on these insights, we propose Local Contrastive Flow (LCF), a hybrid training protocol that replaces direct velocity regression with contrastive feature alignment at small noise levels, while retaining standard flow matching at moderate and high noise. Empirically, LCF not only improves convergence speed but also stabilizes representation quality. Our findings highlight the critical importance of addressing low-noise pathologies to unlock the full potential of flow matching for both generation and representation learning.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-25",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.299388"
+        "crawl_time": "2025-09-27T15:52:23.172333"
     },
     {
         "index": "#99",
@@ -765,79 +453,7 @@
         "subjects": "Cryptography and Security, Artificial Intelligence, Emerging Technologies",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.299602"
-    },
-    {
-        "index": "#100",
-        "title": "Deep Learning for Crime Forecasting: The Role of Mobility at Fine-grained Spatiotemporal Scales",
-        "link": "/arxiv/2509.20913",
-        "arxiv_id": "2509.20913",
-        "authors": "Ariadna Albors Zumel, Michele Tizzoni, Gian Maria Campedelli",
-        "summary": "Objectives: To develop a deep learning framework to evaluate if and how incorporating micro-level mobility features, alongside historical crime and sociodemographic data, enhances predictive performance in crime forecasting at fine-grained spatial and temporal resolutions. Methods: We advance the literature on computational methods and crime forecasting by focusing on four U.S. cities (i.e., Baltimore, Chicago, Los Angeles, and Philadelphia). We employ crime incident data obtained from each city's police department, combined with sociodemographic data from the American Community Survey and human mobility data from Advan, collected from 2019 to 2023. This data is aggregated into grids with equally sized cells of 0.077 sq. miles (0.2 sq. kms) and used to train our deep learning forecasting model, a Convolutional Long Short-Term Memory (ConvLSTM) network, which predicts crime occurrences 12 hours ahead using 14-day and 2-day input sequences. We also compare its performance against three baseline models: logistic regression, random forest, and standard LSTM. Results: Incorporating mobility features improves predictive performance, especially when using shorter input sequences. Noteworthy, however, the best results are obtained when both mobility and sociodemographic features are used together, with our deep learning model achieving the highest recall, precision, and F1 score in all four cities, outperforming alternative methods. With this configuration, longer input sequences enhance predictions for violent crimes, while shorter sequences are more effective for property crimes. Conclusion: These findings underscore the importance of integrating diverse data sources for spatiotemporal crime forecasting, mobility included. They also highlight the advantages (and limits) of deep learning when dealing with fine-grained spatial and temporal scales.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-25",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.299781"
-    },
-    {
-        "index": "#102",
-        "title": "Improving Early Sepsis Onset Prediction Through Federated Learning",
-        "link": "/arxiv/2509.20885",
-        "arxiv_id": "2509.20885",
-        "authors": "Christoph Düsing, Philipp Cimiano",
-        "summary": "Early and accurate prediction of sepsis onset remains a major challenge in intensive care, where timely detection and subsequent intervention can significantly improve patient outcomes. While machine learning models have shown promise in this domain, their success is often limited by the amount and diversity of training data available to individual hospitals and Intensive Care Units (ICUs). Federated Learning (FL) addresses this issue by enabling collaborative model training across institutions without requiring data sharing, thus preserving patient privacy. In this work, we propose a federated, attention-enhanced Long Short-Term Memory model for sepsis onset prediction, trained on multi-centric ICU data. Unlike existing approaches that rely on fixed prediction windows, our model supports variable prediction horizons, enabling both short- and long-term forecasting in a single unified model. During analysis, we put particular emphasis on the improvements through our approach in terms of early sepsis detection, i.e., predictions with large prediction windows by conducting an in-depth temporal analysis. Our results prove that using FL does not merely improve overall prediction performance (with performance approaching that of a centralized model), but is particularly beneficial for early sepsis onset prediction. Finally, we show that our choice of employing a variable prediction window rather than a fixed window does not hurt performance significantly but reduces computational, communicational, and organizational overhead.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-25",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.300135"
-    },
-    {
-        "index": "#106",
-        "title": "Model-Based Reinforcement Learning under Random Observation Delays",
-        "link": "/arxiv/2509.20869",
-        "arxiv_id": "2509.20869",
-        "authors": "Armin Karamzade, Kyungmin Kim, JB Lanier, Davide Corsi, Roy Fox",
-        "summary": "Delays frequently occur in real-world environments, yet standard reinforcement learning (RL) algorithms often assume instantaneous perception of the environment. We study random sensor delays in POMDPs, where observations may arrive out-of-sequence, a setting that has not been previously addressed in RL. We analyze the structure of such delays and demonstrate that naive approaches, such as stacking past observations, are insufficient for reliable performance. To address this, we propose a model-based filtering process that sequentially updates the belief state based on an incoming stream of observations. We then introduce a simple delay-aware framework that incorporates this idea into model-based RL, enabling agents to effectively handle random delays. Applying this framework to Dreamer, we compare our approach to delay-aware baselines developed for MDPs. Our method consistently outperforms these baselines and demonstrates robustness to delay distribution shifts during deployment. Additionally, we present experiments on simulated robotic tasks, comparing our method to common practical heuristics and emphasizing the importance of explicitly modeling observation delays.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-25",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.300993"
-    },
-    {
-        "index": "#108",
-        "title": "Federated Markov Imputation: Privacy-Preserving Temporal Imputation in Multi-Centric ICU Environments",
-        "link": "/arxiv/2509.20867",
-        "arxiv_id": "2509.20867",
-        "authors": "Christoph Düsing, Philipp Cimiano",
-        "summary": "Missing data is a persistent challenge in federated learning on electronic health records, particularly when institutions collect time-series data at varying temporal granularities. To address this, we propose Federated Markov Imputation (FMI), a privacy-preserving method that enables Intensive Care Units (ICUs) to collaboratively build global transition models for temporal imputation. We evaluate FMI on a real-world sepsis onset prediction task using the MIMIC-IV dataset and show that it outperforms local imputation baselines, especially in scenarios with irregular sampling intervals across ICUs.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-25",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.301361"
-    },
-    {
-        "index": "#111",
-        "title": "Robust Multi-Omics Integration from Incomplete Modalities Significantly Improves Prediction of Alzheimer's Disease",
-        "link": "/arxiv/2509.20842",
-        "arxiv_id": "2509.20842",
-        "authors": "Sungjoon Park, Kyungwook Lee, Soorin Yim, Doyeong Hwang, Dongyun Kim, Soonyoung Lee, Amy Dunn, Daniel Gatti, Elissa Chesler, Kristen O'Connell, Kiyoung Kim",
-        "summary": "Multi-omics data capture complex biomolecular interactions and provide insights into metabolism and disease. However, missing modalities hinder integrative analysis across heterogeneous omics. To address this, we present MOIRA (Multi-Omics Integration with Robustness to Absent modalities), an early integration method enabling robust learning from incomplete omics data via representation alignment and adaptive aggregation. MOIRA leverages all samples, including those with missing modalities, by projecting each omics dataset onto a shared embedding space where a learnable weighting mechanism fuses them. Evaluated on the Religious Order Study and Memory and Aging Project (ROSMAP) dataset for Alzheimer's Disease (AD), MOIRA outperformed existing approaches, and further ablation studies confirmed modality-wise contributions. Feature importance analysis revealed AD-related biomarkers consistent with prior literature, highlighting the biological relevance of our approach.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-25",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.307314"
-    },
-    {
-        "index": "#112",
-        "title": "ImaginationPolicy: Towards Generalizable, Precise and Reliable End-to-End Policy for Robotic Manipulation",
-        "link": "/arxiv/2509.20841",
-        "arxiv_id": "2509.20841",
-        "authors": "Dekun Lu, Wei Gao, Kui Jia",
-        "summary": "End-to-end robot manipulation policies offer significant potential for enabling embodied agents to understand and interact with the world. Unlike traditional modular pipelines, end-to-end learning mitigates key limitations such as information loss between modules and feature misalignment caused by isolated optimization targets. Despite these advantages, existing end-to-end neural networks for robotic manipulation--including those based on large VLM/VLA models--remain insufficiently performant for large-scale practical deployment. In this paper, we take a step towards an end-to-end manipulation policy that is generalizable, accurate and reliable. To achieve this goal, we propose a novel Chain of Moving Oriented Keypoints (CoMOK) formulation for robotic manipulation. Our formulation is used as the action representation of a neural policy, which can be trained in an end-to-end fashion. Such an action representation is general, as it extends the standard end-effector pose action representation and supports a diverse set of manipulation tasks in a unified manner. The oriented keypoint in our method enables natural generalization to objects with different shapes and sizes, while achieving sub-centimeter accuracy. Moreover, our formulation can easily handle multi-stage tasks, multi-modal robot behaviors, and deformable objects. Extensive simulated and hardware experiments demonstrate the effectiveness of our method.",
-        "subjects": "Robotics, Artificial Intelligence, Machine Learning",
-        "date": "2025-09-25",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.307514"
+        "crawl_time": "2025-09-27T15:52:23.173186"
     },
     {
         "index": "#114",
@@ -849,7 +465,7 @@
         "subjects": "Cryptography and Security, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.307973"
+        "crawl_time": "2025-09-27T15:52:23.177649"
     },
     {
         "index": "#115",
@@ -861,7 +477,7 @@
         "subjects": "Networking and Internet Architecture, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.308202"
+        "crawl_time": "2025-09-27T15:52:23.177943"
     },
     {
         "index": "#117",
@@ -873,31 +489,7 @@
         "subjects": "Human-Computer Interaction, Artificial Intelligence, Computers and Society",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.308611"
-    },
-    {
-        "index": "#122",
-        "title": "IConv: Focusing on Local Variation with Channel Independent Convolution for Multivariate Time Series Forecasting",
-        "link": "/arxiv/2509.20783",
-        "arxiv_id": "2509.20783",
-        "authors": "Gawon Lee, Hanbyeol Park, Minseop Kim, Dohee Kim, Hyerim Bae",
-        "summary": "Real-world time-series data often exhibit non-stationarity, including changing trends, irregular seasonality, and residuals. In terms of changing trends, recently proposed multi-layer perceptron (MLP)-based models have shown excellent performance owing to their computational efficiency and ability to capture long-term dependency. However, the linear nature of MLP architectures poses limitations when applied to channels with diverse distributions, resulting in local variations such as seasonal patterns and residual components being ignored. However, convolutional neural networks (CNNs) can effectively incorporate these variations. To resolve the limitations of MLP, we propose combining them with CNNs. The overall trend is modeled using an MLP to consider long-term dependencies. The CNN uses diverse kernels to model fine-grained local patterns in conjunction with MLP trend predictions. To focus on modeling local variation, we propose IConv, a novel convolutional architecture that processes the temporal dependency channel independently and considers the inter-channel relationship through distinct layers. Independent channel processing enables the modeling of diverse local temporal dependencies and the adoption of a large kernel size. Distinct inter-channel considerations reduce computational cost. The proposed model is evaluated through extensive experiments on time-series datasets. The results reveal the superiority of the proposed method for multivariate time-series forecasting.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-25",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.309635"
-    },
-    {
-        "index": "#125",
-        "title": "Measuring LLM Sensitivity in Transformer-based Tabular Data Synthesis",
-        "link": "/arxiv/2509.20768",
-        "arxiv_id": "2509.20768",
-        "authors": "Maria F. Davila R, Azizjon Turaev, Wolfram Wingerath",
-        "summary": "Synthetic tabular data is used for privacy-preserving data sharing and data-driven model development. Its effectiveness, however, depends heavily on the used Tabular Data Synthesis (TDS) tool. Recent studies have shown that Transformer-based models outperform other state-of-the-art models such as Generative Adversarial Networks (GANs) and Diffusion models in terms of data quality. However, Transformer-based models also come with high computational costs, making them sometimes unfeasible for end users with prosumer hardware. This study presents a sensitivity assessment on how the choice of hyperparameters, such as number of layers or hidden dimension affects the quality of the resultant synthetic data and the computational performance. It is performed across two tools, GReaT and REaLTabFormer, evaluating 10 model setups that vary in architecture type and depth. We assess the sensitivity on three dimensions: runtime, machine learning (ML) utility, and similarity to real data distributions. Experiments were conducted on four real-world datasets. Our findings reveal that runtime is proportional to the number of hyperparameters, with shallower configurations completing faster. GReaT consistently achieves lower runtimes than REaLTabFormer, and only on the largest dataset they have comparable runtime. For small datasets, both tools achieve synthetic data with high utility and optimal similarity, but on larger datasets only REaLTabFormer sustains strong utility and similarity. As a result, REaLTabFormer with lightweight LLMs provides the best balance, since it preserves data quality while reducing computational requirements. Nonetheless, its runtime remains higher than that of GReaT and other TDS tools, suggesting that efficiency gains are possible but only up to a certain level.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-25",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.310211"
+        "crawl_time": "2025-09-27T15:52:23.178531"
     },
     {
         "index": "#129",
@@ -909,7 +501,7 @@
         "subjects": "Human-Computer Interaction, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.310956"
+        "crawl_time": "2025-09-27T15:52:23.181867"
     },
     {
         "index": "#130",
@@ -921,7 +513,7 @@
         "subjects": "Robotics, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.311216"
+        "crawl_time": "2025-09-27T15:52:23.182185"
     },
     {
         "index": "#133",
@@ -933,19 +525,7 @@
         "subjects": "Applications, Artificial Intelligence, Genomics",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.317028"
-    },
-    {
-        "index": "#134",
-        "title": "Learning to Align Molecules and Proteins: A Geometry-Aware Approach to Binding Affinity",
-        "link": "/arxiv/2509.20693",
-        "arxiv_id": "2509.20693",
-        "authors": "Mohammadsaleh Refahi, Bahrad A. Sokhansanj, James R. Brown, Gail Rosen",
-        "summary": "Accurate prediction of drug-target binding affinity can accelerate drug discovery by prioritizing promising compounds before costly wet-lab screening. While deep learning has advanced this task, most models fuse ligand and protein representations via simple concatenation and lack explicit geometric regularization, resulting in poor generalization across chemical space and time. We introduce FIRM-DTI, a lightweight framework that conditions molecular embeddings on protein embeddings through a feature-wise linear modulation (FiLM) layer and enforces metric structure with a triplet loss. An RBF regression head operating on embedding distances yields smooth, interpretable affinity predictions. Despite its modest size, FIRM-DTI achieves state-of-the-art performance on the Therapeutics Data Commons DTI-DG benchmark, as demonstrated by an extensive ablation study and out-of-domain evaluation. Our results underscore the value of conditioning and metric learning for robust drug-target affinity prediction.",
-        "subjects": "Machine Learning, Artificial Intelligence, Molecular Networks",
-        "date": "2025-09-25",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.317308"
+        "crawl_time": "2025-09-27T15:52:23.183067"
     },
     {
         "index": "#135",
@@ -957,7 +537,7 @@
         "subjects": "Sound, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.317528"
+        "crawl_time": "2025-09-27T15:52:23.183653"
     },
     {
         "index": "#137",
@@ -969,7 +549,7 @@
         "subjects": "Sound, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.318023"
+        "crawl_time": "2025-09-27T15:52:23.184258"
     },
     {
         "index": "#139",
@@ -981,7 +561,7 @@
         "subjects": "Human-Computer Interaction, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.318465"
+        "crawl_time": "2025-09-27T15:52:23.184882"
     },
     {
         "index": "#141",
@@ -993,7 +573,7 @@
         "subjects": "Cryptography and Security, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.318851"
+        "crawl_time": "2025-09-27T15:52:23.185460"
     },
     {
         "index": "#142",
@@ -1005,7 +585,7 @@
         "subjects": "Robotics, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.319031"
+        "crawl_time": "2025-09-27T15:52:23.185729"
     },
     {
         "index": "#143",
@@ -1017,55 +597,7 @@
         "subjects": "Econometrics, Artificial Intelligence, General Economics, Methodology",
         "date": "2025-09-25",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.319288"
-    },
-    {
-        "index": "#144",
-        "title": "Personalized Federated Dictionary Learning for Modeling Heterogeneity in Multi-site fMRI Data",
-        "link": "/arxiv/2509.20627",
-        "arxiv_id": "2509.20627",
-        "authors": "Yipu Zhang, Chengshuo Zhang, Ziyu Zhou, Gang Qu, Hao Zheng, Yuping Wang, Hui Shen, Hongwen Deng",
-        "summary": "Data privacy constraints pose significant challenges for large-scale neuroimaging analysis, especially in multi-site functional magnetic resonance imaging (fMRI) studies, where site-specific heterogeneity leads to non-independent and identically distributed (non-IID) data. These factors hinder the development of generalizable models. To address these challenges, we propose Personalized Federated Dictionary Learning (PFedDL), a novel federated learning framework that enables collaborative modeling across sites without sharing raw data. PFedDL performs independent dictionary learning at each site, decomposing each site-specific dictionary into a shared global component and a personalized local component. The global atoms are updated via federated aggregation to promote cross-site consistency, while the local atoms are refined independently to capture site-specific variability, thereby enhancing downstream analysis. Experiments on the ABIDE dataset demonstrate that PFedDL outperforms existing methods in accuracy and robustness across non-IID datasets.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-25",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.319520"
-    },
-    {
-        "index": "#146",
-        "title": "MMG: Mutual Information Estimation via the MMSE Gap in Diffusion",
-        "link": "/arxiv/2509.20609",
-        "arxiv_id": "2509.20609",
-        "authors": "Longxuan Yu, Xing Shi, Xianghao Kong, Tong Jia, Greg Ver Steeg",
-        "summary": "Mutual information (MI) is one of the most general ways to measure relationships between random variables, but estimating this quantity for complex systems is challenging. Denoising diffusion models have recently set a new bar for density estimation, so it is natural to consider whether these methods could also be used to improve MI estimation. Using the recently introduced information-theoretic formulation of denoising diffusion models, we show the diffusion models can be used in a straightforward way to estimate MI. In particular, the MI corresponds to half the gap in the Minimum Mean Square Error (MMSE) between conditional and unconditional diffusion, integrated over all Signal-to-Noise-Ratios (SNRs) in the noising process. Our approach not only passes self-consistency tests but also outperforms traditional and score-based diffusion MI estimators. Furthermore, our method leverages adaptive importance sampling to achieve scalable MI estimation, while maintaining strong performance even when the MI is high.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-24",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.319927"
-    },
-    {
-        "index": "#147",
-        "title": "Experience Deploying Containerized GenAI Services at an HPC Center",
-        "link": "/arxiv/2509.20603",
-        "arxiv_id": "2509.20603",
-        "authors": "Angel M. Beltre, Jeff Ogden, Kevin Pedretti",
-        "summary": "Generative Artificial Intelligence (GenAI) applications are built from specialized components -- inference servers, object storage, vector and graph databases, and user interfaces -- interconnected via web-based APIs. While these components are often containerized and deployed in cloud environments, such capabilities are still emerging at High-Performance Computing (HPC) centers. In this paper, we share our experience deploying GenAI workloads within an established HPC center, discussing the integration of HPC and cloud computing environments. We describe our converged computing architecture that integrates HPC and Kubernetes platforms running containerized GenAI workloads, helping with reproducibility. A case study illustrates the deployment of the Llama Large Language Model (LLM) using a containerized inference server (vLLM) across both Kubernetes and HPC platforms using multiple container runtimes. Our experience highlights practical considerations and opportunities for the HPC container community, guiding future research and tool development.",
-        "subjects": "Distributed, Parallel, and Cluster Computing, Artificial Intelligence, Hardware Architecture, Emerging Technologies, Machine Learning",
-        "date": "2025-09-24",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.320127"
-    },
-    {
-        "index": "#148",
-        "title": "An LLM-based Agentic Framework for Accessible Network Control",
-        "link": "/arxiv/2509.20600",
-        "arxiv_id": "2509.20600",
-        "authors": "Samuel Lin, Jiawei Zhou, Minlan Yu",
-        "summary": "Traditional approaches to network management have been accessible only to a handful of highly-trained network operators with significant expert knowledge. This creates barriers for lay users to easily manage their networks without resorting to experts. With recent development of powerful large language models (LLMs) for language comprehension, we design a system to make network management accessible to a broader audience of non-experts by allowing users to converse with networks in natural language. To effectively leverage advancements in LLMs, we propose an agentic framework that uses an intermediate representation to streamline configuration across diverse vendor equipment, retrieves the network state from memory in real-time, and provides an interface for external feedback. We also conduct pilot studies to collect real user data of natural language utterances for network control, and present a visualization interface to facilitate dialogue-driven user interaction and enable large-scale data collection for future development. Preliminary experiments validate the effectiveness of our proposed system components with LLM integration on both synthetic and real user utterances. Through our data collection and visualization efforts, we pave the way for more effective use of LLMs and democratize network control for everyday users.",
-        "subjects": "Networking and Internet Architecture, Artificial Intelligence, Machine Learning",
-        "date": "2025-09-24",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.320311"
+        "crawl_time": "2025-09-27T15:52:23.186030"
     },
     {
         "index": "#152",
@@ -1077,19 +609,7 @@
         "subjects": "Human-Computer Interaction, Artificial Intelligence",
         "date": "2025-09-24",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.321188"
-    },
-    {
-        "index": "#153",
-        "title": "PIRF: Physics-Informed Reward Fine-Tuning for Diffusion Models",
-        "link": "/arxiv/2509.20570",
-        "arxiv_id": "2509.20570",
-        "authors": "Mingze Yuan, Pengfei Jin, Na Li, Quanzheng Li",
-        "summary": "Diffusion models have demonstrated strong generative capabilities across scientific domains, but often produce outputs that violate physical laws. We propose a new perspective by framing physics-informed generation as a sparse reward optimization problem, where adherence to physical constraints is treated as a reward signal. This formulation unifies prior approaches under a reward-based paradigm and reveals a shared bottleneck: reliance on diffusion posterior sampling (DPS)-style value function approximations, which introduce non-negligible errors and lead to training instability and inference inefficiency. To overcome this, we introduce Physics-Informed Reward Fine-tuning (PIRF), a method that bypasses value approximation by computing trajectory-level rewards and backpropagating their gradients directly. However, a naive implementation suffers from low sample efficiency and compromised data fidelity. PIRF mitigates these issues through two key strategies: (1) a layer-wise truncated backpropagation method that leverages the spatiotemporally localized nature of physics-based rewards, and (2) a weight-based regularization scheme that improves efficiency over traditional distillation-based methods. Across five PDE benchmarks, PIRF consistently achieves superior physical enforcement under efficient sampling regimes, highlighting the potential of reward fine-tuning for advancing scientific generative modeling.",
-        "subjects": "Machine Learning, Artificial Intelligence, Computational Engineering, Finance, and Science, Systems and Control",
-        "date": "2025-09-24",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.321439"
+        "crawl_time": "2025-09-27T15:52:23.188723"
     },
     {
         "index": "#156",
@@ -1101,19 +621,7 @@
         "subjects": "Robotics, Artificial Intelligence",
         "date": "2025-09-24",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.327408"
-    },
-    {
-        "index": "#157",
-        "title": "Understanding and Improving Adversarial Robustness of Neural Probabilistic Circuits",
-        "link": "/arxiv/2509.20549",
-        "arxiv_id": "2509.20549",
-        "authors": "Weixin Chen, Han Zhao",
-        "summary": "Neural Probabilistic Circuits (NPCs), a new class of concept bottleneck models, comprise an attribute recognition model and a probabilistic circuit for reasoning. By integrating the outputs from these two modules, NPCs produce compositional and interpretable predictions. While offering enhanced interpretability and high performance on downstream tasks, the neural-network-based attribute recognition model remains a black box. This vulnerability allows adversarial attacks to manipulate attribute predictions by introducing carefully crafted subtle perturbations to input images, potentially compromising the final predictions. In this paper, we theoretically analyze the adversarial robustness of NPC and demonstrate that it only depends on the robustness of the attribute recognition model and is independent of the robustness of the probabilistic circuit. Moreover, we propose RNPC, the first robust neural probabilistic circuit against adversarial attacks on the recognition module. RNPC introduces a novel class-wise integration for inference, ensuring a robust combination of outputs from the two modules. Our theoretical analysis demonstrates that RNPC exhibits provably improved adversarial robustness compared to NPC. Empirical results on image classification tasks show that RNPC achieves superior adversarial robustness compared to existing concept bottleneck models while maintaining high accuracy on benign inputs.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-24",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.327751"
+        "crawl_time": "2025-09-27T15:52:23.189889"
     },
     {
         "index": "#159",
@@ -1125,19 +633,7 @@
         "subjects": "Human-Computer Interaction, Artificial Intelligence",
         "date": "2025-09-24",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.328359"
-    },
-    {
-        "index": "#160",
-        "title": "Complexity-Driven Policy Optimization",
-        "link": "/arxiv/2509.20509",
-        "arxiv_id": "2509.20509",
-        "authors": "Luca Serfilippi, Giorgio Franceschelli, Antonio Corradi, Mirco Musolesi",
-        "summary": "Policy gradient methods often balance exploitation and exploration via entropy maximization. However, maximizing entropy pushes the policy towards a uniform random distribution, which represents an unstructured and sometimes inefficient exploration strategy. In this work, we propose replacing the entropy bonus with a more robust complexity bonus. In particular, we adopt a measure of complexity, defined as the product of Shannon entropy and disequilibrium, where the latter quantifies the distance from the uniform distribution. This regularizer encourages policies that balance stochasticity (high entropy) with structure (high disequilibrium), guiding agents toward regimes where useful, non-trivial behaviors can emerge. Such behaviors arise because the regularizer suppresses both extremes, e.g., maximal disorder and complete order, creating pressure for agents to discover structured yet adaptable strategies. Starting from Proximal Policy Optimization (PPO), we introduce Complexity-Driven Policy Optimization (CDPO), a new learning algorithm that replaces entropy with complexity. We show empirically across a range of discrete action space tasks that CDPO is more robust to the choice of the complexity coefficient than PPO is with the entropy coefficient, especially in environments requiring greater exploration.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-24",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.328551"
+        "crawl_time": "2025-09-27T15:52:23.190745"
     },
     {
         "index": "#162",
@@ -1149,7 +645,7 @@
         "subjects": "Robotics, Artificial Intelligence",
         "date": "2025-09-24",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.329048"
+        "crawl_time": "2025-09-27T15:52:23.191588"
     },
     {
         "index": "#163",
@@ -1161,19 +657,7 @@
         "subjects": "Software Engineering, Artificial Intelligence",
         "date": "2025-09-24",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.329258"
-    },
-    {
-        "index": "#164",
-        "title": "CoSupFormer : A Contrastive Supervised learning approach for EEG signal Classification",
-        "link": "/arxiv/2509.20489",
-        "arxiv_id": "2509.20489",
-        "authors": "D. Darankoum, C. Habermacher, J. Volle, S. Grudinin",
-        "summary": "Electroencephalography signals (EEGs) contain rich multi-scale information crucial for understanding brain states, with potential applications in diagnosing and advancing the drug development landscape. However, extracting meaningful features from raw EEG signals while handling noise and channel variability remains a major challenge. This work proposes a novel end-to-end deep-learning framework that addresses these issues through several key innovations. First, we designed an encoder capable of explicitly capturing multi-scale frequency oscillations covering a wide range of features for different EEG-related tasks. Secondly, to model complex dependencies and handle the high temporal resolution of EEGs, we introduced an attention-based encoder that simultaneously learns interactions across EEG channels and within localized {\\em patches} of individual channels. We integrated a dedicated gating network on top of the attention encoder to dynamically filter out noisy and non-informative channels, enhancing the reliability of EEG data. The entire encoding process is guided by a novel loss function, which leverages supervised and contrastive learning, significantly improving model generalization. We validated our approach in multiple applications, ranging from the classification of effects across multiple Central Nervous System (CNS) disorders treatments to the diagnosis of Parkinson's and Alzheimer's disease. Our results demonstrate that the proposed learning paradigm can extract biologically meaningful patterns from raw EEG signals across different species, autonomously select high-quality channels, and achieve robust generalization through innovative architectural and loss design.",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-09-24",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.329452"
+        "crawl_time": "2025-09-27T15:52:23.191876"
     },
     {
         "index": "#166",
@@ -1185,7 +669,7 @@
         "subjects": "Computers and Society, Artificial Intelligence",
         "date": "2025-09-24",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.329823"
+        "crawl_time": "2025-09-27T15:52:23.192687"
     },
     {
         "index": "#167",
@@ -1197,7 +681,7 @@
         "subjects": "Cryptography and Security, Artificial Intelligence, Emerging Technologies",
         "date": "2025-09-24",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.330039"
+        "crawl_time": "2025-09-27T15:52:23.192961"
     },
     {
         "index": "#168",
@@ -1209,7 +693,7 @@
         "subjects": "Cryptography and Security, Artificial Intelligence",
         "date": "2025-09-24",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.330327"
+        "crawl_time": "2025-09-27T15:52:23.193245"
     },
     {
         "index": "#169",
@@ -1221,7 +705,7 @@
         "subjects": "Cryptography and Security, Artificial Intelligence",
         "date": "2025-09-23",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.330531"
+        "crawl_time": "2025-09-27T15:52:23.193522"
     },
     {
         "index": "#170",
@@ -1233,7 +717,7 @@
         "subjects": "Audio and Speech Processing, Artificial Intelligence",
         "date": "2025-09-23",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.330726"
+        "crawl_time": "2025-09-27T15:52:23.193808"
     },
     {
         "index": "#171",
@@ -1245,7 +729,7 @@
         "subjects": "Audio and Speech Processing, Artificial Intelligence, Sound",
         "date": "2025-09-23",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.330965"
+        "crawl_time": "2025-09-27T15:52:23.194090"
     },
     {
         "index": "#172",
@@ -1257,19 +741,7 @@
         "subjects": "Cryptography and Security, Artificial Intelligence, Distributed, Parallel, and Cluster Computing",
         "date": "2025-09-23",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.331164"
-    },
-    {
-        "index": "#174",
-        "title": "The Secret Agenda: LLMs Strategically Lie and Our Current Safety Tools Are Blind",
-        "link": "/arxiv/2509.20393",
-        "arxiv_id": "2509.20393",
-        "authors": "Caleb DeLeeuw, Gaurav Chawla, Aniket Sharma, Vanessa Dietze",
-        "summary": "We investigate strategic deception in large language models using two complementary testbeds: Secret Agenda (across 38 models) and Insider Trading compliance (via SAE architectures). Secret Agenda reliably induced lying when deception advantaged goal achievement across all model families. Analysis revealed that autolabeled SAE features for \"deception\" rarely activated during strategic dishonesty, and feature steering experiments across 100+ deception-related features failed to prevent lying. Conversely, insider trading analysis using unlabeled SAE activations separated deceptive versus compliant responses through discriminative patterns in heatmaps and t-SNE visualizations. These findings suggest autolabel-driven interpretability approaches fail to detect or control behavioral deception, while aggregate unlabeled activations provide population-level structure for risk assessment. Results span Llama 8B/70B SAE implementations and GemmaScope under resource constraints, representing preliminary findings that motivate larger studies on feature discovery, labeling methodology, and causal interventions in realistic deception contexts.",
-        "subjects": "Computers and Society, Artificial Intelligence, Machine Learning",
-        "date": "2025-09-23",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.331564"
+        "crawl_time": "2025-09-27T15:52:23.194353"
     },
     {
         "index": "#175",
@@ -1281,7 +753,7 @@
         "subjects": "Cryptography and Security, Artificial Intelligence",
         "date": "2025-09-22",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.331733"
+        "crawl_time": "2025-09-27T15:52:23.195183"
     },
     {
         "index": "#176",
@@ -1293,7 +765,7 @@
         "subjects": "Software Engineering, Artificial Intelligence, Information Retrieval",
         "date": "2025-09-22",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.331925"
+        "crawl_time": "2025-09-27T15:52:23.195475"
     },
     {
         "index": "#177",
@@ -1305,7 +777,7 @@
         "subjects": "Cryptography and Security, Artificial Intelligence, Programming Languages, Software Engineering",
         "date": "2025-09-21",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.332124"
+        "crawl_time": "2025-09-27T15:52:23.195794"
     },
     {
         "index": "#178",
@@ -1317,19 +789,7 @@
         "subjects": "Cryptography and Security, Artificial Intelligence",
         "date": "2025-09-21",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.337688"
-    },
-    {
-        "index": "#179",
-        "title": "Lightweight MobileNetV1+GRU for ECG Biometric Authentication: Federated and Adversarial Evaluation",
-        "link": "/arxiv/2509.20382",
-        "arxiv_id": "2509.20382",
-        "authors": "Dilli Hang Rai, Sabin Kafley",
-        "summary": "ECG biometrics offer a unique, secure authentication method, yet their deployment on wearable devices faces real-time processing, privacy, and spoofing vulnerability challenges. This paper proposes a lightweight deep learning model (MobileNetV1+GRU) for ECG-based authentication, injection of 20dB Gaussian noise & custom preprocessing. We simulate wearable conditions and edge deployment using the ECGID, MIT-BIH, CYBHi, and PTB datasets, achieving accuracies of 99.34%, 99.31%, 91.74%, and 98.49%, F1-scores of 0.9869, 0.9923, 0.9125, and 0.9771, Precision of 0.9866, 0.9924, 0.9180 and 0.9845, Recall of 0.9878, 0.9923, 0.9129, and 0.9756, equal error rates (EER) of 0.0009, 0.00013, 0.0091, and 0.0009, and ROC-AUC values of 0.9999, 0.9999, 0.9985, and 0.9998, while under FGSM adversarial attacks, accuracy drops from 96.82% to as low as 0.80%. This paper highlights federated learning, adversarial testing, and the need for diverse wearable physiological datasets to ensure secure and scalable biometrics.",
-        "subjects": "Cryptography and Security, Artificial Intelligence, Machine Learning, Signal Processing",
-        "date": "2025-09-21",
-        "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.338120"
+        "crawl_time": "2025-09-27T15:52:23.196116"
     },
     {
         "index": "#181",
@@ -1341,7 +801,7 @@
         "subjects": "Software Engineering, Artificial Intelligence, Programming Languages",
         "date": "2025-09-20",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.338851"
+        "crawl_time": "2025-09-27T15:52:23.196946"
     },
     {
         "index": "#187",
@@ -1353,6 +813,6 @@
         "subjects": "Computers and Society, Artificial Intelligence, Human-Computer Interaction",
         "date": "2025-09-17",
         "category": "cs.AI",
-        "crawl_time": "2025-09-26T21:01:55.340123"
+        "crawl_time": "2025-09-27T15:52:23.198601"
     }
 ]

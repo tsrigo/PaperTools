@@ -304,6 +304,83 @@ def generate_summary(paper_content: str, client: OpenAI, model: str, temperature
         return "总结生成失败"
 
 
+def generate_inspiration_trace(paper_content: str, client: OpenAI, model: str, temperature: float, paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
+    """
+    生成论文的灵感溯源分析
+    
+    Args:
+        paper_content: 论文完整内容
+        client: OpenAI客户端
+        model: 使用的模型
+        temperature: 生成温度
+        paper_title: 论文标题（用于缓存）
+        cache_manager: 缓存管理器
+    
+    Returns:
+        生成的灵感溯源分析
+    """
+    # 尝试从缓存获取
+    if cache_manager and ENABLE_CACHE:
+        cache_key = f"inspiration_{paper_title}"
+        cached_trace = cache_manager.get_summary_cache(cache_key, paper_content)
+        if cached_trace:
+            return cached_trace
+    
+    # 构建prompt
+    prompt = f"""请基于以下学术论文内容，系统性地推演作者提出其核心方法的逻辑链。
+
+{paper_content}
+
+需要清晰地展现一个从"面临的挑战"到"关键洞察"，再到"提出解决方案"的完整思考过程。请聚焦于思想的演进脉络，而不是方法的具体实现细节。
+
+请按照以下格式回复，使用中文：
+
+## 面临的挑战
+[描述作者识别到的核心问题或挑战]
+
+## 关键洞察
+[分析作者是如何理解问题本质的，有什么独特的视角]
+
+## 解决方案演进
+[展示从洞察到最终方法的思维过程]
+
+## 创新点总结
+[总结这种思路的创新之处]
+
+要求：
+1. 重点关注思想脉络，而非技术细节
+2. 语言简洁明了，突出逻辑链条
+3. 控制在400字以内"""
+
+    try:
+        response = client.chat.completions.create(
+            model=model,
+            messages=[
+                {
+                    "role": "system", 
+                    "content": "你是一个学术思维分析专家，擅长追溯和分析学术论文中的创新思路和逻辑演进。"
+                },
+                {
+                    "role": "user", 
+                    "content": prompt
+                }
+            ],
+            temperature=temperature
+        )
+        inspiration_trace = response.choices[0].message.content
+        
+        # 保存到缓存
+        if cache_manager and ENABLE_CACHE:
+            cache_key = f"inspiration_{paper_title}"
+            cache_manager.set_summary_cache(cache_key, paper_content, inspiration_trace)
+        
+        return inspiration_trace
+
+    except Exception as e:
+        print(f"❌ 生成灵感溯源失败: {e}")
+        return "生成灵感溯源时发生错误"
+
+
 def main():
     """主函数"""
     parser = argparse.ArgumentParser(description='论文总结生成工具')
@@ -387,6 +464,7 @@ def main():
             # 检查总结缓存（使用虚拟内容先检查）
             cached_summary = None
             cached_translation = None
+            cached_inspiration = None
             
             if cache_manager and ENABLE_CACHE:
                 # 先用论文链接作为键检查是否有缓存的内容
@@ -395,14 +473,19 @@ def main():
                     cached_paper_content = paper_content_cache['data']['content']
                     # 检查是否有对应的总结缓存
                     cached_summary = cache_manager.get_summary_cache(paper_title, cached_paper_content)
+                    # 检查灵感溯源缓存
+                    inspiration_cache_key = f"inspiration_{paper_title}"
+                    cached_inspiration = cache_manager.get_summary_cache(inspiration_cache_key, cached_paper_content)
+                    
                     if original_summary:
                         cache_key = f"translation_{paper_title}_{original_summary[:100]}"
                         cached_translation = cache_manager.get_summary_cache(cache_key, original_summary)
                     
                     # 如果都有缓存，直接返回
-                    if cached_summary and (not original_summary or cached_translation):
+                    if cached_summary and cached_inspiration and (not original_summary or cached_translation):
                         paper_copy = paper.copy()
                         paper_copy['summary2'] = cached_summary
+                        paper_copy['inspiration_trace'] = cached_inspiration
                         paper_copy['summary_translation'] = cached_translation or "无需翻译"
                         paper_copy['summary_generated_time'] = time.strftime('%Y-%m-%d %H:%M:%S')
                         paper_copy['summary_model'] = args.model
@@ -431,6 +514,14 @@ def main():
             # 生成总结（这里会再次检查缓存）
             summary = generate_summary(paper_content, client, args.model, args.temperature, paper.get('title', ''), cache_manager)
             
+            # 生成灵感溯源分析
+            inspiration_trace = ""
+            try:
+                inspiration_trace = generate_inspiration_trace(paper_content, client, args.model, args.temperature, paper.get('title', ''), cache_manager)
+            except Exception as e:
+                print(f"⚠️ 生成灵感溯源失败 {paper_title[:30]}: {e}")
+                inspiration_trace = "灵感溯源分析生成失败"
+            
             # 翻译原始摘要（这里也会检查缓存）
             summary_translation = ""
             if original_summary:
@@ -443,6 +534,7 @@ def main():
             # 添加总结到论文数据中
             paper_copy = paper.copy()
             paper_copy['summary2'] = summary
+            paper_copy['inspiration_trace'] = inspiration_trace
             paper_copy['summary_translation'] = summary_translation
             paper_copy['summary_generated_time'] = time.strftime('%Y-%m-%d %H:%M:%S')
             paper_copy['summary_model'] = args.model
@@ -652,6 +744,49 @@ def generate_papers_list_html(filtered_papers, output_dir):
         .toast .countdown {{
             opacity: 0.8;
         }}
+        
+        /* 可折叠部分样式 */
+        .collapsible-header {{
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+            padding: 8px 0;
+            user-select: none;
+            margin-bottom: 5px;
+        }}
+        .collapsible-header:hover {{
+            opacity: 0.8;
+        }}
+        .collapsible-header::before {{
+            content: "▶";
+            margin-right: 8px;
+            transition: transform 0.3s ease;
+            font-size: 0.8em;
+        }}
+        .collapsible-header.open::before {{
+            transform: rotate(90deg);
+        }}
+        .collapsible-content {{
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }}
+        .collapsible-content.open {{
+            max-height: 1000px;
+        }}
+        .collapsible-content .inner {{
+            padding-top: 5px;
+        }}
+        
+        /* 灵感溯源的特殊样式 */
+        .inspiration-trace {{
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 10px;
+            margin: 15px 0;
+            font-size: 0.9em;
+        }}
     </style>
     <script>
     // 页面所属日期（由生成器注入）
@@ -779,8 +914,29 @@ def generate_papers_list_html(filtered_papers, output_dir):
         }}
     }}
 
+    // 可折叠功能
+    function initializeCollapsible() {{
+        document.querySelectorAll('.collapsible-header').forEach(header => {{
+            header.addEventListener('click', function() {{
+                const content = this.nextElementSibling;
+                const isOpen = header.classList.contains('open');
+                
+                if (isOpen) {{
+                    header.classList.remove('open');
+                    content.classList.remove('open');
+                }} else {{
+                    header.classList.add('open');
+                    content.classList.add('open');
+                }}
+            }});
+        }});
+    }}
+
     document.addEventListener('DOMContentLoaded', async () => {{
         try {{
+            // 初始化可折叠功能
+            initializeCollapsible();
+            
             // 优先从路径中解析 /YYYY-MM-DD/index.html；若服务根目录即日期目录，则回退到 PAGE_DATE
             const parts = location.pathname.split('/').filter(Boolean);
             let dateStr = parts.length >= 2 ? parts[parts.length - 2] : '';
@@ -845,16 +1001,44 @@ def generate_papers_list_html(filtered_papers, output_dir):
                 <label><input type=\"checkbox\" onchange=\"toggleRead('{os.path.basename(output_dir)}','{arxiv_id}', this)\"> 已阅读</label>
             </div>
             
-            <div class="filter-reason">
-                <strong>筛选原因:</strong> {paper.get('filter_reason', '无特定原因')}
+            <!-- 筛选原因 (默认折叠) -->
+            <div class="collapsible-header">筛选原因</div>
+            <div class="collapsible-content">
+                <div class="inner">
+                    <div class="filter-reason">
+                        {paper.get('filter_reason', '无特定原因')}
+                    </div>
+                </div>
             </div>
             
-            <div class="paper-summary">
-                <strong>AI摘要:</strong> {paper.get('summary2', '暂无AI摘要')}
+            <!-- AI摘要 (默认展开) -->
+            <div class="collapsible-header open">AI摘要</div>
+            <div class="collapsible-content open">
+                <div class="inner">
+                    <div class="paper-summary">
+                        {paper.get('summary2', '暂无AI摘要')}
+                    </div>
+                </div>
             </div>
             
-            <div class="paper-original-summary">
-                <strong>原始摘要（中文翻译）:</strong> {paper.get('summary_translation', paper.get('summary', '暂无摘要翻译'))}
+            <!-- 原始摘要 (默认展开) -->
+            <div class="collapsible-header open">原始摘要（中文翻译）</div>
+            <div class="collapsible-content open">
+                <div class="inner">
+                    <div class="paper-original-summary">
+                        {paper.get('summary_translation', paper.get('summary', '暂无摘要翻译'))}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 灵感溯源 (默认折叠) -->
+            <div class="collapsible-header">灵感溯源</div>
+            <div class="collapsible-content">
+                <div class="inner">
+                    <div class="inspiration-trace">
+                        {paper.get('inspiration_trace', '暂无灵感溯源分析')}
+                    </div>
+                </div>
             </div>
             
             <div class="paper-links">

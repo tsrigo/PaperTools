@@ -9,7 +9,7 @@
         "subjects": "Multiagent Systems, Computation and Language, Computer Vision and Pattern Recognition",
         "date": "2025-09-24",
         "category": "cs.MA",
-        "crawl_time": "2025-09-26T21:01:54.500623"
+        "crawl_time": "2025-09-27T15:52:20.882614"
     },
     {
         "index": "#2",
@@ -21,7 +21,7 @@
         "subjects": "Multiagent Systems, Machine Learning",
         "date": "2025-09-24",
         "category": "cs.MA",
-        "crawl_time": "2025-09-26T21:01:54.500857"
+        "crawl_time": "2025-09-27T15:52:20.882910"
     },
     {
         "index": "#3",
@@ -33,7 +33,7 @@
         "subjects": "Machine Learning, Multiagent Systems",
         "date": "2025-09-25",
         "category": "cs.MA",
-        "crawl_time": "2025-09-26T21:01:54.501081"
+        "crawl_time": "2025-09-27T15:52:20.883180"
     },
     {
         "index": "#4",
@@ -45,7 +45,7 @@
         "subjects": "Artificial Intelligence, Multiagent Systems",
         "date": "2025-09-25",
         "category": "cs.MA",
-        "crawl_time": "2025-09-26T21:01:54.501280"
+        "crawl_time": "2025-09-27T15:52:20.883458"
     },
     {
         "index": "#5",
@@ -57,7 +57,7 @@
         "subjects": "Physics and Society, Multiagent Systems",
         "date": "2025-09-25",
         "category": "cs.MA",
-        "crawl_time": "2025-09-26T21:01:54.501452"
+        "crawl_time": "2025-09-27T15:52:20.883724"
     },
     {
         "index": "#6",
@@ -69,7 +69,7 @@
         "subjects": "Computer Science and Game Theory, Logic in Computer Science, Multiagent Systems, Symbolic Computation",
         "date": "2025-09-25",
         "category": "cs.MA",
-        "crawl_time": "2025-09-26T21:01:54.501649"
+        "crawl_time": "2025-09-27T15:52:20.883989"
     },
     {
         "index": "#7",
@@ -81,6 +81,6 @@
         "subjects": "Artificial Intelligence, Human-Computer Interaction, Multiagent Systems",
         "date": "2025-09-25",
         "category": "cs.MA",
-        "crawl_time": "2025-09-26T21:01:54.501888"
+        "crawl_time": "2025-09-27T15:52:20.884292"
     }
 ]

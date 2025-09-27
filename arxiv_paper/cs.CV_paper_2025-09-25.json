@@ -9,7 +9,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.809820"
+        "crawl_time": "2025-09-27T15:52:22.886267"
     },
     {
         "index": "#2",
@@ -21,7 +21,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.810190"
+        "crawl_time": "2025-09-27T15:52:22.887005"
     },
     {
         "index": "#3",
@@ -33,7 +33,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.810578"
+        "crawl_time": "2025-09-27T15:52:22.887824"
     },
     {
         "index": "#4",
@@ -45,7 +45,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence, Machine Learning",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.810881"
+        "crawl_time": "2025-09-27T15:52:22.888566"
     },
     {
         "index": "#5",
@@ -57,7 +57,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.811155"
+        "crawl_time": "2025-09-27T15:52:22.889363"
     },
     {
         "index": "#6",
@@ -69,7 +69,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.811433"
+        "crawl_time": "2025-09-27T15:52:22.890219"
     },
     {
         "index": "#7",
@@ -81,7 +81,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.811637"
+        "crawl_time": "2025-09-27T15:52:22.896078"
     },
     {
         "index": "#8",
@@ -93,7 +93,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.811877"
+        "crawl_time": "2025-09-27T15:52:22.896615"
     },
     {
         "index": "#9",
@@ -105,19 +105,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.812104"
-    },
-    {
-        "index": "#10",
-        "title": "Hallucination as an Upper Bound: A New Perspective on Text-to-Image Evaluation",
-        "link": "/arxiv/2509.21257",
-        "arxiv_id": "2509.21257",
-        "authors": "Seyed Amir Kasaei, Mohammad Hossein Rohban",
-        "summary": "In language and vision-language models, hallucination is broadly understood as content generated from a model's prior knowledge or biases rather than from the given input. While this phenomenon has been studied in those domains, it has not been clearly framed for text-to-image (T2I) generative models. Existing evaluations mainly focus on alignment, checking whether prompt-specified elements appear, but overlook what the model generates beyond the prompt. We argue for defining hallucination in T2I as bias-driven deviations and propose a taxonomy with three categories: attribute, relation, and object hallucinations. This framing introduces an upper bound for evaluation and surfaces hidden biases, providing a foundation for richer assessment of T2I models.",
-        "subjects": "Computer Vision and Pattern Recognition, Computation and Language",
-        "date": "2025-09-25",
-        "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.812286"
+        "crawl_time": "2025-09-27T15:52:22.897131"
     },
     {
         "index": "#11",
@@ -129,7 +117,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.812490"
+        "crawl_time": "2025-09-27T15:52:22.898064"
     },
     {
         "index": "#12",
@@ -141,7 +129,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence, Machine Learning",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.812750"
+        "crawl_time": "2025-09-27T15:52:22.898702"
     },
     {
         "index": "#13",
@@ -153,7 +141,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.812928"
+        "crawl_time": "2025-09-27T15:52:22.899162"
     },
     {
         "index": "#14",
@@ -165,7 +153,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.813263"
+        "crawl_time": "2025-09-27T15:52:22.899848"
     },
     {
         "index": "#15",
@@ -177,31 +165,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Quantitative Methods",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.813479"
-    },
-    {
-        "index": "#16",
-        "title": "Evaluating the Evaluators: Metrics for Compositional Text-to-Image Generation",
-        "link": "/arxiv/2509.21227",
-        "arxiv_id": "2509.21227",
-        "authors": "Seyed Amir Kasaei, Ali Aghayari, Arash Marioriyad, Niki Sepasian, MohammadAmin Fazli, Mahdieh Soleymani Baghshah, Mohammad Hossein Rohban",
-        "summary": "Text-image generation has advanced rapidly, but assessing whether outputs truly capture the objects, attributes, and relations described in prompts remains a central challenge. Evaluation in this space relies heavily on automated metrics, yet these are often adopted by convention or popularity rather than validated against human judgment. Because evaluation and reported progress in the field depend directly on these metrics, it is critical to understand how well they reflect human preferences. To address this, we present a broad study of widely used metrics for compositional text-image evaluation. Our analysis goes beyond simple correlation, examining their behavior across diverse compositional challenges and comparing how different metric families align with human judgments. The results show that no single metric performs consistently across tasks: performance varies with the type of compositional problem. Notably, VQA-based metrics, though popular, are not uniformly superior, while certain embedding-based metrics prove stronger in specific cases. Image-only metrics, as expected, contribute little to compositional evaluation, as they are designed for perceptual quality rather than alignment. These findings underscore the importance of careful and transparent metric selection, both for trustworthy evaluation and for their use as reward models in generation. Project page is available at \\href{https://amirkasaei.com/eval-the-evals/}{this URL}.",
-        "subjects": "Computer Vision and Pattern Recognition, Computation and Language",
-        "date": "2025-09-25",
-        "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.813688"
-    },
-    {
-        "index": "#17",
-        "title": "Sigma: Semantically Informative Pre-training for Skeleton-based Sign Language Understanding",
-        "link": "/arxiv/2509.21223",
-        "arxiv_id": "2509.21223",
-        "authors": "Muxin Pu, Mei Kuan Lim, Chun Yong Chong, Chen Change Loy",
-        "summary": "Pre-training has proven effective for learning transferable features in sign language understanding (SLU) tasks. Recently, skeleton-based methods have gained increasing attention because they can robustly handle variations in subjects and backgrounds without being affected by appearance or environmental factors. Current SLU methods continue to face three key limitations: 1) weak semantic grounding, as models often capture low-level motion patterns from skeletal data but struggle to relate them to linguistic meaning; 2) imbalance between local details and global context, with models either focusing too narrowly on fine-grained cues or overlooking them for broader context; and 3) inefficient cross-modal learning, as constructing semantically aligned representations across modalities remains difficult. To address these, we propose Sigma, a unified skeleton-based SLU framework featuring: 1) a sign-aware early fusion mechanism that facilitates deep interaction between visual and textual modalities, enriching visual features with linguistic context; 2) a hierarchical alignment learning strategy that jointly maximises agreements across different levels of paired features from different modalities, effectively capturing both fine-grained details and high-level semantic relationships; and 3) a unified pre-training framework that combines contrastive learning, text matching and language modelling to promote semantic consistency and generalisation. Sigma achieves new state-of-the-art results on isolated sign language recognition, continuous sign language recognition, and gloss-free sign language translation on multiple benchmarks spanning different sign and spoken languages, demonstrating the impact of semantically informative pre-training and the effectiveness of skeletal data as a stand-alone solution for SLU.",
-        "subjects": "Computer Vision and Pattern Recognition, Computation and Language",
-        "date": "2025-09-25",
-        "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.813884"
+        "crawl_time": "2025-09-27T15:52:22.900341"
     },
     {
         "index": "#18",
@@ -213,19 +177,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Machine Learning",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.814060"
-    },
-    {
-        "index": "#19",
-        "title": "TABLET: A Large-Scale Dataset for Robust Visual Table Understanding",
-        "link": "/arxiv/2509.21205",
-        "arxiv_id": "2509.21205",
-        "authors": "Iñigo Alonso, Imanol Miranda, Eneko Agirre, Mirella Lapata",
-        "summary": "While table understanding increasingly relies on pixel-only settings where tables are processed as visual representations, current benchmarks predominantly use synthetic renderings that lack the complexity and visual diversity of real-world tables. Additionally, existing visual table understanding (VTU) datasets offer fixed examples with single visualizations and pre-defined instructions, providing no access to underlying serialized data for reformulation. We introduce TABLET, a large-scale VTU dataset with 4 million examples across 20 tasks, grounded in 2 million unique tables where 88% preserve original visualizations. Each example includes paired image-HTML representations, comprehensive metadata, and provenance information linking back to the source datasets. Fine-tuning vision-language models like Qwen2.5-VL-7B on TABLET improves performance on seen and unseen VTU tasks while increasing robustness on real-world table visualizations. By preserving original visualizations and maintaining example traceability in a unified large-scale collection, TABLET establishes a foundation for robust training and extensible evaluation of future VTU models.",
-        "subjects": "Computer Vision and Pattern Recognition, Computation and Language",
-        "date": "2025-09-25",
-        "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.814248"
+        "crawl_time": "2025-09-27T15:52:22.906938"
     },
     {
         "index": "#20",
@@ -237,7 +189,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence, Machine Learning",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.819718"
+        "crawl_time": "2025-09-27T15:52:22.907947"
     },
     {
         "index": "#21",
@@ -249,7 +201,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence, Multimedia",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.819971"
+        "crawl_time": "2025-09-27T15:52:22.908460"
     },
     {
         "index": "#22",
@@ -261,7 +213,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Machine Learning",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.820163"
+        "crawl_time": "2025-09-27T15:52:22.908933"
     },
     {
         "index": "#23",
@@ -273,7 +225,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.820356"
+        "crawl_time": "2025-09-27T15:52:22.909412"
     },
     {
         "index": "#24",
@@ -285,7 +237,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.820586"
+        "crawl_time": "2025-09-27T15:52:22.909966"
     },
     {
         "index": "#25",
@@ -297,7 +249,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.820797"
+        "crawl_time": "2025-09-27T15:52:22.910512"
     },
     {
         "index": "#26",
@@ -309,7 +261,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.821003"
+        "crawl_time": "2025-09-27T15:52:22.916349"
     },
     {
         "index": "#27",
@@ -321,7 +273,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.821198"
+        "crawl_time": "2025-09-27T15:52:22.916873"
     },
     {
         "index": "#28",
@@ -333,7 +285,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.821489"
+        "crawl_time": "2025-09-27T15:52:22.917412"
     },
     {
         "index": "#29",
@@ -345,7 +297,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.821691"
+        "crawl_time": "2025-09-27T15:52:22.917876"
     },
     {
         "index": "#30",
@@ -357,7 +309,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.821891"
+        "crawl_time": "2025-09-27T15:52:22.918386"
     },
     {
         "index": "#31",
@@ -369,7 +321,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.822087"
+        "crawl_time": "2025-09-27T15:52:22.918888"
     },
     {
         "index": "#32",
@@ -381,7 +333,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.822480"
+        "crawl_time": "2025-09-27T15:52:22.919339"
     },
     {
         "index": "#33",
@@ -393,7 +345,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.822824"
+        "crawl_time": "2025-09-27T15:52:22.919841"
     },
     {
         "index": "#34",
@@ -405,7 +357,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence, Machine Learning, Performance",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.823032"
+        "crawl_time": "2025-09-27T15:52:22.920353"
     },
     {
         "index": "#35",
@@ -417,7 +369,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.823229"
+        "crawl_time": "2025-09-27T15:52:22.920845"
     },
     {
         "index": "#36",
@@ -429,7 +381,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Machine Learning",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.823415"
+        "crawl_time": "2025-09-27T15:52:22.921530"
     },
     {
         "index": "#37",
@@ -441,7 +393,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.823599"
+        "crawl_time": "2025-09-27T15:52:22.922019"
     },
     {
         "index": "#38",
@@ -453,7 +405,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.823767"
+        "crawl_time": "2025-09-27T15:52:22.922456"
     },
     {
         "index": "#39",
@@ -465,7 +417,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.823953"
+        "crawl_time": "2025-09-27T15:52:22.922926"
     },
     {
         "index": "#40",
@@ -477,7 +429,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Machine Learning",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.824191"
+        "crawl_time": "2025-09-27T15:52:22.923406"
     },
     {
         "index": "#41",
@@ -489,7 +441,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.824398"
+        "crawl_time": "2025-09-27T15:52:22.923896"
     },
     {
         "index": "#42",
@@ -501,7 +453,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.824592"
+        "crawl_time": "2025-09-27T15:52:22.924363"
     },
     {
         "index": "#43",
@@ -513,7 +465,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.887487"
+        "crawl_time": "2025-09-27T15:52:22.924814"
     },
     {
         "index": "#44",
@@ -525,7 +477,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Robotics",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.887794"
+        "crawl_time": "2025-09-27T15:52:22.925275"
     },
     {
         "index": "#45",
@@ -537,7 +489,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.888216"
+        "crawl_time": "2025-09-27T15:52:22.925743"
     },
     {
         "index": "#46",
@@ -549,7 +501,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.888574"
+        "crawl_time": "2025-09-27T15:52:22.926214"
     },
     {
         "index": "#47",
@@ -561,7 +513,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.888873"
+        "crawl_time": "2025-09-27T15:52:22.932241"
     },
     {
         "index": "#48",
@@ -573,7 +525,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Machine Learning, Image and Video Processing",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.889117"
+        "crawl_time": "2025-09-27T15:52:22.932741"
     },
     {
         "index": "#49",
@@ -585,7 +537,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.889353"
+        "crawl_time": "2025-09-27T15:52:22.933265"
     },
     {
         "index": "#50",
@@ -597,7 +549,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.889541"
+        "crawl_time": "2025-09-27T15:52:22.933740"
     },
     {
         "index": "#51",
@@ -609,7 +561,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.889748"
+        "crawl_time": "2025-09-27T15:52:22.934261"
     },
     {
         "index": "#52",
@@ -621,7 +573,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.889920"
+        "crawl_time": "2025-09-27T15:52:22.934695"
     },
     {
         "index": "#53",
@@ -633,7 +585,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.890121"
+        "crawl_time": "2025-09-27T15:52:22.935191"
     },
     {
         "index": "#54",
@@ -645,7 +597,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.890360"
+        "crawl_time": "2025-09-27T15:52:22.935786"
     },
     {
         "index": "#55",
@@ -657,7 +609,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.890535"
+        "crawl_time": "2025-09-27T15:52:22.936238"
     },
     {
         "index": "#56",
@@ -669,7 +621,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.890721"
+        "crawl_time": "2025-09-27T15:52:22.936768"
     },
     {
         "index": "#57",
@@ -681,7 +633,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.890894"
+        "crawl_time": "2025-09-27T15:52:22.942380"
     },
     {
         "index": "#58",
@@ -693,7 +645,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.891132"
+        "crawl_time": "2025-09-27T15:52:22.942875"
     },
     {
         "index": "#59",
@@ -705,7 +657,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.891332"
+        "crawl_time": "2025-09-27T15:52:22.943335"
     },
     {
         "index": "#60",
@@ -717,7 +669,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence, Machine Learning",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.891512"
+        "crawl_time": "2025-09-27T15:52:22.943800"
     },
     {
         "index": "#61",
@@ -729,7 +681,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.891696"
+        "crawl_time": "2025-09-27T15:52:22.944279"
     },
     {
         "index": "#62",
@@ -741,7 +693,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.891873"
+        "crawl_time": "2025-09-27T15:52:22.944735"
     },
     {
         "index": "#63",
@@ -753,7 +705,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Image and Video Processing",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.892060"
+        "crawl_time": "2025-09-27T15:52:22.945203"
     },
     {
         "index": "#64",
@@ -765,7 +717,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.892247"
+        "crawl_time": "2025-09-27T15:52:22.945684"
     },
     {
         "index": "#65",
@@ -777,19 +729,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.892427"
-    },
-    {
-        "index": "#66",
-        "title": "Seeing Through Words, Speaking Through Pixels: Deep Representational Alignment Between Vision and Language Models",
-        "link": "/arxiv/2509.20751",
-        "arxiv_id": "2509.20751",
-        "authors": "Zoe Wanying He, Sean Trott, Meenakshi Khosla",
-        "summary": "Recent studies show that deep vision-only and language-only models--trained on disjoint modalities--nonetheless project their inputs into a partially aligned representational space. Yet we still lack a clear picture of where in each network this convergence emerges, what visual or linguistic cues support it, whether it captures human preferences in many-to-many image-text scenarios, and how aggregating exemplars of the same concept affects alignment. Here, we systematically investigate these questions. We find that alignment peaks in mid-to-late layers of both model types, reflecting a shift from modality-specific to conceptually shared representations. This alignment is robust to appearance-only changes but collapses when semantics are altered (e.g., object removal or word-order scrambling), highlighting that the shared code is truly semantic. Moving beyond the one-to-one image-caption paradigm, a forced-choice \"Pick-a-Pic\" task shows that human preferences for image-caption matches are mirrored in the embedding spaces across all vision-language model pairs. This pattern holds bidirectionally when multiple captions correspond to a single image, demonstrating that models capture fine-grained semantic distinctions akin to human judgments. Surprisingly, averaging embeddings across exemplars amplifies alignment rather than blurring detail. Together, our results demonstrate that unimodal networks converge on a shared semantic code that aligns with human judgments and strengthens with exemplar aggregation.",
-        "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence, Computation and Language",
-        "date": "2025-09-25",
-        "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.898145"
+        "crawl_time": "2025-09-27T15:52:22.946152"
     },
     {
         "index": "#67",
@@ -801,7 +741,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.898478"
+        "crawl_time": "2025-09-27T15:52:22.947104"
     },
     {
         "index": "#68",
@@ -813,7 +753,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.898680"
+        "crawl_time": "2025-09-27T15:52:22.952769"
     },
     {
         "index": "#69",
@@ -825,7 +765,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.898892"
+        "crawl_time": "2025-09-27T15:52:22.953303"
     },
     {
         "index": "#70",
@@ -837,7 +777,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.899068"
+        "crawl_time": "2025-09-27T15:52:22.953742"
     },
     {
         "index": "#71",
@@ -849,19 +789,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.899273"
-    },
-    {
-        "index": "#72",
-        "title": "Human Semantic Representations of Social Interactions from Moving Shapes",
-        "link": "/arxiv/2509.20673",
-        "arxiv_id": "2509.20673",
-        "authors": "Yiling Yun, Hongjing Lu",
-        "summary": "Humans are social creatures who readily recognize various social interactions from simple display of moving shapes. While previous research has often focused on visual features, we examine what semantic representations that humans employ to complement visual features. In Study 1, we directly asked human participants to label the animations based on their impression of moving shapes. We found that human responses were distributed. In Study 2, we measured the representational geometry of 27 social interactions through human similarity judgments and compared it with model predictions based on visual features, labels, and semantic embeddings from animation descriptions. We found that semantic models provided complementary information to visual features in explaining human judgments. Among the semantic models, verb-based embeddings extracted from descriptions account for human similarity judgments the best. These results suggest that social perception in simple displays reflects the semantic structure of social interactions, bridging visual and abstract representations.",
-        "subjects": "Computer Vision and Pattern Recognition, Computational Engineering, Finance, and Science, Computation and Language",
-        "date": "2025-09-25",
-        "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.899735"
+        "crawl_time": "2025-09-27T15:52:22.954265"
     },
     {
         "index": "#73",
@@ -873,7 +801,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.900010"
+        "crawl_time": "2025-09-27T15:52:22.955239"
     },
     {
         "index": "#74",
@@ -885,7 +813,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-24",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.900203"
+        "crawl_time": "2025-09-27T15:52:22.955693"
     },
     {
         "index": "#75",
@@ -897,7 +825,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Machine Learning",
         "date": "2025-09-24",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.900387"
+        "crawl_time": "2025-09-27T15:52:22.956175"
     },
     {
         "index": "#76",
@@ -909,7 +837,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-24",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.900559"
+        "crawl_time": "2025-09-27T15:52:22.956612"
     },
     {
         "index": "#77",
@@ -921,7 +849,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Machine Learning, Robotics",
         "date": "2025-09-24",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.900752"
+        "crawl_time": "2025-09-27T15:52:22.957103"
     },
     {
         "index": "#78",
@@ -933,7 +861,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Cryptography and Security, Machine Learning",
         "date": "2025-09-24",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.900962"
+        "crawl_time": "2025-09-27T15:52:22.962766"
     },
     {
         "index": "#79",
@@ -945,7 +873,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-09-24",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.901164"
+        "crawl_time": "2025-09-27T15:52:22.963298"
     },
     {
         "index": "#80",
@@ -957,7 +885,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-24",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.901344"
+        "crawl_time": "2025-09-27T15:52:22.963773"
     },
     {
         "index": "#81",
@@ -969,7 +897,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-09-24",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.901598"
+        "crawl_time": "2025-09-27T15:52:22.964258"
     },
     {
         "index": "#82",
@@ -981,7 +909,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-24",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.901807"
+        "crawl_time": "2025-09-27T15:52:22.964743"
     },
     {
         "index": "#83",
@@ -993,7 +921,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-24",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.901976"
+        "crawl_time": "2025-09-27T15:52:22.965160"
     },
     {
         "index": "#84",
@@ -1005,7 +933,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-24",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.902474"
+        "crawl_time": "2025-09-27T15:52:22.966213"
     },
     {
         "index": "#85",
@@ -1017,19 +945,7 @@
         "subjects": "Computer Vision and Pattern Recognition",
         "date": "2025-09-24",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.902661"
-    },
-    {
-        "index": "#86",
-        "title": "Leveraging NTPs for Efficient Hallucination Detection in VLMs",
-        "link": "/arxiv/2509.20379",
-        "arxiv_id": "2509.20379",
-        "authors": "Ofir Azachi, Kfir Eliyahu, Eyal El Ani, Rom Himelstein, Roi Reichart, Yuval Pinter, Nitay Calderon",
-        "summary": "Hallucinations of vision-language models (VLMs), which are misalignments between visual content and generated text, undermine the reliability of VLMs. One common approach for detecting them employs the same VLM, or a different one, to assess generated outputs. This process is computationally intensive and increases model latency. In this paper, we explore an efficient on-the-fly method for hallucination detection by training traditional ML models over signals based on the VLM's next-token probabilities (NTPs). NTPs provide a direct quantification of model uncertainty. We hypothesize that high uncertainty (i.e., a low NTP value) is strongly associated with hallucinations. To test this, we introduce a dataset of 1,400 human-annotated statements derived from VLM-generated content, each labeled as hallucinated or not, and use it to test our NTP-based lightweight method. Our results demonstrate that NTP-based features are valuable predictors of hallucinations, enabling fast and simple ML models to achieve performance comparable to that of strong VLMs. Furthermore, augmenting these NTPs with linguistic NTPs, computed by feeding only the generated text back into the VLM, enhances hallucination detection performance. Finally, integrating hallucination prediction scores from VLMs into the NTP-based models led to better performance than using either VLMs or NTPs alone. We hope this study paves the way for simple, lightweight solutions that enhance the reliability of VLMs.",
-        "subjects": "Computer Vision and Pattern Recognition, Computation and Language, Machine Learning",
-        "date": "2025-09-20",
-        "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.908250"
+        "crawl_time": "2025-09-27T15:52:22.966650"
     },
     {
         "index": "#87",
@@ -1041,7 +957,7 @@
         "subjects": "Artificial Intelligence, Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.908686"
+        "crawl_time": "2025-09-27T15:52:22.972833"
     },
     {
         "index": "#88",
@@ -1053,7 +969,7 @@
         "subjects": "Machine Learning, Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.909067"
+        "crawl_time": "2025-09-27T15:52:22.973368"
     },
     {
         "index": "#89",
@@ -1065,7 +981,7 @@
         "subjects": "Robotics, Artificial Intelligence, Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.909346"
+        "crawl_time": "2025-09-27T15:52:22.973891"
     },
     {
         "index": "#90",
@@ -1077,7 +993,7 @@
         "subjects": "Machine Learning, Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.915268"
+        "crawl_time": "2025-09-27T15:52:22.974380"
     },
     {
         "index": "#91",
@@ -1089,7 +1005,7 @@
         "subjects": "Machine Learning, Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.915473"
+        "crawl_time": "2025-09-27T15:52:22.974836"
     },
     {
         "index": "#92",
@@ -1101,7 +1017,7 @@
         "subjects": "Graphics, Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.915696"
+        "crawl_time": "2025-09-27T15:52:22.975381"
     },
     {
         "index": "#93",
@@ -1113,7 +1029,7 @@
         "subjects": "Robotics, Artificial Intelligence, Computer Vision and Pattern Recognition, Machine Learning",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.915907"
+        "crawl_time": "2025-09-27T15:52:22.975930"
     },
     {
         "index": "#94",
@@ -1125,7 +1041,7 @@
         "subjects": "Robotics, Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.916096"
+        "crawl_time": "2025-09-27T15:52:22.976408"
     },
     {
         "index": "#95",
@@ -1137,7 +1053,7 @@
         "subjects": "Graphics, Artificial Intelligence, Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.916290"
+        "crawl_time": "2025-09-27T15:52:22.976901"
     },
     {
         "index": "#96",
@@ -1149,7 +1065,7 @@
         "subjects": "Robotics, Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.916504"
+        "crawl_time": "2025-09-27T15:52:22.977424"
     },
     {
         "index": "#97",
@@ -1161,7 +1077,7 @@
         "subjects": "Graphics, Computer Vision and Pattern Recognition, Multimedia",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.916811"
+        "crawl_time": "2025-09-27T15:52:22.983053"
     },
     {
         "index": "#98",
@@ -1173,7 +1089,7 @@
         "subjects": "Machine Learning, Artificial Intelligence, Computational Engineering, Finance, and Science, Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.917081"
+        "crawl_time": "2025-09-27T15:52:22.983605"
     },
     {
         "index": "#99",
@@ -1185,7 +1101,7 @@
         "subjects": "Graphics, Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.917274"
+        "crawl_time": "2025-09-27T15:52:22.984102"
     },
     {
         "index": "#100",
@@ -1197,7 +1113,7 @@
         "subjects": "Machine Learning, Artificial Intelligence, Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.917491"
+        "crawl_time": "2025-09-27T15:52:22.984640"
     },
     {
         "index": "#101",
@@ -1209,7 +1125,7 @@
         "subjects": "Machine Learning, Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.917704"
+        "crawl_time": "2025-09-27T15:52:22.985167"
     },
     {
         "index": "#102",
@@ -1221,7 +1137,7 @@
         "subjects": "Computational Engineering, Finance, and Science, Computer Vision and Pattern Recognition, Machine Learning, Numerical Analysis",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.917942"
+        "crawl_time": "2025-09-27T15:52:22.985717"
     },
     {
         "index": "#103",
@@ -1233,7 +1149,7 @@
         "subjects": "Information Retrieval, Artificial Intelligence, Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.918134"
+        "crawl_time": "2025-09-27T15:52:22.991510"
     },
     {
         "index": "#104",
@@ -1245,7 +1161,7 @@
         "subjects": "Robotics, Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.918342"
+        "crawl_time": "2025-09-27T15:52:22.992011"
     },
     {
         "index": "#105",
@@ -1257,7 +1173,7 @@
         "subjects": "Robotics, Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.918568"
+        "crawl_time": "2025-09-27T15:52:22.992529"
     },
     {
         "index": "#106",
@@ -1269,19 +1185,7 @@
         "subjects": "Graphics, Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.918831"
-    },
-    {
-        "index": "#107",
-        "title": "Visual Authority and the Rhetoric of Health Misinformation: A Multimodal Analysis of Social Media Videos",
-        "link": "/arxiv/2509.20724",
-        "arxiv_id": "2509.20724",
-        "authors": "Mohammad Reza Zarei, Barbara Stead-Coyle, Michael Christensen, Sarah Everts, Majid Komeili",
-        "summary": "Short form video platforms are central sites for health advice, where alternative narratives mix useful, misleading, and harmful content. Rather than adjudicating truth, this study examines how credibility is packaged in nutrition and supplement videos by analyzing the intersection of authority signals, narrative techniques, and monetization. We assemble a cross platform corpus of 152 public videos from TikTok, Instagram, and YouTube and annotate each on 26 features spanning visual authority, presenter attributes, narrative strategies, and engagement cues. A transparent annotation pipeline integrates automatic speech recognition, principled frame selection, and a multimodal model, with human verification on a stratified subsample showing strong agreement. Descriptively, a confident single presenter in studio or home settings dominates, and clinical contexts are rare. Analytically, authority cues such as titles, slides and charts, and certificates frequently occur with persuasive elements including jargon, references, fear or urgency, critiques of mainstream medicine, and conspiracies, and with monetization including sales links and calls to subscribe. References and science like visuals often travel with emotive and oppositional narratives rather than signaling restraint.",
-        "subjects": "Social and Information Networks, Computation and Language, Computer Vision and Pattern Recognition, Multimedia",
-        "date": "2025-09-25",
-        "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.919064"
+        "crawl_time": "2025-09-27T15:52:22.993054"
     },
     {
         "index": "#108",
@@ -1293,7 +1197,7 @@
         "subjects": "Graphics, Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.919311"
+        "crawl_time": "2025-09-27T15:52:22.994069"
     },
     {
         "index": "#109",
@@ -1305,7 +1209,7 @@
         "subjects": "Robotics, Artificial Intelligence, Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.919511"
+        "crawl_time": "2025-09-27T15:52:22.994537"
     },
     {
         "index": "#110",
@@ -1317,7 +1221,7 @@
         "subjects": "Robotics, Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.919712"
+        "crawl_time": "2025-09-27T15:52:22.995017"
     },
     {
         "index": "#111",
@@ -1329,7 +1233,7 @@
         "subjects": "Robotics, Artificial Intelligence, Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.919908"
+        "crawl_time": "2025-09-27T15:52:22.995494"
     },
     {
         "index": "#112",
@@ -1341,7 +1245,7 @@
         "subjects": "Machine Learning, Artificial Intelligence, Computer Vision and Pattern Recognition, Machine Learning",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.925605"
+        "crawl_time": "2025-09-27T15:52:22.996016"
     },
     {
         "index": "#113",
@@ -1353,7 +1257,7 @@
         "subjects": "Robotics, Computer Vision and Pattern Recognition",
         "date": "2025-09-25",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.926011"
+        "crawl_time": "2025-09-27T15:52:23.048198"
     },
     {
         "index": "#114",
@@ -1365,19 +1269,7 @@
         "subjects": "Machine Learning, Computer Vision and Pattern Recognition",
         "date": "2025-09-24",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.926228"
-    },
-    {
-        "index": "#116",
-        "title": "ShortCheck: Checkworthiness Detection of Multilingual Short-Form Videos",
-        "link": "/arxiv/2509.20467",
-        "arxiv_id": "2509.20467",
-        "authors": "Henrik Vatndal, Vinay Setty",
-        "summary": "Short-form video platforms like TikTok present unique challenges for misinformation detection due to their multimodal, dynamic, and noisy content. We present ShortCheck, a modular, inference-only pipeline with a user-friendly interface that automatically identifies checkworthy short-form videos to help human fact-checkers. The system integrates speech transcription, OCR, object and deepfake detection, video-to-text summarization, and claim verification. ShortCheck is validated by evaluating it on two manually annotated datasets with TikTok videos in a multilingual setting. The pipeline achieves promising results with F1-weighted score over 70\\%.",
-        "subjects": "Computation and Language, Computer Vision and Pattern Recognition",
-        "date": "2025-09-24",
-        "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.926615"
+        "crawl_time": "2025-09-27T15:52:23.048944"
     },
     {
         "index": "#117",
@@ -1389,7 +1281,7 @@
         "subjects": "Image and Video Processing, Computer Vision and Pattern Recognition, Applications",
         "date": "2025-09-24",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.926799"
+        "crawl_time": "2025-09-27T15:52:23.050972"
     },
     {
         "index": "#118",
@@ -1401,7 +1293,7 @@
         "subjects": "Graphics, Computer Vision and Pattern Recognition, Machine Learning, Robotics",
         "date": "2025-09-24",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.927056"
+        "crawl_time": "2025-09-27T15:52:23.051710"
     },
     {
         "index": "#119",
@@ -1413,6 +1305,6 @@
         "subjects": "Cryptography and Security, Artificial Intelligence",
         "date": "2024-02-26",
         "category": "cs.CV",
-        "crawl_time": "2025-09-26T21:01:54.927285"
+        "crawl_time": "2025-09-27T15:52:23.052481"
     }
 ]

@@ -9,7 +9,8 @@ PaperTools 是一个完整的学术论文处理流水线，提供自动化的论
 - **自动爬取**: 从arXiv等学术平台自动爬取最新论文
 - **AI智能筛选**: 使用大语言模型按研究领域智能筛选论文
 - **自动总结**: 基于jinja.ai获取完整论文内容，生成高质量中文总结
-- **网页生成**: 将论文转换为现代化设计的交互式HTML网页
+- **💡 灵感溯源**: 深度分析论文创新思路的演进过程，从挑战识别到解决方案的完整逻辑链
+- **网页生成**: 将论文转换为现代化设计的交互式HTML网页，支持可折叠内容展示
 - **本地部署**: 一键启动本地服务器，便于浏览和分享
 - **多线程处理**: 所有组件支持并行处理，提升性能
 - **交互功能**: 支持论文收藏、已读状态跟踪和删除，状态持久化保存
@@ -86,11 +87,11 @@ python src/core/crawl_arxiv.py --categories cs.AI cs.CV --max-papers 100
 # 2. 筛选论文
 python src/core/select_.py --input-file arxiv_paper/papers.json
 
-# 3. 生成总结
+# 3. 生成总结和灵感溯源
 python src/core/generate_summary.py --input-file domain_paper/filtered_papers.json
 
-# 4. 生成网页
-python src/core/generate_webpage.py --input-file domain_paper/filtered_papers.json
+# 4. 生成统一网页
+python src/core/generate_unified_index.py
 
 # 5. 启动服务器
 python src/core/serve_webpages.py --port 8080
@@ -146,6 +147,19 @@ MODEL=your-model-name
 python papertools.py run --categories cs.AI cs.CL --max-papers-total 200
 ```
 
+### 💡 新功能说明
+
+**灵感溯源功能**：
+- 自动分析每篇论文的创新思路演进过程
+- 生成结构化分析：面临的挑战 → 关键洞察 → 解决方案演进 → 创新点总结
+- 复用已获取的论文内容，无需额外API调用
+- 支持缓存机制，避免重复分析
+
+**可折叠界面**：
+- **筛选理由**和**灵感溯源**默认折叠，减少页面拥挤
+- **AI总结**和**原始摘要**默认展开，突出核心内容
+- 平滑的折叠/展开动画效果，提升用户体验
+
 ### 使用示例
 
 ```bash
@@ -179,8 +193,8 @@ PaperTools/
 │   │   ├── pipeline.py       # 主流水线脚本
 │   │   ├── crawl_arxiv.py    # 论文爬取
 │   │   ├── select_.py        # 论文筛选
-│   │   ├── generate_summary.py # 总结生成
-│   │   ├── generate_webpage.py # 网页生成
+│   │   ├── generate_summary.py # 总结和灵感溯源生成
+│   │   ├── generate_unified_index.py # 统一网页生成
 │   │   └── serve_webpages.py # 本地服务器
 │   ├── utils/                # 工具和配置
 │   │   ├── config.py         # 配置文件
@@ -203,13 +217,15 @@ PaperTools/
 **学术研究**
 - 快速了解特定领域最新进展
 - 生成论文总结用于文献综述
+- **深度分析创新思路**: 通过灵感溯源功能理解研究突破的逻辑演进
 - 创建优雅的论文展示页面
 - 构建个人研究知识库
 
 **教学辅助**
 - 为学生提供AI前沿论文理解辅助
+- **启发式学习**: 展示从问题识别到解决方案的完整思维过程
 - 创建课程相关论文资源库
-- 制作交互式学习材料
+- 制作交互式学习材料，支持可折叠内容组织
 - 展示研究领域发展脉络
 
 **团队协作**
