@@ -9,7 +9,8 @@ PaperTools is a comprehensive academic paper processing pipeline that provides a
 - **Automated Crawling**: Crawl latest papers from arXiv and other academic platforms
 - **AI-Powered Filtering**: Use large language models to intelligently filter papers by research domain
 - **Automatic Summarization**: Generate high-quality Chinese summaries using jinja.ai for full paper content
-- **Web Generation**: Convert papers into interactive HTML pages with modern design
+- **💡 Inspiration Tracing**: Deep analysis of the innovation logic chain from challenges to insights to solutions
+- **Web Generation**: Convert papers into interactive HTML pages with modern design and collapsible content
 - **Local Deployment**: One-click local server startup for browsing and sharing
 - **Multi-threaded Processing**: All components support parallel processing for improved performance
 - **Interactive Features**: Support for paper bookmarking, read status tracking, and deletion with persistent storage
@@ -86,11 +87,11 @@ python src/core/crawl_arxiv.py --categories cs.AI cs.CV --max-papers 100
 # 2. Filter papers
 python src/core/select_.py --input-file arxiv_paper/papers.json
 
-# 3. Generate summaries  
+# 3. Generate summaries and inspiration tracing
 python src/core/generate_summary.py --input-file domain_paper/filtered_papers.json
 
-# 4. Generate web pages
-python src/core/generate_webpage.py --input-file domain_paper/filtered_papers.json
+# 4. Generate unified web page
+python src/core/generate_unified_index.py
 
 # 5. Start server
 python src/core/serve_webpages.py --port 8080
@@ -145,8 +146,8 @@ PaperTools/
 │   │   ├── pipeline.py       # Main pipeline script
 │   │   ├── crawl_arxiv.py    # Paper crawling
 │   │   ├── select_.py        # Paper filtering
-│   │   ├── generate_summary.py # Summary generation
-│   │   ├── generate_webpage.py # Web page generation
+│   │   ├── generate_summary.py # Summary and inspiration tracing generation
+│   │   ├── generate_unified_index.py # Unified web page generation
 │   │   └── serve_webpages.py # Local server
 │   ├── utils/                # Utilities and configuration
 │   │   ├── config.py         # Configuration file
@@ -157,6 +158,19 @@ PaperTools/
 ├── summary/                  # Generated summaries
 └── webpages/                 # Generated web pages
 ```
+
+## 💡 New Features
+
+**Inspiration Tracing**:
+- Automatically analyze the innovation logic evolution of each paper
+- Generate structured analysis: Challenges → Key Insights → Solution Evolution → Innovation Summary
+- Reuse already-fetched paper content, no additional API calls needed
+- Support caching mechanism to avoid duplicate analysis
+
+**Collapsible Interface**:
+- **Filter Reason** and **Inspiration Tracing** collapsed by default to reduce page clutter
+- **AI Summary** and **Original Abstract** expanded by default, highlighting core content
+- Smooth fold/expand animation effects for enhanced user experience
 
 ## Use Cases
 
@@ -169,13 +183,15 @@ PaperTools/
 **Academic Research**
 - Quickly understand latest developments in specific fields
 - Generate paper summaries for literature reviews
+- **Deep Innovation Analysis**: Understand research breakthroughs through inspiration tracing logic
 - Create elegant paper presentation pages
 - Build personal research knowledge bases
 
 **Teaching Support**
 - Provide AI frontier paper comprehension assistance for students
+- **Inspirational Learning**: Show complete thought processes from problem identification to solutions
 - Create course-related paper resource libraries
-- Make interactive learning materials
+- Make interactive learning materials with collapsible content organization
 - Show research field development trajectories
 
 **Team Collaboration**

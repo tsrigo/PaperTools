@@ -51,3 +51,5 @@ Thumbs.db
 
 # 但保留生成的网页文件用于部署
 !webpages/
+
+.github

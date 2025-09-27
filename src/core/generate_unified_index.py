@@ -88,7 +88,8 @@ def generate_complete_html() -> str:
                 js_data += f'                    "category": "{escape_js_string(paper.get("category", ""))}",\n'
                 js_data += f'                    "filter_reason": "{escape_js_string(paper.get("filter_reason", ""))}",\n'
                 js_data += f'                    "summary2": "{escape_js_string(paper.get("summary2", ""))}",\n'
-                js_data += f'                    "summary_translation": "{escape_js_string(paper.get("summary_translation", ""))}"\n'
+                js_data += f'                    "summary_translation": "{escape_js_string(paper.get("summary_translation", ""))}",\n'
+                js_data += f'                    "inspiration_trace": "{escape_js_string(paper.get("inspiration_trace", ""))}"\n'
                 js_data += "                },\n"
             
             js_data += "            ]\n"
@@ -147,6 +148,44 @@ def generate_complete_html() -> str:
         /* 平滑过渡 */
         .rotate-90-transition {{
             transition: transform 0.2s ease-in-out;
+        }}
+        
+        /* 可折叠部分样式 */
+        .collapsible-header {{
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            padding: 8px 0;
+            user-select: none;
+            color: #1e40af;
+            transition: all 0.2s ease-in-out;
+        }}
+        .dark .collapsible-header {{
+            color: #60a5fa;
+        }}
+        .collapsible-header:hover {{
+            opacity: 0.8;
+        }}
+        .collapsible-header::before {{
+            content: "▶";
+            margin-right: 8px;
+            transition: transform 0.3s ease;
+            font-size: 0.8em;
+        }}
+        .collapsible-header.open::before {{
+            transform: rotate(90deg);
+        }}
+        .collapsible-content {{
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }}
+        .collapsible-content.open {{
+            max-height: 1000px;
+        }}
+        .collapsible-content .inner {{
+            padding-top: 8px;
         }}
     </style>
     <script>
@@ -411,6 +450,20 @@ def generate_complete_html() -> str:
             document.getElementById('total-papers').textContent = visiblePapers;
         }}
 
+        // 可折叠功能
+        function toggleCollapsible(header) {{
+            const content = header.nextElementSibling;
+            const isOpen = header.classList.contains('open');
+            
+            if (isOpen) {{
+                header.classList.remove('open');
+                content.classList.remove('open');
+            }} else {{
+                header.classList.add('open');
+                content.classList.add('open');
+            }}
+        }}
+
         // 创建论文HTML
         function createPaperHTML(paper, date) {{
             const isStarred = starredPapers.has(paper.arxiv_id);
@@ -472,36 +525,73 @@ def generate_complete_html() -> str:
                     </div>
 
                     ${{paper.filter_reason ? `
-                    <!-- 筛选原因 -->
-                    <div class="bg-blue-50/70 dark:bg-blue-950/20 border-l-3 border-blue-300 p-4 mb-4 rounded-r-lg">
-                        <div class="text-sm text-black dark:text-white leading-relaxed">
-                            <strong class="font-medium text-blue-600 dark:text-blue-400">筛选原因:</strong> ${{paper.filter_reason}}
+                    <!-- 筛选原因 (默认折叠) -->
+                    <div class="mb-4">
+                        <div class="collapsible-header" onclick="toggleCollapsible(this)">筛选原因</div>
+                        <div class="collapsible-content">
+                            <div class="inner">
+                                <div class="bg-blue-50/70 dark:bg-blue-950/20 border-l-3 border-blue-300 p-4 rounded-r-lg">
+                                    <div class="text-sm text-black dark:text-white leading-relaxed">
+                                        ${{paper.filter_reason}}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     ` : ''}}
 
                     ${{paper.summary2 ? `
-                    <!-- AI总结 -->
-                    <div class="bg-yellow-50/70 dark:bg-yellow-950/20 border-l-3 border-yellow-300 p-4 mb-4 rounded-r-lg">
-                        <div class="text-sm text-black dark:text-white leading-relaxed">
-                            <strong class="font-medium text-yellow-600 dark:text-yellow-400">AI总结:</strong> ${{paper.summary2}}
+                    <!-- AI总结 (默认展开) -->
+                    <div class="mb-4">
+                        <div class="collapsible-header open" onclick="toggleCollapsible(this)">AI总结</div>
+                        <div class="collapsible-content open">
+                            <div class="inner">
+                                <div class="bg-yellow-50/70 dark:bg-yellow-950/20 border-l-3 border-yellow-300 p-4 rounded-r-lg">
+                                    <div class="text-sm text-black dark:text-white leading-relaxed">
+                                        ${{paper.summary2}}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     ` : ''}}
 
                     ${{paper.summary || paper.summary_translation ? `
-                    <!-- 原始摘要 -->
-                    <div class="summary-section bg-green-50/70 dark:bg-green-950/20 border-l-3 border-green-300 p-4 mb-4 rounded-r-lg">
-                        ${{paper.summary_translation ? `
-                        <div class="chinese-summary text-sm text-black dark:text-white leading-relaxed" style="display: block;">
-                            <strong class="font-medium text-green-600 dark:text-green-400">原始摘要:</strong> ${{paper.summary_translation}}
+                    <!-- 原始摘要 (默认展开) -->
+                    <div class="mb-4">
+                        <div class="collapsible-header open" onclick="toggleCollapsible(this)">原始摘要</div>
+                        <div class="collapsible-content open">
+                            <div class="inner">
+                                <div class="summary-section bg-green-50/70 dark:bg-green-950/20 border-l-3 border-green-300 p-4 rounded-r-lg">
+                                    ${{paper.summary_translation ? `
+                                    <div class="chinese-summary text-sm text-black dark:text-white leading-relaxed" style="display: block;">
+                                        ${{paper.summary_translation}}
+                                    </div>
+                                    ` : ''}}
+                                    ${{paper.summary ? `
+                                    <div class="english-summary text-sm text-black dark:text-white leading-relaxed" style="display: none;">
+                                        ${{paper.summary}}
+                                    </div>
+                                    ` : ''}}
+                                </div>
+                            </div>
                         </div>
-                        ` : ''}}
-                        ${{paper.summary ? `
-                        <div class="english-summary text-sm text-black dark:text-white leading-relaxed" style="display: none;">
-                            <strong class="font-medium text-green-600 dark:text-green-400">Original Abstract:</strong> ${{paper.summary}}
+                    </div>
+                    ` : ''}}
+
+                    ${{paper.inspiration_trace ? `
+                    <!-- 灵感溯源 (默认折叠) -->
+                    <div class="mb-4">
+                        <div class="collapsible-header" onclick="toggleCollapsible(this)">灵感溯源</div>
+                        <div class="collapsible-content">
+                            <div class="inner">
+                                <div class="bg-red-50/70 dark:bg-red-950/20 border-l-3 border-red-300 p-4 rounded-r-lg">
+                                    <div class="text-sm text-black dark:text-white leading-relaxed whitespace-pre-line">
+                                        ${{paper.inspiration_trace}}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        ` : ''}}
                     </div>
                     ` : ''}}
 
