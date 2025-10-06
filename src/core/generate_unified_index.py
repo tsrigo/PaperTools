@@ -41,6 +41,30 @@ def load_paper_data() -> Dict[str, List[Dict[str, Any]]]:
     
     return papers_by_date
 
+
+def load_daily_overviews() -> Dict[str, str]:
+    """加载每日AI论文速览"""
+    overviews = {}
+    summary_dir = Path(SUMMARY_DIR)
+    
+    # 查找所有的每日速览Markdown文件
+    for md_file in summary_dir.glob("daily_overview_*.md"):
+        try:
+            with open(md_file, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            # 从文件名提取日期
+            filename = md_file.stem
+            date_match = re.search(r'(\d{4}-\d{2}-\d{2})', filename)
+            if date_match:
+                date = date_match.group(1)
+                overviews[date] = content
+                print(f"加载了每日速览，日期: {date}")
+        except Exception as e:
+            print(f"加载每日速览文件 {md_file} 时出错: {e}")
+    
+    return overviews
+
 def escape_js_string(text: str) -> str:
     """转义JavaScript字符串"""
     if not text:
@@ -50,6 +74,7 @@ def escape_js_string(text: str) -> str:
 def generate_complete_html() -> str:
     """生成完整的HTML页面"""
     papers_by_date = load_paper_data()
+    daily_overviews = load_daily_overviews()
     
     # 按分类组织论文数据
     category_names = {
@@ -95,6 +120,12 @@ def generate_complete_html() -> str:
             js_data += "            ]\n"
             js_data += "        },\n"
         js_data += "    ],\n"
+    js_data += "};\n\n"
+    
+    # 添加每日速览数据
+    js_data += "const dailyOverviews = {\n"
+    for date, overview in sorted(daily_overviews.items(), reverse=True):
+        js_data += f'    "{date}": `{overview}`,\n'
     js_data += "};\n"
     
     # 完整的HTML模板
@@ -106,6 +137,8 @@ def generate_complete_html() -> str:
     <title>MyArxiv - 学术论文集合</title>
     <!-- 引入 Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Marked.js 用于 Markdown 渲染 -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         /* 微软雅黑字体 */
         body {{
@@ -182,10 +215,112 @@ def generate_complete_html() -> str:
             transition: max-height 0.3s ease-out;
         }}
         .collapsible-content.open {{
-            max-height: 1000px;
+            max-height: none;
         }}
         .collapsible-content .inner {{
             padding-top: 8px;
+        }}
+        
+        /* Markdown 内容样式 */
+        .markdown-content {{
+            line-height: 1.6;
+        }}
+        .markdown-content h1 {{
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-top: 1em;
+            margin-bottom: 0.5em;
+            color: #1e40af;
+        }}
+        .dark .markdown-content h1 {{
+            color: #60a5fa;
+        }}
+        .markdown-content h2 {{
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-top: 0.8em;
+            margin-bottom: 0.4em;
+            color: #1e40af;
+        }}
+        .dark .markdown-content h2 {{
+            color: #60a5fa;
+        }}
+        .markdown-content h3 {{
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-top: 0.6em;
+            margin-bottom: 0.3em;
+            color: #1e40af;
+        }}
+        .dark .markdown-content h3 {{
+            color: #60a5fa;
+        }}
+        .markdown-content h4 {{
+            font-size: 1em;
+            font-weight: bold;
+            margin-top: 0.5em;
+            margin-bottom: 0.25em;
+            color: #2563eb;
+        }}
+        .dark .markdown-content h4 {{
+            color: #93c5fd;
+        }}
+        .markdown-content p {{
+            margin-bottom: 0.8em;
+        }}
+        .markdown-content ul, .markdown-content ol {{
+            margin-left: 1.5em;
+            margin-bottom: 0.8em;
+        }}
+        .markdown-content ul {{
+            list-style-type: disc;
+        }}
+        .markdown-content ol {{
+            list-style-type: decimal;
+        }}
+        .markdown-content li {{
+            margin-bottom: 0.3em;
+        }}
+        .markdown-content code {{
+            background-color: #f1f5f9;
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }}
+        .dark .markdown-content code {{
+            background-color: #334155;
+        }}
+        .markdown-content pre {{
+            background-color: #f1f5f9;
+            padding: 1em;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin-bottom: 0.8em;
+        }}
+        .dark .markdown-content pre {{
+            background-color: #334155;
+        }}
+        .markdown-content pre code {{
+            background-color: transparent;
+            padding: 0;
+        }}
+        .markdown-content blockquote {{
+            border-left: 3px solid #cbd5e1;
+            padding-left: 1em;
+            margin-left: 0;
+            margin-bottom: 0.8em;
+            color: #64748b;
+        }}
+        .dark .markdown-content blockquote {{
+            border-left-color: #475569;
+            color: #94a3b8;
+        }}
+        .markdown-content strong {{
+            font-weight: 600;
+        }}
+        .markdown-content em {{
+            font-style: italic;
         }}
     </style>
     <script>
@@ -240,6 +375,13 @@ def generate_complete_html() -> str:
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                     </svg>
                 </button>
+                <!-- GitHub 图标按钮 -->
+                <a href="https://github.com/tsrigo/PaperTools" target="https://github.com/tsrigo/PaperTools" title="GitHub 项目主页"
+                   class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500">
+                    <svg class="h-6 w-6 text-slate-700 dark:text-slate-200" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.021c0 4.428 2.865 8.184 6.839 9.504.5.092.682-.217.682-.483 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.004.07 1.532 1.032 1.532 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.339-2.221-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.254-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.295 2.748-1.025 2.748-1.025.546 1.378.202 2.396.1 2.65.64.7 1.028 1.595 1.028 2.688 0 3.847-2.337 4.695-4.566 4.944.359.309.678.919.678 1.852 0 1.336-.012 2.417-.012 2.747 0 .268.18.579.688.481C19.138 20.2 22 16.447 22 12.021 22 6.484 17.523 2 12 2z" clip-rule="evenodd"/>
+                    </svg>
+                </a>
             </div>
         </header>
 
@@ -464,6 +606,43 @@ def generate_complete_html() -> str:
             }}
         }}
 
+        // 渲染所有 Markdown 内容
+        function renderAllMarkdown() {{
+            // 配置 marked 选项
+            if (typeof marked !== 'undefined') {{
+                marked.setOptions({{
+                    breaks: true,
+                    gfm: true,
+                    headerIds: false,
+                    mangle: false
+                }});
+                
+                // 遍历所有灵感溯源的容器并渲染 Markdown
+                for (const date in allPapers) {{
+                    const categories = allPapers[date];
+                    categories.forEach(category => {{
+                        if (category.papers) {{
+                            category.papers.forEach(paper => {{
+                                if (paper.inspiration_trace) {{
+                                    const elementId = `inspiration-${{paper.arxiv_id}}`;
+                                    const element = document.getElementById(elementId);
+                                    if (element) {{
+                                        try {{
+                                            element.innerHTML = marked.parse(paper.inspiration_trace);
+                                        }} catch (e) {{
+                                            console.error('Markdown 渲染失败:', e);
+                                            // 如果渲染失败，使用纯文本显示
+                                            element.textContent = paper.inspiration_trace;
+                                        }}
+                                    }}
+                                }}
+                            }});
+                        }}
+                    }});
+                }}
+            }}
+        }}
+
         // 创建论文HTML
         function createPaperHTML(paper, date) {{
             const isStarred = starredPapers.has(paper.arxiv_id);
@@ -586,8 +765,7 @@ def generate_complete_html() -> str:
                         <div class="collapsible-content">
                             <div class="inner">
                                 <div class="bg-red-50/70 dark:bg-red-950/20 border-l-3 border-red-300 p-4 rounded-r-lg">
-                                    <div class="text-sm text-black dark:text-white leading-relaxed whitespace-pre-line">
-                                        ${{paper.inspiration_trace}}
+                                    <div class="text-sm text-black dark:text-white leading-relaxed markdown-content" id="inspiration-${{paper.arxiv_id}}">
                                     </div>
                                 </div>
                             </div>
@@ -701,6 +879,29 @@ def generate_complete_html() -> str:
                 html += `
                     <section class="mb-8">
                         <h2 class="text-lg font-medium text-slate-500 dark:text-slate-400 mb-4">${{date}} (${{dateVisibleTotal}} 篇论文)</h2>
+                `;
+                
+                // 添加该日期的AI论文速览（如果存在）
+                if (dailyOverviews[date]) {{
+                    html += `
+                        <div class="mb-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700 rounded-lg shadow-md p-5">
+                            <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                                <svg class="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
+                                </svg>
+                                <span class="font-semibold text-slate-900 dark:text-white">今日AI论文速览</span>
+                            </div>
+                            <div class="collapsible-content">
+                                <div class="inner">
+                                    <div class="markdown-content text-slate-700 dark:text-slate-200 text-sm" id="overview-${{date}}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }}
+                
+                html += `
                         <div class="bg-white dark:bg-slate-800/50 rounded-lg shadow-sm p-4 sm:p-6">
                             <ul class="space-y-2">
                 `;
@@ -718,6 +919,28 @@ def generate_complete_html() -> str:
             
             mainContent.innerHTML = html;
             updateStats();
+            
+            // 渲染所有日期的 Markdown 速览内容
+            for (const date in dailyOverviews) {{
+                const overview = dailyOverviews[date];
+                const elementId = `overview-${{date}}`;
+                const element = document.getElementById(elementId);
+                if (element && overview) {{
+                    try {{
+                        if (typeof marked !== 'undefined') {{
+                            element.innerHTML = marked.parse(overview);
+                        }} else {{
+                            element.textContent = overview;
+                        }}
+                    }} catch (e) {{
+                        console.error('Markdown 渲染失败:', e);
+                        element.textContent = overview;
+                    }}
+                }}
+            }}
+            
+            // 渲染所有论文的 Markdown 内容
+            renderAllMarkdown();
             
             // 应用当前摘要语言设置
             document.querySelectorAll('.summary-section').forEach(section => {{

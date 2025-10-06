@@ -104,7 +104,7 @@ def run_pipeline(args):
     if args.mode == 'quick':
         cmd.extend(['--max-papers-total', '10'])
     elif args.mode == 'full':
-        cmd.extend(['--max-papers-total', '1000'])
+        cmd.extend(['--max-papers-total', '10000'])
     
     # 添加其他参数
     if args.date:
@@ -141,7 +141,7 @@ def main():
                            help='运行模式: quick(10篇) 或 full(1000篇)')
     run_parser.add_argument('--date', help='处理指定日期的论文 (YYYY-MM-DD)')
     run_parser.add_argument('--categories', nargs='+', 
-                           default=['cs.AI', 'cs.CL', 'cs.CV', 'cs.LG', 'cs.MA'],
+                           default=['cs.AI', 'cs.CL', 'cs.LG', 'cs.MA'],
                            help='论文类别')
     run_parser.add_argument('--max-papers-total', type=int, help='总处理数量')
     run_parser.add_argument('--skip-serve', action='store_true', help='跳过启动服务器步骤')

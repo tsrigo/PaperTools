@@ -132,6 +132,7 @@ def run_command(cmd: List[str], description: str, progress_tracker: ProgressTrac
         return False
 
 
+
 def find_latest_file(directory: str, pattern: str = "*.json") -> Optional[str]:
     """找到目录中最新的匹配文件，优先选择合并文件和筛选结果文件"""
     try:
@@ -139,27 +140,45 @@ def find_latest_file(directory: str, pattern: str = "*.json") -> Optional[str]:
         files = glob(os.path.join(directory, pattern))
         if not files:
             return None
-        
-        # 在domain_paper目录中，优先选择filtered_papers而不是excluded_papers
+        # domain_paper 优先 filtered_papers
         if 'domain_paper' in directory:
             filtered_files = [f for f in files if 'filtered_papers' in f and 'excluded' not in f]
             if filtered_files:
-                latest_file = max(filtered_files, key=os.path.getmtime)
-                return latest_file
-        
-        # 在arxiv_paper目录中，优先查找合并文件（包含多个类别的文件）
+                return max(filtered_files, key=os.path.getmtime)
+        # arxiv_paper 优先合并文件
         combined_files = [f for f in files if '_cs.' in f and f.count('_cs.') > 1]
         if combined_files:
-            # 如果有合并文件，选择最新的合并文件
-            latest_file = max(combined_files, key=os.path.getmtime)
-            return latest_file
-        
-        # 如果没有特殊文件，按修改时间排序，返回最新的
-        latest_file = max(files, key=os.path.getmtime)
-        return latest_file
+            return max(combined_files, key=os.path.getmtime)
+        return max(files, key=os.path.getmtime)
     except Exception as e:
         print(f"❌ 查找文件时出错: {e}")
         return None
+
+def find_file_by_date(directory: str, date_str: str, pattern: str = "*.json") -> Optional[str]:
+    """
+    在目录中查找包含指定日期字符串的文件，优先选择 filtered/合并文件，找不到则 fallback 到最新。
+    date_str: 格式 YYYY-MM-DD
+    """
+    from glob import glob
+    files = glob(os.path.join(directory, pattern))
+    if not files:
+        return None
+    # 先精确匹配日期
+    date_files = [f for f in files if date_str in os.path.basename(f)]
+    if date_files:
+        # domain_paper 优先 filtered_papers
+        if 'domain_paper' in directory:
+            filtered_files = [f for f in date_files if 'filtered_papers' in f and 'excluded' not in f]
+            if filtered_files:
+                return max(filtered_files, key=os.path.getmtime)
+        # arxiv_paper 优先合并文件
+        if 'arxiv_paper' in directory:
+            combined_files = [f for f in date_files if '_cs.' in f and f.count('_cs.') > 1]
+            if combined_files:
+                return max(combined_files, key=os.path.getmtime)
+        return max(date_files, key=os.path.getmtime)
+    # fallback: 依然按原有逻辑找最新
+    return find_latest_file(directory, pattern)
 
 
 def check_file_exists(filepath: str, description: str) -> bool:
@@ -263,10 +282,10 @@ def main():
     crawl_output_file = None
     filter_output_file = None
     
+
     # ============ 步骤1: 爬取论文 ============
     if not args.skip_crawl:
         progress.start_step("爬取arXiv论文")
-        
         cmd = [
             sys.executable, "src/core/crawl_arxiv.py",
             "--categories"] + args.categories + [
@@ -275,41 +294,40 @@ def main():
             "--delay", "1.0",
             "--max-workers", str(args.max_workers)
         ]
-        
-        # 如果指定了日期参数，添加相应的日期参数
         if use_date_range:
             cmd.extend(["--start-date", args.start_date, "--end-date", args.end_date])
         elif args.date:
             cmd.extend(["--date", args.date])
-        
         if not run_command(cmd, "爬取论文", progress):
             progress.complete_step("爬取论文", False)
             progress.log_with_timestamp("❌ 爬取失败，流水线终止")
             return
-        
-        # 找到最新的爬取文件
-        crawl_output_file = find_latest_file(ARXIV_PAPER_DIR, "*.json")
+        # 按日期查找爬取文件
+        if args.date:
+            crawl_output_file = find_file_by_date(ARXIV_PAPER_DIR, args.date, "*.json")
+        else:
+            crawl_output_file = find_latest_file(ARXIV_PAPER_DIR, "*.json")
         if not crawl_output_file:
             progress.complete_step("爬取论文", False)
             progress.log_with_timestamp("❌ 未找到爬取输出文件")
             return
-            
         progress.complete_step("爬取论文", True)
     else:
         progress.skip_step("爬取arXiv论文")
         crawl_output_file = args.crawl_input_file
         if not crawl_output_file or not check_file_exists(crawl_output_file, "爬取输入文件"):
-            crawl_output_file = find_latest_file(ARXIV_PAPER_DIR, "*.json")
+            if args.date:
+                crawl_output_file = find_file_by_date(ARXIV_PAPER_DIR, args.date, "*.json")
+            else:
+                crawl_output_file = find_latest_file(ARXIV_PAPER_DIR, "*.json")
             if not crawl_output_file:
                 progress.log_with_timestamp("❌ 未找到可用的爬取文件")
                 return
-    
     progress.log_with_timestamp(f"📄 使用爬取文件: {crawl_output_file}")
     
     # ============ 步骤2: 筛选论文 ============
     if not args.skip_filter:
         progress.start_step("筛选相关论文")
-        
         cmd = [
             sys.executable, "src/core/select_.py",
             "--input-file", crawl_output_file,
@@ -321,29 +339,31 @@ def main():
             "--max-papers", str(args.max_papers_total),
             "--max-workers", str(args.max_workers)
         ]
-        
         if not run_command(cmd, "筛选论文", progress):
             progress.complete_step("筛选论文", False)
             progress.log_with_timestamp("❌ 筛选失败，流水线终止")
             return
-        
-        # 找到最新的筛选文件
-        filter_output_file = find_latest_file(DOMAIN_PAPER_DIR, "*.json")
+        # 按日期查找筛选文件
+        if args.date:
+            filter_output_file = find_file_by_date(DOMAIN_PAPER_DIR, args.date, "*.json")
+        else:
+            filter_output_file = find_latest_file(DOMAIN_PAPER_DIR, "*.json")
         if not filter_output_file:
             progress.complete_step("筛选论文", False)
             progress.log_with_timestamp("❌ 未找到筛选输出文件")
             return
-            
         progress.complete_step("筛选论文", True)
     else:
         progress.skip_step("筛选相关论文")
         filter_output_file = args.filter_input_file
         if not filter_output_file or not check_file_exists(filter_output_file, "筛选输入文件"):
-            filter_output_file = find_latest_file(DOMAIN_PAPER_DIR, "*.json")
+            if args.date:
+                filter_output_file = find_file_by_date(DOMAIN_PAPER_DIR, args.date, "*.json")
+            else:
+                filter_output_file = find_latest_file(DOMAIN_PAPER_DIR, "*.json")
             if not filter_output_file:
                 progress.log_with_timestamp("❌ 未找到可用的筛选文件")
                 return
-    
     progress.log_with_timestamp(f"📄 使用筛选文件: {filter_output_file}")
     
     # 检查筛选结果
