@@ -1,0 +1,62 @@
+[
+    {
+        "index": "#1",
+        "title": "Improving Cooperation in Collaborative Embodied AI",
+        "link": "/arxiv/2510.03153",
+        "arxiv_id": "2510.03153",
+        "authors": "Hima Jacob Leven Suprabha, Laxmi Nag Laxminarayan Nagesh, Ajith Nair, Alvin Reuben Amal Selvaster, Ayan Khan, Raghuram Damarla, Sanju Hannah Samuel, Sreenithi Saravana Perumal, Titouan Puech, Venkataramireddy Marella, Vishal Sonar, Alessandro Suglia, Oliver Lemon",
+        "summary": "The integration of Large Language Models (LLMs) into multiagent systems has opened new possibilities for collaborative reasoning and cooperation with AI agents. This paper explores different prompting methods and evaluates their effectiveness in enhancing agent collaborative behaviour and decision-making. We enhance CoELA, a framework designed for building Collaborative Embodied Agents that leverage LLMs for multi-agent communication, reasoning, and task coordination in shared virtual spaces. Through systematic experimentation, we examine different LLMs and prompt engineering strategies to identify optimised combinations that maximise collaboration performance. Furthermore, we extend our research by integrating speech capabilities, enabling seamless collaborative voice-based interactions. Our findings highlight the effectiveness of prompt optimisation in enhancing collaborative agent performance; for example, our best combination improved the efficiency of the system running with Gemma3 by 22% compared to the original CoELA system. In addition, the speech integration provides a more engaging user interface for iterative system development and demonstrations.",
+        "subjects": "Artificial Intelligence, Multiagent Systems, Robotics",
+        "date": "2025-10-03",
+        "category": "cs.MA",
+        "crawl_time": "2025-10-07T01:04:26.114701"
+    },
+    {
+        "index": "#2",
+        "title": "Axiomatisation for an asynchronous epistemic logic with sending and receiving messages",
+        "link": "/arxiv/2510.02890",
+        "arxiv_id": "2510.02890",
+        "authors": "Philippe Balbiani, Hans van Ditmarsch, Clara Lerouvillois",
+        "summary": "We investigate a public announcement logic for asynchronous public announcements wherein the sending of the announcements by the environment is separated from the reception of the announcements by the individual agents. Both come with different modalities. In the logical semantics, formulas are interpreted in a world of a Kripke model but given a history of prior announcements and receptions of announcements that already happened. An axiomatisation AA for such a logic has been given in prior work, for the formulas that are valid when interpreted in the Kripke model before any such announcements have taken place. This axiomatisation is a reduction system wherein one can show that every formula is equivalent to a purely epistemic formula without dynamic modalities for announcements and receptions. We propose a generalisation AA* of this axiomatisation, for the formulas that are valid when interpreted in the Kripke model given any history of prior announcements and receptions of announcements. It does not extend the axiomatisation AA, for example it is no longer valid that nobody has received any announcement. Unlike AA, this axiomatisation AA* is infinitary and it is not a reduction system.",
+        "subjects": "Logic in Computer Science, Multiagent Systems",
+        "date": "2025-10-03",
+        "category": "cs.MA",
+        "crawl_time": "2025-10-07T01:04:26.115007"
+    },
+    {
+        "index": "#3",
+        "title": "Delay-Tolerant Augmented-Consensus-based Distributed Directed Optimization",
+        "link": "/arxiv/2510.02889",
+        "arxiv_id": "2510.02889",
+        "authors": "Mohammadreza Doostmohammadian, Narahari Kasagatta Ramesh, Alireza Aghasi",
+        "summary": "Distributed optimization finds applications in large-scale machine learning, data processing and classification over multi-agent networks. In real-world scenarios, the communication network of agents may encounter latency that may affect the convergence of the optimization protocol. This paper addresses the case where the information exchange among the agents (computing nodes) over data-transmission channels (links) might be subject to communication time-delays, which is not well addressed in the existing literature. Our proposed algorithm improves the state-of-the-art by handling heterogeneous and arbitrary but bounded and fixed (time-invariant) delays over general strongly-connected directed networks. Arguments from matrix theory, algebraic graph theory, and augmented consensus formulation are applied to prove the convergence to the optimal value. Simulations are provided to verify the results and compare the performance with some existing delay-free algorithms.",
+        "subjects": "Systems and Control, Multiagent Systems, Social and Information Networks, Signal Processing, Optimization and Control",
+        "date": "2025-10-03",
+        "category": "cs.MA",
+        "crawl_time": "2025-10-07T01:04:26.115298"
+    },
+    {
+        "index": "#4",
+        "title": "CLARITY: Clinical Assistant for Routing, Inference, and Triage",
+        "link": "/arxiv/2510.02463",
+        "arxiv_id": "2510.02463",
+        "authors": "Vladimir Shaposhnikov, Aleksandr Nesterov, Ilia Kopanichuk, Ivan Bakulin, Egor Zhelvakov, Ruslan Abramov, Ekaterina Tsapieva, Dmitry V. Dylov, Ivan Oseledets",
+        "summary": "We present CLARITY (Clinical Assistant for Routing, Inference, and Triage), an AI-driven platform designed to facilitate patient-to-specialist routing, clinical consultations, and severity assessment of patients' conditions. Its hybrid architecture combines a Finite State Machine (FSM) for structured dialogue flows with collaborative agents that employ Large Language Model (LLM) to analyze symptoms and prioritize referrals to appropriate specialists. Built on a modular microservices framework, CLARITY ensures safe, efficient, and robust performance, flexible and readily scalable to meet the demands of existing workflows and IT solutions in healthcare. We report integration of our clinical assistant into a large-scale nation-wide inter-hospital IT platform, with over 55,000 content-rich user dialogues completed within the two months of deployment, 2,500 of which were expert-annotated for a consequent validation. The validation results show that CLARITY surpasses human-level performance in terms of the first-attempt routing precision, naturally requiring up to 3 times shorter duration of the consultation than with a human.",
+        "subjects": "Computation and Language, Artificial Intelligence, Multiagent Systems",
+        "date": "2025-10-02",
+        "category": "cs.MA",
+        "crawl_time": "2025-10-07T01:04:26.115609"
+    },
+    {
+        "index": "#5",
+        "title": "AMANDA: Agentic Medical Knowledge Augmentation for Data-Efficient Medical Visual Question Answering",
+        "link": "/arxiv/2510.02328",
+        "arxiv_id": "2510.02328",
+        "authors": "Ziqing Wang, Chengsheng Mao, Xiaole Wen, Yuan Luo, Kaize Ding",
+        "summary": "Medical Multimodal Large Language Models (Med-MLLMs) have shown great promise in medical visual question answering (Med-VQA). However, when deployed in low-resource settings where abundant labeled data are unavailable, existing Med-MLLMs commonly fail due to their medical reasoning capability bottlenecks: (i) the intrinsic reasoning bottleneck that ignores the details from the medical image; (ii) the extrinsic reasoning bottleneck that fails to incorporate specialized medical knowledge. To address those limitations, we propose AMANDA, a training-free agentic framework that performs medical knowledge augmentation via LLM agents. Specifically, our intrinsic medical knowledge augmentation focuses on coarse-to-fine question decomposition for comprehensive diagnosis, while extrinsic medical knowledge augmentation grounds the reasoning process via biomedical knowledge graph retrieval. Extensive experiments across eight Med-VQA benchmarks demonstrate substantial improvements in both zero-shot and few-shot Med-VQA settings. The code is available at https://github.com/REAL-Lab-NU/AMANDA.",
+        "subjects": "Computation and Language, Artificial Intelligence, Multiagent Systems",
+        "date": "2025-09-26",
+        "category": "cs.MA",
+        "crawl_time": "2025-10-07T01:04:26.115919"
+    }
+]

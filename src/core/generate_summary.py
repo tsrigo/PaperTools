@@ -327,12 +327,14 @@ def generate_inspiration_trace(paper_content: str, client: OpenAI, model: str, t
             return cached_trace
     
     # 构建prompt
-    prompt = f"""请基于以下学术论文内容，系统性地推演作者提出其核心方法的逻辑链。
+    prompt = f"""请基于以下学术论文内容，系统性地推演作者提出其核心方法的逻辑链，目标就是还原作者产出这篇文章的思考过程。
 
 {paper_content}
 
 要求：从一个宏观问题出发，逐步聚焦，展现从观察、假设到形成最终方法论的思考过程。
-。语言简洁明了，突出逻辑链条"""
+语言简洁明了，突出逻辑链条。
+请聚焦于思想的演进脉络，而不是方法的具体实现细节。
+"""
 
     try:
         response = client.chat.completions.create(
