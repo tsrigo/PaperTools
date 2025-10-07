@@ -123,10 +123,16 @@ def generate_complete_html() -> str:
     js_data += "};\n\n"
     
     # 添加每日速览数据
-    js_data += "const dailyOverviews = {\n"
+    # 使用 json.dumps 将字符串完全转义，避免手动处理特殊字符（如 ` 和 \）时出错
+    js_data += "const dailyOverviewsRaw = {\n"
     for date, overview in sorted(daily_overviews.items(), reverse=True):
-        js_data += f'    "{date}": `{overview}`,\n'
+        js_data += f'    "{date}": {json.dumps(overview)},\n'
     js_data += "};\n"
+    # 在客户端，我们再将解析后的字符串赋值给 dailyOverviews
+    js_data += "const dailyOverviews = {};\n"
+    js_data += "for (const date in dailyOverviewsRaw) {\n"
+    js_data += "    dailyOverviews[date] = dailyOverviewsRaw[date];\n"
+    js_data += "}\n"
     
     # 完整的HTML模板
     html_template = f'''<!DOCTYPE html>
