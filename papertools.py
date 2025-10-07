@@ -10,6 +10,12 @@ import subprocess
 import argparse
 from datetime import datetime
 
+from src.utils.config import (
+    CRAWL_CATEGORIES, 
+    MAX_PAPERS_TOTAL_QUICK, 
+    MAX_PAPERS_TOTAL_FULL
+)
+
 def check_python_version():
     """检查Python版本"""
     if sys.version_info < (3, 7):
@@ -102,9 +108,9 @@ def run_pipeline(args):
     
     # 根据模式设置默认参数
     if args.mode == 'quick':
-        cmd.extend(['--max-papers-total', '10'])
+        cmd.extend(['--max-papers-total', str(MAX_PAPERS_TOTAL_QUICK)])
     elif args.mode == 'full':
-        cmd.extend(['--max-papers-total', '10000'])
+        cmd.extend(['--max-papers-total', str(MAX_PAPERS_TOTAL_FULL)])
     
     # 添加其他参数
     if args.date:
@@ -138,10 +144,10 @@ def main():
     # run 子命令
     run_parser = subparsers.add_parser('run', help='运行论文处理流水线')
     run_parser.add_argument('--mode', choices=['quick', 'full'], default='full',
-                           help='运行模式: quick(10篇) 或 full(1000篇)')
+                           help=f'运行模式: quick({MAX_PAPERS_TOTAL_QUICK}篇) 或 full({MAX_PAPERS_TOTAL_FULL}篇)')
     run_parser.add_argument('--date', help='处理指定日期的论文 (YYYY-MM-DD)')
     run_parser.add_argument('--categories', nargs='+', 
-                           default=['cs.AI', 'cs.CL', 'cs.LG', 'cs.MA'],
+                           default=CRAWL_CATEGORIES,
                            help='论文类别')
     run_parser.add_argument('--max-papers-total', type=int, help='总处理数量')
     run_parser.add_argument('--skip-serve', action='store_true', help='跳过启动服务器步骤')

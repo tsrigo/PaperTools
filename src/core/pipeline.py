@@ -25,7 +25,7 @@ try:
     from src.utils.config import (
         API_KEY, BASE_URL, MODEL, TEMPERATURE,
         ARXIV_PAPER_DIR, DOMAIN_PAPER_DIR, SUMMARY_DIR, WEBPAGES_DIR,
-        CRAWL_CATEGORIES, MAX_PAPERS_PER_CATEGORY, MAX_WORKERS
+        CRAWL_CATEGORIES, MAX_PAPERS_PER_CATEGORY, MAX_WORKERS, MAX_PAPERS_TOTAL_DEFAULT
     )
 except ImportError:
     raise ImportError("⚠️ 错误: 未找到config.py")
@@ -215,7 +215,7 @@ def main():
                        help='要爬取的类别')
     parser.add_argument('--max-papers-per-category', type=int, default=MAX_PAPERS_PER_CATEGORY,
                        help='每个类别最大爬取数量')
-    parser.add_argument('--max-papers-total', type=int, default=100,  # 从10增加到100
+    parser.add_argument('--max-papers-total', type=int, default=MAX_PAPERS_TOTAL_DEFAULT,
                        help='总共处理的最大论文数量')
     parser.add_argument('--max-workers', type=int, default=MAX_WORKERS,
                        help=f'最大线程数 (默认: {MAX_WORKERS})')

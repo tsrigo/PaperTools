@@ -36,10 +36,13 @@ CACHE_EXPIRY_DAYS = 30  # 缓存过期天数
 
 # 爬取配置
 MAX_PAPERS_PER_CATEGORY = 5000  # 增加到5000，获取更多论文
-CRAWL_CATEGORIES = ['cs.AI', 'cs.CL', 'cs.CV', 'cs.LG', 'cs.MA']
+CRAWL_CATEGORIES = ['cs.AI', 'cs.CL', 'cs.LG', 'cs.MA']
+MAX_PAPERS_TOTAL_QUICK = 10
+MAX_PAPERS_TOTAL_FULL = 10000
+MAX_PAPERS_TOTAL_DEFAULT = 100
 
 # 多线程配置
-MAX_WORKERS = 10  # 默认线程数
+MAX_WORKERS = 4  # 默认线程数
 
 # 论文筛选Prompt模板
 PAPER_FILTER_PROMPT = """你是一位顶尖的人工智能研究员，正在为一项关于"大语言模型通用推理能力"的研究课题筛选前沿论文。请你严格、精准地判断这篇论文是否符合我的研究范围。

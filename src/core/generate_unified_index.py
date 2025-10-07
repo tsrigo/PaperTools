@@ -140,7 +140,7 @@ def generate_complete_html() -> str:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyArxiv - 学术论文集合</title>
+    <title>PaperTools - 学术论文集合</title>
     <!-- 引入 Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 引入 Marked.js 用于 Markdown 渲染 -->
@@ -352,7 +352,7 @@ def generate_complete_html() -> str:
     <div class="container mx-auto w-3/5 max-w-none p-4 sm:p-6">
         <!-- 头部导航栏 -->
         <header class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-slate-900 dark:text-white">MyArxiv</h1>
+            <h1 class="text-3xl font-bold text-slate-900 dark:text-white">PaperTools</h1>
             <div class="flex items-center space-x-4">
                 <!-- 统计信息 -->
                 <div class="text-sm text-slate-600 dark:text-slate-400">

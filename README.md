@@ -7,12 +7,11 @@ PaperTools 是一个完整的学术论文处理流水线，提供自动化的论
 ## 功能特点
 
 - **自动爬取**: 从arXiv等学术平台自动爬取最新论文
-- **AI智能筛选**: 使用大语言模型按研究领域智能筛选论文
+- **LLM智能筛选**: 使用大语言模型按研究领域智能筛选论文
 - **自动总结**: 基于jinja.ai获取完整论文内容，生成高质量中文总结
-- **💡 灵感溯源**: 深度分析论文创新思路的演进过程，从挑战识别到解决方案的完整逻辑链
+- **灵感溯源**: 深度分析论文创新思路的演进过程，从挑战识别到解决方案的完整逻辑链
 - **网页生成**: 将论文转换为现代化设计的交互式HTML网页，支持可折叠内容展示
 - **本地部署**: 一键启动本地服务器，便于浏览和分享
-- **多线程处理**: 所有组件支持并行处理，提升性能
 - **交互功能**: 支持论文收藏、已读状态跟踪和删除，状态持久化保存
 
 ## 系统要求
@@ -41,15 +40,7 @@ python papertools.py check
 ### 快速开始
 
 ```bash
-# 全量模式：处理1000篇论文（默认）
-python papertools.py run
-
-# 快速模式：处理10篇论文
 python papertools.py run --mode quick
-
-# 查看结果
-python papertools.py serve
-
 # 获取帮助
 python papertools.py --help
 ```
@@ -97,87 +88,85 @@ python src/core/generate_unified_index.py
 python src/core/serve_webpages.py --port 8080
 ```
 
+## 🚀 部署到 GitHub Pages
+
+您可以将生成的论文网站免费发布到 GitHub Pages，方便公开访问和分享。推荐使用 Fork + GitHub Actions 的方式实现全自动部署。
+
+### 步骤 1: Fork 本仓库
+点击本页面右上角的 **Fork** 按钮，将此项目复制到您自己的 GitHub 账户下。
+
+### 步骤 2: 配置 Pages 和 Actions 权限
+
+1.  **配置 Pages 源**:
+    *   在您 Fork 后的仓库页面，进入 `Settings` > `Pages`。
+    *   在 `Build and deployment` 下的 `Source` 选项中，选择 `GitHub Actions`。
+
+2.  **配置 Actions 权限 (关键步骤)**:
+    *   在仓库页面，进入 `Settings` > `Actions` > `General`。
+    *   滚动到 `Workflow permissions` 部分。
+    *   选择 `Read and write permissions`。
+    *   勾选 `Allow GitHub Actions to create and approve pull requests`。
+    *   点击 `Save`。
+
+    *此设置为 Actions 提供了将构建好的网站文件推送到 `gh-pages` 分支所需的权限。*
+
+### 步骤 3: 触发自动部署并访问
+- **首次部署**: 完成上述配置后，Actions 会自动运行一次（或手动在 `Actions` 标签页触发 `Deploy to GitHub Pages`），等待几分钟即可。
+- **更新网站**: 如果您想定制筛选规则，可以修改 `src/utils/config.py` 中的 `PAPER_FILTER_PROMPT`，然后将更改推送到您仓库的 `main` 分支。GitHub Actions 会自动重新生成和部署网站。
+
+部署成功后，您的网站将在 `https://<您的用户名>.github.io/<仓库名>/` 上可用。
+
+### 备选方案：手动部署
+如果您不想使用 Actions，也可以在本地生成网站后，将 `webpages` 目录的内容手动上传到任何静态网站托管服务。
+
 ## 配置说明
+项目的核心配置集中在两个文件：`.env` 用于存放敏感信息和环境特定变量，`src/utils/config.py` 用于定义程序的默认行为和参数。
 
-### 环境变量
+### 环境变量 (`.env`)
 
-在 `.env` 文件中配置：
-
-```bash
-# API配置
-OPENAI_API_KEY=your_api_key_here
-OPENAI_BASE_URL=https://open.bigmodel.cn/api/paas/v4
-MODEL=glm-4.5-flash
-
-# 可选：Jina API Token（用于获取完整论文内容）
-JINA_API_TOKEN=your_jina_token_here
-```
-
-### `config.py` 的作用与配置项
-
-`src/utils/config.py` 是项目的集中配置入口，用于：
-- 统一读取 `.env` 中的敏感信息（API 密钥、基址、模型名等）
-- 定义默认运行参数（如温度、超时、并发等）
-- 约定目录结构与缓存策略
-- 维护论文筛选 Prompt 模板与爬取策略
-
-主要配置项一览（默认值见 `src/utils/config.py`）：
-- **API 配置**：`OPENAI_API_KEY`、`OPENAI_BASE_URL`、`MODEL`（从 `.env` 读取）
-- **处理参数**：`TEMPERATURE`、`REQUEST_TIMEOUT`、`REQUEST_DELAY`
-- **目录结构**：`ARXIV_PAPER_DIR`、`DOMAIN_PAPER_DIR`、`SUMMARY_DIR`、`WEBPAGES_DIR`
-- **时间划分**：`DATE_FORMAT`、`ENABLE_TIME_BASED_STRUCTURE`
-- **缓存设置**：`CACHE_DIR`、`ENABLE_CACHE`、`CACHE_EXPIRY_DAYS`
-- **爬取限制**：`MAX_PAPERS_PER_CATEGORY`、`CRAWL_CATEGORIES`
-- **并发控制**：`MAX_WORKERS`
-- **筛选模板**：`PAPER_FILTER_PROMPT`
-- **Jina API**：`JINA_API_TOKEN`、`JINA_MAX_REQUESTS_PER_MINUTE`、`JINA_MAX_RETRIES`、`JINA_BACKOFF_FACTOR`
-
-覆盖与优先级建议：
-- 与密钥/端点/模型相关的字段，优先在 `.env` 中配置（不建议直接改代码）。
-- 与数量、类别、日期等运行期选项，优先使用命令行参数覆盖（见下方“使用示例”），其效果通常优先于代码默认值。
-- 其他通用默认值（如并发、缓存、目录），可视需要修改 `src/utils/config.py` 后重跑。
-
-典型自定义示例：
-```bash
-# 通过 .env 切换到自建网关与模型
-OPENAI_BASE_URL=https://api.your-gateway.com/v1
-MODEL=your-model-name
-
-# 运行时临时指定类别与数量（覆盖 config 默认）
-python papertools.py run --categories cs.AI cs.CL --max-papers-total 200
-```
-
-### 💡 新功能说明
-
-**灵感溯源功能**：
-- 自动分析每篇论文的创新思路演进过程
-- 生成结构化分析：面临的挑战 → 关键洞察 → 解决方案演进 → 创新点总结
-- 复用已获取的论文内容，无需额外API调用
-- 支持缓存机制，避免重复分析
-
-**可折叠界面**：
-- **筛选理由**和**灵感溯源**默认折叠，减少页面拥挤
-- **AI总结**和**原始摘要**默认展开，突出核心内容
-- 平滑的折叠/展开动画效果，提升用户体验
-
-### 使用示例
+在项目根目录创建一个 `.env` 文件（可从 `.env.example` 复制）来配置以下内容：
 
 ```bash
-# 全量处理（1000篇论文，默认）
-python papertools.py run
+# API配置 (必需)
+OPENAI_API_KEY=your_api_key_here         # 你的大模型API密钥
+OPENAI_BASE_URL=https://api.example.com/v1 # API的访问地址
+MODEL=your_model_name                    # 使用的模型名称
 
-# 快速测试（10篇论文）
-python papertools.py run --mode quick
-
-# 处理特定类别
-python papertools.py run --categories cs.AI cs.CL
-
-# 处理指定日期
-python papertools.py run --date 2025-09-24
-
-# 自定义论文数量
-python papertools.py run --max-papers-total 500
+# Jina API配置 (可选，用于全文阅读)
+JINA_API_TOKEN=your_jina_token_here      # Jina Reader API的令牌
 ```
+
+### 核心配置文件 (`src/utils/config.py`)
+
+此文件定义了流水线的各种默认行为。你可以根据自己的需求进行定制。
+
+#### 主要配置参数
+
+-   **API与请求相关**
+    -   `TEMPERATURE`: 模型生成内容的温度，越低结果越稳定。
+    -   `REQUEST_TIMEOUT`: API请求超时时间（秒）。
+    -   `REQUEST_DELAY`: 两次请求之间的延迟（秒），用于避免速率限制。
+
+-   **目录配置**
+    -   `ARXIV_PAPER_DIR`, `DOMAIN_PAPER_DIR`, `SUMMARY_DIR`, `WEBPAGES_DIR`: 定义了流水线各个阶段产出文件的存储目录。
+
+-   **缓存配置**
+    -   `ENABLE_CACHE`: 是否启用缓存，建议保持 `True` 以节省时间和API调用成本。
+    -   `CACHE_EXPIRY_DAYS`: 缓存的有效天数。
+
+-   **爬取与处理数量**
+    -   `CRAWL_CATEGORIES`: 默认爬取的arXiv类别。
+    -   `MAX_PAPERS_PER_CATEGORY`: 每个类别最多爬取的论文数。
+    -   `MAX_PAPERS_TOTAL_QUICK`: `quick` 模式下处理的总论文数。
+    -   `MAX_PAPERS_TOTAL_FULL`: `full` 模式下处理的总论文数。
+    -   `MAX_PAPERS_TOTAL_DEFAULT`: 直接运行 `pipeline.py` 时的默认处理数量。
+
+-   **并发控制**
+    -   `MAX_WORKERS`: 全局最大并发线程数，适用于爬取、筛选和总结等多个步骤。
+
+#### 重点：定制你的论文筛选标准 (`PAPER_FILTER_PROMPT`)
+
+`PAPER_FILTER_PROMPT` 是一个Prompt模板，用于指导大语言模型判断一篇论文是否符合你的研究兴趣。
 
 ## 项目结构
 
@@ -206,86 +195,6 @@ PaperTools/
 └── webpages/                 # 生成的网页
 ```
 
-## 使用场景
-
-**AI研究**
-- 跟踪LLM和推理技术最新进展
-- 研究智能体和多智能体系统
-- 了解强化学习在AI中的应用
-- 探索工具使用和进化算法
-
-**学术研究**
-- 快速了解特定领域最新进展
-- 生成论文总结用于文献综述
-- **深度分析创新思路**: 通过灵感溯源功能理解研究突破的逻辑演进
-- 创建优雅的论文展示页面
-- 构建个人研究知识库
-
-**教学辅助**
-- 为学生提供AI前沿论文理解辅助
-- **启发式学习**: 展示从问题识别到解决方案的完整思维过程
-- 创建课程相关论文资源库
-- 制作交互式学习材料，支持可折叠内容组织
-- 展示研究领域发展脉络
-
-**团队协作**
-- 分享团队关注的AI论文
-- 统一的论文管理和展示
-- 便于团队讨论和评论
-- 跟踪竞品和相关工作
-
-## 故障排除
-
-### 环境检查
-```bash
-# 检查环境和依赖
-python papertools.py check
-```
-
-### 常见问题
-
-**API调用失败**
-```bash
-# 检查API密钥配置
-cat .env
-# 确保 OPENAI_API_KEY 已正确设置
-```
-
-**依赖缺失**
-```bash
-# 自动安装缺失的依赖
-python papertools.py check
-# 或手动安装
-pip install -r requirements.txt
-```
-
-**网页服务器启动失败**
-```bash
-# 先生成网页内容
-python papertools.py run
-# 再启动服务器
-python papertools.py serve
-```
-
-**缓存问题**
-```bash
-# 清理所有缓存文件
-python papertools.py clean
-```
-
-### 调试模式
-```bash
-# 测试少量论文
-python papertools.py run --max-papers-total 10
-
-# 快速模式测试
-python papertools.py run --mode quick
-```
-
-## 许可证
-
-MIT License
-
 ## 贡献
 
 欢迎贡献！请随时提交Issues和Pull Requests来改进这个项目。
@@ -296,4 +205,4 @@ MIT License
 
 ---
 
-如果这个项目对你有帮助，请给个星标支持！
+如果这个项目对你有帮助，请星标支持！

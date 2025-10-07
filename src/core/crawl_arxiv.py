@@ -24,13 +24,14 @@ if project_root not in sys.path:
 
 # 导入配置
 try:
-    from src.utils.config import ARXIV_PAPER_DIR, CRAWL_CATEGORIES, MAX_PAPERS_PER_CATEGORY, MAX_WORKERS
+    from src.utils.config import ARXIV_PAPER_DIR, CRAWL_CATEGORIES, MAX_PAPERS_PER_CATEGORY, MAX_WORKERS, DATE_FORMAT
 except ImportError:
     # 如果没有config文件，使用默认配置
     ARXIV_PAPER_DIR = "arxiv_paper"
     CRAWL_CATEGORIES = ['cs.AI', 'cs.CL', 'cs.CV', 'cs.LG', 'cs.MA']
     MAX_PAPERS_PER_CATEGORY = 1000
     MAX_WORKERS = 4
+    DATE_FORMAT = "%Y-%m-%d"
 
 # 基础URL模板
 base_url = "https://papers.cool/arxiv/{}?show={}"
@@ -234,7 +235,7 @@ def scrape_papers(category: str, max_papers: int = MAX_PAPERS_PER_CATEGORY, dela
     return papers, paper_ids
 
 def save_papers(all_papers: Dict, selected_categories: List[str], output_dir: str, current_date: str, target_date: str = None) -> str:
-    """保存论文到JSON文件"""
+    """仅保存所有论文的合并文件到JSON。"""
     
     # 如果指定了目标日期，使用目标日期作为文件名后缀
     # 如果没有指定目标日期，从论文数据中推断最常见的发布日期
@@ -252,25 +253,15 @@ def save_papers(all_papers: Dict, selected_categories: List[str], output_dir: st
                 paper_dates.append(norm)
         
         if paper_dates:
-            # 使用最常见的论文发布日期
-            date_suffix = max(set(paper_dates), key=paper_dates.count)
+            # 使用最新的论文发布日期
+            date_suffix = max(paper_dates)
             print(f"📅 从论文数据中推断出发布日期: {date_suffix}")
         else:
             # 如果无法推断，使用当前日期
             date_suffix = current_date
             print(f"⚠️ 无法推断论文发布日期，使用当前日期: {date_suffix}")
-    
-    # 保存各类别的单独文件
-    for category in selected_categories:
-        category_papers = [paper for paper_id, paper in all_papers.items() if paper['category'] == category]
-        if category_papers:
-            filename = f"{category}_paper_{date_suffix}.json"
-            filepath = os.path.join(output_dir, filename)
-            with open(filepath, 'w', encoding='utf-8') as f:
-                json.dump(category_papers, f, ensure_ascii=False, indent=4)
-            print(f"💾 已保存 {len(category_papers)} 篇论文到 {filepath}")
 
-    # 保存合并文件
+    # 只保存合并文件
     combined_filename = f"{'_'.join(sorted(selected_categories))}_paper_{date_suffix}.json"
     combined_filepath = os.path.join(output_dir, combined_filename)
     with open(combined_filepath, 'w', encoding='utf-8') as f:
@@ -306,7 +297,7 @@ def main():
     os.makedirs(args.output_dir, exist_ok=True)
     
     # 获取当前日期
-    current_date = datetime.now().strftime('%Y%m%d')
+    current_date = datetime.now().strftime(DATE_FORMAT)
     
     # 处理类别选择
     selected_categories = args.categories
