@@ -58,8 +58,8 @@ class JinaRateLimiter:
 jina_rate_limiter = JinaRateLimiter(max_requests_per_minute=JINA_MAX_REQUESTS_PER_MINUTE)
 
 
-def retry_on_failure(max_retries: int = None, backoff_factor: float = None):
-    """重试装饰器"""
+def retry_on_failure(max_retries: int = None, backoff_factor: float = None, apply_rate_limit: bool = False):
+    """重试装饰器，支持速率限制和指数退避"""
     if max_retries is None:
         max_retries = JINA_MAX_RETRIES
     if backoff_factor is None:
@@ -72,27 +72,31 @@ def retry_on_failure(max_retries: int = None, backoff_factor: float = None):
             
             for attempt in range(max_retries):
                 try:
+                    # 如果需要，在每次尝试前应用速率限制
+                    if apply_rate_limit:
+                        jina_rate_limiter.wait_if_needed()
                     return func(*args, **kwargs)
                 except requests.exceptions.RequestException as e:
                     last_exception = e
-                    if attempt < max_retries - 1:  # 不是最后一次尝试
+                    if attempt < max_retries - 1:
                         wait_time = backoff_factor ** attempt
-                        print(f"⚠️ Jina API请求失败（尝试 {attempt + 1}/{max_retries}），{wait_time}秒后重试: {e}")
+                        print(f"⚠️ API请求失败 (尝试 {attempt + 1}/{max_retries}), {wait_time:.2f}秒后重试: {e}")
                         time.sleep(wait_time)
                     else:
-                        print(f"❌ Jina API请求失败，已达到最大重试次数: {e}")
+                        print(f"❌ API请求失败，已达到最大重试次数: {e}")
                 except Exception as e:
-                    # 对于非网络相关的异常，直接抛出
+                    # 对于其他非网络相关的异常，直接抛出
                     raise e
             
             # 如果所有重试都失败了，抛出最后一个异常
-            raise last_exception
+            if last_exception:
+                raise last_exception
         
         return wrapper
     return decorator
 
 
-@retry_on_failure()
+@retry_on_failure(apply_rate_limit=True)
 def fetch_paper_content_from_jinja(arxiv_url: str, cache_manager: Optional[CacheManager] = None) -> Optional[str]:
     """
     使用jinja.ai获取论文完整内容，支持缓存
@@ -113,9 +117,6 @@ def fetch_paper_content_from_jinja(arxiv_url: str, cache_manager: Optional[Cache
     
     # 如果缓存中没有，才调用jina.ai API
     print(f"🌐 从jina.ai获取论文内容: {arxiv_url}")
-    
-    # 应用速率限制
-    jina_rate_limiter.wait_if_needed()
     
     # 处理不同格式的链接
     if arxiv_url.startswith('/arxiv/'):
@@ -155,7 +156,7 @@ def fetch_paper_content_from_jinja(arxiv_url: str, cache_manager: Optional[Cache
         return content
     else:
         # 对于HTTP错误，抛出异常以触发重试机制
-        raise requests.exceptions.HTTPError(f"jinja.ai请求失败，状态码: {response.status_code}")
+        response.raise_for_status()
 
 
 def extract_arxiv_id_from_link(link: str) -> Optional[str]:

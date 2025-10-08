@@ -349,50 +349,50 @@ def generate_complete_html() -> str:
         </div>
     </div>
 
-    <div class="container mx-auto w-3/5 max-w-none p-4 sm:p-6">
+    <div class="container mx-auto w-full lg:w-3/5 max-w-none p-3 sm:p-4 lg:p-6">
         <!-- 头部导航栏 -->
-        <header class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-slate-900 dark:text-white">PaperTools</h1>
-            <div class="flex items-center space-x-4">
-                <!-- 统计信息 -->
-                <div class="text-sm text-slate-600 dark:text-slate-400">
-                    总计 <span id="total-papers">0</span> 篇论文
-                </div>
-                <!-- 筛选按钮 -->
-                <div class="flex items-center space-x-2">
-                    <button id="filter-starred" class="px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 rounded-md hover:bg-slate-200 dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition-colors">
+        <header class="mb-4 sm:mb-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+                <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">PaperTools</h1>
+                <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                    <!-- 统计信息 -->
+                    <div class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                        总计 <span id="total-papers">0</span> 篇论文
+                    </div>
+                    <!-- 筛选按钮 -->
+                    <button id="filter-starred" class="px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 rounded-md hover:bg-slate-200 dark:hover:bg-slate-600 focus:outline-none transition-colors whitespace-nowrap">
                         只看收藏
                     </button>
-                    <button id="filter-all" class="px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                    <button id="filter-all" class="px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none transition-colors whitespace-nowrap">
                         显示全部
                     </button>
+                    <!-- 中英文摘要切换按钮 -->
+                    <button id="summary-toggle" class="px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 rounded-md hover:bg-slate-200 dark:hover:bg-slate-600 focus:outline-none transition-colors whitespace-nowrap">
+                        中文摘要
+                    </button>
+                    <button id="theme-toggle" class="p-1.5 sm:p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 focus:outline-none flex-shrink-0">
+                        <!-- 太阳图标 (浅色模式) -->
+                        <svg id="theme-icon-light" class="h-5 w-5 sm:h-6 sm:w-6 text-slate-600 dark:text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                        <!-- 月亮图标 (深色模式) -->
+                        <svg id="theme-icon-dark" class="h-5 w-5 sm:h-6 sm:w-6 text-slate-600 dark:text-slate-300 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                        </svg>
+                    </button>
+                    <!-- GitHub 图标按钮 -->
+                    <a href="https://github.com/tsrigo/PaperTools" target="https://github.com/tsrigo/PaperTools" title="GitHub 项目主页"
+                       class="p-1.5 sm:p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 focus:outline-none flex-shrink-0">
+                        <svg class="h-5 w-5 sm:h-6 sm:w-6 text-slate-700 dark:text-slate-200" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.021c0 4.428 2.865 8.184 6.839 9.504.5.092.682-.217.682-.483 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.004.07 1.532 1.032 1.532 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.339-2.221-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.254-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.295 2.748-1.025 2.748-1.025.546 1.378.202 2.396.1 2.65.64.7 1.028 1.595 1.028 2.688 0 3.847-2.337 4.695-4.566 4.944.359.309.678.919.678 1.852 0 1.336-.012 2.417-.012 2.747 0 .268.18.579.688.481C19.138 20.2 22 16.447 22 12.021 22 6.484 17.523 2 12 2z" clip-rule="evenodd"/>
+                        </svg>
+                    </a>
                 </div>
-                <!-- 中英文摘要切换按钮 -->
-                <button id="summary-toggle" class="px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 rounded-md hover:bg-slate-200 dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition-colors">
-                    中文摘要
-                </button>
-                <button id="theme-toggle" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500">
-                    <!-- 太阳图标 (浅色模式) -->
-                    <svg id="theme-icon-light" class="h-6 w-6 text-slate-600 dark:text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
-                    <!-- 月亮图标 (深色模式) -->
-                    <svg id="theme-icon-dark" class="h-6 w-6 text-slate-600 dark:text-slate-300 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                    </svg>
-                </button>
-                <!-- GitHub 图标按钮 -->
-                <a href="https://github.com/tsrigo/PaperTools" target="https://github.com/tsrigo/PaperTools" title="GitHub 项目主页"
-                   class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500">
-                    <svg class="h-6 w-6 text-slate-700 dark:text-slate-200" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.021c0 4.428 2.865 8.184 6.839 9.504.5.092.682-.217.682-.483 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.004.07 1.532 1.032 1.532 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.339-2.221-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.254-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.295 2.748-1.025 2.748-1.025.546 1.378.202 2.396.1 2.65.64.7 1.028 1.595 1.028 2.688 0 3.847-2.337 4.695-4.566 4.944.359.309.678.919.678 1.852 0 1.336-.012 2.417-.012 2.747 0 .268.18.579.688.481C19.138 20.2 22 16.447 22 12.021 22 6.484 17.523 2 12 2z" clip-rule="evenodd"/>
-                    </svg>
-                </a>
             </div>
         </header>
 
         <!-- 主要内容区域 -->
-        <main class="space-y-8" id="main-content">
+        <main class="space-y-6 sm:space-y-8" id="main-content">
             <!-- 加载提示 -->
             <div id="loading" class="text-center py-8">
                 <div class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-slate-500 bg-white dark:bg-slate-800 transition ease-in-out duration-150">
@@ -666,21 +666,21 @@ def generate_complete_html() -> str:
             }}
             
             return `
-                <div class="paper-item bg-white dark:bg-slate-800/50 rounded-lg shadow-sm p-6" data-arxiv-id="${{paper.arxiv_id}}">
+                <div class="paper-item bg-white dark:bg-slate-800/50 rounded-lg shadow-sm p-4 sm:p-6" data-arxiv-id="${{paper.arxiv_id}}">
                     <!-- 论文标题和操作按钮 -->
-                    <div class="flex items-start justify-between mb-4">
-                        <div class="flex items-start space-x-3 flex-1">
+                    <div class="flex items-start justify-between mb-3 sm:mb-4">
+                        <div class="flex items-start space-x-2 sm:space-x-3 flex-1 min-w-0">
                             <!-- 星标按钮 -->
                             <button class="star-button ${{isStarred ? 'starred' : ''}} mt-1 flex-shrink-0" onclick="toggleStar('${{paper.arxiv_id}}')" title="点击收藏">
-                                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <svg class="h-5 w-5 sm:h-6 sm:w-6" viewBox="0 0 20 20" fill="currentColor">
                                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                 </svg>
                             </button>
                             <!-- 论文标题 -->
-                            <h3 class="text-lg font-semibold text-black dark:text-white leading-tight">${{paper.title}}</h3>
+                            <h3 class="text-base sm:text-lg font-semibold text-black dark:text-white leading-tight break-words">${{paper.title}}</h3>
                         </div>
                         <!-- 删除按钮 -->
-                        <button class="delete-button text-slate-400 hover:text-red-500 ml-4 flex-shrink-0" onclick="deletePaperByButton(this)" data-arxiv-id="${{paper.arxiv_id}}" data-title="${{paper.title.replace(/"/g, '&quot;')}}" title="删除">
+                        <button class="delete-button text-slate-400 hover:text-red-500 ml-2 sm:ml-4 flex-shrink-0" onclick="deletePaperByButton(this)" data-arxiv-id="${{paper.arxiv_id}}" data-title="${{paper.title.replace(/"/g, '&quot;')}}" title="删除">
                             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                             </svg>
@@ -688,15 +688,15 @@ def generate_complete_html() -> str:
                     </div>
 
                     <!-- 论文元信息 -->
-                    <div class="space-y-2 mb-4">
-                        <div class="flex flex-wrap items-center gap-4 text-sm text-slate-600 dark:text-slate-400">
-                            <span><strong>ArXiv ID:</strong> ${{paper.arxiv_id}}</span>
-                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300">
+                    <div class="space-y-2 mb-3 sm:mb-4">
+                        <div class="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                            <span class="break-all"><strong>ArXiv ID:</strong> ${{paper.arxiv_id}}</span>
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300 whitespace-nowrap">
                                 ${{paper.category}}
                             </span>
-                            <span>${{date}}</span>
+                            <span class="whitespace-nowrap">${{date}}</span>
                         </div>
-                        <div class="text-sm text-black dark:text-white">
+                        <div class="text-xs sm:text-sm text-black dark:text-white break-words">
                             <strong>作者:</strong> ${{paper.authors}}
                         </div>
                     </div>
