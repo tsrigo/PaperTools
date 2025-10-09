@@ -155,6 +155,26 @@ def generate_complete_html() -> str:
         body::-webkit-scrollbar {{
             display: none;
         }}
+        
+        /* 移动端优化 */
+        @media (max-width: 640px) {{
+            body {{
+                font-size: 14px;
+            }}
+            
+            /* 改善可点击区域 */
+            button, a {{
+                min-height: 44px;
+                min-width: 44px;
+            }}
+            
+            /* 优化间距 */
+            .container {{
+                padding-left: 12px !important;
+                padding-right: 12px !important;
+            }}
+        }}
+        
         /* 星标样式 */
         .star-button {{
             transition: color 0.2s ease-in-out;
@@ -341,11 +361,11 @@ def generate_complete_html() -> str:
 <body class="bg-slate-50 dark:bg-slate-900 font-sans text-slate-800 dark:text-slate-200">
 
     <!-- 撤销删除的Toast -->
-    <div id="undo-toast" class="fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 hidden">
+    <div id="undo-toast" class="fixed top-4 right-4 bg-red-500 text-white px-3 sm:px-4 py-2 rounded-lg shadow-lg z-50 hidden max-w-xs sm:max-w-sm">
         <div class="flex items-center space-x-2">
-            <span id="toast-message">已删除</span>
-            <span id="countdown" class="text-sm opacity-75"></span>
-            <button id="undo-btn" class="ml-2 px-2 py-1 bg-white text-red-500 rounded text-sm hover:bg-gray-100">撤销</button>
+            <span id="toast-message" class="text-sm sm:text-base">已删除</span>
+            <span id="countdown" class="text-xs sm:text-sm opacity-75"></span>
+            <button id="undo-btn" class="ml-2 px-2 py-1 bg-white text-red-500 rounded text-xs sm:text-sm hover:bg-gray-100">撤销</button>
         </div>
     </div>
 
@@ -702,21 +722,21 @@ def generate_complete_html() -> str:
                     </div>
 
                     <!-- 已读复选框 -->
-                    <div class="mb-4">
+                    <div class="mb-3 sm:mb-4">
                         <label class="inline-flex items-center">
-                            <input type="checkbox" ${{isRead ? 'checked' : ''}} onchange="toggleRead('${{paper.arxiv_id}}')" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                            <span class="ml-2 text-sm text-slate-600 dark:text-slate-400">已阅读</span>
+                            <input type="checkbox" ${{isRead ? 'checked' : ''}} onchange="toggleRead('${{paper.arxiv_id}}')" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 w-4 h-4">
+                            <span class="ml-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400">已阅读</span>
                         </label>
                     </div>
 
                     ${{paper.filter_reason ? `
                     <!-- 筛选原因 (默认折叠) -->
-                    <div class="mb-4">
-                        <div class="collapsible-header" onclick="toggleCollapsible(this)">筛选原因</div>
+                    <div class="mb-3 sm:mb-4">
+                        <div class="collapsible-header text-sm sm:text-base" onclick="toggleCollapsible(this)">筛选原因</div>
                         <div class="collapsible-content">
                             <div class="inner">
-                                <div class="bg-blue-50/70 dark:bg-blue-950/20 border-l-3 border-blue-300 p-4 rounded-r-lg">
-                                    <div class="text-sm text-black dark:text-white leading-relaxed">
+                                <div class="bg-blue-50/70 dark:bg-blue-950/20 border-l-3 border-blue-300 p-3 sm:p-4 rounded-r-lg">
+                                    <div class="text-xs sm:text-sm text-black dark:text-white leading-relaxed break-words">
                                         ${{paper.filter_reason}}
                                     </div>
                                 </div>
@@ -727,12 +747,12 @@ def generate_complete_html() -> str:
 
                     ${{paper.summary2 ? `
                     <!-- AI总结 (默认展开) -->
-                    <div class="mb-4">
-                        <div class="collapsible-header open" onclick="toggleCollapsible(this)">AI总结</div>
+                    <div class="mb-3 sm:mb-4">
+                        <div class="collapsible-header open text-sm sm:text-base" onclick="toggleCollapsible(this)">AI总结</div>
                         <div class="collapsible-content open">
                             <div class="inner">
-                                <div class="bg-yellow-50/70 dark:bg-yellow-950/20 border-l-3 border-yellow-300 p-4 rounded-r-lg">
-                                    <div class="text-sm text-black dark:text-white leading-relaxed">
+                                <div class="bg-yellow-50/70 dark:bg-yellow-950/20 border-l-3 border-yellow-300 p-3 sm:p-4 rounded-r-lg">
+                                    <div class="text-xs sm:text-sm text-black dark:text-white leading-relaxed break-words">
                                         ${{paper.summary2}}
                                     </div>
                                 </div>
@@ -743,18 +763,18 @@ def generate_complete_html() -> str:
 
                     ${{paper.summary || paper.summary_translation ? `
                     <!-- 原始摘要 (默认展开) -->
-                    <div class="mb-4">
-                        <div class="collapsible-header open" onclick="toggleCollapsible(this)">原始摘要</div>
+                    <div class="mb-3 sm:mb-4">
+                        <div class="collapsible-header open text-sm sm:text-base" onclick="toggleCollapsible(this)">原始摘要</div>
                         <div class="collapsible-content open">
                             <div class="inner">
-                                <div class="summary-section bg-green-50/70 dark:bg-green-950/20 border-l-3 border-green-300 p-4 rounded-r-lg">
+                                <div class="summary-section bg-green-50/70 dark:bg-green-950/20 border-l-3 border-green-300 p-3 sm:p-4 rounded-r-lg">
                                     ${{paper.summary_translation ? `
-                                    <div class="chinese-summary text-sm text-black dark:text-white leading-relaxed" style="display: block;">
+                                    <div class="chinese-summary text-xs sm:text-sm text-black dark:text-white leading-relaxed break-words" style="display: block;">
                                         ${{paper.summary_translation}}
                                     </div>
                                     ` : ''}}
                                     ${{paper.summary ? `
-                                    <div class="english-summary text-sm text-black dark:text-white leading-relaxed" style="display: none;">
+                                    <div class="english-summary text-xs sm:text-sm text-black dark:text-white leading-relaxed break-words" style="display: none;">
                                         ${{paper.summary}}
                                     </div>
                                     ` : ''}}
@@ -766,12 +786,12 @@ def generate_complete_html() -> str:
 
                     ${{paper.inspiration_trace ? `
                     <!-- 灵感溯源 (默认折叠) -->
-                    <div class="mb-4">
-                        <div class="collapsible-header" onclick="toggleCollapsible(this)">灵感溯源</div>
+                    <div class="mb-3 sm:mb-4">
+                        <div class="collapsible-header text-sm sm:text-base" onclick="toggleCollapsible(this)">灵感溯源</div>
                         <div class="collapsible-content">
                             <div class="inner">
-                                <div class="bg-red-50/70 dark:bg-red-950/20 border-l-3 border-red-300 p-4 rounded-r-lg">
-                                    <div class="text-sm text-black dark:text-white leading-relaxed markdown-content" id="inspiration-${{paper.arxiv_id}}">
+                                <div class="bg-red-50/70 dark:bg-red-950/20 border-l-3 border-red-300 p-3 sm:p-4 rounded-r-lg">
+                                    <div class="text-xs sm:text-sm text-black dark:text-white leading-relaxed markdown-content break-words" id="inspiration-${{paper.arxiv_id}}">
                                     </div>
                                 </div>
                             </div>
@@ -782,15 +802,15 @@ def generate_complete_html() -> str:
                     <!-- 论文链接 -->
                     <div class="flex flex-wrap gap-2">
                         <a href="https://arxiv.org/abs/${{paper.arxiv_id}}" target="_blank" 
-                           class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors">
+                           class="inline-flex items-center px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors whitespace-nowrap">
                             📄 arXiv 原文
                         </a>
                         <a href="https://arxiv.org/pdf/${{paper.arxiv_id}}.pdf" target="_blank" 
-                           class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md transition-colors">
+                           class="inline-flex items-center px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md transition-colors whitespace-nowrap">
                             📋 PDF 下载
                         </a>
                         <a href="https://papers.cool/arxiv/${{paper.arxiv_id}}" target="_blank" 
-                           class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors">
+                           class="inline-flex items-center px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors whitespace-nowrap">
                             🔥 Cool Paper
                         </a>
                     </div>
@@ -825,17 +845,17 @@ def generate_complete_html() -> str:
             
             return `
                 <li class="mb-4">
-                    <div class="category-toggle flex items-center justify-between cursor-pointer p-3 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" data-target="${{categoryId}}">
-                        <div class="flex items-center space-x-3">
-                            <svg class="h-4 w-4 text-slate-500 rotate-90-transition transform transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div class="category-toggle flex items-center justify-between cursor-pointer p-2 sm:p-3 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" data-target="${{categoryId}}">
+                        <div class="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+                            <svg class="h-4 w-4 text-slate-500 rotate-90-transition transform transition-transform flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                             </svg>
-                            <span class="font-medium text-sky-700 dark:text-sky-400">${{category.name}}</span>
+                            <span class="font-medium text-sky-700 dark:text-sky-400 text-sm sm:text-base truncate">${{category.name}}</span>
                         </div>
-                        <span class="text-xs font-mono bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full px-2 py-0.5">${{visiblePaperCount}}</span>
+                        <span class="text-xs font-mono bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full px-2 py-0.5 ml-2 flex-shrink-0">${{visiblePaperCount}}</span>
                     </div>
-                    <div id="${{categoryId}}" class="category-content hidden pl-1 pt-2 border-l border-slate-200 dark:border-slate-700 ml-4">
-                        <ul class="space-y-4">
+                    <div id="${{categoryId}}" class="category-content hidden pl-1 pt-2 border-l border-slate-200 dark:border-slate-700 ml-2 sm:ml-4">
+                        <ul class="space-y-3 sm:space-y-4">
                             ${{papersHTML}}
                         </ul>
                     </div>
@@ -883,23 +903,23 @@ def generate_complete_html() -> str:
                 if (dateVisibleTotal === 0) continue;
                 
                 html += `
-                    <section class="mb-8">
-                        <h2 class="text-lg font-medium text-slate-500 dark:text-slate-400 mb-4">${{date}} (${{dateVisibleTotal}} 篇论文)</h2>
+                    <section class="mb-6 sm:mb-8">
+                        <h2 class="text-base sm:text-lg font-medium text-slate-500 dark:text-slate-400 mb-3 sm:mb-4">${{date}} (${{dateVisibleTotal}} 篇论文)</h2>
                 `;
                 
                 // 添加该日期的AI论文速览（如果存在）
                 if (dailyOverviews[date]) {{
                     html += `
-                        <div class="mb-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700 rounded-lg shadow-md p-5">
+                        <div class="mb-3 sm:mb-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700 rounded-lg shadow-md p-3 sm:p-5">
                             <div class="collapsible-header" onclick="toggleCollapsible(this)">
-                                <svg class="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-blue-600 dark:text-blue-400 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
                                 </svg>
-                                <span class="font-semibold text-slate-900 dark:text-white">今日AI论文速览</span>
+                                <span class="font-semibold text-slate-900 dark:text-white text-sm sm:text-base">今日AI论文速览</span>
                             </div>
                             <div class="collapsible-content">
                                 <div class="inner">
-                                    <div class="markdown-content text-slate-700 dark:text-slate-200 text-sm" id="overview-${{date}}">
+                                    <div class="markdown-content text-slate-700 dark:text-slate-200 text-xs sm:text-sm" id="overview-${{date}}">
                                     </div>
                                 </div>
                             </div>
@@ -908,7 +928,7 @@ def generate_complete_html() -> str:
                 }}
                 
                 html += `
-                        <div class="bg-white dark:bg-slate-800/50 rounded-lg shadow-sm p-4 sm:p-6">
+                        <div class="bg-white dark:bg-slate-800/50 rounded-lg shadow-sm p-3 sm:p-4 lg:p-6">
                             <ul class="space-y-2">
                 `;
                 
