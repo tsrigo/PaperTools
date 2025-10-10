@@ -98,7 +98,7 @@ def generate_complete_html() -> str:
         
         js_data += f'    "{date}": [\n'
         for category, category_papers in sorted(categories.items()):
-            category_name = category_names.get(category, category)
+            category_name = category_names.get(category) or category or 'Unknown'
             js_data += "        {\n"
             js_data += f'            "name": "{escape_js_string(category_name)}",\n'
             js_data += f'            "count": {len(category_papers)},\n'
@@ -531,6 +531,9 @@ def generate_complete_html() -> str:
         function deletePaper(arxivId, title) {{
             const paperEl = document.querySelector(`[data-arxiv-id="${{arxivId}}"]`);
             if (!paperEl) return;
+            const listItem = paperEl.closest('li');
+            const categoryContent = paperEl.closest('.category-content');
+            const sectionEl = paperEl.closest('section[data-date-section]');
             
             // 添加删除动画效果
             paperEl.style.transition = 'all 0.3s ease-out';
@@ -543,7 +546,14 @@ def generate_complete_html() -> str:
                 saveState();
                 
                 // 移除DOM元素
-                paperEl.remove();
+                if (listItem) {{
+                    listItem.remove();
+                }} else {{
+                    paperEl.remove();
+                }}
+
+                updateCategoryView(categoryContent);
+                updateDateSection(sectionEl);
                 updateStats();
                 
                 // 显示简单的删除提示
@@ -616,6 +626,49 @@ def generate_complete_html() -> str:
         function updateStats() {{
             const visiblePapers = document.querySelectorAll('.paper-item:not(.hidden-paper)').length;
             document.getElementById('total-papers').textContent = visiblePapers;
+        }}
+
+        function updateCategoryView(categoryContent) {{
+            if (!categoryContent) return;
+            const listEl = categoryContent.querySelector('ul');
+            if (!listEl) return;
+
+            const paperItems = listEl.querySelectorAll('.paper-item').length;
+            let placeholder = listEl.querySelector('.empty-category-placeholder');
+
+            if (paperItems === 0) {{
+                if (!placeholder) {{
+                    placeholder = document.createElement('li');
+                    placeholder.className = 'empty-category-placeholder pl-7 text-sm text-slate-500 dark:text-slate-400';
+                    placeholder.textContent = '此分类下暂无论文。';
+                    listEl.appendChild(placeholder);
+                }}
+            }} else if (placeholder) {{
+                placeholder.remove();
+            }}
+
+            const toggle = document.querySelector(`.category-toggle[data-target="${{categoryContent.id}}"]`);
+            if (toggle) {{
+                const countBadge = toggle.querySelector('.category-count');
+                if (countBadge) {{
+                    countBadge.textContent = paperItems;
+                }}
+            }}
+        }}
+
+        function updateDateSection(sectionEl) {{
+            if (!sectionEl) return;
+            const totalPapers = sectionEl.querySelectorAll('.paper-item').length;
+            const header = sectionEl.querySelector('[data-date-heading]');
+
+            if (header) {{
+                const dateLabel = header.dataset.dateHeading || header.textContent.split(' ')[0];
+                header.textContent = `${{dateLabel}} (${{totalPapers}} 篇论文)`;
+            }}
+
+            if (totalPapers === 0) {{
+                sectionEl.remove();
+            }}
         }}
 
         // 可折叠功能
@@ -840,7 +893,7 @@ def generate_complete_html() -> str:
             
             // 如果没有可见的论文，显示提示信息
             if (visiblePaperCount === 0) {{
-                papersHTML = '<li class="pl-7 text-sm text-slate-500 dark:text-slate-400">此分类下暂无论文。</li>';
+                papersHTML = '<li class="empty-category-placeholder pl-7 text-sm text-slate-500 dark:text-slate-400">此分类下暂无论文。</li>';
             }}
             
             return `
@@ -852,7 +905,7 @@ def generate_complete_html() -> str:
                             </svg>
                             <span class="font-medium text-sky-700 dark:text-sky-400 text-sm sm:text-base truncate">${{category.name}}</span>
                         </div>
-                        <span class="text-xs font-mono bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full px-2 py-0.5 ml-2 flex-shrink-0">${{visiblePaperCount}}</span>
+                        <span class="category-count text-xs font-mono bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full px-2 py-0.5 ml-2 flex-shrink-0">${{visiblePaperCount}}</span>
                     </div>
                     <div id="${{categoryId}}" class="category-content hidden pl-1 pt-2 border-l border-slate-200 dark:border-slate-700 ml-2 sm:ml-4">
                         <ul class="space-y-3 sm:space-y-4">
@@ -903,8 +956,8 @@ def generate_complete_html() -> str:
                 if (dateVisibleTotal === 0) continue;
                 
                 html += `
-                    <section class="mb-6 sm:mb-8">
-                        <h2 class="text-base sm:text-lg font-medium text-slate-500 dark:text-slate-400 mb-3 sm:mb-4">${{date}} (${{dateVisibleTotal}} 篇论文)</h2>
+                    <section class="mb-6 sm:mb-8" data-date-section="${{date}}">
+                        <h2 class="text-base sm:text-lg font-medium text-slate-500 dark:text-slate-400 mb-3 sm:mb-4" data-date-heading="${{date}}">${{date}} (${{dateVisibleTotal}} 篇论文)</h2>
                 `;
                 
                 // 添加该日期的AI论文速览（如果存在）
