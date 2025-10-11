@@ -1,3 +1,4 @@
+update_webpage.sh
 cron.log
 # Python
 __pycache__/
