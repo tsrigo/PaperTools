@@ -45,34 +45,46 @@ MAX_PAPERS_TOTAL_DEFAULT = 100
 MAX_WORKERS = 10  # 默认线程数
 
 # 论文筛选Prompt模板
-PAPER_FILTER_PROMPT = """你是一位顶尖的人工智能研究员，正在为一项关于"大语言模型通用推理能力"的研究课题筛选前沿论文。请你严格、精准地判断这篇论文是否符合我的研究范围。
+PAPER_FILTER_PROMPT = """你是一位顶尖的人工智能研究员，正在为一项关于 "LLM智能体及其演化"（LLM-based Agents and their Evolution） 的研究课题筛选前沿论文。请你严格、精准地判断这篇论文是否符合我的研究范围。
 
-我的核心目标:
-筛选出那些致力于提高大语言模型（LLM）本身的『通用推理能力』的论文。
+我的核心目标: 筛选出那些核心贡献在于 构建、改进或演化 LLM智能体的论文。我的研究焦点是 Agentic AI，特别是以下三个方向及其子方向：
+
+1. 单智能体 (Agentic): 智能体的规划、记忆、工具使用、自我反思等。
+2. 多智能体 (Multi-Agent): 智能体间的协作、通信、博弈、社会学习等。
+3. 自我演化 (Self-Evolving): 智能体通过经验、反思或环境反馈进行自我完善和迭代。
 
 筛选标准 (请按顺序和优先级进行思考):
 
 第一步：核心判断——这篇论文的本质是什么？
-- 保留: 如果论文的核心是关于改进LLM的基础能力、提出新的训练范式、增强其逻辑、数学、规划、多步推理等通用能力。例如，关于思维链(CoT)、强化学习优化、智能体协作框架、工具使用、自我进化等方法论的研究。
-- 排除: 如果论文的核心是将LLM作为一种工具，应用到某个特定领域去解决该领域的问题。这包括但不限于生物、医疗、化学、金融、法律、社会学、机器人控制、自动驾驶等。同时，也要排除主要关注模型基础设施（Infrastructure）、部署优化、硬件加速的研究。
 
-第二步：正面指标——论文是否包含以下主题？（满足越多，越可能相关）
-- 核心概念: Large language models, LLMs
-- 能力方向: reasoning (尤其是 math reasoning, logical reasoning), planning, problem-solving
-- 训练方法: reinforcement learning (RLHF, RL), evolution, self-evolve
-- 新兴范式: llm-based agents, multi-agent systems, tool use, deep research
+- 保留 (Keep): 如果论文的核心是关于构建LLM智能体（Agentic LLM）、多智能体系统（Multi-Agent Systems） 或 自我演化（Self-Evolving） 的方法论或新框架。
+- 排除 (Exclude):
+  1. 非演化型应用 (Non-Evolving Applications): 如果论文只是将LLM（或一个已有的Agentic / Multi-Agent框架）作为工具应用到特定领域去解决该领域的问题（例如生物、医疗、金融、法律、机器人控制等）。
+  2. 非Agentic的推理: 如果论文只是关于提高LLM的基础推理能力（如新的CoT变体、逻辑、数学），但其方法不涉及智能体自主规划、工具使用或自我演化框架。
+  3. 基础设施: 排除主要关注模型基础设施（Infrastructure）、部署优化、硬件加速的研究。
 
-第三步：排除标准——论文是否主要聚焦于以下领域？（只要主要焦点是其一，就应排除）
-- 多模态与视觉: Vision, Vision-Language, MLLMs, VLMs, Video Understanding, 3D Vision, Reconstruction, Diffusion Models
-- 特定应用领域: Medical, Chemical, Biological, Sociological, Robotic, Robot Control, Domain Specific Applications
-- 模型可靠性（应用层面）: Watermarking, Safety, Security 
+第二步：正面指标——论文是否包含我的核心关注点？（满足越多，越可能相关）
 
-第四步：处理特殊和模糊情况
-- 智能体/工具使用: 如果是提出一种通用的智能体协作框架或工具使用方法来增强LLM的通用问题解决能力，应该保留。如果只是将智能体/工具应用在特定领域（如"用于化学实验自动化的智能体"），应该排除。
-- 幻觉/可解释性/安全: 如果论文提出一种新方法来减少幻觉、增强模型内在的可解释性或安全性，从而提升模型的通用可靠性和推理质量，应该保留。如果只是对这些现象的社会学研究或应用层面的讨论，应该排除。
+- 核心范式: `Agentic AI`, `LLM-based Agents`, `Multi-Agent Systems (MAS)`, `Self-Evolving`, `Evolutionary Algorithms`
+- 智能体能力: `Planning`, `Tool Use / Tool Augmentation`, `Memory`, `Self-Correction`, `Self-Reflection`, `ReAct`
+- 多智能体: `Collaboration`, `Communication`, `Negotiation`, `Social Learning`, `Agent Society`
+- 演化机制: `Self-Improvement`, `Self-Refine`, `Generational Evolution`, `Iterative Improvement`
 
-第五步：最终决策
-综合以上分析，请给出你的最终判断。
+第三步：排除标准——是否为我的研究焦点之外？
+
+- 安全与对齐: 只要论文的主要贡献是关于 `Safety`, `Security`, `Interpretability` (可解释性), `Explainability (XAI)`, `Alignment` (对齐), `Watermarking` (水印), 或 `Hallucination` (幻觉)，一律排除。
+- 多模态与视觉: `Vision`, `Vision-Language`, `MLLMs`, `VLMs`, `Video Understanding`, `3D Vision`, `Diffusion Models` (除非它们被用作智能体感知环境的工具，而不是研究的核心)。
+
+第四步：处理特殊和模糊情况 (核心规则)
+
+1. 推理/规划 (Reasoning/Planning):
+   - 保留: 如果论文是关于智能体如何进行规划或在复杂任务中进行多步推理（如 ReAct、ToT 或新的Agentic框架）。
+   - 排除: 如果只是关于提高LLM本身基础Token预测的数学或逻辑能力（如新的数据集、非Agentic的微调方法）。
+2. 自我演化的应用 (Self-Evolving Applications):
+   - 保留 (例外): 按照你的要求，如果论文的核心是提出一种新的“自我演化”机制，即使它被应用在特定领域（如“用于化学实验的自我演化智能体”），也应该保留。
+   - 排除: 如果该应用不涉及自我演化机制（见第一步的排除规则）。
+
+第五步：最终决策 综合以上分析，请给出你的最终判断。
 
 ---
 论文标题: {title}
