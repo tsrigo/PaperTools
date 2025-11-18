@@ -2974,5 +2974,113 @@
         "category": "cs.AI",
         "crawl_time": "2025-11-17T11:00:05.016983",
         "filter_reason": "这篇论文不符合您的研究范围，应被排除。我的判断依据如下： 1.  **核心判断（第一步）：** 论文的核心贡献并非构建、改进或演化LLM智能体，而是提出了一种名为“BadThink”的新型**安全攻击**方法。该攻击旨在通过后门触发，使采用思维链（CoT）的LLM产生冗长的推理过程，从而增加计算成本。这属于对现有推理机制的攻击，而非对智能体能力的建设性贡献。 2.  **排除标准（第三步）：** 这是最关键的排除依据。该论文完全符合“安全与对齐”的排除标准。摘要中明确使用了“attack surface”（攻击面）、“backdoor attack”（后门攻击）、“attack vector”（攻击向量）和“sophisticated attacks”（复杂的攻击）等词汇。根据您的筛选规则，只要论文的主要贡献是关于`Security`（安全），就应一律排除。 3.  **推理/规划的模糊情况（第四步）：** 尽管论文涉及“Chain-of-Thought (CoT) reasoning”，但它并未提出新的智能体规划或推理框架。它不是在研究“智能体如何进行规划”，而是在研究“如何攻击一个已有的推理过程”。这属于非Agentic的推理范畴，更偏向于模型安全和鲁棒性研究，而非Agentic AI的核心方法论。 综上所述，该论文的研究焦点是LLM的安全漏洞和攻击，与您“构建、改进或演化LLM智能体”的核心目标以及“单智能体、多智能体、自我演化”的研究方向不符。因此，应将其排除。"
+    },
+    {
+        "index": "#2",
+        "title": "A Unified Convergence Analysis for Semi-Decentralized Learning: Sampled-to-Sampled vs. Sampled-to-All Communication",
+        "link": "/arxiv/2511.11560",
+        "arxiv_id": "2511.11560",
+        "authors": "Angelo Rodio, Giovanni Neglia, Zheng Chen, Erik G. Larsson",
+        "subjects": "Machine Learning, Artificial Intelligence, Distributed, Parallel, and Cluster Computing",
+        "date": "2025-11-14",
+        "category": "cs.LG",
+        "crawl_time": "2025-11-18T11:00:04.721188",
+        "filter_reason": "这篇论文不符合我的研究范围。我的判断过程如下： 1.  **第一步：核心判断——论文的本质是什么？** 论文的核心贡献是针对“半去中心化联邦学习”这一特定机器学习系统架构，提出一个“统一收敛框架”，用以分析和比较两种通信策略（S2S vs. S2A）的性能。其研究焦点在于**分布式学习系统的通信协议、聚合方法和收敛性理论**。这完全属于筛选标准中明确排除的 **“基础设施”** 范畴，即主要关注模型部署优化和系统架构的研究，而非智能体本身的构建或演化。 2.  **第二步：正面指标——论文是否包含我的核心关注点？** 论文中完全没有出现我关注的核心范式和智能体能力相关的关键词。例如，它没有提及 `LLM-based Agents`, `Agentic AI`, `Self-Evolving`, `Planning`, `Tool Use`, `Memory` 或 `Self-Reflection`。虽然论文提到了“设备”和“通信”，但这里的“设备”是联邦学习框架中被动的数据持有者和计算节点，而非具备自主规划、工具使用等能力的智能体。其“通信”指的是模型权重的传输和聚合，是系统层面的数据交换，而非智能体之间为了协作或博弈而进行的语义化通信。 3.  **第三步：排除标准——是否为我的研究焦点之外？** 该论文的研究内容——联邦学习的系统优化——明确属于我的研究焦点之外。它不属于安全对齐或多模态的排除范畴，但它精准地命中了“基础设施”这一核心排除项。 4.  **第四步：处理特殊和模糊情况。** 本论文不存在模糊情况。它并非关于智能体的推理或规划，也非自我演化的应用。其“去中心化”和“多智能体”的表象是分布式系统领域的术语，与我所研究的“多智能体系统”中智能体的自主性、协作性和社会性有本质区别。 **最终决策**：综合以上分析，该论文是一篇典型的分布式机器学习系统研究，其核心贡献在于优化联邦学习的通信效率和收敛性，与“构建、改进或演化LLM智能体”这一核心目标完全无关。因此，应予以排除。"
+    },
+    {
+        "index": "#38",
+        "title": "Volumetric Ergodic Control",
+        "link": "/arxiv/2511.11533",
+        "arxiv_id": "2511.11533",
+        "authors": "Jueun Kwon, Max M. Sun, Todd Murphey",
+        "subjects": "Robotics, Artificial Intelligence",
+        "date": "2025-11-14",
+        "category": "cs.AI",
+        "crawl_time": "2025-11-18T11:00:05.033063",
+        "filter_reason": "这篇论文不符合我的研究范围。我的判断过程如下： 1.  **核心判断 (第一步):** 论文的核心贡献是提出一种新的机器人控制算法，即“Volumetric Ergodic Control”（体积遍历控制）。该方法旨在优化具有物理体积的机器人在空间中的覆盖行为。这完全属于**机器人学**和**控制理论**的范畴。根据筛选标准，这属于典型的“非演化型应用”，因为它将一个算法（在此案例中是控制算法，而非LLM智能体）应用于特定领域（机器人控制）来解决该领域的问题（空间覆盖、搜索、操作）。论文的核心是构建一个更好的机器人控制器，而不是构建、改进或演化LLM智能体。 2.  **正面指标 (第二步):** 论文中完全没有出现任何与我研究焦点相关的核心范式或能力关键词。例如，它没有提及 `LLM-based Agents`, `Multi-Agent Systems`, `Self-Evolving`, `Tool Use`, `Memory`, `Self-Reflection` 等。虽然提到了“control”和“tasks”，但这些都是在物理机器人执行器层面上的，而非LLM智能体认知层面的规划和行动。 3.  **排除标准 (第三步):** 虽然这篇论文不涉及安全对齐或多模态等排除项，但它已经被第一步的核心判断所排除。 4.  **特殊和模糊情况 (第四步):** 论文中提到的“planning”是指机器人在物理空间中的路径规划，这是机器人学的经典问题。它不涉及LLM智能体如何进行多步推理、如何规划工具使用序列或如何自主分解复杂任务。因此，它属于“排除”的情况。 **最终决策 (第五步):** 综合以上分析，该论文是一篇纯粹的机器人控制理论论文，其研究对象是物理机器人及其运动控制算法，与LLM智能体的构建、协作或演化毫无关联。因此，它被明确排除在我的研究范围之外。"
+    },
+    {
+        "index": "#3",
+        "title": "Multistability of Self-Attention Dynamics in Transformers",
+        "link": "/arxiv/2511.11553",
+        "arxiv_id": "2511.11553",
+        "authors": "Claudio Altafini",
+        "subjects": "Machine Learning, Systems and Control, Dynamical Systems",
+        "date": "2025-11-14",
+        "category": "cs.LG",
+        "crawl_time": "2025-11-18T11:00:04.721749",
+        "filter_reason": "这篇论文不符合您的研究范围。我的判断过程如下： 1.  **第一步：核心判断** 论文的核心贡献是对Transformer模型中自注意力机制的**数学动态行为进行理论分析**。它将自注意力过程建模为一个“multiagent-like”的连续时间动力系统，并对其平衡点进行了分类。这本质上是一篇关于**模型内部机制可解释性**的理论研究，而不是关于如何构建、改进或演化一个LLM智能体。它没有提出新的智能体框架、智能体协作方法或自我演化机制。因此，根据第一步的核心判断标准，这篇论文应被排除。 2.  **第二步：正面指标** 尽管论文标题和摘要中出现了 \"multiagent-like\" 和 \"dynamics\" 等词汇，但这只是用来描述其数学模型的类比，并不涉及您关注的核心Agentic AI范式。论文中并未包含 `Planning`, `Tool Use`, `Memory`, `Self-Reflection`, `Collaboration`, `Self-Improvement` 等任何与智能体能力或演化机制相关的正面指标。 3.  **第三步：排除标准** 这篇论文的主要贡献在于分析和解释Transformer自注意力层的动态行为和稳定性，这完全属于**可解释性**的研究范畴。根据您的筛选标准，“只要论文的主要贡献是关于 `Safety`, `Security`, `Interpretability` (可解释性)...一律排除”。因此，这篇论文明确触发了排除标准。 4.  **第四步：处理特殊和模糊情况** 论文虽然提到了“multiagent-like”，但它并非研究多智能体间的协作或博弈，而是借用这个概念来构建数学模型。它也不涉及智能体的规划或推理过程，而是分析模型底层计算单元的数学性质。因此，特殊情况的处理规则也支持排除该论文。 **结论**: 该论文是一篇关于Transformer模型底层机制的理论分析和可解释性研究，其核心目标并非构建或演化LLM智能体。它与您的研究课题“LLM智能体及其演化”在核心贡献和研究焦点上存在根本差异，因此应被排除。"
+    },
+    {
+        "index": "#1",
+        "title": "PRBench: Large-Scale Expert Rubrics for Evaluating High-Stakes Professional Reasoning",
+        "link": "/arxiv/2511.11562",
+        "arxiv_id": "2511.11562",
+        "authors": "Afra Feyza Akyürek, Advait Gosai, Chen Bo Calvin Zhang, Vipul Gupta, Jaehwan Jeong, Anisha Gunjal, Tahseen Rabbani, Maria Mazzone, David Randolph, Mohammad Mahmoudi Meymand, Gurshaan Chattha, Paula Rodriguez, Diego Mares, Pavit Singh, Michael Liu, Subodh Chawla, Pete Cline, Lucy Ogaz, Ernesto Hernandez, Zihao Wang, Pavi Bhatter, Marcos Ayestaran, Bing Liu, Yunzhong He",
+        "subjects": "Computation and Language, Computers and Society",
+        "date": "2025-11-14",
+        "category": "cs.CL",
+        "crawl_time": "2025-11-18T11:00:04.674322",
+        "filter_reason": "这篇论文的核心贡献是构建了一个名为 **PRBench** 的基准测试，用于评估大型语言模型在法律和金融等高风险专业领域的推理能力。根据您的筛选标准，这篇论文不符合您的研究范围，具体分析如下： 1.  **第一步：核心判断——本质是评估，而非构建或演化。** 论文的本质是提出一个**评估工具**，而不是构建、改进或演化LLM智能体的新方法论或框架。它属于“非演化型应用”的范畴，因为其核心工作是利用现有的LLM（评估了20个模型）在特定领域（法律、金融）进行测试，以衡量其表现。论文的目标是回答“模型表现如何？”，而不是“如何让模型变得更好？”。这与您筛选“构建、改进或演化LLM智能体”的核心目标不符。 2.  **第二步：正面指标——缺乏核心关注点。** 论文摘要中完全没有出现您所列出的任何核心范式或能力关键词，例如 `Agentic AI`, `Multi-Agent Systems`, `Self-Evolving`, `Planning`, `Tool Use`, `Self-Reflection` 等。虽然提到了 \"reasoning\"（推理），但这是作为被评估的对象，而不是论文提出的新方法。 3.  **第四步：处理特殊和模糊情况——推理/规划的界定。** 论文虽然涉及“专业推理”，但它并未提出一种新的智能体推理框架（如ReAct或ToT）。它只是创建了一个数据集和评分标准来衡量模型在现有推理能力下的表现。这属于“排除”情况，即它不是关于智能体如何进行规划，而是关于如何评估规划的结果。 **结论：** 该论文是一项重要的评估工作，为衡量LLM在专业领域的实际能力提供了宝贵的工具和洞见。然而，它的核心贡献是**评测**，而非**构建**。它没有提出任何关于智能体规划、工具使用、多智能体协作或自我演化的新机制或框架。因此，它严格地落在了您研究范围的“排除”区域。"
+    },
+    {
+        "index": "#77",
+        "title": "Estimating Total Effects in Bipartite Experiments with Spillovers and Partial Eligibility",
+        "link": "/arxiv/2511.11564",
+        "arxiv_id": "2511.11564",
+        "authors": "Albert Tan, Mohsen Bayati, James Nordlund, Roman Istomin",
+        "subjects": "Methodology, Machine Learning, Machine Learning",
+        "date": "2025-11-14",
+        "category": "cs.LG",
+        "crawl_time": "2025-11-18T11:00:04.818306",
+        "filter_reason": "这篇论文不符合我的研究范围。我的判断过程如下： 1.  **第一步：核心判断** - **论文核心贡献**: 这篇论文的核心是提出一种新的**统计计量方法**，用于在存在“溢出效应”（干扰）的二分实验中，更准确地估计处理效应（PTTE和STTE）。它属于因果推断和实验设计领域。 - **是否符合要求**: 不符合。该论文并未构建、改进或演化任何形式的LLM智能体。它只是将“灵活的机器学习”作为一种统计工具，用于辅助估计倾向得分和结果，这与构建具有自主规划、工具使用或演化能力的智能体有本质区别。 - **适用排除规则**: 该论文完全符合第一步的排除标准 **1. 非演化型应用**。它将一种技术（机器学习）应用到一个特定领域（计量经济学/统计学）去解决该领域的问题（因果效应估计），其核心贡献是方法论本身，而非智能体框架。 2.  **第二步：正面指标** - 论文中完全没有出现我关注的核心范式关键词，如 `Agentic AI`, `LLM-based Agents`, `Multi-Agent Systems`, `Self-Evolving` 等。 - 论文也未涉及任何智能体能力，如 `Planning`, `Tool Use`, `Memory`, `Self-Reflection` 等。 - 虽然论文提到了“二分系统”和“干扰”，但这里的“干扰”是统计学中的概念，指一个单元的处理影响了另一个单元的结果（即溢出效应），而不是智能体间的主动通信或协作。 3.  **第三步：排除标准** - 论文不涉及安全、对齐或多模态等排除领域，但它在第一步就已经被明确排除。 4.  **第四步：处理特殊和模糊情况** - 论文不涉及智能体的推理/规划框架，也不涉及任何自我演化机制。 **最终决策**: 该论文是一篇典型的计量经济学/统计学研究，其目标是改进因果效应的估计方法。尽管它使用了机器学习作为工具，但其研究范式、核心贡献和目标都与“LLM智能体及其演化”这一课题无关。因此，应予以排除。"
+    },
+    {
+        "index": "#1",
+        "title": "Optimizing Mixture of Block Attention",
+        "link": "/arxiv/2511.11571",
+        "arxiv_id": "2511.11571",
+        "authors": "Guangxuan Xiao, Junxian Guo, Kasra Mazaheri, Song Han",
+        "subjects": "Machine Learning, Computation and Language",
+        "date": "2025-11-14",
+        "category": "cs.LG",
+        "crawl_time": "2025-11-18T11:00:04.720503",
+        "filter_reason": "这篇论文不符合我的研究范围，应被排除。判断依据如下： 1.  **核心判断（第一步）：** 论文的核心贡献是提出了一种名为 `FlashMoBA` 的硬件感知 CUDA 内核，并基于理论分析优化了 `Mixture of Block Attention (MoBA)` 这一注意力机制。其本质是**模型架构的效率优化和基础设施改进**，旨在加速长上下文处理，而非构建、改进或演化LLM智能体的行为或能力。这直接命中了第一步的排除标准：“排除主要关注模型基础设施、部署优化、硬件加速的研究”。 2.  **正面指标缺失（第二步）：** 论文的研究内容完全不涉及我的核心关注点。摘要中没有出现任何与智能体相关的关键词，如 `Agentic AI`、`Planning`、`Tool Use`、`Memory`、`Multi-Agent`、`Self-Evolving` 等。论文的重点在于计算效率和硬件实现，而非智能体的自主性、规划或协作能力。 3.  **与研究目标不符：** 我的核心目标是筛选关于“LLM智能体及其演化”的论文，关注点在于智能体的“行为”和“能力”的构建与演化。而该论文关注的是LLM底层组件（注意力机制）的“性能”和“效率”。它解决的是“如何让LLM算得更快”的问题，而不是“如何让LLM成为一个更智能、更能自主演化的智能体”的问题。 综上所述，尽管这篇论文在LLM基础设施领域可能是一项重要的工作，但它与我的研究课题“LLM智能体及其演化”的焦点——即智能体的构建、多智能体交互和自我演化机制——完全无关。因此，根据筛选标准，应予以排除。"
+    },
+    {
+        "index": "#35",
+        "title": "Private Frequency Estimation Via Residue Number Systems",
+        "link": "/arxiv/2511.11569",
+        "arxiv_id": "2511.11569",
+        "authors": "Héber H. Arcolezi",
+        "subjects": "Cryptography and Security, Artificial Intelligence",
+        "date": "2025-11-14",
+        "category": "cs.AI",
+        "crawl_time": "2025-11-18T11:00:05.031925",
+        "filter_reason": "这篇论文不符合您的研究范围，应被排除。我的判断依据如下： 1.  **第一步：核心判断——论文本质不符** 论文的核心贡献是提出了一种名为 `ModularSubsetSelection` (MSS) 的新算法，用于解决**本地差分隐私（LDP）下的频率估计问题**。其核心创新点在于利用剩余数系统（RNS）来编码数据，以降低通信成本并提高安全性。这完全属于**数据隐私和安全**领域的研究，与构建、改进或演化LLM智能体无关。它既不是关于Agentic AI的方法论，也不是关于多智能体系统或自我演化的框架。 2.  **第三步：排除标准——触及明确的排除项** 根据您的筛选标准，“只要论文的主要贡献是关于 `Safety`, `Security`, `Interpretability`, `Alignment` ... 一律排除”。这篇论文的摘要明确指出其研究背景是“locally differentially private (LDP)”，并且其优势之一是“achieves the lowest reconstruction-attack success rate”。这表明论文的主要贡献是关于**安全**和**隐私保护**，这直接触发了您的排除标准。 3.  **第二步：正面指标——完全缺失** 论文的标题和摘要中，完全没有出现任何与您研究焦点相关的正面指标关键词。例如，没有提及 `Agentic AI`, `LLM-based Agents`, `Multi-Agent`, `Self-Evolving`, `Planning`, `Tool Use`, `Memory`, `Collaboration`, `Self-Improvement` 等任何一个核心概念。这进一步证实了该论文与您的研究课题无关。 **总结**：该论文是一篇专注于数据隐私和算法优化的研究，其核心贡献是提出一种新的隐私保护频率估计算法。它不属于LLM智能体的构建、多智能体交互或自我演化中的任何一个方向，并且其主要贡献点（安全/隐私）是您明确要求排除的领域。因此，该论文应被果断排除。"
+    },
+    {
+        "index": "#76",
+        "title": "Aligning Machiavellian Agents: Behavior Steering via Test-Time Policy Shaping",
+        "link": "/arxiv/2511.11551",
+        "arxiv_id": "2511.11551",
+        "authors": "Dena Mujtaba, Brian Hu, Anthony Hoogs, Arslan Basharat",
+        "subjects": "Artificial Intelligence, Computation and Language",
+        "date": "2025-11-14",
+        "category": "cs.CL",
+        "crawl_time": "2025-11-18T11:00:04.966733",
+        "filter_reason": "这篇论文的核心贡献是提出一种“测试时的对齐技术”，用于在不重新训练的情况下，引导和修正已训练好的智能体的行为，使其符合特定的伦理或价值规范。我的判断过程如下： 1.  **第一步：核心判断** 论文的本质是**对齐**，而非构建或演化智能体。它研究的是如何控制一个已有的、可能表现出有害行为的智能体，而不是如何让智能体获得新的能力（如更好的规划、记忆或自我演化）。因此，它不属于“构建、改进或演化LLM智能体”的核心范畴，更偏向于对已有智能体的行为约束。 2.  **第二步：正面指标** 论文虽然提到了“Agents”，但完全没有涉及我关注的核心范式和能力，如 `Planning`、`Tool Use`、`Memory`、`Self-Reflection`、`Collaboration` 或 `Self-Evolving`。其关键词是 `Alignment` 和 `Behavior Steering`，这些并非我的正面指标。 3.  **第三步：排除标准** 这是最关键的一步。论文的标题、摘要和核心贡献都明确指向了**安全与对齐**领域。 -   **标题**: \"Aligning Machiavellian Agents\" (对齐马基雅维利式智能体)。 -   **摘要**: 反复强调 \"maintaining alignment\" (维持对齐), \"ethical values for alignment\" (用于对齐的伦理价值), \"test-time alignment technique\" (测试时对齐技术), \"mitigating unethical behavior\" (减轻不道德行为)。 根据筛选标准，“只要论文的主要贡献是关于 `Safety`, `Security`, `Interpretability`, `Explainability (XAI)`, `Alignment` (对齐)...一律排除。” 这篇论文完全符合此排除标准。 4.  **第四步：处理特殊和模糊情况** 该论文不涉及推理/规划框架的改进，也不涉及自我演化机制。它提出的是一种外部的、测试时的干预方法，这与智能体通过内部机制进行自我完善和迭代（自我演化）是截然相反的。 **最终决策**: 尽管这篇论文的研究对象是“智能体”，但其核心目标是**安全对齐**，即如何约束和控制智能体的行为，而不是如何增强或演化其作为智能体的核心能力。这与我的研究目标——“筛选出那些核心贡献在于构建、改进或演化LLM智能体的论文”——存在根本性的偏差。因此，根据明确的排除标准，应予以排除。"
+    },
+    {
+        "index": "#75",
+        "title": "DocLens : A Tool-Augmented Multi-Agent Framework for Long Visual Document Understanding",
+        "link": "/arxiv/2511.11552",
+        "arxiv_id": "2511.11552",
+        "authors": "Dawei Zhu, Rui Meng, Jiefeng Chen, Sujian Li, Tomas Pfister, Jinsung Yoon",
+        "subjects": "Computer Vision and Pattern Recognition, Computation and Language",
+        "date": "2025-11-14",
+        "category": "cs.CL",
+        "crawl_time": "2025-11-18T11:00:04.966203",
+        "filter_reason": "这篇论文的核心贡献是提出了一个名为 DocLens 的**工具增强多智能体框架**，用于解决**长视觉文档理解**这一特定领域的问题。虽然它表面上符合“多智能体”这一方向，但根据您的筛选标准，它最终应被排除。 判断过程如下： 1.  **第一步：核心判断** 论文的核心是构建一个新的多智能体框架，这初步符合“保留”标准。然而，这个框架是专门为“长视觉文档理解”这一特定应用场景设计的。这使其游走在“构建LLM智能体”和“非演化型应用”的边界。 2.  **第二步：正面指标** 论文确实包含多个正面指标，如 `Multi-Agent Systems (MAS)`、`Tool Augmentation`、`Planning`（从全文导航到特定元素）。这表明它在技术上是相关的。 3.  **第三步：排除标准（关键决策点）** 这里触发了关键的排除标准：**多模态与视觉**。 - 论文的标题和摘要反复强调“Visual Document”、“Vision-Language Models (VLMs)”、“visual elements”。其要解决的核心挑战“evidence localization”也完全是针对视觉和文本混合内容的。 - 根据您的规则：“多模态与视觉...除非它们被用作智能体感知环境的工具，而不是研究的核心。” 在这篇论文中，**视觉理解本身就是研究的核心**，而不是智能体在执行更广泛任务时所使用的一个工具。DocLens框架的设计完全是为了服务于视觉文档解析这一目标。因此，它属于被排除的类别。 4.  **第四步：处理特殊和模糊情况** - **推理/规划**: 论文中的规划（导航）是服务于视觉内容定位的，并非通用的Agentic规划方法研究。 - **自我演化的应用**: 不适用。 **最终决策**: 尽管 DocLens 是一个新颖的多智能体框架，但其研究焦点和核心贡献在于解决一个**视觉语言（VLM）领域的特定问题**。您的研究目标是“LLM智能体及其演化”，关注的是智能体本身的通用机制（规划、协作、演化），而不是它们在特定模态（如视觉）上的应用。该论文的成果更应被视为视觉语言模型领域的一个进展，而非Agentic AI核心机制的研究。因此，它不符合您的研究范围，应予以排除。"
     }
 ]
