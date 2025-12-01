@@ -9,7 +9,7 @@
         "subjects": "Multiagent Systems, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.MA",
-        "crawl_time": "2025-11-28T11:00:04.091528"
+        "crawl_time": "2025-12-01T11:00:04.619407"
     },
     {
         "index": "#2",
@@ -21,7 +21,7 @@
         "subjects": "Multiagent Systems, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.MA",
-        "crawl_time": "2025-11-28T11:00:04.091873"
+        "crawl_time": "2025-12-01T11:00:04.619775"
     },
     {
         "index": "#3",
@@ -33,7 +33,7 @@
         "subjects": "Multiagent Systems, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.MA",
-        "crawl_time": "2025-11-28T11:00:04.092155"
+        "crawl_time": "2025-12-01T11:00:04.620057"
     },
     {
         "index": "#4",
@@ -45,7 +45,7 @@
         "subjects": "Multiagent Systems, Artificial Intelligence, Systems and Control",
         "date": "2025-11-08",
         "category": "cs.MA",
-        "crawl_time": "2025-11-28T11:00:04.092406"
+        "crawl_time": "2025-12-01T11:00:04.620305"
     },
     {
         "index": "#5",
@@ -57,7 +57,7 @@
         "subjects": "Computation and Language, Artificial Intelligence, Machine Learning, Multiagent Systems",
         "date": "2025-11-26",
         "category": "cs.MA",
-        "crawl_time": "2025-11-28T11:00:04.092772"
+        "crawl_time": "2025-12-01T11:00:04.620677"
     },
     {
         "index": "#6",
@@ -69,7 +69,7 @@
         "subjects": "Artificial Intelligence, Multiagent Systems",
         "date": "2025-11-26",
         "category": "cs.MA",
-        "crawl_time": "2025-11-28T11:00:04.093068"
+        "crawl_time": "2025-12-01T11:00:04.620970"
     },
     {
         "index": "#7",
@@ -81,7 +81,7 @@
         "subjects": "Artificial Intelligence, Computation and Language, Human-Computer Interaction, Multiagent Systems",
         "date": "2025-11-26",
         "category": "cs.MA",
-        "crawl_time": "2025-11-28T11:00:04.093363"
+        "crawl_time": "2025-12-01T11:00:04.621264"
     },
     {
         "index": "#8",
@@ -93,7 +93,7 @@
         "subjects": "Computer Science and Game Theory, Computational Complexity, Multiagent Systems",
         "date": "2025-11-26",
         "category": "cs.MA",
-        "crawl_time": "2025-11-28T11:00:04.093619"
+        "crawl_time": "2025-12-01T11:00:04.621522"
     },
     {
         "index": "#9",
@@ -105,7 +105,7 @@
         "subjects": "Computer Science and Game Theory, Artificial Intelligence, Multiagent Systems, Theoretical Economics, Populations and Evolution",
         "date": "2025-11-25",
         "category": "cs.MA",
-        "crawl_time": "2025-11-28T11:00:04.093881"
+        "crawl_time": "2025-12-01T11:00:04.621811"
     },
     {
         "index": "#10",
@@ -117,7 +117,7 @@
         "subjects": "Artificial Intelligence, Multiagent Systems",
         "date": "2025-11-23",
         "category": "cs.MA",
-        "crawl_time": "2025-11-28T11:00:04.094171"
+        "crawl_time": "2025-12-01T11:00:04.622099"
     },
     {
         "index": "#1",
@@ -129,7 +129,7 @@
         "subjects": "Computation and Language, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.461207"
+        "crawl_time": "2025-12-01T11:00:05.342751"
     },
     {
         "index": "#3",
@@ -141,7 +141,7 @@
         "subjects": "Computation and Language, Artificial Intelligence, Machine Learning",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.462505"
+        "crawl_time": "2025-12-01T11:00:05.344827"
     },
     {
         "index": "#4",
@@ -153,7 +153,7 @@
         "subjects": "Computation and Language, Artificial Intelligence, Machine Learning",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.462979"
+        "crawl_time": "2025-12-01T11:00:05.345303"
     },
     {
         "index": "#5",
@@ -165,7 +165,7 @@
         "subjects": "Computation and Language",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.463434"
+        "crawl_time": "2025-12-01T11:00:05.345736"
     },
     {
         "index": "#6",
@@ -177,7 +177,7 @@
         "subjects": "Computation and Language",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.463871"
+        "crawl_time": "2025-12-01T11:00:05.346120"
     },
     {
         "index": "#7",
@@ -189,7 +189,7 @@
         "subjects": "Computation and Language, Computer Vision and Pattern Recognition",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.464319"
+        "crawl_time": "2025-12-01T11:00:05.346562"
     },
     {
         "index": "#8",
@@ -201,7 +201,7 @@
         "subjects": "Computation and Language, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.464798"
+        "crawl_time": "2025-12-01T11:00:05.393117"
     },
     {
         "index": "#9",
@@ -213,7 +213,7 @@
         "subjects": "Computation and Language, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.465237"
+        "crawl_time": "2025-12-01T11:00:05.393785"
     },
     {
         "index": "#10",
@@ -225,7 +225,7 @@
         "subjects": "Computation and Language, Machine Learning",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.496335"
+        "crawl_time": "2025-12-01T11:00:05.394453"
     },
     {
         "index": "#11",
@@ -237,7 +237,7 @@
         "subjects": "Computation and Language, Machine Learning",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.497066"
+        "crawl_time": "2025-12-01T11:00:05.395162"
     },
     {
         "index": "#12",
@@ -249,7 +249,7 @@
         "subjects": "Computation and Language",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.497674"
+        "crawl_time": "2025-12-01T11:00:05.395848"
     },
     {
         "index": "#13",
@@ -261,7 +261,7 @@
         "subjects": "Computation and Language",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.498247"
+        "crawl_time": "2025-12-01T11:00:05.396470"
     },
     {
         "index": "#14",
@@ -273,7 +273,7 @@
         "subjects": "Computation and Language, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.498799"
+        "crawl_time": "2025-12-01T11:00:05.396900"
     },
     {
         "index": "#15",
@@ -285,7 +285,7 @@
         "subjects": "Computation and Language",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.499333"
+        "crawl_time": "2025-12-01T11:00:05.397299"
     },
     {
         "index": "#16",
@@ -297,7 +297,7 @@
         "subjects": "Computation and Language",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.499975"
+        "crawl_time": "2025-12-01T11:00:05.397726"
     },
     {
         "index": "#17",
@@ -309,7 +309,7 @@
         "subjects": "Computation and Language",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.500551"
+        "crawl_time": "2025-12-01T11:00:05.403304"
     },
     {
         "index": "#18",
@@ -321,7 +321,7 @@
         "subjects": "Computation and Language",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.500981"
+        "crawl_time": "2025-12-01T11:00:05.403778"
     },
     {
         "index": "#19",
@@ -333,7 +333,7 @@
         "subjects": "Computation and Language, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.506583"
+        "crawl_time": "2025-12-01T11:00:05.404247"
     },
     {
         "index": "#20",
@@ -345,7 +345,7 @@
         "subjects": "Computation and Language, Machine Learning",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.507072"
+        "crawl_time": "2025-12-01T11:00:05.404711"
     },
     {
         "index": "#21",
@@ -357,7 +357,7 @@
         "subjects": "Computation and Language, Machine Learning, Sound",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.507540"
+        "crawl_time": "2025-12-01T11:00:05.405174"
     },
     {
         "index": "#22",
@@ -369,7 +369,7 @@
         "subjects": "Computation and Language",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.507983"
+        "crawl_time": "2025-12-01T11:00:05.405590"
     },
     {
         "index": "#23",
@@ -381,7 +381,7 @@
         "subjects": "Computation and Language, Artificial Intelligence, Machine Learning",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.508468"
+        "crawl_time": "2025-12-01T11:00:05.406070"
     },
     {
         "index": "#24",
@@ -393,7 +393,7 @@
         "subjects": "Computation and Language, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.508992"
+        "crawl_time": "2025-12-01T11:00:05.406497"
     },
     {
         "index": "#25",
@@ -405,7 +405,7 @@
         "subjects": "Computation and Language, Artificial Intelligence, Machine Learning",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.509412"
+        "crawl_time": "2025-12-01T11:00:05.406919"
     },
     {
         "index": "#26",
@@ -417,7 +417,7 @@
         "subjects": "Computation and Language",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.509855"
+        "crawl_time": "2025-12-01T11:00:05.407333"
     },
     {
         "index": "#27",
@@ -429,7 +429,7 @@
         "subjects": "Computation and Language",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.510323"
+        "crawl_time": "2025-12-01T11:00:05.407832"
     },
     {
         "index": "#28",
@@ -441,7 +441,7 @@
         "subjects": "Computation and Language",
         "date": "2025-11-25",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.510755"
+        "crawl_time": "2025-12-01T11:00:05.408244"
     },
     {
         "index": "#29",
@@ -453,7 +453,7 @@
         "subjects": "Computation and Language",
         "date": "2025-11-25",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.511169"
+        "crawl_time": "2025-12-01T11:00:05.413816"
     },
     {
         "index": "#30",
@@ -465,7 +465,7 @@
         "subjects": "Computation and Language, Artificial Intelligence",
         "date": "2025-11-25",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.516916"
+        "crawl_time": "2025-12-01T11:00:05.414426"
     },
     {
         "index": "#31",
@@ -477,7 +477,7 @@
         "subjects": "Computation and Language, Artificial Intelligence, Machine Learning",
         "date": "2025-11-25",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.517362"
+        "crawl_time": "2025-12-01T11:00:05.414871"
     },
     {
         "index": "#32",
@@ -489,7 +489,7 @@
         "subjects": "Computation and Language, Artificial Intelligence, Machine Learning",
         "date": "2025-11-25",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.518034"
+        "crawl_time": "2025-12-01T11:00:05.415534"
     },
     {
         "index": "#33",
@@ -501,7 +501,7 @@
         "subjects": "Computation and Language",
         "date": "2025-11-25",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.518479"
+        "crawl_time": "2025-12-01T11:00:05.415989"
     },
     {
         "index": "#34",
@@ -513,7 +513,7 @@
         "subjects": "Computation and Language, Artificial Intelligence, Cryptography and Security, Machine Learning",
         "date": "2025-11-25",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.518939"
+        "crawl_time": "2025-12-01T11:00:05.416438"
     },
     {
         "index": "#35",
@@ -525,7 +525,7 @@
         "subjects": "Computation and Language, Materials Science, Databases",
         "date": "2025-11-22",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.519475"
+        "crawl_time": "2025-12-01T11:00:05.417024"
     },
     {
         "index": "#36",
@@ -537,7 +537,7 @@
         "subjects": "Computation and Language",
         "date": "2025-11-17",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.519896"
+        "crawl_time": "2025-12-01T11:00:05.417411"
     },
     {
         "index": "#37",
@@ -549,7 +549,7 @@
         "subjects": "Computation and Language, Artificial Intelligence",
         "date": "2025-11-16",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.520502"
+        "crawl_time": "2025-12-01T11:00:05.418023"
     },
     {
         "index": "#38",
@@ -561,7 +561,7 @@
         "subjects": "Computation and Language, Databases",
         "date": "2025-11-16",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.520960"
+        "crawl_time": "2025-12-01T11:00:05.418487"
     },
     {
         "index": "#39",
@@ -573,7 +573,7 @@
         "subjects": "Computation and Language, Information Retrieval",
         "date": "2025-11-15",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.521460"
+        "crawl_time": "2025-12-01T11:00:05.434641"
     },
     {
         "index": "#40",
@@ -585,7 +585,7 @@
         "subjects": "Computation and Language, Artificial Intelligence",
         "date": "2025-11-14",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.532203"
+        "crawl_time": "2025-12-01T11:00:05.435334"
     },
     {
         "index": "#41",
@@ -597,7 +597,7 @@
         "subjects": "Computation and Language, Artificial Intelligence",
         "date": "2025-11-14",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.532663"
+        "crawl_time": "2025-12-01T11:00:05.436010"
     },
     {
         "index": "#42",
@@ -609,7 +609,7 @@
         "subjects": "Computation and Language",
         "date": "2025-11-14",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.533074"
+        "crawl_time": "2025-12-01T11:00:05.436587"
     },
     {
         "index": "#43",
@@ -621,7 +621,7 @@
         "subjects": "Computation and Language",
         "date": "2025-11-12",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.533484"
+        "crawl_time": "2025-12-01T11:00:05.437176"
     },
     {
         "index": "#44",
@@ -633,7 +633,7 @@
         "subjects": "Computation and Language, Machine Learning",
         "date": "2025-11-10",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.533904"
+        "crawl_time": "2025-12-01T11:00:05.437773"
     },
     {
         "index": "#45",
@@ -645,7 +645,7 @@
         "subjects": "Computation and Language",
         "date": "2025-11-03",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.534304"
+        "crawl_time": "2025-12-01T11:00:05.438343"
     },
     {
         "index": "#46",
@@ -657,7 +657,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence, Computation and Language",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.534853"
+        "crawl_time": "2025-12-01T11:00:05.444242"
     },
     {
         "index": "#47",
@@ -669,7 +669,7 @@
         "subjects": "Social and Information Networks, Computation and Language",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.535389"
+        "crawl_time": "2025-12-01T11:00:05.470836"
     },
     {
         "index": "#48",
@@ -681,7 +681,7 @@
         "subjects": "Machine Learning, Artificial Intelligence, Computation and Language, Information Theory",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.535919"
+        "crawl_time": "2025-12-01T11:00:05.471559"
     },
     {
         "index": "#50",
@@ -693,7 +693,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence, Computation and Language, Machine Learning",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.536919"
+        "crawl_time": "2025-12-01T11:00:05.473040"
     },
     {
         "index": "#51",
@@ -705,7 +705,7 @@
         "subjects": "Machine Learning, Computation and Language",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.542541"
+        "crawl_time": "2025-12-01T11:00:05.473696"
     },
     {
         "index": "#52",
@@ -717,7 +717,7 @@
         "subjects": "Human-Computer Interaction, Artificial Intelligence, Computation and Language, Computers and Society",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.543059"
+        "crawl_time": "2025-12-01T11:00:05.474447"
     },
     {
         "index": "#53",
@@ -729,7 +729,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Computation and Language",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.543559"
+        "crawl_time": "2025-12-01T11:00:05.510891"
     },
     {
         "index": "#54",
@@ -741,7 +741,7 @@
         "subjects": "Machine Learning, Computation and Language, Applications, Machine Learning",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.544091"
+        "crawl_time": "2025-12-01T11:00:05.511674"
     },
     {
         "index": "#55",
@@ -753,7 +753,7 @@
         "subjects": "Methodology, Computation and Language, Machine Learning",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.544522"
+        "crawl_time": "2025-12-01T11:00:05.512315"
     },
     {
         "index": "#56",
@@ -765,7 +765,7 @@
         "subjects": "Machine Learning, Computation and Language, Optimization and Control",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.544980"
+        "crawl_time": "2025-12-01T11:00:05.512956"
     },
     {
         "index": "#57",
@@ -777,7 +777,7 @@
         "subjects": "Machine Learning, Computation and Language",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.545472"
+        "crawl_time": "2025-12-01T11:00:05.513665"
     },
     {
         "index": "#58",
@@ -789,7 +789,7 @@
         "subjects": "Audio and Speech Processing, Computation and Language, Machine Learning",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.546022"
+        "crawl_time": "2025-12-01T11:00:05.514460"
     },
     {
         "index": "#59",
@@ -801,7 +801,7 @@
         "subjects": "Audio and Speech Processing, Artificial Intelligence, Computation and Language",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.546501"
+        "crawl_time": "2025-12-01T11:00:05.515157"
     },
     {
         "index": "#60",
@@ -813,7 +813,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Computation and Language",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.546944"
+        "crawl_time": "2025-12-01T11:00:05.515814"
     },
     {
         "index": "#61",
@@ -825,7 +825,7 @@
         "subjects": "Artificial Intelligence, Computation and Language, Computer Vision and Pattern Recognition, Robotics",
         "date": "2025-11-26",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.552669"
+        "crawl_time": "2025-12-01T11:00:05.542186"
     },
     {
         "index": "#62",
@@ -837,7 +837,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence, Computation and Language",
         "date": "2025-11-25",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.553183"
+        "crawl_time": "2025-12-01T11:00:05.542941"
     },
     {
         "index": "#63",
@@ -849,7 +849,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence, Computation and Language, Machine Learning",
         "date": "2025-11-25",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.553652"
+        "crawl_time": "2025-12-01T11:00:05.543615"
     },
     {
         "index": "#64",
@@ -861,7 +861,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence, Computation and Language",
         "date": "2025-11-25",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.554133"
+        "crawl_time": "2025-12-01T11:00:05.544325"
     },
     {
         "index": "#65",
@@ -873,7 +873,7 @@
         "subjects": "Computers and Society, Artificial Intelligence, Computation and Language",
         "date": "2025-11-25",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.554689"
+        "crawl_time": "2025-12-01T11:00:05.545109"
     },
     {
         "index": "#66",
@@ -885,7 +885,7 @@
         "subjects": "Computers and Society, Artificial Intelligence, Computation and Language, Human-Computer Interaction",
         "date": "2025-11-25",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.555137"
+        "crawl_time": "2025-12-01T11:00:05.545759"
     },
     {
         "index": "#67",
@@ -897,7 +897,7 @@
         "subjects": "Machine Learning, Artificial Intelligence, Computation and Language",
         "date": "2025-11-25",
         "category": "cs.CL",
-        "crawl_time": "2025-11-28T11:00:04.555676"
+        "crawl_time": "2025-12-01T11:00:05.546540"
     },
     {
         "index": "#1",
@@ -909,7 +909,7 @@
         "subjects": "Machine Learning, Distributed, Parallel, and Cluster Computing",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.363293"
+        "crawl_time": "2025-12-01T11:00:05.997442"
     },
     {
         "index": "#2",
@@ -921,7 +921,7 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.363978"
+        "crawl_time": "2025-12-01T11:00:05.998124"
     },
     {
         "index": "#3",
@@ -933,7 +933,7 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.364548"
+        "crawl_time": "2025-12-01T11:00:05.998696"
     },
     {
         "index": "#4",
@@ -945,10 +945,22 @@
         "subjects": "Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.365143"
+        "crawl_time": "2025-12-01T11:00:05.999294"
     },
     {
         "index": "#5",
+        "title": "On the Origin of Algorithmic Progress in AI",
+        "link": "/arxiv/2511.21622",
+        "arxiv_id": "2511.21622",
+        "authors": "Hans Gundlach, Alex Fogelson, Jayson Lynch, Ana Trisovic, Jonathan Rosenfeld, Anmol Sandhu, Neil Thompson",
+        "summary": "Algorithms have been estimated to increase AI training FLOP efficiency by a factor of 22,000 between 2012 and 2023 [Ho et al., 2024]. Running small-scale ablation experiments on key innovations from this time period, we are able to account for less than 10x of these gains. Surveying the broader literature, we estimate that additional innovations not included in our ablations account for less than 10x, yielding a total under 100x. This leads us to conduct scaling experiments, which reveal that much of this efficiency gap can be explained by algorithms with scale-dependent efficiency improvements. In particular, we conduct scaling experiments between LSTMs and Transformers, finding exponent differences in their compute-optimal scaling law while finding little scaling difference for many other innovations. These experiments demonstrate that - contrary to standard assumptions - an algorithm's efficiency gains are tied to compute scale. Using experimental extrapolation and literature estimates, we account for 6,930x efficiency gains over the same time period, with the scale-dependent LSTM-to-Transformer transition accounting for the majority of gains. Our results indicate that algorithmic progress for small models has been far slower than previously assumed, and that measures of algorithmic efficiency are strongly reference-dependent.",
+        "subjects": "Machine Learning, Artificial Intelligence",
+        "date": "2025-11-26",
+        "category": "cs.LG",
+        "crawl_time": "2025-12-01T11:00:06.000017"
+    },
+    {
+        "index": "#6",
         "title": "Visualizing LLM Latent Space Geometry Through Dimensionality Reduction",
         "link": "/arxiv/2511.21594",
         "arxiv_id": "2511.21594",
@@ -957,10 +969,10 @@
         "subjects": "Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.365697"
+        "crawl_time": "2025-12-01T11:00:06.000577"
     },
     {
-        "index": "#6",
+        "index": "#7",
         "title": "An AI-Enabled Hybrid Cyber-Physical Framework for Adaptive Control in Smart Grids",
         "link": "/arxiv/2511.21590",
         "arxiv_id": "2511.21590",
@@ -969,10 +981,10 @@
         "subjects": "Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.366237"
+        "crawl_time": "2025-12-01T11:00:06.001024"
     },
     {
-        "index": "#7",
+        "index": "#8",
         "title": "Learning When to Stop: Adaptive Latent Reasoning via Reinforcement Learning",
         "link": "/arxiv/2511.21581",
         "arxiv_id": "2511.21581",
@@ -981,10 +993,10 @@
         "subjects": "Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.366795"
+        "crawl_time": "2025-12-01T11:00:06.001454"
     },
     {
-        "index": "#8",
+        "index": "#9",
         "title": "A decoupled alignment kernel for peptide membrane permeability predictions",
         "link": "/arxiv/2511.21566",
         "arxiv_id": "2511.21566",
@@ -993,10 +1005,10 @@
         "subjects": "Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.367405"
+        "crawl_time": "2025-12-01T11:00:06.007068"
     },
     {
-        "index": "#9",
+        "index": "#10",
         "title": "Machine Learning Approaches to Clinical Risk Prediction: Multi-Scale Temporal Alignment in Electronic Health Records",
         "link": "/arxiv/2511.21561",
         "arxiv_id": "2511.21561",
@@ -1005,10 +1017,10 @@
         "subjects": "Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.373139"
+        "crawl_time": "2025-12-01T11:00:06.007508"
     },
     {
-        "index": "#10",
+        "index": "#11",
         "title": "Computing Strategic Responses to Non-Linear Classifiers",
         "link": "/arxiv/2511.21560",
         "arxiv_id": "2511.21560",
@@ -1017,10 +1029,10 @@
         "subjects": "Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.373642"
+        "crawl_time": "2025-12-01T11:00:06.007979"
     },
     {
-        "index": "#11",
+        "index": "#12",
         "title": "Context-Specific Causal Graph Discovery with Unobserved Contexts: Non-Stationarity, Regimes and Spatio-Temporal Patterns",
         "link": "/arxiv/2511.21537",
         "arxiv_id": "2511.21537",
@@ -1029,10 +1041,10 @@
         "subjects": "Machine Learning, Statistics Theory",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.374071"
+        "crawl_time": "2025-12-01T11:00:06.008424"
     },
     {
-        "index": "#12",
+        "index": "#13",
         "title": "Predictive Safety Shield for Dyna-Q Reinforcement Learning",
         "link": "/arxiv/2511.21531",
         "arxiv_id": "2511.21531",
@@ -1041,10 +1053,10 @@
         "subjects": "Machine Learning, Artificial Intelligence, Robotics, Systems and Control",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.374550"
+        "crawl_time": "2025-12-01T11:00:06.008917"
     },
     {
-        "index": "#13",
+        "index": "#14",
         "title": "Mechanistic Interpretability for Transformer-based Time Series Classification",
         "link": "/arxiv/2511.21514",
         "arxiv_id": "2511.21514",
@@ -1053,10 +1065,10 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.375017"
+        "crawl_time": "2025-12-01T11:00:06.009383"
     },
     {
-        "index": "#14",
+        "index": "#15",
         "title": "IntAttention: A Fully Integer Attention Pipeline for Efficient Edge Inference",
         "link": "/arxiv/2511.21513",
         "arxiv_id": "2511.21513",
@@ -1065,10 +1077,10 @@
         "subjects": "Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.375476"
+        "crawl_time": "2025-12-01T11:00:06.009843"
     },
     {
-        "index": "#15",
+        "index": "#16",
         "title": "Lost in Time? A Meta-Learning Framework for Time-Shift-Tolerant Physiological Signal Transformation",
         "link": "/arxiv/2511.21500",
         "arxiv_id": "2511.21500",
@@ -1077,10 +1089,10 @@
         "subjects": "Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.375955"
+        "crawl_time": "2025-12-01T11:00:06.010322"
     },
     {
-        "index": "#16",
+        "index": "#17",
         "title": "Mean-Field Limits for Two-Layer Neural Networks Trained with Consensus-Based Optimization",
         "link": "/arxiv/2511.21466",
         "arxiv_id": "2511.21466",
@@ -1089,10 +1101,10 @@
         "subjects": "Machine Learning, Optimization and Control",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.376404"
+        "crawl_time": "2025-12-01T11:00:06.010771"
     },
     {
-        "index": "#17",
+        "index": "#18",
         "title": "Ensemble Performance Through the Lens of Linear Independence of Classifier Votes in Data Streams",
         "link": "/arxiv/2511.21465",
         "arxiv_id": "2511.21465",
@@ -1101,10 +1113,10 @@
         "subjects": "Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.376825"
+        "crawl_time": "2025-12-01T11:00:06.011186"
     },
     {
-        "index": "#18",
+        "index": "#19",
         "title": "SUPN: Shallow Universal Polynomial Networks",
         "link": "/arxiv/2511.21414",
         "arxiv_id": "2511.21414",
@@ -1113,10 +1125,10 @@
         "subjects": "Machine Learning, Numerical Analysis",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.377311"
+        "crawl_time": "2025-12-01T11:00:06.011672"
     },
     {
-        "index": "#21",
+        "index": "#22",
         "title": "Anomaly Detection with Adaptive and Aggressive Rejection for Contaminated Training Data",
         "link": "/arxiv/2511.21378",
         "arxiv_id": "2511.21378",
@@ -1125,10 +1137,10 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.383937"
+        "crawl_time": "2025-12-01T11:00:06.018341"
     },
     {
-        "index": "#22",
+        "index": "#23",
         "title": "Controlling changes to attention logits",
         "link": "/arxiv/2511.21377",
         "arxiv_id": "2511.21377",
@@ -1137,10 +1149,10 @@
         "subjects": "Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.384356"
+        "crawl_time": "2025-12-01T11:00:06.018757"
     },
     {
-        "index": "#23",
+        "index": "#24",
         "title": "BanglaMM-Disaster: A Multimodal Transformer-Based Deep Learning Framework for Multiclass Disaster Classification in Bangla",
         "link": "/arxiv/2511.21364",
         "arxiv_id": "2511.21364",
@@ -1149,10 +1161,10 @@
         "subjects": "Machine Learning, Computer Vision and Pattern Recognition",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.384821"
+        "crawl_time": "2025-12-01T11:00:06.019237"
     },
     {
-        "index": "#24",
+        "index": "#25",
         "title": "The Directed Prediction Change - Efficient and Trustworthy Fidelity Assessment for Local Feature Attribution Methods",
         "link": "/arxiv/2511.21363",
         "arxiv_id": "2511.21363",
@@ -1161,10 +1173,10 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.385276"
+        "crawl_time": "2025-12-01T11:00:06.019696"
     },
     {
-        "index": "#25",
+        "index": "#26",
         "title": "Hybrid-AIRL: Enhancing Inverse Reinforcement Learning with Supervised Expert Guidance",
         "link": "/arxiv/2511.21356",
         "arxiv_id": "2511.21356",
@@ -1173,10 +1185,10 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.385747"
+        "crawl_time": "2025-12-01T11:00:06.020194"
     },
     {
-        "index": "#26",
+        "index": "#27",
         "title": "Best Practices for Machine Learning Experimentation in Scientific Applications",
         "link": "/arxiv/2511.21354",
         "arxiv_id": "2511.21354",
@@ -1185,10 +1197,10 @@
         "subjects": "Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.386149"
+        "crawl_time": "2025-12-01T11:00:06.020612"
     },
     {
-        "index": "#27",
+        "index": "#28",
         "title": "Masks Can Be Distracting: On Context Comprehension in Diffusion Language Models",
         "link": "/arxiv/2511.21338",
         "arxiv_id": "2511.21338",
@@ -1197,10 +1209,10 @@
         "subjects": "Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.386617"
+        "crawl_time": "2025-12-01T11:00:06.021074"
     },
     {
-        "index": "#28",
+        "index": "#29",
         "title": "TSGM: Regular and Irregular Time-series Generation using Score-based Generative Models",
         "link": "/arxiv/2511.21335",
         "arxiv_id": "2511.21335",
@@ -1209,10 +1221,10 @@
         "subjects": "Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.387063"
+        "crawl_time": "2025-12-01T11:00:06.021525"
     },
     {
-        "index": "#29",
+        "index": "#30",
         "title": "Sawtooth Sampling for Time Series Denoising Diffusion Implicit Models",
         "link": "/arxiv/2511.21320",
         "arxiv_id": "2511.21320",
@@ -1221,10 +1233,10 @@
         "subjects": "Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.387484"
+        "crawl_time": "2025-12-01T11:00:06.021950"
     },
     {
-        "index": "#30",
+        "index": "#31",
         "title": "A Physics-Informed U-net-LSTM Network for Data-Driven Seismic Response Modeling of Structures",
         "link": "/arxiv/2511.21276",
         "arxiv_id": "2511.21276",
@@ -1233,10 +1245,10 @@
         "subjects": "Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.387902"
+        "crawl_time": "2025-12-01T11:00:06.027532"
     },
     {
-        "index": "#31",
+        "index": "#32",
         "title": "Robust Gene Prioritization via Fast-mRMR Feature Selection in high-dimensional omics data",
         "link": "/arxiv/2511.21211",
         "arxiv_id": "2511.21211",
@@ -1245,10 +1257,10 @@
         "subjects": "Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.393514"
+        "crawl_time": "2025-12-01T11:00:06.028013"
     },
     {
-        "index": "#32",
+        "index": "#33",
         "title": "I-GLIDE: Input Groups for Latent Health Indicators in Degradation Estimation",
         "link": "/arxiv/2511.21208",
         "arxiv_id": "2511.21208",
@@ -1257,10 +1269,10 @@
         "subjects": "Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.393966"
+        "crawl_time": "2025-12-01T11:00:06.028466"
     },
     {
-        "index": "#33",
+        "index": "#34",
         "title": "Privacy in Federated Learning with Spiking Neural Networks",
         "link": "/arxiv/2511.21181",
         "arxiv_id": "2511.21181",
@@ -1269,10 +1281,10 @@
         "subjects": "Machine Learning, Artificial Intelligence, Distributed, Parallel, and Cluster Computing",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.394427"
+        "crawl_time": "2025-12-01T11:00:06.028945"
     },
     {
-        "index": "#35",
+        "index": "#36",
         "title": "Learning Cell-Aware Hierarchical Multi-Modal Representations for Robust Molecular Modeling",
         "link": "/arxiv/2511.21120",
         "arxiv_id": "2511.21120",
@@ -1281,10 +1293,10 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.395447"
+        "crawl_time": "2025-12-01T11:00:06.029979"
     },
     {
-        "index": "#36",
+        "index": "#37",
         "title": "Trustless Federated Learning at Edge-Scale: A Compositional Architecture for Decentralized, Verifiable, and Incentive-Aligned Coordination",
         "link": "/arxiv/2511.21118",
         "arxiv_id": "2511.21118",
@@ -1293,10 +1305,10 @@
         "subjects": "Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.395871"
+        "crawl_time": "2025-12-01T11:00:06.030394"
     },
     {
-        "index": "#37",
+        "index": "#38",
         "title": "Interpretable Fair Clustering",
         "link": "/arxiv/2511.21109",
         "arxiv_id": "2511.21109",
@@ -1305,10 +1317,10 @@
         "subjects": "Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.396317"
+        "crawl_time": "2025-12-01T11:00:06.030849"
     },
     {
-        "index": "#38",
+        "index": "#39",
         "title": "Dynamic Stratified Contrastive Learning with Upstream Augmentation for MILP Branching",
         "link": "/arxiv/2511.21107",
         "arxiv_id": "2511.21107",
@@ -1317,10 +1329,10 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.396767"
+        "crawl_time": "2025-12-01T11:00:06.031298"
     },
     {
-        "index": "#39",
+        "index": "#40",
         "title": "BRIDGE: Building Representations In Domain Guided Program Verification",
         "link": "/arxiv/2511.21104",
         "arxiv_id": "2511.21104",
@@ -1329,10 +1341,10 @@
         "subjects": "Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.397234"
+        "crawl_time": "2025-12-01T11:00:06.031776"
     },
     {
-        "index": "#40",
+        "index": "#41",
         "title": "From Bits to Rounds: Parallel Decoding with Exploration for Diffusion Language Models",
         "link": "/arxiv/2511.21103",
         "arxiv_id": "2511.21103",
@@ -1341,10 +1353,10 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.397715"
+        "crawl_time": "2025-12-01T11:00:06.032260"
     },
     {
-        "index": "#41",
+        "index": "#42",
         "title": "Generative Early Stage Ranking",
         "link": "/arxiv/2511.21095",
         "arxiv_id": "2511.21095",
@@ -1353,10 +1365,10 @@
         "subjects": "Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.403561"
+        "crawl_time": "2025-12-01T11:00:06.038042"
     },
     {
-        "index": "#42",
+        "index": "#43",
         "title": "MNM : Multi-level Neuroimaging Meta-analysis with Hyperbolic Brain-Text Representations",
         "link": "/arxiv/2511.21092",
         "arxiv_id": "2511.21092",
@@ -1365,10 +1377,10 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.404091"
+        "crawl_time": "2025-12-01T11:00:06.038515"
     },
     {
-        "index": "#43",
+        "index": "#44",
         "title": "MLPMoE: Zero-Shot Architectural Metamorphosis of Dense LLM MLPs into Static Mixture-of-Experts",
         "link": "/arxiv/2511.21089",
         "arxiv_id": "2511.21089",
@@ -1377,10 +1389,10 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.404519"
+        "crawl_time": "2025-12-01T11:00:06.038935"
     },
     {
-        "index": "#44",
+        "index": "#45",
         "title": "Deceptron: Learned Local Inverses for Fast and Stable Physics Inversion",
         "link": "/arxiv/2511.21076",
         "arxiv_id": "2511.21076",
@@ -1389,10 +1401,10 @@
         "subjects": "Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.404928"
+        "crawl_time": "2025-12-01T11:00:06.039330"
     },
     {
-        "index": "#45",
+        "index": "#46",
         "title": "Aligning LLMs with Biomedical Knowledge using Balanced Fine-Tuning",
         "link": "/arxiv/2511.21075",
         "arxiv_id": "2511.21075",
@@ -1401,10 +1413,10 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.405514"
+        "crawl_time": "2025-12-01T11:00:06.039908"
     },
     {
-        "index": "#46",
+        "index": "#47",
         "title": "G-Net: A Provably Easy Construction of High-Accuracy Random Binary Neural Networks",
         "link": "/arxiv/2511.21063",
         "arxiv_id": "2511.21063",
@@ -1413,10 +1425,10 @@
         "subjects": "Machine Learning, Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.405979"
+        "crawl_time": "2025-12-01T11:00:06.040377"
     },
     {
-        "index": "#48",
+        "index": "#49",
         "title": "Efficient Diffusion Planning with Temporal Diffusion",
         "link": "/arxiv/2511.21054",
         "arxiv_id": "2511.21054",
@@ -1425,10 +1437,10 @@
         "subjects": "Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.406954"
+        "crawl_time": "2025-12-01T11:00:06.041338"
     },
     {
-        "index": "#49",
+        "index": "#50",
         "title": "Breaking the Safety-Capability Tradeoff: Reinforcement Learning with Verifiable Rewards Maintains Safety Guardrails in LLMs",
         "link": "/arxiv/2511.21050",
         "arxiv_id": "2511.21050",
@@ -1437,10 +1449,10 @@
         "subjects": "Machine Learning, Artificial Intelligence, Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.407498"
+        "crawl_time": "2025-12-01T11:00:06.041883"
     },
     {
-        "index": "#50",
+        "index": "#51",
         "title": "FedAPA: Federated Learning with Adaptive Prototype Aggregation Toward Heterogeneous Wi-Fi CSI-based Crowd Counting",
         "link": "/arxiv/2511.21048",
         "arxiv_id": "2511.21048",
@@ -1449,10 +1461,10 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.407948"
+        "crawl_time": "2025-12-01T11:00:06.042322"
     },
     {
-        "index": "#51",
+        "index": "#52",
         "title": "CNN-LSTM Hybrid Architecture for Over-the-Air Automatic Modulation Classification Using SDR",
         "link": "/arxiv/2511.21040",
         "arxiv_id": "2511.21040",
@@ -1461,10 +1473,10 @@
         "subjects": "Machine Learning, Computer Vision and Pattern Recognition",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.408413"
+        "crawl_time": "2025-12-01T11:00:06.047930"
     },
     {
-        "index": "#52",
+        "index": "#53",
         "title": "RAVQ-HoloNet: Rate-Adaptive Vector-Quantized Hologram Compression",
         "link": "/arxiv/2511.21035",
         "arxiv_id": "2511.21035",
@@ -1473,10 +1485,10 @@
         "subjects": "Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.414167"
+        "crawl_time": "2025-12-01T11:00:06.048373"
     },
     {
-        "index": "#53",
+        "index": "#54",
         "title": "Prediction of Herd Life in Dairy Cows Using Multi-Head Attention Transformers",
         "link": "/arxiv/2511.21034",
         "arxiv_id": "2511.21034",
@@ -1485,10 +1497,10 @@
         "subjects": "Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.414585"
+        "crawl_time": "2025-12-01T11:00:06.048790"
     },
     {
-        "index": "#54",
+        "index": "#55",
         "title": "A Probabilistic Framework for Temporal Distribution Generalization in Industry-Scale Recommender Systems",
         "link": "/arxiv/2511.21032",
         "arxiv_id": "2511.21032",
@@ -1497,10 +1509,10 @@
         "subjects": "Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.415039"
+        "crawl_time": "2025-12-01T11:00:06.049246"
     },
     {
-        "index": "#55",
+        "index": "#56",
         "title": "Probabilistic Wildfire Spread Prediction Using an Autoregressive Conditional Generative Adversarial Network",
         "link": "/arxiv/2511.21019",
         "arxiv_id": "2511.21019",
@@ -1509,10 +1521,10 @@
         "subjects": "Machine Learning, Artificial Intelligence, Computational Engineering, Finance, and Science, Computer Vision and Pattern Recognition",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.415534"
+        "crawl_time": "2025-12-01T11:00:06.049710"
     },
     {
-        "index": "#57",
+        "index": "#58",
         "title": "Staggered Environment Resets Improve Massively Parallel On-Policy Reinforcement Learning",
         "link": "/arxiv/2511.21011",
         "arxiv_id": "2511.21011",
@@ -1521,10 +1533,10 @@
         "subjects": "Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.416482"
+        "crawl_time": "2025-12-01T11:00:06.050620"
     },
     {
-        "index": "#58",
+        "index": "#59",
         "title": "ChatGpt Content detection: A new approach using xlm-roberta alignment",
         "link": "/arxiv/2511.21009",
         "arxiv_id": "2511.21009",
@@ -1533,10 +1545,10 @@
         "subjects": "Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.416967"
+        "crawl_time": "2025-12-01T11:00:06.051098"
     },
     {
-        "index": "#59",
+        "index": "#60",
         "title": "Estimating Ising Models in Total Variation Distance",
         "link": "/arxiv/2511.21008",
         "arxiv_id": "2511.21008",
@@ -1545,10 +1557,10 @@
         "subjects": "Machine Learning, Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.417412"
+        "crawl_time": "2025-12-01T11:00:06.051533"
     },
     {
-        "index": "#60",
+        "index": "#61",
         "title": "FANoise: Singular Value-Adaptive Noise Modulation for Robust Multimodal Representation Learning",
         "link": "/arxiv/2511.20997",
         "arxiv_id": "2511.20997",
@@ -1557,10 +1569,10 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.417920"
+        "crawl_time": "2025-12-01T11:00:06.052044"
     },
     {
-        "index": "#61",
+        "index": "#62",
         "title": "Subgoal Graph-Augmented Planning for LLM-Guided Open-World Reinforcement Learning",
         "link": "/arxiv/2511.20993",
         "arxiv_id": "2511.20993",
@@ -1569,10 +1581,10 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.418339"
+        "crawl_time": "2025-12-01T11:00:06.052471"
     },
     {
-        "index": "#62",
+        "index": "#63",
         "title": "Dataset Poisoning Attacks on Behavioral Cloning Policies",
         "link": "/arxiv/2511.20992",
         "arxiv_id": "2511.20992",
@@ -1581,10 +1593,10 @@
         "subjects": "Machine Learning, Cryptography and Security, Robotics",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.418842"
+        "crawl_time": "2025-12-01T11:00:06.056725"
     },
     {
-        "index": "#63",
+        "index": "#64",
         "title": "Semantic Superiority vs. Forensic Efficiency: A Comparative Analysis of Deep Learning and Psycholinguistics for Business Email Compromise Detection",
         "link": "/arxiv/2511.20944",
         "arxiv_id": "2511.20944",
@@ -1593,10 +1605,10 @@
         "subjects": "Machine Learning, Cryptography and Security",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.424371"
+        "crawl_time": "2025-12-01T11:00:06.057140"
     },
     {
-        "index": "#64",
+        "index": "#65",
         "title": "Operationalizing Quantized Disentanglement",
         "link": "/arxiv/2511.20927",
         "arxiv_id": "2511.20927",
@@ -1605,10 +1617,10 @@
         "subjects": "Machine Learning, Machine Learning",
         "date": "2025-11-25",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.424834"
+        "crawl_time": "2025-12-01T11:00:06.057592"
     },
     {
-        "index": "#65",
+        "index": "#66",
         "title": "Exploring Time-Step Size in Reinforcement Learning for Sepsis Treatment",
         "link": "/arxiv/2511.20913",
         "arxiv_id": "2511.20913",
@@ -1617,10 +1629,10 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-11-25",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.425267"
+        "crawl_time": "2025-12-01T11:00:06.058013"
     },
     {
-        "index": "#66",
+        "index": "#67",
         "title": "Evolved SampleWeights for Bias Mitigation: Effectiveness Depends on Optimization Objectives",
         "link": "/arxiv/2511.20909",
         "arxiv_id": "2511.20909",
@@ -1629,10 +1641,10 @@
         "subjects": "Machine Learning, Artificial Intelligence, Neural and Evolutionary Computing",
         "date": "2025-11-25",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.425764"
+        "crawl_time": "2025-12-01T11:00:06.058499"
     },
     {
-        "index": "#67",
+        "index": "#68",
         "title": "Probabilistic Hash Embeddings for Online Learning of Categorical Features",
         "link": "/arxiv/2511.20893",
         "arxiv_id": "2511.20893",
@@ -1641,10 +1653,10 @@
         "subjects": "Machine Learning, Machine Learning",
         "date": "2025-11-25",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.426208"
+        "crawl_time": "2025-12-01T11:00:06.058933"
     },
     {
-        "index": "#68",
+        "index": "#69",
         "title": "Representation Integrity in Temporal Graph Learning Methods",
         "link": "/arxiv/2511.20873",
         "arxiv_id": "2511.20873",
@@ -1653,10 +1665,10 @@
         "subjects": "Machine Learning",
         "date": "2025-11-25",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.426621"
+        "crawl_time": "2025-12-01T11:00:06.059327"
     },
     {
-        "index": "#69",
+        "index": "#70",
         "title": "Selecting Belief-State Approximations in Simulators with Latent States",
         "link": "/arxiv/2511.20870",
         "arxiv_id": "2511.20870",
@@ -1665,10 +1677,10 @@
         "subjects": "Machine Learning, Artificial Intelligence, Machine Learning",
         "date": "2025-11-25",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.427051"
+        "crawl_time": "2025-12-01T11:00:06.059777"
     },
     {
-        "index": "#70",
+        "index": "#71",
         "title": "Pre-train to Gain: Robust Learning Without Clean Labels",
         "link": "/arxiv/2511.20844",
         "arxiv_id": "2511.20844",
@@ -1677,10 +1689,10 @@
         "subjects": "Machine Learning, Artificial Intelligence, Neural and Evolutionary Computing",
         "date": "2025-11-25",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.427511"
+        "crawl_time": "2025-12-01T11:00:06.060232"
     },
     {
-        "index": "#71",
+        "index": "#72",
         "title": "Primal: A Unified Deterministic Framework for Quasi-Orthogonal Hashing and Manifold Learning",
         "link": "/arxiv/2511.20839",
         "arxiv_id": "2511.20839",
@@ -1689,10 +1701,10 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-11-25",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.427946"
+        "crawl_time": "2025-12-01T11:00:06.060650"
     },
     {
-        "index": "#72",
+        "index": "#73",
         "title": "Autoregressive Surrogate Modeling of the Solar Wind with Spherical Fourier Neural Operator",
         "link": "/arxiv/2511.20830",
         "arxiv_id": "2511.20830",
@@ -1701,10 +1713,10 @@
         "subjects": "Machine Learning",
         "date": "2025-11-25",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.428390"
+        "crawl_time": "2025-12-01T11:00:06.061092"
     },
     {
-        "index": "#73",
+        "index": "#74",
         "title": "Effects of Initialization Biases on Deep Neural Network Training Dynamics",
         "link": "/arxiv/2511.20826",
         "arxiv_id": "2511.20826",
@@ -1713,10 +1725,10 @@
         "subjects": "Machine Learning",
         "date": "2025-11-25",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.428823"
+        "crawl_time": "2025-12-01T11:00:06.061522"
     },
     {
-        "index": "#74",
+        "index": "#75",
         "title": "Conformal Safety Monitoring for Flight Testing: A Case Study in Data-Driven Safety Learning",
         "link": "/arxiv/2511.20811",
         "arxiv_id": "2511.20811",
@@ -1725,10 +1737,10 @@
         "subjects": "Machine Learning, Artificial Intelligence, Applications",
         "date": "2025-11-25",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.434416"
+        "crawl_time": "2025-12-01T11:00:06.067328"
     },
     {
-        "index": "#75",
+        "index": "#76",
         "title": "Physics Steering: Causal Control of Cross-Domain Concepts in a Physics Foundation Model",
         "link": "/arxiv/2511.20798",
         "arxiv_id": "2511.20798",
@@ -1737,10 +1749,10 @@
         "subjects": "Machine Learning, Artificial Intelligence, Computational Physics",
         "date": "2025-11-25",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.434908"
+        "crawl_time": "2025-12-01T11:00:06.067833"
     },
     {
-        "index": "#76",
+        "index": "#77",
         "title": "CHiQPM: Calibrated Hierarchical Interpretable Image Classification",
         "link": "/arxiv/2511.20779",
         "arxiv_id": "2511.20779",
@@ -1749,10 +1761,10 @@
         "subjects": "Machine Learning, Computer Vision and Pattern Recognition, Human-Computer Interaction",
         "date": "2025-11-25",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.435423"
+        "crawl_time": "2025-12-01T11:00:06.068340"
     },
     {
-        "index": "#77",
+        "index": "#78",
         "title": "Spatio-Temporal Trajectory Foundation Model - Recent Advances and Future Directions",
         "link": "/arxiv/2511.20729",
         "arxiv_id": "2511.20729",
@@ -1761,10 +1773,10 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-11-25",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.435916"
+        "crawl_time": "2025-12-01T11:00:06.068839"
     },
     {
-        "index": "#78",
+        "index": "#79",
         "title": "Learning from Risk: LLM-Guided Generation of Safety-Critical Scenarios with Prior Knowledge",
         "link": "/arxiv/2511.20726",
         "arxiv_id": "2511.20726",
@@ -1773,10 +1785,10 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-11-25",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.436418"
+        "crawl_time": "2025-12-01T11:00:06.069319"
     },
     {
-        "index": "#79",
+        "index": "#80",
         "title": "Gradient Descent Algorithm Survey",
         "link": "/arxiv/2511.20725",
         "arxiv_id": "2511.20725",
@@ -1785,10 +1797,10 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-11-25",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.436881"
+        "crawl_time": "2025-12-01T11:00:06.069783"
     },
     {
-        "index": "#81",
+        "index": "#82",
         "title": "Active Slice Discovery in Large Language Models",
         "link": "/arxiv/2511.20713",
         "arxiv_id": "2511.20713",
@@ -1797,10 +1809,10 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-11-24",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.437889"
+        "crawl_time": "2025-12-01T11:00:06.070778"
     },
     {
-        "index": "#82",
+        "index": "#83",
         "title": "Solving Diffusion Inverse Problems with Restart Posterior Sampling",
         "link": "/arxiv/2511.20705",
         "arxiv_id": "2511.20705",
@@ -1809,10 +1821,10 @@
         "subjects": "Machine Learning, Artificial Intelligence, Machine Learning",
         "date": "2025-11-24",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.438342"
+        "crawl_time": "2025-12-01T11:00:06.071219"
     },
     {
-        "index": "#83",
+        "index": "#84",
         "title": "Pretraining Transformer-Based Models on Diffusion-Generated Synthetic Graphs for Alzheimer's Disease Prediction",
         "link": "/arxiv/2511.20704",
         "arxiv_id": "2511.20704",
@@ -1821,10 +1833,10 @@
         "subjects": "Machine Learning, Machine Learning",
         "date": "2025-11-24",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.438766"
+        "crawl_time": "2025-12-01T11:00:06.071645"
     },
     {
-        "index": "#84",
+        "index": "#85",
         "title": "Post-Pruning Accuracy Recovery via Data-Free Knowledge Distillation",
         "link": "/arxiv/2511.20702",
         "arxiv_id": "2511.20702",
@@ -1833,10 +1845,10 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-11-24",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.439209"
+        "crawl_time": "2025-12-01T11:00:06.077236"
     },
     {
-        "index": "#85",
+        "index": "#86",
         "title": "On the Role of Hidden States of Modern Hopfield Network in Transformer",
         "link": "/arxiv/2511.20698",
         "arxiv_id": "2511.20698",
@@ -1845,10 +1857,10 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-11-24",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.444768"
+        "crawl_time": "2025-12-01T11:00:06.077670"
     },
     {
-        "index": "#86",
+        "index": "#87",
         "title": "Prototype-Guided Non-Exemplar Continual Learning for Cross-subject EEG Decoding",
         "link": "/arxiv/2511.20696",
         "arxiv_id": "2511.20696",
@@ -1857,10 +1869,10 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-11-24",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.445408"
+        "crawl_time": "2025-12-01T11:00:06.078114"
     },
     {
-        "index": "#87",
+        "index": "#88",
         "title": "TraceGen: World Modeling in 3D Trace Space Enables Learning from Cross-Embodiment Videos",
         "link": "/arxiv/2511.21690",
         "arxiv_id": "2511.21690",
@@ -1869,10 +1881,10 @@
         "subjects": "Robotics, Computer Vision and Pattern Recognition, Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.445969"
+        "crawl_time": "2025-12-01T11:00:06.078686"
     },
     {
-        "index": "#90",
+        "index": "#91",
         "title": "Agentic Learner with Grow-and-Refine Multimodal Semantic Memory",
         "link": "/arxiv/2511.21678",
         "arxiv_id": "2511.21678",
@@ -1881,10 +1893,10 @@
         "subjects": "Artificial Intelligence, Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.447826"
+        "crawl_time": "2025-12-01T11:00:06.080548"
     },
     {
-        "index": "#91",
+        "index": "#92",
         "title": "On Evolution-Based Models for Experimentation Under Interference",
         "link": "/arxiv/2511.21675",
         "arxiv_id": "2511.21675",
@@ -1893,10 +1905,10 @@
         "subjects": "Machine Learning, Machine Learning, Social and Information Networks, Econometrics",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.448288"
+        "crawl_time": "2025-12-01T11:00:06.081004"
     },
     {
-        "index": "#93",
+        "index": "#94",
         "title": "MMA: A Momentum Mamba Architecture for Human Activity Recognition with Inertial Sensors",
         "link": "/arxiv/2511.21550",
         "arxiv_id": "2511.21550",
@@ -1905,10 +1917,10 @@
         "subjects": "Human-Computer Interaction, Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.449250"
+        "crawl_time": "2025-12-01T11:00:06.081961"
     },
     {
-        "index": "#94",
+        "index": "#95",
         "title": "Phase Transition for Stochastic Block Model with more than $\\sqrt{n}$ Communities (II)",
         "link": "/arxiv/2511.21526",
         "arxiv_id": "2511.21526",
@@ -1917,10 +1929,10 @@
         "subjects": "Machine Learning, Machine Learning, Probability, Statistics Theory",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.450185"
+        "crawl_time": "2025-12-01T11:00:06.087588"
     },
     {
-        "index": "#95",
+        "index": "#96",
         "title": "Merge and Bound: Direct Manipulations on Weights for Class Incremental Learning",
         "link": "/arxiv/2511.21490",
         "arxiv_id": "2511.21490",
@@ -1929,10 +1941,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence, Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.450648"
+        "crawl_time": "2025-12-01T11:00:06.088070"
     },
     {
-        "index": "#96",
+        "index": "#97",
         "title": "Going with the Speed of Sound: Pushing Neural Surrogates into Highly-turbulent Transonic Regimes",
         "link": "/arxiv/2511.21474",
         "arxiv_id": "2511.21474",
@@ -1941,10 +1953,10 @@
         "subjects": "Computational Engineering, Finance, and Science, Artificial Intelligence, Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.451184"
+        "crawl_time": "2025-12-01T11:00:06.088599"
     },
     {
-        "index": "#100",
+        "index": "#101",
         "title": "Differentiable Physics-Neural Models enable Learning of Non-Markovian Closures for Accelerated Coarse-Grained Physics Simulations",
         "link": "/arxiv/2511.21369",
         "arxiv_id": "2511.21369",
@@ -1953,10 +1965,10 @@
         "subjects": "Computational Physics, Machine Learning, Fluid Dynamics",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.453128"
+        "crawl_time": "2025-12-01T11:00:06.090497"
     },
     {
-        "index": "#101",
+        "index": "#102",
         "title": "Learning Multi-Order Block Structure in Higher-Order Networks",
         "link": "/arxiv/2511.21350",
         "arxiv_id": "2511.21350",
@@ -1965,10 +1977,10 @@
         "subjects": "Social and Information Networks, Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.453578"
+        "crawl_time": "2025-12-01T11:00:06.090957"
     },
     {
-        "index": "#102",
+        "index": "#103",
         "title": "Phase-Aware Code-Aided EM Algorithm for Blind Channel Estimation in PSK-Modulated OFDM",
         "link": "/arxiv/2511.21340",
         "arxiv_id": "2511.21340",
@@ -1977,10 +1989,10 @@
         "subjects": "Signal Processing, Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.454039"
+        "crawl_time": "2025-12-01T11:00:06.091418"
     },
     {
-        "index": "#103",
+        "index": "#104",
         "title": "On the Periodic Orbits of the Dual Logarithmic Derivative Operator",
         "link": "/arxiv/2511.21283",
         "arxiv_id": "2511.21283",
@@ -1989,10 +2001,10 @@
         "subjects": "Dynamical Systems, Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.454467"
+        "crawl_time": "2025-12-01T11:00:06.091857"
     },
     {
-        "index": "#104",
+        "index": "#105",
         "title": "Estimation in high-dimensional linear regression: Post-Double-Autometrics as an alternative to Post-Double-Lasso",
         "link": "/arxiv/2511.21257",
         "arxiv_id": "2511.21257",
@@ -2001,10 +2013,10 @@
         "subjects": "Econometrics, Machine Learning, Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.455128"
+        "crawl_time": "2025-12-01T11:00:06.097413"
     },
     {
-        "index": "#105",
+        "index": "#106",
         "title": "The Spheres Dataset: Multitrack Orchestral Recordings for Music Source Separation and Information Retrieval",
         "link": "/arxiv/2511.21247",
         "arxiv_id": "2511.21247",
@@ -2013,10 +2025,10 @@
         "subjects": "Audio and Speech Processing, Machine Learning, Sound",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.455540"
+        "crawl_time": "2025-12-01T11:00:06.098196"
     },
     {
-        "index": "#106",
+        "index": "#107",
         "title": "RISC-V Based TinyML Accelerator for Depthwise Separable Convolutions in Edge AI",
         "link": "/arxiv/2511.21232",
         "arxiv_id": "2511.21232",
@@ -2025,10 +2037,10 @@
         "subjects": "Hardware Architecture, Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.455813"
+        "crawl_time": "2025-12-01T11:00:06.098624"
     },
     {
-        "index": "#107",
+        "index": "#108",
         "title": "Maxitive Donsker-Varadhan Formulation for Possibilistic Variational Inference",
         "link": "/arxiv/2511.21223",
         "arxiv_id": "2511.21223",
@@ -2037,10 +2049,10 @@
         "subjects": "Machine Learning, Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.456102"
+        "crawl_time": "2025-12-01T11:00:06.099074"
     },
     {
-        "index": "#108",
+        "index": "#109",
         "title": "From Diffusion to One-Step Generation: A Comparative Study of Flow-Based Models with Application to Image Inpainting",
         "link": "/arxiv/2511.21215",
         "arxiv_id": "2511.21215",
@@ -2049,10 +2061,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.456384"
+        "crawl_time": "2025-12-01T11:00:06.099529"
     },
     {
-        "index": "#109",
+        "index": "#110",
         "title": "Lattice-to-total thermal conductivity ratio: a phonon-glass electron-crystal descriptor for data-driven thermoelectric design",
         "link": "/arxiv/2511.21213",
         "arxiv_id": "2511.21213",
@@ -2061,10 +2073,10 @@
         "subjects": "Materials Science, Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.456689"
+        "crawl_time": "2025-12-01T11:00:06.100037"
     },
     {
-        "index": "#110",
+        "index": "#111",
         "title": "Nonconvex Penalized LAD Estimation in Partial Linear Models with DNNs: Asymptotic Analysis and Proximal Algorithms",
         "link": "/arxiv/2511.21115",
         "arxiv_id": "2511.21115",
@@ -2073,10 +2085,10 @@
         "subjects": "Machine Learning, Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.456977"
+        "crawl_time": "2025-12-01T11:00:06.100496"
     },
     {
-        "index": "#114",
+        "index": "#115",
         "title": "Data-Driven Assessment of Concrete Slab Integrity via Impact-Echo Signals and Neural Networks",
         "link": "/arxiv/2511.21080",
         "arxiv_id": "2511.21080",
@@ -2085,10 +2097,10 @@
         "subjects": "Signal Processing, Artificial Intelligence, Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.458170"
+        "crawl_time": "2025-12-01T11:00:06.102387"
     },
     {
-        "index": "#116",
+        "index": "#117",
         "title": "Wavefront-Constrained Passive Obscured Object Detection",
         "link": "/arxiv/2511.20991",
         "arxiv_id": "2511.20991",
@@ -2097,10 +2109,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.458783"
+        "crawl_time": "2025-12-01T11:00:06.108520"
     },
     {
-        "index": "#117",
+        "index": "#118",
         "title": "Even with AI, Bijection Discovery is Still Hard: The Opportunities and Challenges of OpenEvolve for Novel Bijection Construction",
         "link": "/arxiv/2511.20987",
         "arxiv_id": "2511.20987",
@@ -2109,10 +2121,10 @@
         "subjects": "Combinatorics, Artificial Intelligence, Machine Learning, Neural and Evolutionary Computing",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.459101"
+        "crawl_time": "2025-12-01T11:00:06.109019"
     },
     {
-        "index": "#118",
+        "index": "#119",
         "title": "Independent policy gradient-based reinforcement learning for economic and reliable energy management of multi-microgrid systems",
         "link": "/arxiv/2511.20977",
         "arxiv_id": "2511.20977",
@@ -2121,10 +2133,10 @@
         "subjects": "Systems and Control, Machine Learning, Optimization and Control",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.459384"
+        "crawl_time": "2025-12-01T11:00:06.109472"
     },
     {
-        "index": "#120",
+        "index": "#121",
         "title": "Crowdsourcing the Frontier: Advancing Hybrid Physics-ML Climate Simulation via $50,000 Kaggle Competition",
         "link": "/arxiv/2511.20963",
         "arxiv_id": "2511.20963",
@@ -2133,10 +2145,10 @@
         "subjects": "Atmospheric and Oceanic Physics, Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.460273"
+        "crawl_time": "2025-12-01T11:00:06.110785"
     },
     {
-        "index": "#121",
+        "index": "#122",
         "title": "Geometric Calibration and Neutral Zones for Uncertainty-Aware Multi-Class Classification",
         "link": "/arxiv/2511.20960",
         "arxiv_id": "2511.20960",
@@ -2145,10 +2157,10 @@
         "subjects": "Machine Learning, Machine Learning, Statistics Theory, Methodology",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.460582"
+        "crawl_time": "2025-12-01T11:00:06.111264"
     },
     {
-        "index": "#122",
+        "index": "#123",
         "title": "BUSTR: Breast Ultrasound Text Reporting with a Descriptor-Aware Vision-Language Model",
         "link": "/arxiv/2511.20956",
         "arxiv_id": "2511.20956",
@@ -2157,10 +2169,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence, Machine Learning",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.460872"
+        "crawl_time": "2025-12-01T11:00:06.111750"
     },
     {
-        "index": "#123",
+        "index": "#124",
         "title": "Fusion of classical and quantum kernels enables accurate and robust two-sample tests",
         "link": "/arxiv/2511.20941",
         "arxiv_id": "2511.20941",
@@ -2169,10 +2181,10 @@
         "subjects": "Quantum Physics, Machine Learning, Methodology",
         "date": "2025-11-26",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.461182"
+        "crawl_time": "2025-12-01T11:00:06.112244"
     },
     {
-        "index": "#124",
+        "index": "#125",
         "title": "Guaranteed Optimal Compositional Explanations for Neurons",
         "link": "/arxiv/2511.20934",
         "arxiv_id": "2511.20934",
@@ -2181,10 +2193,10 @@
         "subjects": "Artificial Intelligence, Computer Vision and Pattern Recognition, Machine Learning",
         "date": "2025-11-25",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.461461"
+        "crawl_time": "2025-12-01T11:00:06.112684"
     },
     {
-        "index": "#125",
+        "index": "#126",
         "title": "Open Vocabulary Compositional Explanations for Neuron Alignment",
         "link": "/arxiv/2511.20931",
         "arxiv_id": "2511.20931",
@@ -2193,10 +2205,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence, Machine Learning",
         "date": "2025-11-25",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.461742"
+        "crawl_time": "2025-12-01T11:00:06.118293"
     },
     {
-        "index": "#126",
+        "index": "#127",
         "title": "Readout-Side Bypass for Residual Hybrid Quantum-Classical Models",
         "link": "/arxiv/2511.20922",
         "arxiv_id": "2511.20922",
@@ -2205,10 +2217,10 @@
         "subjects": "Cryptography and Security, Distributed, Parallel, and Cluster Computing, Machine Learning",
         "date": "2025-11-25",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.462054"
+        "crawl_time": "2025-12-01T11:00:06.118782"
     },
     {
-        "index": "#127",
+        "index": "#128",
         "title": "Test-Time Alignment of Text-to-Image Diffusion Models via Null-Text Embedding Optimisation",
         "link": "/arxiv/2511.20889",
         "arxiv_id": "2511.20889",
@@ -2217,10 +2229,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence, Machine Learning",
         "date": "2025-11-25",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.462341"
+        "crawl_time": "2025-12-01T11:00:06.119234"
     },
     {
-        "index": "#128",
+        "index": "#129",
         "title": "Deep Learning as a Convex Paradigm of Computation: Minimizing Circuit Size with ResNets",
         "link": "/arxiv/2511.20888",
         "arxiv_id": "2511.20888",
@@ -2229,10 +2241,10 @@
         "subjects": "Machine Learning, Computational Complexity, Machine Learning",
         "date": "2025-11-25",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.462615"
+        "crawl_time": "2025-12-01T11:00:06.119663"
     },
     {
-        "index": "#129",
+        "index": "#130",
         "title": "A review on data fusion in multimodal learning analytics and educational data mining",
         "link": "/arxiv/2511.20871",
         "arxiv_id": "2511.20871",
@@ -2241,10 +2253,10 @@
         "subjects": "Computers and Society, Machine Learning",
         "date": "2025-11-25",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.473290"
+        "crawl_time": "2025-12-01T11:00:06.120153"
     },
     {
-        "index": "#130",
+        "index": "#131",
         "title": "MODEST: Multi-Optics Depth-of-Field Stereo Dataset",
         "link": "/arxiv/2511.20853",
         "arxiv_id": "2511.20853",
@@ -2253,10 +2265,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence, Machine Learning, Image and Video Processing",
         "date": "2025-11-25",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.473972"
+        "crawl_time": "2025-12-01T11:00:06.120653"
     },
     {
-        "index": "#131",
+        "index": "#132",
         "title": "When Features Beat Noise: A Feature Selection Technique Through Noise-Based Hypothesis Testing",
         "link": "/arxiv/2511.20851",
         "arxiv_id": "2511.20851",
@@ -2265,10 +2277,10 @@
         "subjects": "Machine Learning, Machine Learning",
         "date": "2025-11-25",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.474578"
+        "crawl_time": "2025-12-01T11:00:06.121091"
     },
     {
-        "index": "#133",
+        "index": "#134",
         "title": "NOIR 2.0: Neural Signal Operated Intelligent Robots for Everyday Activities",
         "link": "/arxiv/2511.20848",
         "arxiv_id": "2511.20848",
@@ -2277,10 +2289,10 @@
         "subjects": "Robotics, Artificial Intelligence, Human-Computer Interaction, Machine Learning, Systems and Control",
         "date": "2025-11-25",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.475914"
+        "crawl_time": "2025-12-01T11:00:06.122040"
     },
     {
-        "index": "#135",
+        "index": "#136",
         "title": "Accelerating Sparse Convolutions in Voxel-Based Point Cloud Networks",
         "link": "/arxiv/2511.20834",
         "arxiv_id": "2511.20834",
@@ -2289,10 +2301,10 @@
         "subjects": "Distributed, Parallel, and Cluster Computing, Hardware Architecture, Machine Learning, Performance",
         "date": "2025-11-25",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.477458"
+        "crawl_time": "2025-12-01T11:00:06.128376"
     },
     {
-        "index": "#136",
+        "index": "#137",
         "title": "RefTr: Recurrent Refinement of Confluent Trajectories for 3D Vascular Tree Centerline Graphs",
         "link": "/arxiv/2511.20823",
         "arxiv_id": "2511.20823",
@@ -2301,10 +2313,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence, Machine Learning",
         "date": "2025-11-25",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.483275"
+        "crawl_time": "2025-12-01T11:00:06.128857"
     },
     {
-        "index": "#138",
+        "index": "#139",
         "title": "SPHINX: A Synthetic Environment for Visual Perception and Reasoning",
         "link": "/arxiv/2511.20814",
         "arxiv_id": "2511.20814",
@@ -2313,10 +2325,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence, Machine Learning",
         "date": "2025-11-25",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.484560"
+        "crawl_time": "2025-12-01T11:00:06.129794"
     },
     {
-        "index": "#139",
+        "index": "#140",
         "title": "$Δ$-NeRF: Incremental Refinement of Neural Radiance Fields through Residual Control and Knowledge Transfer",
         "link": "/arxiv/2511.20804",
         "arxiv_id": "2511.20804",
@@ -2325,10 +2337,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Machine Learning",
         "date": "2025-11-25",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.485078"
+        "crawl_time": "2025-12-01T11:00:06.130286"
     },
     {
-        "index": "#141",
+        "index": "#142",
         "title": "Data-Driven Methods and AI in Engineering Design: A Systematic Literature Review Focusing on Challenges and Opportunities",
         "link": "/arxiv/2511.20730",
         "arxiv_id": "2511.20730",
@@ -2337,10 +2349,10 @@
         "subjects": "Software Engineering, Artificial Intelligence, Machine Learning",
         "date": "2025-11-25",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.486139"
+        "crawl_time": "2025-12-01T11:00:06.131311"
     },
     {
-        "index": "#142",
+        "index": "#143",
         "title": "Foundry: Distilling 3D Foundation Models for the Edge",
         "link": "/arxiv/2511.20721",
         "arxiv_id": "2511.20721",
@@ -2349,10 +2361,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence, Machine Learning, Neural and Evolutionary Computing",
         "date": "2025-11-25",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.486649"
+        "crawl_time": "2025-12-01T11:00:06.131808"
     },
     {
-        "index": "#143",
+        "index": "#144",
         "title": "DeeAD: Dynamic Early Exit of Vision-Language Action for Efficient Autonomous Driving",
         "link": "/arxiv/2511.20720",
         "arxiv_id": "2511.20720",
@@ -2361,10 +2373,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence, Machine Learning, Robotics",
         "date": "2025-11-25",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.487144"
+        "crawl_time": "2025-12-01T11:00:06.132298"
     },
     {
-        "index": "#144",
+        "index": "#145",
         "title": "A Set of Rules for Model Validation",
         "link": "/arxiv/2511.20711",
         "arxiv_id": "2511.20711",
@@ -2373,10 +2385,10 @@
         "subjects": "Methodology, Machine Learning, Machine Learning",
         "date": "2025-11-24",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.487585"
+        "crawl_time": "2025-12-01T11:00:06.132723"
     },
     {
-        "index": "#145",
+        "index": "#146",
         "title": "PropensityBench: Evaluating Latent Safety Risks in Large Language Models via an Agentic Approach",
         "link": "/arxiv/2511.20703",
         "arxiv_id": "2511.20703",
@@ -2385,10 +2397,10 @@
         "subjects": "Computers and Society, Artificial Intelligence, Machine Learning",
         "date": "2025-11-24",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.488155"
+        "crawl_time": "2025-12-01T11:00:06.133242"
     },
     {
-        "index": "#146",
+        "index": "#147",
         "title": "Cross Domain Evaluation of Multimodal Chain-of-Thought Reasoning of different datasets into the Amazon CoT Framework",
         "link": "/arxiv/2511.20701",
         "arxiv_id": "2511.20701",
@@ -2397,10 +2409,10 @@
         "subjects": "Artificial Intelligence, Machine Learning",
         "date": "2025-11-24",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.493806"
+        "crawl_time": "2025-12-01T11:00:06.138852"
     },
     {
-        "index": "#147",
+        "index": "#148",
         "title": "Reasoning With a Star: A Heliophysics Dataset and Benchmark for Agentic Scientific Reasoning",
         "link": "/arxiv/2511.20694",
         "arxiv_id": "2511.20694",
@@ -2409,10 +2421,10 @@
         "subjects": "Artificial Intelligence, Solar and Stellar Astrophysics, Machine Learning, Space Physics",
         "date": "2025-11-23",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.494301"
+        "crawl_time": "2025-12-01T11:00:06.139324"
     },
     {
-        "index": "#148",
+        "index": "#149",
         "title": "The Human Brain as a Combinatorial Complex",
         "link": "/arxiv/2511.20692",
         "arxiv_id": "2511.20692",
@@ -2421,10 +2433,10 @@
         "subjects": "Neurons and Cognition, Machine Learning",
         "date": "2025-11-22",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.494798"
+        "crawl_time": "2025-12-01T11:00:06.139827"
     },
     {
-        "index": "#149",
+        "index": "#150",
         "title": "AssurAI: Experience with Constructing Korean Socio-cultural Datasets to Discover Potential Risks of Generative AI",
         "link": "/arxiv/2511.20686",
         "arxiv_id": "2511.20686",
@@ -2433,10 +2445,10 @@
         "subjects": "Artificial Intelligence, Computers and Society, Machine Learning",
         "date": "2025-11-20",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.496029"
+        "crawl_time": "2025-12-01T11:00:06.140953"
     },
     {
-        "index": "#150",
+        "index": "#151",
         "title": "Dual-Domain Deep Learning Method to Accelerate Local Basis Functions Computation for Reservoir Simulation in High-Contrast Porous Media",
         "link": "/arxiv/2511.20685",
         "arxiv_id": "2511.20685",
@@ -2445,10 +2457,10 @@
         "subjects": "Numerical Analysis, Machine Learning",
         "date": "2025-11-18",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.496476"
+        "crawl_time": "2025-12-01T11:00:06.141381"
     },
     {
-        "index": "#151",
+        "index": "#152",
         "title": "Minimizing Hyperbolic Embedding Distortion with LLM-Guided Hierarchy Restructuring",
         "link": "/arxiv/2511.20679",
         "arxiv_id": "2511.20679",
@@ -2457,10 +2469,10 @@
         "subjects": "Artificial Intelligence, Machine Learning",
         "date": "2025-11-16",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.496933"
+        "crawl_time": "2025-12-01T11:00:06.141825"
     },
     {
-        "index": "#152",
+        "index": "#153",
         "title": "Cryptocurrency Portfolio Management with Reinforcement Learning: Soft Actor--Critic and Deep Deterministic Policy Gradient Algorithms",
         "link": "/arxiv/2511.20678",
         "arxiv_id": "2511.20678",
@@ -2469,10 +2481,10 @@
         "subjects": "Computational Finance, Machine Learning",
         "date": "2025-11-16",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.497354"
+        "crawl_time": "2025-12-01T11:00:06.142236"
     },
     {
-        "index": "#154",
+        "index": "#155",
         "title": "Domain-Grounded Evaluation of LLMs in International Student Knowledge",
         "link": "/arxiv/2511.20653",
         "arxiv_id": "2511.20653",
@@ -2481,7 +2493,7 @@
         "subjects": "Human-Computer Interaction, Artificial Intelligence, Machine Learning",
         "date": "2025-10-07",
         "category": "cs.LG",
-        "crawl_time": "2025-11-28T11:00:05.498235"
+        "crawl_time": "2025-12-01T11:00:06.143098"
     },
     {
         "index": "#2",
@@ -2493,7 +2505,7 @@
         "subjects": "Artificial Intelligence, Computers and Society, Human-Computer Interaction",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.464125"
+        "crawl_time": "2025-12-01T11:00:06.062937"
     },
     {
         "index": "#3",
@@ -2505,7 +2517,7 @@
         "subjects": "Artificial Intelligence, Human-Computer Interaction",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.464673"
+        "crawl_time": "2025-12-01T11:00:06.063350"
     },
     {
         "index": "#4",
@@ -2517,7 +2529,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.465253"
+        "crawl_time": "2025-12-01T11:00:06.063828"
     },
     {
         "index": "#5",
@@ -2529,7 +2541,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.465835"
+        "crawl_time": "2025-12-01T11:00:06.064278"
     },
     {
         "index": "#6",
@@ -2541,7 +2553,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.466387"
+        "crawl_time": "2025-12-01T11:00:06.064700"
     },
     {
         "index": "#7",
@@ -2553,7 +2565,7 @@
         "subjects": "Artificial Intelligence, Atmospheric and Oceanic Physics",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.467040"
+        "crawl_time": "2025-12-01T11:00:06.065209"
     },
     {
         "index": "#9",
@@ -2565,7 +2577,7 @@
         "subjects": "Artificial Intelligence, Optimization and Control",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.468301"
+        "crawl_time": "2025-12-01T11:00:06.066150"
     },
     {
         "index": "#11",
@@ -2577,7 +2589,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.469510"
+        "crawl_time": "2025-12-01T11:00:06.072288"
     },
     {
         "index": "#12",
@@ -2589,7 +2601,7 @@
         "subjects": "Artificial Intelligence, Computer Vision and Pattern Recognition",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.470096"
+        "crawl_time": "2025-12-01T11:00:06.072830"
     },
     {
         "index": "#13",
@@ -2601,7 +2613,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.470659"
+        "crawl_time": "2025-12-01T11:00:06.073279"
     },
     {
         "index": "#14",
@@ -2613,7 +2625,7 @@
         "subjects": "Artificial Intelligence, Information Retrieval",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.471274"
+        "crawl_time": "2025-12-01T11:00:06.073763"
     },
     {
         "index": "#15",
@@ -2625,7 +2637,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.471903"
+        "crawl_time": "2025-12-01T11:00:06.074207"
     },
     {
         "index": "#18",
@@ -2637,7 +2649,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-11-25",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.478418"
+        "crawl_time": "2025-12-01T11:00:06.075710"
     },
     {
         "index": "#19",
@@ -2649,7 +2661,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-11-25",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.478728"
+        "crawl_time": "2025-12-01T11:00:06.076242"
     },
     {
         "index": "#20",
@@ -2661,7 +2673,7 @@
         "subjects": "Artificial Intelligence, Information Theory, Signal Processing",
         "date": "2025-11-25",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.479043"
+        "crawl_time": "2025-12-01T11:00:06.076756"
     },
     {
         "index": "#22",
@@ -2673,7 +2685,7 @@
         "subjects": "Artificial Intelligence, Logic in Computer Science",
         "date": "2025-11-24",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.479609"
+        "crawl_time": "2025-12-01T11:00:06.082819"
     },
     {
         "index": "#23",
@@ -2685,7 +2697,7 @@
         "subjects": "Artificial Intelligence, Computers and Society, Medical Physics",
         "date": "2025-11-24",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.479934"
+        "crawl_time": "2025-12-01T11:00:06.083266"
     },
     {
         "index": "#34",
@@ -2697,7 +2709,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.490993"
+        "crawl_time": "2025-12-01T11:00:06.094565"
     },
     {
         "index": "#35",
@@ -2709,10 +2721,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.492223"
+        "crawl_time": "2025-12-01T11:00:06.095779"
     },
     {
-        "index": "#37",
+        "index": "#38",
         "title": "Model-Based Policy Adaptation for Closed-Loop End-to-End Autonomous Driving",
         "link": "/arxiv/2511.21584",
         "arxiv_id": "2511.21584",
@@ -2721,10 +2733,10 @@
         "subjects": "Robotics, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.493142"
+        "crawl_time": "2025-12-01T11:00:06.097193"
     },
     {
-        "index": "#38",
+        "index": "#39",
         "title": "HarmonicAttack: An Adaptive Cross-Domain Audio Watermark Removal",
         "link": "/arxiv/2511.21577",
         "arxiv_id": "2511.21577",
@@ -2733,10 +2745,10 @@
         "subjects": "Sound, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.498615"
+        "crawl_time": "2025-12-01T11:00:06.102998"
     },
     {
-        "index": "#39",
+        "index": "#40",
         "title": "Multimodal Robust Prompt Distillation for 3D Point Cloud Models",
         "link": "/arxiv/2511.21574",
         "arxiv_id": "2511.21574",
@@ -2745,10 +2757,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.499096"
+        "crawl_time": "2025-12-01T11:00:06.103476"
     },
     {
-        "index": "#41",
+        "index": "#42",
         "title": "VacuumVLA: Boosting VLA Capabilities via a Unified Suction and Gripping Tool for Complex Robotic Manipulation",
         "link": "/arxiv/2511.21557",
         "arxiv_id": "2511.21557",
@@ -2757,10 +2769,10 @@
         "subjects": "Robotics, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.500083"
+        "crawl_time": "2025-12-01T11:00:06.104433"
     },
     {
-        "index": "#47",
+        "index": "#48",
         "title": "Frequency-Aware Token Reduction for Efficient Vision Transformer",
         "link": "/arxiv/2511.21477",
         "arxiv_id": "2511.21477",
@@ -2769,10 +2781,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.502935"
+        "crawl_time": "2025-12-01T11:00:06.107228"
     },
     {
-        "index": "#50",
+        "index": "#51",
         "title": "Constructing and Benchmarking: a Labeled Email Dataset for Text-Based Phishing and Spam Detection Framework",
         "link": "/arxiv/2511.21448",
         "arxiv_id": "2511.21448",
@@ -2781,10 +2793,10 @@
         "subjects": "Cryptography and Security, Artificial Intelligence, Databases",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.504905"
+        "crawl_time": "2025-12-01T11:00:06.113808"
     },
     {
-        "index": "#51",
+        "index": "#52",
         "title": "EvRainDrop: HyperGraph-guided Completion for Effective Frame and Event Stream Aggregation",
         "link": "/arxiv/2511.21439",
         "arxiv_id": "2511.21439",
@@ -2793,10 +2805,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.505406"
+        "crawl_time": "2025-12-01T11:00:06.114286"
     },
     {
-        "index": "#52",
+        "index": "#53",
         "title": "From Observation to Action: Latent Action-based Primitive Segmentation for VLA Pre-training in Industrial Settings",
         "link": "/arxiv/2511.21428",
         "arxiv_id": "2511.21428",
@@ -2805,10 +2817,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.505853"
+        "crawl_time": "2025-12-01T11:00:06.114719"
     },
     {
-        "index": "#53",
+        "index": "#54",
         "title": "SAM Guided Semantic and Motion Changed Region Mining for Remote Sensing Change Captioning",
         "link": "/arxiv/2511.21420",
         "arxiv_id": "2511.21420",
@@ -2817,10 +2829,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.506315"
+        "crawl_time": "2025-12-01T11:00:06.115176"
     },
     {
-        "index": "#54",
+        "index": "#55",
         "title": "Automated Dynamic AI Inference Scaling on HPC-Infrastructure: Integrating Kubernetes, Slurm and vLLM",
         "link": "/arxiv/2511.21413",
         "arxiv_id": "2511.21413",
@@ -2829,10 +2841,10 @@
         "subjects": "Distributed, Parallel, and Cluster Computing, Artificial Intelligence, Databases, Performance",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.506806"
+        "crawl_time": "2025-12-01T11:00:06.115665"
     },
     {
-        "index": "#58",
+        "index": "#59",
         "title": "Monet: Reasoning in Latent Visual Space Beyond Images and Language",
         "link": "/arxiv/2511.21395",
         "arxiv_id": "2511.21395",
@@ -2841,10 +2853,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.508693"
+        "crawl_time": "2025-12-01T11:00:06.117554"
     },
     {
-        "index": "#59",
+        "index": "#60",
         "title": "RIA: A Ranking-Infused Approach for Optimized listwise CTR Prediction",
         "link": "/arxiv/2511.21394",
         "arxiv_id": "2511.21394",
@@ -2853,10 +2865,10 @@
         "subjects": "Information Retrieval, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.510532"
+        "crawl_time": "2025-12-01T11:00:06.123176"
     },
     {
-        "index": "#60",
+        "index": "#61",
         "title": "FITRep: Attention-Guided Item Representation via MLLMs",
         "link": "/arxiv/2511.21389",
         "arxiv_id": "2511.21389",
@@ -2865,10 +2877,10 @@
         "subjects": "Information Retrieval, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.510837"
+        "crawl_time": "2025-12-01T11:00:06.123646"
     },
     {
-        "index": "#64",
+        "index": "#65",
         "title": "Generating Separated Singing Vocals Using a Diffusion Model Conditioned on Music Mixtures",
         "link": "/arxiv/2511.21342",
         "arxiv_id": "2511.21342",
@@ -2877,10 +2889,10 @@
         "subjects": "Sound, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.512009"
+        "crawl_time": "2025-12-01T11:00:06.125490"
     },
     {
-        "index": "#65",
+        "index": "#66",
         "title": "SurgMLLMBench: A Multimodal Large Language Model Benchmark Dataset for Surgical Scene Understanding",
         "link": "/arxiv/2511.21339",
         "arxiv_id": "2511.21339",
@@ -2889,10 +2901,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.512334"
+        "crawl_time": "2025-12-01T11:00:06.125999"
     },
     {
-        "index": "#66",
+        "index": "#67",
         "title": "Hybrid SIFT-SNN for Efficient Anomaly Detection of Traffic Flow-Control Infrastructure",
         "link": "/arxiv/2511.21337",
         "arxiv_id": "2511.21337",
@@ -2901,10 +2913,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.512616"
+        "crawl_time": "2025-12-01T11:00:06.126440"
     },
     {
-        "index": "#67",
+        "index": "#68",
         "title": "The More, the Merrier: Contrastive Fusion for Higher-Order Multimodal Alignment",
         "link": "/arxiv/2511.21331",
         "arxiv_id": "2511.21331",
@@ -2913,10 +2925,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.512921"
+        "crawl_time": "2025-12-01T11:00:06.126915"
     },
     {
-        "index": "#68",
+        "index": "#69",
         "title": "SONAR: Spectral-Contrastive Audio Residuals for Generalizable Deepfake Detection",
         "link": "/arxiv/2511.21325",
         "arxiv_id": "2511.21325",
@@ -2925,10 +2937,10 @@
         "subjects": "Sound, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.513206"
+        "crawl_time": "2025-12-01T11:00:06.127362"
     },
     {
-        "index": "#70",
+        "index": "#71",
         "title": "Improvement of Collision Avoidance in Cut-In Maneuvers Using Time-to-Collision Metrics",
         "link": "/arxiv/2511.21280",
         "arxiv_id": "2511.21280",
@@ -2937,10 +2949,10 @@
         "subjects": "Robotics, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.513791"
+        "crawl_time": "2025-12-01T11:00:06.133458"
     },
     {
-        "index": "#72",
+        "index": "#73",
         "title": "BotaCLIP: Contrastive Learning for Botany-Aware Representation of Earth Observation Data",
         "link": "/arxiv/2511.21194",
         "arxiv_id": "2511.21194",
@@ -2949,10 +2961,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.514368"
+        "crawl_time": "2025-12-01T11:00:06.134389"
     },
     {
-        "index": "#73",
+        "index": "#74",
         "title": "When Robots Obey the Patch: Universal Transferable Patch Attacks on Vision-Language-Action Models",
         "link": "/arxiv/2511.21192",
         "arxiv_id": "2511.21192",
@@ -2961,10 +2973,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.514694"
+        "crawl_time": "2025-12-01T11:00:06.134888"
     },
     {
-        "index": "#74",
+        "index": "#75",
         "title": "Progress by Pieces: Test-Time Scaling for Autoregressive Image Generation",
         "link": "/arxiv/2511.21185",
         "arxiv_id": "2511.21185",
@@ -2973,10 +2985,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.514982"
+        "crawl_time": "2025-12-01T11:00:06.135336"
     },
     {
-        "index": "#76",
+        "index": "#77",
         "title": "CAHS-Attack: CLIP-Aware Heuristic Search Attack Method for Stable Diffusion",
         "link": "/arxiv/2511.21180",
         "arxiv_id": "2511.21180",
@@ -2985,10 +2997,10 @@
         "subjects": "Cryptography and Security, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.515984"
+        "crawl_time": "2025-12-01T11:00:06.136280"
     },
     {
-        "index": "#77",
+        "index": "#78",
         "title": "LLaVA-UHD v3: Progressive Visual Compression for Efficient Native-Resolution Encoding in MLLMs",
         "link": "/arxiv/2511.21150",
         "arxiv_id": "2511.21150",
@@ -2997,10 +3009,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.516323"
+        "crawl_time": "2025-12-01T11:00:06.136806"
     },
     {
-        "index": "#78",
+        "index": "#79",
         "title": "Maglev-Pentabot: Magnetic Levitation System for Non-Contact Manipulation using Deep Reinforcement Learning",
         "link": "/arxiv/2511.21149",
         "arxiv_id": "2511.21149",
@@ -3009,10 +3021,10 @@
         "subjects": "Robotics, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.516634"
+        "crawl_time": "2025-12-01T11:00:06.137281"
     },
     {
-        "index": "#79",
+        "index": "#80",
         "title": "Efficient Training for Human Video Generation with Entropy-Guided Prioritized Progressive Learning",
         "link": "/arxiv/2511.21136",
         "arxiv_id": "2511.21136",
@@ -3021,10 +3033,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.516948"
+        "crawl_time": "2025-12-01T11:00:06.137775"
     },
     {
-        "index": "#80",
+        "index": "#81",
         "title": "SocialNav: Training Human-Inspired Foundation Model for Socially-Aware Embodied Navigation",
         "link": "/arxiv/2511.21135",
         "arxiv_id": "2511.21135",
@@ -3033,10 +3045,10 @@
         "subjects": "Robotics, Artificial Intelligence, Computer Vision and Pattern Recognition",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.517363"
+        "crawl_time": "2025-12-01T11:00:06.138389"
     },
     {
-        "index": "#81",
+        "index": "#82",
         "title": "Which Layer Causes Distribution Deviation? Entropy-Guided Adaptive Pruning for Diffusion and Flow Models",
         "link": "/arxiv/2511.21122",
         "arxiv_id": "2511.21122",
@@ -3045,10 +3057,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.517685"
+        "crawl_time": "2025-12-01T11:00:06.144164"
     },
     {
-        "index": "#82",
+        "index": "#83",
         "title": "Beyond Patch Aggregation: 3-Pass Pyramid Indexing for Vision-Enhanced Document Retrieval",
         "link": "/arxiv/2511.21121",
         "arxiv_id": "2511.21121",
@@ -3057,10 +3069,10 @@
         "subjects": "Information Retrieval, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.517978"
+        "crawl_time": "2025-12-01T11:00:06.144627"
     },
     {
-        "index": "#84",
+        "index": "#85",
         "title": "Deformation-aware Temporal Generation for Early Prediction of Alzheimers Disease",
         "link": "/arxiv/2511.21114",
         "arxiv_id": "2511.21114",
@@ -3069,10 +3081,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.518568"
+        "crawl_time": "2025-12-01T11:00:06.145572"
     },
     {
-        "index": "#87",
+        "index": "#88",
         "title": "Pygmalion Effect in Vision: Image-to-Clay Translation for Reflective Geometry Reconstruction",
         "link": "/arxiv/2511.21098",
         "arxiv_id": "2511.21098",
@@ -3081,10 +3093,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence, Graphics",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.519444"
+        "crawl_time": "2025-12-01T11:00:06.146962"
     },
     {
-        "index": "#97",
+        "index": "#98",
         "title": "Structure-Aware Prototype Guided Trusted Multi-View Classification",
         "link": "/arxiv/2511.21021",
         "arxiv_id": "2511.21021",
@@ -3093,10 +3105,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.522599"
+        "crawl_time": "2025-12-01T11:00:06.153171"
     },
     {
-        "index": "#99",
+        "index": "#100",
         "title": "Knowledge Completes the Vision: A Multimodal Entity-aware Retrieval-Augmented Generation Framework for News Image Captioning",
         "link": "/arxiv/2511.21002",
         "arxiv_id": "2511.21002",
@@ -3105,10 +3117,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.523206"
+        "crawl_time": "2025-12-01T11:00:06.153775"
     },
     {
-        "index": "#101",
+        "index": "#102",
         "title": "GuardTrace-VL: Detecting Unsafe Multimodel Reasoning via Iterative Safety Supervision",
         "link": "/arxiv/2511.20994",
         "arxiv_id": "2511.20994",
@@ -3117,10 +3129,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence, Cryptography and Security",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.523893"
+        "crawl_time": "2025-12-01T11:00:06.154415"
     },
     {
-        "index": "#104",
+        "index": "#105",
         "title": "AI4X Roadmap: Artificial Intelligence for the advancement of scientific pursuit and its future directions",
         "link": "/arxiv/2511.20976",
         "arxiv_id": "2511.20976",
@@ -3129,10 +3141,10 @@
         "subjects": "Physics and Society, Artificial Intelligence, Atmospheric and Oceanic Physics, Atomic and Molecular Clusters, Chemical Physics, Computational Physics",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.525326"
+        "crawl_time": "2025-12-01T11:00:06.156225"
     },
     {
-        "index": "#107",
+        "index": "#108",
         "title": "SpaceX: Exploring metrics with the SPACE model for developer productivity",
         "link": "/arxiv/2511.20955",
         "arxiv_id": "2511.20955",
@@ -3141,10 +3153,10 @@
         "subjects": "Software Engineering, Artificial Intelligence",
         "date": "2025-11-26",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.526231"
+        "crawl_time": "2025-12-01T11:00:06.157121"
     },
     {
-        "index": "#112",
+        "index": "#113",
         "title": "Dynamic Test-Time Compute Scaling in Control Policy: Difficulty-Aware Stochastic Interpolant Policy",
         "link": "/arxiv/2511.20906",
         "arxiv_id": "2511.20906",
@@ -3153,10 +3165,10 @@
         "subjects": "Robotics, Artificial Intelligence",
         "date": "2025-11-25",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.527667"
+        "crawl_time": "2025-12-01T11:00:06.158554"
     },
     {
-        "index": "#113",
+        "index": "#114",
         "title": "A Taxonomy of Pix Fraud in Brazil: Attack Methodologies, AI-Driven Amplification, and Defensive Strategies",
         "link": "/arxiv/2511.20902",
         "arxiv_id": "2511.20902",
@@ -3165,10 +3177,10 @@
         "subjects": "Cryptography and Security, Artificial Intelligence, Computers and Society",
         "date": "2025-11-25",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.527994"
+        "crawl_time": "2025-12-01T11:00:06.158842"
     },
     {
-        "index": "#123",
+        "index": "#124",
         "title": "A Review of Pseudospectral Optimal Control: From Theory to Flight",
         "link": "/arxiv/2511.20843",
         "arxiv_id": "2511.20843",
@@ -3177,10 +3189,10 @@
         "subjects": "Optimization and Control, Artificial Intelligence, Systems and Control, Functional Analysis, Numerical Analysis",
         "date": "2025-11-25",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.531033"
+        "crawl_time": "2025-12-01T11:00:06.162070"
     },
     {
-        "index": "#132",
+        "index": "#133",
         "title": "Revisiting KRISP: A Lightweight Reproduction and Analysis of Knowledge-Enhanced Vision-Language Models",
         "link": "/arxiv/2511.20795",
         "arxiv_id": "2511.20795",
@@ -3189,10 +3201,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-11-25",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.533814"
+        "crawl_time": "2025-12-01T11:00:06.164976"
     },
     {
-        "index": "#133",
+        "index": "#134",
         "title": "Adversarial Multi-Task Learning for Liver Tumor Segmentation, Dynamic Enhancement Regression, and Classification",
         "link": "/arxiv/2511.20793",
         "arxiv_id": "2511.20793",
@@ -3201,10 +3213,10 @@
         "subjects": "Image and Video Processing, Artificial Intelligence, Computer Vision and Pattern Recognition",
         "date": "2025-11-25",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.534105"
+        "crawl_time": "2025-12-01T11:00:06.165262"
     },
     {
-        "index": "#141",
+        "index": "#142",
         "title": "DinoLizer: Learning from the Best for Generative Inpainting Localization",
         "link": "/arxiv/2511.20722",
         "arxiv_id": "2511.20722",
@@ -3213,10 +3225,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-11-25",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.536593"
+        "crawl_time": "2025-12-01T11:00:06.167732"
     },
     {
-        "index": "#145",
+        "index": "#146",
         "title": "Inferix: A Block-Diffusion based Next-Generation Inference Engine for World Simulation",
         "link": "/arxiv/2511.20714",
         "arxiv_id": "2511.20714",
@@ -3225,10 +3237,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-11-25",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.537937"
+        "crawl_time": "2025-12-01T11:00:06.169062"
     },
     {
-        "index": "#147",
+        "index": "#148",
         "title": "Are Neuro-Inspired Multi-Modal Vision-Language Models Resilient to Membership Inference Privacy Leakage?",
         "link": "/arxiv/2511.20710",
         "arxiv_id": "2511.20710",
@@ -3237,10 +3249,10 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence, Cryptography and Security",
         "date": "2025-11-24",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.538496"
+        "crawl_time": "2025-12-01T11:00:06.169618"
     },
     {
-        "index": "#148",
+        "index": "#149",
         "title": "DUALGUAGE: Automated Joint Security-Functionality Benchmarking for Secure Code Generation",
         "link": "/arxiv/2511.20709",
         "arxiv_id": "2511.20709",
@@ -3249,10 +3261,10 @@
         "subjects": "Software Engineering, Artificial Intelligence, Cryptography and Security",
         "date": "2025-11-24",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.538819"
+        "crawl_time": "2025-12-01T11:00:06.169936"
     },
     {
-        "index": "#152",
+        "index": "#153",
         "title": "In Defense of the Turing Test and its Legacy",
         "link": "/arxiv/2511.20699",
         "arxiv_id": "2511.20699",
@@ -3261,10 +3273,10 @@
         "subjects": "Computers and Society, Artificial Intelligence",
         "date": "2025-11-24",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.539951"
+        "crawl_time": "2025-12-01T11:00:06.171054"
     },
     {
-        "index": "#154",
+        "index": "#155",
         "title": "Musical Score Understanding Benchmark: Evaluating Large Language Models' Comprehension of Complete Musical Scores",
         "link": "/arxiv/2511.20697",
         "arxiv_id": "2511.20697",
@@ -3273,10 +3285,10 @@
         "subjects": "Sound, Artificial Intelligence",
         "date": "2025-11-24",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.540573"
+        "crawl_time": "2025-12-01T11:00:06.171708"
     },
     {
-        "index": "#156",
+        "index": "#157",
         "title": "Morality in AI. A plea to embed morality in LLM architectures and frameworks",
         "link": "/arxiv/2511.20689",
         "arxiv_id": "2511.20689",
@@ -3285,10 +3297,10 @@
         "subjects": "Neurons and Cognition, Artificial Intelligence",
         "date": "2025-11-21",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.541096"
+        "crawl_time": "2025-12-01T11:00:06.172291"
     },
     {
-        "index": "#157",
+        "index": "#158",
         "title": "Hybrid coupling with operator inference and the overlapping Schwarz alternating method",
         "link": "/arxiv/2511.20687",
         "arxiv_id": "2511.20687",
@@ -3297,10 +3309,10 @@
         "subjects": "Numerical Analysis, Artificial Intelligence, Mathematical Physics",
         "date": "2025-11-20",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.541422"
+        "crawl_time": "2025-12-01T11:00:06.172599"
     },
     {
-        "index": "#162",
+        "index": "#163",
         "title": "Transforming Higher Education with AI-Powered Video Lectures",
         "link": "/arxiv/2511.20660",
         "arxiv_id": "2511.20660",
@@ -3309,10 +3321,10 @@
         "subjects": "Human-Computer Interaction, Artificial Intelligence",
         "date": "2025-10-30",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.542843"
+        "crawl_time": "2025-12-01T11:00:06.174125"
     },
     {
-        "index": "#163",
+        "index": "#164",
         "title": "Intelligent Agents with Emotional Intelligence: Current Trends, Challenges, and Future Prospects",
         "link": "/arxiv/2511.20657",
         "arxiv_id": "2511.20657",
@@ -3321,10 +3333,10 @@
         "subjects": "Human-Computer Interaction, Artificial Intelligence",
         "date": "2025-10-11",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.543128"
+        "crawl_time": "2025-12-01T11:00:06.174419"
     },
     {
-        "index": "#164",
+        "index": "#165",
         "title": "Context-Aware Visual Prompting: Automating Geospatial Web Dashboards with Large Language Models and Agent Self-Validation for Decision Support",
         "link": "/arxiv/2511.20656",
         "arxiv_id": "2511.20656",
@@ -3333,10 +3345,10 @@
         "subjects": "Human-Computer Interaction, Artificial Intelligence",
         "date": "2025-10-10",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.543390"
+        "crawl_time": "2025-12-01T11:00:06.174696"
     },
     {
-        "index": "#165",
+        "index": "#166",
         "title": "CodeVaani: A Multilingual, Voice-Based Code Learning Assistant",
         "link": "/arxiv/2511.20654",
         "arxiv_id": "2511.20654",
@@ -3345,10 +3357,10 @@
         "subjects": "Human-Computer Interaction, Artificial Intelligence",
         "date": "2025-10-08",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.543677"
+        "crawl_time": "2025-12-01T11:00:06.175005"
     },
     {
-        "index": "#167",
+        "index": "#168",
         "title": "When LLMs Can't Help: Real-World Evaluation of LLMs in Nutrition",
         "link": "/arxiv/2511.20652",
         "arxiv_id": "2511.20652",
@@ -3357,6 +3369,6 @@
         "subjects": "Human-Computer Interaction, Artificial Intelligence, Computers and Society",
         "date": "2025-10-07",
         "category": "cs.AI",
-        "crawl_time": "2025-11-28T11:00:05.544254"
+        "crawl_time": "2025-12-01T11:00:06.175561"
     }
 ]
