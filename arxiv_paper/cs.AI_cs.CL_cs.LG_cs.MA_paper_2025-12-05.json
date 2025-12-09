@@ -9,7 +9,7 @@
         "subjects": "Multiagent Systems",
         "date": "2025-12-05",
         "category": "cs.MA",
-        "crawl_time": "2025-12-08T11:00:04.055442"
+        "crawl_time": "2025-12-09T11:00:05.301340"
     },
     {
         "index": "#2",
@@ -21,7 +21,7 @@
         "subjects": "Cryptography and Security, Artificial Intelligence, Multiagent Systems",
         "date": "2025-12-05",
         "category": "cs.MA",
-        "crawl_time": "2025-12-08T11:00:04.055811"
+        "crawl_time": "2025-12-09T11:00:05.301934"
     },
     {
         "index": "#3",
@@ -33,7 +33,7 @@
         "subjects": "Computer Science and Game Theory, Multiagent Systems",
         "date": "2025-12-05",
         "category": "cs.MA",
-        "crawl_time": "2025-12-08T11:00:04.056102"
+        "crawl_time": "2025-12-09T11:00:05.302401"
     },
     {
         "index": "#4",
@@ -45,7 +45,7 @@
         "subjects": "Optimization and Control, Computer Science and Game Theory, Multiagent Systems",
         "date": "2025-12-05",
         "category": "cs.MA",
-        "crawl_time": "2025-12-08T11:00:04.056378"
+        "crawl_time": "2025-12-09T11:00:05.302843"
     },
     {
         "index": "#5",
@@ -57,7 +57,7 @@
         "subjects": "Robotics, Artificial Intelligence, Human-Computer Interaction, Multiagent Systems, Systems and Control",
         "date": "2025-12-04",
         "category": "cs.MA",
-        "crawl_time": "2025-12-08T11:00:04.056709"
+        "crawl_time": "2025-12-09T11:00:05.303379"
     },
     {
         "index": "#6",
@@ -69,7 +69,7 @@
         "subjects": "Networking and Internet Architecture, Machine Learning, Multiagent Systems",
         "date": "2025-12-04",
         "category": "cs.MA",
-        "crawl_time": "2025-12-08T11:00:04.056986"
+        "crawl_time": "2025-12-09T11:00:05.303882"
     },
     {
         "index": "#1",
@@ -81,7 +81,7 @@
         "subjects": "Computation and Language, Artificial Intelligence, Computer Vision and Pattern Recognition",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.183532"
+        "crawl_time": "2025-12-09T11:00:05.741901"
     },
     {
         "index": "#2",
@@ -93,7 +93,7 @@
         "subjects": "Computation and Language, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.183851"
+        "crawl_time": "2025-12-09T11:00:05.742408"
     },
     {
         "index": "#3",
@@ -105,7 +105,7 @@
         "subjects": "Computation and Language",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.184123"
+        "crawl_time": "2025-12-09T11:00:05.742906"
     },
     {
         "index": "#4",
@@ -117,7 +117,7 @@
         "subjects": "Computation and Language, Computers and Society",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.184364"
+        "crawl_time": "2025-12-09T11:00:05.743318"
     },
     {
         "index": "#5",
@@ -129,7 +129,7 @@
         "subjects": "Computation and Language",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.184622"
+        "crawl_time": "2025-12-09T11:00:05.743796"
     },
     {
         "index": "#6",
@@ -141,7 +141,7 @@
         "subjects": "Computation and Language, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.184881"
+        "crawl_time": "2025-12-09T11:00:05.744253"
     },
     {
         "index": "#7",
@@ -153,7 +153,7 @@
         "subjects": "Computation and Language, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.185134"
+        "crawl_time": "2025-12-09T11:00:05.744709"
     },
     {
         "index": "#8",
@@ -165,7 +165,7 @@
         "subjects": "Computation and Language, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.185380"
+        "crawl_time": "2025-12-09T11:00:05.745137"
     },
     {
         "index": "#9",
@@ -177,7 +177,7 @@
         "subjects": "Computation and Language",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.185631"
+        "crawl_time": "2025-12-09T11:00:05.745572"
     },
     {
         "index": "#10",
@@ -189,7 +189,7 @@
         "subjects": "Computation and Language, Computer Vision and Pattern Recognition",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.185891"
+        "crawl_time": "2025-12-09T11:00:05.746030"
     },
     {
         "index": "#11",
@@ -201,7 +201,7 @@
         "subjects": "Computation and Language, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.186141"
+        "crawl_time": "2025-12-09T11:00:05.751615"
     },
     {
         "index": "#12",
@@ -213,7 +213,7 @@
         "subjects": "Computation and Language",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.186410"
+        "crawl_time": "2025-12-09T11:00:05.752145"
     },
     {
         "index": "#13",
@@ -225,7 +225,7 @@
         "subjects": "Computation and Language",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.186673"
+        "crawl_time": "2025-12-09T11:00:05.752615"
     },
     {
         "index": "#14",
@@ -237,7 +237,7 @@
         "subjects": "Computation and Language",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.186958"
+        "crawl_time": "2025-12-09T11:00:05.753129"
     },
     {
         "index": "#15",
@@ -249,7 +249,7 @@
         "subjects": "Computation and Language",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.187213"
+        "crawl_time": "2025-12-09T11:00:05.753581"
     },
     {
         "index": "#16",
@@ -261,7 +261,7 @@
         "subjects": "Computation and Language, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.187474"
+        "crawl_time": "2025-12-09T11:00:05.754038"
     },
     {
         "index": "#17",
@@ -273,7 +273,7 @@
         "subjects": "Computation and Language, Artificial Intelligence, Information Retrieval, Machine Learning",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.187753"
+        "crawl_time": "2025-12-09T11:00:05.754513"
     },
     {
         "index": "#18",
@@ -285,7 +285,7 @@
         "subjects": "Computation and Language",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.188020"
+        "crawl_time": "2025-12-09T11:00:05.754971"
     },
     {
         "index": "#19",
@@ -297,7 +297,7 @@
         "subjects": "Computation and Language",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.188290"
+        "crawl_time": "2025-12-09T11:00:05.755456"
     },
     {
         "index": "#20",
@@ -309,7 +309,7 @@
         "subjects": "Computation and Language",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.188557"
+        "crawl_time": "2025-12-09T11:00:05.755939"
     },
     {
         "index": "#21",
@@ -321,7 +321,7 @@
         "subjects": "Computation and Language, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.188804"
+        "crawl_time": "2025-12-09T11:00:05.756368"
     },
     {
         "index": "#22",
@@ -333,7 +333,7 @@
         "subjects": "Computation and Language",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.189045"
+        "crawl_time": "2025-12-09T11:00:05.772318"
     },
     {
         "index": "#23",
@@ -345,7 +345,7 @@
         "subjects": "Computation and Language, Machine Learning",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.189310"
+        "crawl_time": "2025-12-09T11:00:05.772926"
     },
     {
         "index": "#24",
@@ -357,7 +357,7 @@
         "subjects": "Computation and Language, Artificial Intelligence, Machine Learning",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.189588"
+        "crawl_time": "2025-12-09T11:00:05.773610"
     },
     {
         "index": "#25",
@@ -369,7 +369,7 @@
         "subjects": "Computation and Language, Artificial Intelligence, Machine Learning",
         "date": "2025-12-04",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.189855"
+        "crawl_time": "2025-12-09T11:00:05.774244"
     },
     {
         "index": "#26",
@@ -381,7 +381,7 @@
         "subjects": "Computation and Language, Quantitative Methods",
         "date": "2025-12-04",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.190119"
+        "crawl_time": "2025-12-09T11:00:05.774875"
     },
     {
         "index": "#27",
@@ -393,7 +393,7 @@
         "subjects": "Computation and Language, Computers and Society",
         "date": "2025-12-04",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.190360"
+        "crawl_time": "2025-12-09T11:00:05.775440"
     },
     {
         "index": "#28",
@@ -405,7 +405,7 @@
         "subjects": "Computation and Language",
         "date": "2025-12-04",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.190607"
+        "crawl_time": "2025-12-09T11:00:05.776077"
     },
     {
         "index": "#29",
@@ -417,7 +417,7 @@
         "subjects": "Computation and Language, Artificial Intelligence",
         "date": "2025-12-04",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.190841"
+        "crawl_time": "2025-12-09T11:00:05.776638"
     },
     {
         "index": "#30",
@@ -429,7 +429,7 @@
         "subjects": "Information Retrieval, Artificial Intelligence, Computation and Language, Machine Learning",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.191109"
+        "crawl_time": "2025-12-09T11:00:05.782475"
     },
     {
         "index": "#31",
@@ -441,7 +441,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence, Computation and Language",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.191432"
+        "crawl_time": "2025-12-09T11:00:05.783078"
     },
     {
         "index": "#32",
@@ -453,7 +453,7 @@
         "subjects": "Artificial Intelligence, Computation and Language",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.191698"
+        "crawl_time": "2025-12-09T11:00:05.783569"
     },
     {
         "index": "#33",
@@ -465,7 +465,7 @@
         "subjects": "Software Engineering, Artificial Intelligence, Computation and Language, Information Retrieval",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.191981"
+        "crawl_time": "2025-12-09T11:00:05.784082"
     },
     {
         "index": "#34",
@@ -477,7 +477,7 @@
         "subjects": "Theoretical Economics, Computation and Language, Logic, General Finance",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.192235"
+        "crawl_time": "2025-12-09T11:00:05.784544"
     },
     {
         "index": "#35",
@@ -489,7 +489,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence, Computation and Language",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.192541"
+        "crawl_time": "2025-12-09T11:00:05.785102"
     },
     {
         "index": "#36",
@@ -501,7 +501,7 @@
         "subjects": "Digital Libraries, Artificial Intelligence, Computation and Language",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.192810"
+        "crawl_time": "2025-12-09T11:00:05.785577"
     },
     {
         "index": "#37",
@@ -513,7 +513,7 @@
         "subjects": "Artificial Intelligence, Computation and Language",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.193068"
+        "crawl_time": "2025-12-09T11:00:05.786035"
     },
     {
         "index": "#38",
@@ -525,7 +525,7 @@
         "subjects": "Machine Learning, Computation and Language",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.193374"
+        "crawl_time": "2025-12-09T11:00:05.786582"
     },
     {
         "index": "#39",
@@ -537,7 +537,7 @@
         "subjects": "Machine Learning, Artificial Intelligence, Computation and Language, Methodology, Machine Learning",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.198831"
+        "crawl_time": "2025-12-09T11:00:05.787060"
     },
     {
         "index": "#40",
@@ -549,7 +549,7 @@
         "subjects": "Information Retrieval, Artificial Intelligence, Computation and Language",
         "date": "2025-12-05",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.199127"
+        "crawl_time": "2025-12-09T11:00:05.792691"
     },
     {
         "index": "#41",
@@ -561,7 +561,7 @@
         "subjects": "Artificial Intelligence, Computation and Language",
         "date": "2025-12-04",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.199374"
+        "crawl_time": "2025-12-09T11:00:05.793153"
     },
     {
         "index": "#42",
@@ -573,7 +573,7 @@
         "subjects": "Artificial Intelligence, Computation and Language, Information Theory, Machine Learning, Computational Finance",
         "date": "2025-12-04",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.199640"
+        "crawl_time": "2025-12-09T11:00:05.793629"
     },
     {
         "index": "#43",
@@ -585,7 +585,7 @@
         "subjects": "Audio and Speech Processing, Artificial Intelligence, Computation and Language, Computer Vision and Pattern Recognition, Multimedia, Sound",
         "date": "2025-11-23",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.199995"
+        "crawl_time": "2025-12-09T11:00:05.794255"
     },
     {
         "index": "#44",
@@ -597,7 +597,7 @@
         "subjects": "Information Retrieval, Artificial Intelligence, Computation and Language",
         "date": "2025-10-11",
         "category": "cs.CL",
-        "crawl_time": "2025-12-08T11:00:04.200313"
+        "crawl_time": "2025-12-09T11:00:05.794831"
     },
     {
         "index": "#1",
@@ -609,7 +609,7 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.874553"
+        "crawl_time": "2025-12-09T11:00:06.321882"
     },
     {
         "index": "#2",
@@ -621,7 +621,7 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.875045"
+        "crawl_time": "2025-12-09T11:00:06.322654"
     },
     {
         "index": "#3",
@@ -633,7 +633,7 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.875509"
+        "crawl_time": "2025-12-09T11:00:06.323296"
     },
     {
         "index": "#4",
@@ -645,7 +645,7 @@
         "subjects": "Machine Learning, General Economics, Applications, Methodology",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.876116"
+        "crawl_time": "2025-12-09T11:00:06.324133"
     },
     {
         "index": "#5",
@@ -657,7 +657,7 @@
         "subjects": "Machine Learning, Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.876613"
+        "crawl_time": "2025-12-09T11:00:06.324767"
     },
     {
         "index": "#6",
@@ -669,7 +669,7 @@
         "subjects": "Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.877061"
+        "crawl_time": "2025-12-09T11:00:06.325397"
     },
     {
         "index": "#7",
@@ -681,7 +681,7 @@
         "subjects": "Machine Learning, Systems and Control",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.877524"
+        "crawl_time": "2025-12-09T11:00:06.326049"
     },
     {
         "index": "#8",
@@ -693,7 +693,7 @@
         "subjects": "Machine Learning, Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.877983"
+        "crawl_time": "2025-12-09T11:00:06.326824"
     },
     {
         "index": "#9",
@@ -705,7 +705,7 @@
         "subjects": "Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.878412"
+        "crawl_time": "2025-12-09T11:00:06.327447"
     },
     {
         "index": "#10",
@@ -717,7 +717,7 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.878875"
+        "crawl_time": "2025-12-09T11:00:06.328179"
     },
     {
         "index": "#11",
@@ -729,7 +729,7 @@
         "subjects": "Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.884469"
+        "crawl_time": "2025-12-09T11:00:06.328631"
     },
     {
         "index": "#12",
@@ -741,7 +741,7 @@
         "subjects": "Machine Learning, Computational Finance",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.884915"
+        "crawl_time": "2025-12-09T11:00:06.328921"
     },
     {
         "index": "#13",
@@ -753,7 +753,7 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.885393"
+        "crawl_time": "2025-12-09T11:00:06.329230"
     },
     {
         "index": "#14",
@@ -765,7 +765,7 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.885856"
+        "crawl_time": "2025-12-09T11:00:06.329529"
     },
     {
         "index": "#15",
@@ -777,7 +777,7 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.886293"
+        "crawl_time": "2025-12-09T11:00:06.329801"
     },
     {
         "index": "#16",
@@ -789,7 +789,7 @@
         "subjects": "Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.886714"
+        "crawl_time": "2025-12-09T11:00:06.330069"
     },
     {
         "index": "#17",
@@ -801,7 +801,7 @@
         "subjects": "Machine Learning, Artificial Intelligence, Quantitative Methods",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.887227"
+        "crawl_time": "2025-12-09T11:00:06.330405"
     },
     {
         "index": "#18",
@@ -813,7 +813,7 @@
         "subjects": "Machine Learning, Data Analysis, Statistics and Probability",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.887652"
+        "crawl_time": "2025-12-09T11:00:06.330687"
     },
     {
         "index": "#19",
@@ -825,7 +825,7 @@
         "subjects": "Machine Learning, Social and Information Networks, Adaptation and Self-Organizing Systems, Physics and Society",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.888119"
+        "crawl_time": "2025-12-09T11:00:06.331007"
     },
     {
         "index": "#20",
@@ -837,7 +837,7 @@
         "subjects": "Machine Learning, Chemical Physics",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.888576"
+        "crawl_time": "2025-12-09T11:00:06.331293"
     },
     {
         "index": "#21",
@@ -849,7 +849,7 @@
         "subjects": "Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.889020"
+        "crawl_time": "2025-12-09T11:00:06.336863"
     },
     {
         "index": "#22",
@@ -861,7 +861,7 @@
         "subjects": "Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.894663"
+        "crawl_time": "2025-12-09T11:00:06.337178"
     },
     {
         "index": "#23",
@@ -873,7 +873,7 @@
         "subjects": "Machine Learning, Artificial Intelligence, Software Engineering",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.895107"
+        "crawl_time": "2025-12-09T11:00:06.337457"
     },
     {
         "index": "#24",
@@ -885,7 +885,7 @@
         "subjects": "Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.895619"
+        "crawl_time": "2025-12-09T11:00:06.337957"
     },
     {
         "index": "#25",
@@ -897,7 +897,7 @@
         "subjects": "Machine Learning, Artificial Intelligence, Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.896073"
+        "crawl_time": "2025-12-09T11:00:06.338409"
     },
     {
         "index": "#26",
@@ -909,7 +909,7 @@
         "subjects": "Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.896498"
+        "crawl_time": "2025-12-09T11:00:06.338864"
     },
     {
         "index": "#27",
@@ -921,7 +921,7 @@
         "subjects": "Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.896973"
+        "crawl_time": "2025-12-09T11:00:06.339316"
     },
     {
         "index": "#29",
@@ -933,7 +933,7 @@
         "subjects": "Machine Learning, Signal Processing, Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.897982"
+        "crawl_time": "2025-12-09T11:00:06.340377"
     },
     {
         "index": "#30",
@@ -945,7 +945,7 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.898423"
+        "crawl_time": "2025-12-09T11:00:06.340818"
     },
     {
         "index": "#31",
@@ -957,7 +957,7 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.898872"
+        "crawl_time": "2025-12-09T11:00:06.341239"
     },
     {
         "index": "#32",
@@ -969,7 +969,7 @@
         "subjects": "Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.899335"
+        "crawl_time": "2025-12-09T11:00:06.341694"
     },
     {
         "index": "#33",
@@ -981,7 +981,7 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.904977"
+        "crawl_time": "2025-12-09T11:00:06.347325"
     },
     {
         "index": "#34",
@@ -993,7 +993,7 @@
         "subjects": "Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.905454"
+        "crawl_time": "2025-12-09T11:00:06.347845"
     },
     {
         "index": "#35",
@@ -1005,7 +1005,7 @@
         "subjects": "Machine Learning, Statistics Theory, Methodology",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.905920"
+        "crawl_time": "2025-12-09T11:00:06.348334"
     },
     {
         "index": "#36",
@@ -1017,7 +1017,7 @@
         "subjects": "Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.906364"
+        "crawl_time": "2025-12-09T11:00:06.348801"
     },
     {
         "index": "#37",
@@ -1029,7 +1029,7 @@
         "subjects": "Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.906800"
+        "crawl_time": "2025-12-09T11:00:06.349252"
     },
     {
         "index": "#38",
@@ -1041,7 +1041,7 @@
         "subjects": "Machine Learning, Artificial Intelligence, Quantum Physics",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.907247"
+        "crawl_time": "2025-12-09T11:00:06.349710"
     },
     {
         "index": "#39",
@@ -1053,7 +1053,7 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.907692"
+        "crawl_time": "2025-12-09T11:00:06.350144"
     },
     {
         "index": "#40",
@@ -1065,7 +1065,7 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.908163"
+        "crawl_time": "2025-12-09T11:00:06.350609"
     },
     {
         "index": "#41",
@@ -1077,7 +1077,7 @@
         "subjects": "Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.908630"
+        "crawl_time": "2025-12-09T11:00:06.351048"
     },
     {
         "index": "#42",
@@ -1089,7 +1089,7 @@
         "subjects": "Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.909125"
+        "crawl_time": "2025-12-09T11:00:06.351539"
     },
     {
         "index": "#43",
@@ -1101,7 +1101,7 @@
         "subjects": "Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.909595"
+        "crawl_time": "2025-12-09T11:00:06.357225"
     },
     {
         "index": "#44",
@@ -1113,7 +1113,7 @@
         "subjects": "Machine Learning, Artificial Intelligence, Computational Engineering, Finance, and Science, Neural and Evolutionary Computing",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.915234"
+        "crawl_time": "2025-12-09T11:00:06.357716"
     },
     {
         "index": "#45",
@@ -1125,7 +1125,7 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.915764"
+        "crawl_time": "2025-12-09T11:00:06.358231"
     },
     {
         "index": "#46",
@@ -1137,7 +1137,7 @@
         "subjects": "Machine Learning, Artificial Intelligence, Atmospheric and Oceanic Physics",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.916318"
+        "crawl_time": "2025-12-09T11:00:06.358755"
     },
     {
         "index": "#48",
@@ -1149,7 +1149,7 @@
         "subjects": "Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.917335"
+        "crawl_time": "2025-12-09T11:00:06.359751"
     },
     {
         "index": "#49",
@@ -1161,7 +1161,7 @@
         "subjects": "Machine Learning, Hardware Architecture",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.917796"
+        "crawl_time": "2025-12-09T11:00:06.360205"
     },
     {
         "index": "#50",
@@ -1173,7 +1173,7 @@
         "subjects": "Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.918268"
+        "crawl_time": "2025-12-09T11:00:06.360664"
     },
     {
         "index": "#51",
@@ -1185,7 +1185,7 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.918693"
+        "crawl_time": "2025-12-09T11:00:06.361087"
     },
     {
         "index": "#52",
@@ -1197,7 +1197,7 @@
         "subjects": "Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.919180"
+        "crawl_time": "2025-12-09T11:00:06.361525"
     },
     {
         "index": "#53",
@@ -1209,7 +1209,7 @@
         "subjects": "Machine Learning, Optimization and Control",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.919622"
+        "crawl_time": "2025-12-09T11:00:06.361962"
     },
     {
         "index": "#54",
@@ -1221,7 +1221,7 @@
         "subjects": "Machine Learning, Artificial Intelligence, Machine Learning, Other Statistics",
         "date": "2025-12-04",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.925308"
+        "crawl_time": "2025-12-09T11:00:06.367677"
     },
     {
         "index": "#55",
@@ -1233,7 +1233,7 @@
         "subjects": "Machine Learning",
         "date": "2025-12-04",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.925797"
+        "crawl_time": "2025-12-09T11:00:06.368175"
     },
     {
         "index": "#56",
@@ -1245,7 +1245,7 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-12-04",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.926243"
+        "crawl_time": "2025-12-09T11:00:06.368616"
     },
     {
         "index": "#57",
@@ -1257,7 +1257,7 @@
         "subjects": "Machine Learning, Machine Learning",
         "date": "2025-12-04",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.926683"
+        "crawl_time": "2025-12-09T11:00:06.369042"
     },
     {
         "index": "#58",
@@ -1269,7 +1269,7 @@
         "subjects": "Machine Learning, Artificial Intelligence, Numerical Analysis",
         "date": "2025-12-04",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.927147"
+        "crawl_time": "2025-12-09T11:00:06.369493"
     },
     {
         "index": "#59",
@@ -1281,7 +1281,7 @@
         "subjects": "Machine Learning",
         "date": "2025-12-04",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.927615"
+        "crawl_time": "2025-12-09T11:00:06.369945"
     },
     {
         "index": "#60",
@@ -1293,7 +1293,7 @@
         "subjects": "Machine Learning",
         "date": "2025-12-04",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.928059"
+        "crawl_time": "2025-12-09T11:00:06.370335"
     },
     {
         "index": "#61",
@@ -1305,7 +1305,7 @@
         "subjects": "Machine Learning",
         "date": "2025-12-04",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.928506"
+        "crawl_time": "2025-12-09T11:00:06.370766"
     },
     {
         "index": "#62",
@@ -1317,7 +1317,7 @@
         "subjects": "Machine Learning, Quantum Physics",
         "date": "2025-12-04",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.928961"
+        "crawl_time": "2025-12-09T11:00:06.371240"
     },
     {
         "index": "#63",
@@ -1329,7 +1329,7 @@
         "subjects": "Machine Learning",
         "date": "2025-12-04",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.929417"
+        "crawl_time": "2025-12-09T11:00:06.371674"
     },
     {
         "index": "#64",
@@ -1341,7 +1341,7 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-12-04",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.929909"
+        "crawl_time": "2025-12-09T11:00:06.372141"
     },
     {
         "index": "#65",
@@ -1353,7 +1353,7 @@
         "subjects": "Machine Learning",
         "date": "2025-12-04",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.935496"
+        "crawl_time": "2025-12-09T11:00:06.377730"
     },
     {
         "index": "#66",
@@ -1365,7 +1365,7 @@
         "subjects": "Machine Learning",
         "date": "2025-12-04",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.935938"
+        "crawl_time": "2025-12-09T11:00:06.378188"
     },
     {
         "index": "#67",
@@ -1377,7 +1377,7 @@
         "subjects": "Machine Learning",
         "date": "2025-12-04",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.936417"
+        "crawl_time": "2025-12-09T11:00:06.378636"
     },
     {
         "index": "#68",
@@ -1389,7 +1389,7 @@
         "subjects": "Machine Learning",
         "date": "2025-12-04",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.936891"
+        "crawl_time": "2025-12-09T11:00:06.379137"
     },
     {
         "index": "#69",
@@ -1401,7 +1401,7 @@
         "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2025-12-04",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.937336"
+        "crawl_time": "2025-12-09T11:00:06.379560"
     },
     {
         "index": "#71",
@@ -1413,7 +1413,7 @@
         "subjects": "Machine Learning, Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.938268"
+        "crawl_time": "2025-12-09T11:00:06.380509"
     },
     {
         "index": "#72",
@@ -1425,7 +1425,7 @@
         "subjects": "Methodology, Machine Learning, Computation, Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.938761"
+        "crawl_time": "2025-12-09T11:00:06.381015"
     },
     {
         "index": "#73",
@@ -1437,7 +1437,7 @@
         "subjects": "Machine Learning, Data Structures and Algorithms, Information Theory, Machine Learning, Optimization and Control",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.939243"
+        "crawl_time": "2025-12-09T11:00:06.381483"
     },
     {
         "index": "#74",
@@ -1449,7 +1449,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.939748"
+        "crawl_time": "2025-12-09T11:00:06.382142"
     },
     {
         "index": "#75",
@@ -1461,7 +1461,7 @@
         "subjects": "Software Engineering, Machine Learning, Programming Languages",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.940215"
+        "crawl_time": "2025-12-09T11:00:06.387831"
     },
     {
         "index": "#76",
@@ -1473,7 +1473,7 @@
         "subjects": "Materials Science, Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.945850"
+        "crawl_time": "2025-12-09T11:00:06.388324"
     },
     {
         "index": "#77",
@@ -1485,7 +1485,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.946291"
+        "crawl_time": "2025-12-09T11:00:06.388767"
     },
     {
         "index": "#78",
@@ -1497,7 +1497,7 @@
         "subjects": "Artificial Intelligence, Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.946734"
+        "crawl_time": "2025-12-09T11:00:06.389206"
     },
     {
         "index": "#79",
@@ -1509,7 +1509,7 @@
         "subjects": "Artificial Intelligence, Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.947214"
+        "crawl_time": "2025-12-09T11:00:06.389670"
     },
     {
         "index": "#80",
@@ -1521,7 +1521,7 @@
         "subjects": "Artificial Intelligence, Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.947689"
+        "crawl_time": "2025-12-09T11:00:06.390167"
     },
     {
         "index": "#81",
@@ -1533,7 +1533,7 @@
         "subjects": "Chemical Physics, Materials Science, Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.948233"
+        "crawl_time": "2025-12-09T11:00:06.390696"
     },
     {
         "index": "#82",
@@ -1545,7 +1545,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence, Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.948717"
+        "crawl_time": "2025-12-09T11:00:06.391182"
     },
     {
         "index": "#83",
@@ -1557,7 +1557,7 @@
         "subjects": "Signal Processing, Machine Learning, Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.949199"
+        "crawl_time": "2025-12-09T11:00:06.391687"
     },
     {
         "index": "#84",
@@ -1569,7 +1569,7 @@
         "subjects": "Machine Learning, Machine Learning, Methodology",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.949651"
+        "crawl_time": "2025-12-09T11:00:06.392186"
     },
     {
         "index": "#85",
@@ -1581,7 +1581,7 @@
         "subjects": "Neurons and Cognition, Machine Learning, Sound, Audio and Speech Processing, Signal Processing",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.950211"
+        "crawl_time": "2025-12-09T11:00:06.397900"
     },
     {
         "index": "#86",
@@ -1593,7 +1593,7 @@
         "subjects": "Databases, Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.951476"
+        "crawl_time": "2025-12-09T11:00:06.398392"
     },
     {
         "index": "#87",
@@ -1605,7 +1605,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.951995"
+        "crawl_time": "2025-12-09T11:00:06.398890"
     },
     {
         "index": "#88",
@@ -1617,7 +1617,7 @@
         "subjects": "Sound, Artificial Intelligence, Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.952470"
+        "crawl_time": "2025-12-09T11:00:06.399359"
     },
     {
         "index": "#89",
@@ -1629,7 +1629,7 @@
         "subjects": "Neurons and Cognition, Machine Learning, Signal Processing",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.952954"
+        "crawl_time": "2025-12-09T11:00:06.399901"
     },
     {
         "index": "#90",
@@ -1641,7 +1641,7 @@
         "subjects": "Software Engineering, Distributed, Parallel, and Cluster Computing, Machine Learning, Quantitative Methods",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.953467"
+        "crawl_time": "2025-12-09T11:00:06.400375"
     },
     {
         "index": "#91",
@@ -1653,7 +1653,7 @@
         "subjects": "Machine Learning, Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.953951"
+        "crawl_time": "2025-12-09T11:00:06.400931"
     },
     {
         "index": "#92",
@@ -1665,7 +1665,7 @@
         "subjects": "Human-Computer Interaction, Computer Vision and Pattern Recognition, Machine Learning, Multimedia",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.954586"
+        "crawl_time": "2025-12-09T11:00:06.401520"
     },
     {
         "index": "#94",
@@ -1677,7 +1677,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence, Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.955699"
+        "crawl_time": "2025-12-09T11:00:06.402627"
     },
     {
         "index": "#95",
@@ -1689,7 +1689,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Machine Learning",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.956192"
+        "crawl_time": "2025-12-09T11:00:06.408295"
     },
     {
         "index": "#96",
@@ -1701,7 +1701,7 @@
         "subjects": "Optics, Machine Learning, Computational Physics",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.956650"
+        "crawl_time": "2025-12-09T11:00:06.408840"
     },
     {
         "index": "#97",
@@ -1713,7 +1713,7 @@
         "subjects": "Machine Learning, Machine Learning, Systems and Control, Optimization and Control",
         "date": "2025-12-05",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.956950"
+        "crawl_time": "2025-12-09T11:00:06.409369"
     },
     {
         "index": "#101",
@@ -1725,7 +1725,7 @@
         "subjects": "Cryptography and Security, Artificial Intelligence, Machine Learning",
         "date": "2025-12-04",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.958157"
+        "crawl_time": "2025-12-09T11:00:06.411269"
     },
     {
         "index": "#102",
@@ -1737,7 +1737,7 @@
         "subjects": "Computer Science and Game Theory, Machine Learning",
         "date": "2025-12-04",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.958443"
+        "crawl_time": "2025-12-09T11:00:06.411760"
     },
     {
         "index": "#103",
@@ -1749,7 +1749,7 @@
         "subjects": "Information Theory, Artificial Intelligence, Machine Learning",
         "date": "2025-12-04",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.958721"
+        "crawl_time": "2025-12-09T11:00:06.412220"
     },
     {
         "index": "#104",
@@ -1761,7 +1761,7 @@
         "subjects": "Machine Learning, Machine Learning",
         "date": "2025-12-04",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.959017"
+        "crawl_time": "2025-12-09T11:00:06.412757"
     },
     {
         "index": "#105",
@@ -1773,7 +1773,7 @@
         "subjects": "Biomolecules, Machine Learning",
         "date": "2025-12-04",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.959483"
+        "crawl_time": "2025-12-09T11:00:06.418426"
     },
     {
         "index": "#107",
@@ -1785,7 +1785,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Graphics, Machine Learning",
         "date": "2025-12-04",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.960096"
+        "crawl_time": "2025-12-09T11:00:06.419417"
     },
     {
         "index": "#108",
@@ -1797,7 +1797,7 @@
         "subjects": "Machine Learning, Artificial Intelligence, Machine Learning, Dynamical Systems, Probability",
         "date": "2025-12-04",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.960389"
+        "crawl_time": "2025-12-09T11:00:06.419930"
     },
     {
         "index": "#109",
@@ -1809,7 +1809,7 @@
         "subjects": "Dynamical Systems, Machine Learning, Machine Learning",
         "date": "2025-12-04",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.960681"
+        "crawl_time": "2025-12-09T11:00:06.420369"
     },
     {
         "index": "#111",
@@ -1821,7 +1821,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Machine Learning, Machine Learning",
         "date": "2025-12-01",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.961298"
+        "crawl_time": "2025-12-09T11:00:06.421349"
     },
     {
         "index": "#112",
@@ -1833,7 +1833,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Distributed, Parallel, and Cluster Computing, Machine Learning",
         "date": "2025-11-29",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.961727"
+        "crawl_time": "2025-12-09T11:00:06.422009"
     },
     {
         "index": "#113",
@@ -1845,7 +1845,7 @@
         "subjects": "Optics, Machine Learning",
         "date": "2025-11-23",
         "category": "cs.LG",
-        "crawl_time": "2025-12-08T11:00:04.962023"
+        "crawl_time": "2025-12-09T11:00:06.422517"
     },
     {
         "index": "#1",
@@ -1857,7 +1857,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.962639"
+        "crawl_time": "2025-12-09T11:00:06.331959"
     },
     {
         "index": "#2",
@@ -1869,7 +1869,7 @@
         "subjects": "Artificial Intelligence, Emerging Technologies, Software Engineering",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.963114"
+        "crawl_time": "2025-12-09T11:00:06.332259"
     },
     {
         "index": "#3",
@@ -1881,7 +1881,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.963559"
+        "crawl_time": "2025-12-09T11:00:06.332630"
     },
     {
         "index": "#4",
@@ -1893,7 +1893,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.964034"
+        "crawl_time": "2025-12-09T11:00:06.333229"
     },
     {
         "index": "#6",
@@ -1905,7 +1905,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.964955"
+        "crawl_time": "2025-12-09T11:00:06.334443"
     },
     {
         "index": "#7",
@@ -1917,7 +1917,7 @@
         "subjects": "Artificial Intelligence, Computer Vision and Pattern Recognition",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.965402"
+        "crawl_time": "2025-12-09T11:00:06.335027"
     },
     {
         "index": "#9",
@@ -1929,7 +1929,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.966270"
+        "crawl_time": "2025-12-09T11:00:06.336226"
     },
     {
         "index": "#12",
@@ -1941,7 +1941,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.967852"
+        "crawl_time": "2025-12-09T11:00:06.342828"
     },
     {
         "index": "#14",
@@ -1953,7 +1953,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.968598"
+        "crawl_time": "2025-12-09T11:00:06.343688"
     },
     {
         "index": "#15",
@@ -1965,7 +1965,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.968894"
+        "crawl_time": "2025-12-09T11:00:06.344196"
     },
     {
         "index": "#16",
@@ -1977,7 +1977,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.969130"
+        "crawl_time": "2025-12-09T11:00:06.344586"
     },
     {
         "index": "#17",
@@ -1989,7 +1989,7 @@
         "subjects": "Artificial Intelligence, Formal Languages and Automata Theory",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.969402"
+        "crawl_time": "2025-12-09T11:00:06.345038"
     },
     {
         "index": "#18",
@@ -2001,7 +2001,7 @@
         "subjects": "Artificial Intelligence, Hardware Architecture",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.969739"
+        "crawl_time": "2025-12-09T11:00:06.345606"
     },
     {
         "index": "#19",
@@ -2013,7 +2013,7 @@
         "subjects": "Artificial Intelligence, Quantitative Methods",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.970004"
+        "crawl_time": "2025-12-09T11:00:06.346039"
     },
     {
         "index": "#20",
@@ -2025,7 +2025,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.970250"
+        "crawl_time": "2025-12-09T11:00:06.346445"
     },
     {
         "index": "#21",
@@ -2037,7 +2037,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-12-04",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.970500"
+        "crawl_time": "2025-12-09T11:00:06.351967"
     },
     {
         "index": "#23",
@@ -2049,7 +2049,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-12-04",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.970996"
+        "crawl_time": "2025-12-09T11:00:06.352783"
     },
     {
         "index": "#25",
@@ -2061,7 +2061,7 @@
         "subjects": "Artificial Intelligence",
         "date": "2025-11-13",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.971518"
+        "crawl_time": "2025-12-09T11:00:06.353605"
     },
     {
         "index": "#27",
@@ -2073,7 +2073,7 @@
         "subjects": "Robotics, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.972089"
+        "crawl_time": "2025-12-09T11:00:06.354495"
     },
     {
         "index": "#29",
@@ -2085,7 +2085,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.972680"
+        "crawl_time": "2025-12-09T11:00:06.355384"
     },
     {
         "index": "#35",
@@ -2097,7 +2097,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence, Robotics",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.974464"
+        "crawl_time": "2025-12-09T11:00:06.363467"
     },
     {
         "index": "#36",
@@ -2109,7 +2109,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence, Robotics",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.974760"
+        "crawl_time": "2025-12-09T11:00:06.363961"
     },
     {
         "index": "#42",
@@ -2121,7 +2121,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.976436"
+        "crawl_time": "2025-12-09T11:00:06.366707"
     },
     {
         "index": "#44",
@@ -2133,7 +2133,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.976967"
+        "crawl_time": "2025-12-09T11:00:06.372684"
     },
     {
         "index": "#45",
@@ -2145,7 +2145,7 @@
         "subjects": "Robotics, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.977279"
+        "crawl_time": "2025-12-09T11:00:06.373197"
     },
     {
         "index": "#50",
@@ -2157,7 +2157,7 @@
         "subjects": "Robotics, Artificial Intelligence, Signal Processing, Systems and Control",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.978766"
+        "crawl_time": "2025-12-09T11:00:06.375574"
     },
     {
         "index": "#52",
@@ -2169,7 +2169,7 @@
         "subjects": "Robotics, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.979349"
+        "crawl_time": "2025-12-09T11:00:06.376562"
     },
     {
         "index": "#55",
@@ -2181,7 +2181,7 @@
         "subjects": "Computer Science and Game Theory, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.980281"
+        "crawl_time": "2025-12-09T11:00:06.383045"
     },
     {
         "index": "#59",
@@ -2193,7 +2193,7 @@
         "subjects": "Robotics, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.981478"
+        "crawl_time": "2025-12-09T11:00:06.384825"
     },
     {
         "index": "#60",
@@ -2205,7 +2205,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.981775"
+        "crawl_time": "2025-12-09T11:00:06.385323"
     },
     {
         "index": "#62",
@@ -2217,7 +2217,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.982299"
+        "crawl_time": "2025-12-09T11:00:06.386183"
     },
     {
         "index": "#65",
@@ -2229,7 +2229,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.983546"
+        "crawl_time": "2025-12-09T11:00:06.387479"
     },
     {
         "index": "#66",
@@ -2241,7 +2241,7 @@
         "subjects": "Human-Computer Interaction, Artificial Intelligence, Computers and Society",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.983866"
+        "crawl_time": "2025-12-09T11:00:06.393103"
     },
     {
         "index": "#67",
@@ -2253,7 +2253,7 @@
         "subjects": "Cryptography and Security, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.984124"
+        "crawl_time": "2025-12-09T11:00:06.393523"
     },
     {
         "index": "#69",
@@ -2265,7 +2265,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.984689"
+        "crawl_time": "2025-12-09T11:00:06.394461"
     },
     {
         "index": "#72",
@@ -2277,7 +2277,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.985515"
+        "crawl_time": "2025-12-09T11:00:06.395805"
     },
     {
         "index": "#74",
@@ -2289,7 +2289,7 @@
         "subjects": "Computers and Society, Artificial Intelligence, Human-Computer Interaction",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.986097"
+        "crawl_time": "2025-12-09T11:00:06.396766"
     },
     {
         "index": "#75",
@@ -2301,7 +2301,7 @@
         "subjects": "Databases, Artificial Intelligence, Computers and Society, Logic in Computer Science",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.986377"
+        "crawl_time": "2025-12-09T11:00:06.397226"
     },
     {
         "index": "#77",
@@ -2313,7 +2313,7 @@
         "subjects": "Computers and Society, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.986945"
+        "crawl_time": "2025-12-09T11:00:06.403331"
     },
     {
         "index": "#80",
@@ -2325,7 +2325,7 @@
         "subjects": "Information Retrieval, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.987912"
+        "crawl_time": "2025-12-09T11:00:06.404902"
     },
     {
         "index": "#82",
@@ -2337,7 +2337,7 @@
         "subjects": "Human-Computer Interaction, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.990281"
+        "crawl_time": "2025-12-09T11:00:06.405872"
     },
     {
         "index": "#84",
@@ -2349,7 +2349,7 @@
         "subjects": "Software Engineering, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.990869"
+        "crawl_time": "2025-12-09T11:00:06.406817"
     },
     {
         "index": "#87",
@@ -2361,7 +2361,7 @@
         "subjects": "Cryptography and Security, Artificial Intelligence, Databases",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.991730"
+        "crawl_time": "2025-12-09T11:00:06.413364"
     },
     {
         "index": "#89",
@@ -2373,7 +2373,7 @@
         "subjects": "Software Engineering, Artificial Intelligence, Computers and Society",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.992299"
+        "crawl_time": "2025-12-09T11:00:06.414299"
     },
     {
         "index": "#90",
@@ -2385,7 +2385,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-12-05",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.992581"
+        "crawl_time": "2025-12-09T11:00:06.414769"
     },
     {
         "index": "#96",
@@ -2397,7 +2397,7 @@
         "subjects": "Software Engineering, Artificial Intelligence",
         "date": "2025-12-04",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.994287"
+        "crawl_time": "2025-12-09T11:00:06.417596"
     },
     {
         "index": "#100",
@@ -2409,7 +2409,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-12-04",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.995751"
+        "crawl_time": "2025-12-09T11:00:06.423996"
     },
     {
         "index": "#103",
@@ -2421,7 +2421,7 @@
         "subjects": "Software Engineering, Artificial Intelligence",
         "date": "2025-12-04",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.996620"
+        "crawl_time": "2025-12-09T11:00:06.425390"
     },
     {
         "index": "#104",
@@ -2433,7 +2433,7 @@
         "subjects": "Software Engineering, Artificial Intelligence",
         "date": "2025-12-04",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.996894"
+        "crawl_time": "2025-12-09T11:00:06.425827"
     },
     {
         "index": "#106",
@@ -2445,7 +2445,7 @@
         "subjects": "Robotics, Artificial Intelligence",
         "date": "2025-12-04",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.997432"
+        "crawl_time": "2025-12-09T11:00:06.426681"
     },
     {
         "index": "#108",
@@ -2457,7 +2457,7 @@
         "subjects": "Software Engineering, Artificial Intelligence, Human-Computer Interaction",
         "date": "2025-12-04",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.997960"
+        "crawl_time": "2025-12-09T11:00:06.427524"
     },
     {
         "index": "#109",
@@ -2469,7 +2469,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-12-04",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.998252"
+        "crawl_time": "2025-12-09T11:00:06.428048"
     },
     {
         "index": "#112",
@@ -2481,7 +2481,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-12-01",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.999066"
+        "crawl_time": "2025-12-09T11:00:06.429331"
     },
     {
         "index": "#113",
@@ -2493,7 +2493,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-11-30",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.999378"
+        "crawl_time": "2025-12-09T11:00:06.429815"
     },
     {
         "index": "#114",
@@ -2505,7 +2505,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-11-29",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.999716"
+        "crawl_time": "2025-12-09T11:00:06.430337"
     },
     {
         "index": "#115",
@@ -2517,7 +2517,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2025-11-28",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:04.999986"
+        "crawl_time": "2025-12-09T11:00:06.430762"
     },
     {
         "index": "#116",
@@ -2529,7 +2529,7 @@
         "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence, Robotics",
         "date": "2025-11-28",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:05.000295"
+        "crawl_time": "2025-12-09T11:00:06.431244"
     },
     {
         "index": "#117",
@@ -2541,7 +2541,7 @@
         "subjects": "Signal Processing, Artificial Intelligence",
         "date": "2025-11-23",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:05.000674"
+        "crawl_time": "2025-12-09T11:00:06.431697"
     },
     {
         "index": "#119",
@@ -2553,7 +2553,7 @@
         "subjects": "Graphics, Artificial Intelligence",
         "date": "2025-10-13",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:05.001365"
+        "crawl_time": "2025-12-09T11:00:06.433599"
     },
     {
         "index": "#121",
@@ -2565,6 +2565,6 @@
         "subjects": "Information Retrieval, Computation and Language",
         "date": "2024-05-18",
         "category": "cs.AI",
-        "crawl_time": "2025-12-08T11:00:05.002172"
+        "crawl_time": "2025-12-09T11:00:06.434407"
     }
 ]
