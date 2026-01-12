@@ -1,1 +1,15 @@
-[]
+[
+    {
+        "index": "#20",
+        "title": "ABBEL: LLM Agents Acting through Belief Bottlenecks Expressed in Language",
+        "link": "/arxiv/2512.20111",
+        "arxiv_id": "2512.20111",
+        "authors": "Aly Lidayan, Jakob Bjorner, Satvik Golechha, Kartik Goyal, Alane Suhr",
+        "summary": "As the length of sequential decision-making tasks increases, it becomes computationally impractical to keep full interaction histories in context. We introduce a general framework for LLM agents to maintain concise contexts through multi-step interaction: Acting through Belief Bottlenecks Expressed in Language (ABBEL), and methods to further improve ABBEL agents with RL post-training. ABBEL replaces long multi-step interaction history by a belief state, i.e., a natural language summary of what has been discovered about task-relevant unknowns. Under ABBEL, at each step the agent first updates a prior belief with the most recent observation from the environment to form a posterior belief, then uses only the posterior to select an action. We systematically evaluate frontier models under ABBEL across six diverse multi-step environments, finding that ABBEL supports generating interpretable beliefs while maintaining near-constant memory use over interaction steps. However, bottleneck approaches are generally prone to error propagation, which we observe causing inferior performance when compared to the full context setting due to errors in belief updating. Therefore, we train LLMs to generate and act on beliefs within the ABBEL framework via reinforcement learning (RL). We experiment with belief grading, to reward higher quality beliefs, as well as belief length penalties to reward more compressed beliefs. Our experiments demonstrate the ability of RL to improve ABBEL's performance beyond the full context setting, while using less memory than contemporaneous approaches.",
+        "subjects": "Computation and Language, Artificial Intelligence, Machine Learning",
+        "date": "2025-12-23",
+        "category": "cs.CL",
+        "crawl_time": "2025-12-25T11:00:03.826559",
+        "filter_reason": "这篇论文完全符合我的研究范围，属于“单智能体”和“自我演化”方向的交叉研究。具体判断依据如下： 1.  **核心贡献符合要求 (第一步)**: 论文的核心贡献是提出了一种名为 ABBEL 的新框架，旨在解决 LLM 智能体在长序列决策任务中的上下文管理问题。这属于构建和改进 LLM 智能体方法论的范畴，而非简单的应用或基础设施研究。 2.  **高度契合核心关注点 (第二步)**: *   **Agentic AI & 单智能体**: 论文明确研究 LLM Agents，涉及智能体如何通过“信念状态”来处理多步交互、环境观察和行动选择，这是典型的智能体规划与记忆机制研究。 *   **自我演化**: 论文不仅提出了框架，还引入了强化学习（RL）后训练机制来改进智能体生成信念和采取行动的能力。这种通过反馈（RL奖励）进行迭代优化和自我完善的过程，符合“自我演化”的定义。 3.  **不涉及排除项 (第三步)**: 论文主要关注智能体的架构优化和性能提升，不涉及安全对齐、多模态视觉核心研究或图神经网络等排除领域。 综上所述，ABBEL 提出了一种改进智能体记忆和决策机制的方法，并结合 RL 进行自我优化，精准契合“LLM智能体及其演化”的研究课题。"
+    }
+]

@@ -1,65 +1,5 @@
 [
     {
-        "index": "#3",
-        "title": "Sigmoid Head for Quality Estimation under Language Ambiguity",
-        "link": "/arxiv/2601.00680",
-        "arxiv_id": "2601.00680",
-        "authors": "Tu Anh Dinh, Jan Niehues",
-        "subjects": "Computation and Language",
-        "date": "2026-01-02",
-        "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.459597",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009470297101X8mvVIgM)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#1",
-        "title": "Adapting Natural Language Processing Models Across Jurisdictions: A pilot Study in Canadian Cancer Registries",
-        "link": "/arxiv/2601.00787",
-        "arxiv_id": "2601.00787",
-        "authors": "Jonathan Simkin, Lovedeep Gondara, Zeeshan Rizvi, Gregory Doyle, Jeff Dowden, Dan Bond, Desmond Martin, Raymond Ng",
-        "subjects": "Computation and Language",
-        "date": "2026-01-02",
-        "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.458677",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009474029591H8lRxA4l)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#6",
-        "title": "ClinicalReTrial: A Self-Evolving AI Agent for Clinical Trial Protocol Optimization",
-        "link": "/arxiv/2601.00290",
-        "arxiv_id": "2601.00290",
-        "authors": "Sixue Xing, Xuanye Xia, Kerui Wu, Meng Jiang, Jintai Chen, Tianfan Fu",
-        "subjects": "Artificial Intelligence, Multiagent Systems",
-        "date": "2026-01-01",
-        "category": "cs.MA",
-        "crawl_time": "2026-01-06T11:00:05.016361",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 202601061100094734347985RTGDNhj)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#2",
-        "title": "Exploring the Performance of Large Language Models on Subjective Span Identification Tasks",
-        "link": "/arxiv/2601.00736",
-        "arxiv_id": "2601.00736",
-        "authors": "Alphaeus Dmonte, Roland Oruche, Tharindu Ranasinghe, Marcos Zampieri, Prasad Calyam",
-        "subjects": "Computation and Language, Artificial Intelligence",
-        "date": "2026-01-02",
-        "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.459184",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009484115693RifJPYIN)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#1",
-        "title": "Mapping Human Anti-collusion Mechanisms to Multi-agent AI",
-        "link": "/arxiv/2601.00360",
-        "arxiv_id": "2601.00360",
-        "authors": "Jamiu Adekunle Idowu, Ahmed Almasoud, Ayman Alfahid",
-        "subjects": "Multiagent Systems, Artificial Intelligence, Computers and Society",
-        "date": "2026-01-01",
-        "category": "cs.MA",
-        "crawl_time": "2026-01-06T11:00:05.014974",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009482533105yeGDxxB5)', 'type': 'new_api_error'}}"
-    },
-    {
         "index": "#7",
         "title": "Next Generation Intelligent Low-Altitude Economy Deployments: The O-RAN Perspective",
         "link": "/arxiv/2601.00257",
@@ -69,55 +9,19 @@
         "date": "2026-01-01",
         "category": "cs.MA",
         "crawl_time": "2026-01-06T11:00:05.016629",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009488157253AfQe4xUA)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#5",
-        "title": "Bio-inspired Agentic Self-healing Framework for Resilient Distributed Computing Continuum Systems",
-        "link": "/arxiv/2601.00339",
-        "arxiv_id": "2601.00339",
-        "authors": "Alaa Saleh, Praveen Kumar Donta, Roberto Morabito, Sasu Tarkoma, Anders Lindgren, Qiyang Zhang, Schahram Dustdar Susanna Pirttikangas, Lauri Lovén",
-        "subjects": "Artificial Intelligence, Distributed, Parallel, and Cluster Computing, Emerging Technologies, Multiagent Systems, Neural and Evolutionary Computing",
-        "date": "2026-01-01",
-        "category": "cs.MA",
-        "crawl_time": "2026-01-06T11:00:05.016084",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009520429403FNMIbHrV)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#2",
-        "title": "Offline Multi-Agent Reinforcement Learning for 6G Communications: Fundamentals, Applications and Future Directions",
-        "link": "/arxiv/2601.00321",
-        "arxiv_id": "2601.00321",
-        "authors": "Eslam Eldeeb, Hirley Alves",
-        "subjects": "Multiagent Systems",
-        "date": "2026-01-01",
-        "category": "cs.MA",
-        "crawl_time": "2026-01-06T11:00:05.015246",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 202601061100095255644115P1Lb3Pv)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#3",
-        "title": "μACP: A Formal Calculus for Expressive, Resource-Constrained Agent Communication",
-        "link": "/arxiv/2601.00219",
-        "arxiv_id": "2601.00219",
-        "authors": "Arnab Mallick, Indraveni Chebolu",
-        "subjects": "Multiagent Systems, Networking and Internet Architecture",
-        "date": "2026-01-01",
-        "category": "cs.MA",
-        "crawl_time": "2026-01-06T11:00:05.015497",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009533357019JsA5KLhJ)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#4",
-        "title": "Fast-weight Product Key Memory",
-        "link": "/arxiv/2601.00671",
-        "arxiv_id": "2601.00671",
-        "authors": "Tianyu Zhao, Llion Jones",
-        "subjects": "Computation and Language, Artificial Intelligence",
+        "title": "Sigmoid Head for Quality Estimation under Language Ambiguity",
+        "link": "/arxiv/2601.00680",
+        "arxiv_id": "2601.00680",
+        "authors": "Tu Anh Dinh, Jan Niehues",
+        "subjects": "Computation and Language",
         "date": "2026-01-02",
         "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.460022",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 202601061100095428108018j9idQXh)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.459597",
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#4",
@@ -129,43 +33,43 @@
         "date": "2026-01-02",
         "category": "cs.MA",
         "crawl_time": "2026-01-06T11:00:05.015762",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009540736005gV0eKg9O)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
-        "index": "#5",
-        "title": "Physio-DPO: Aligning Large Language Models with the Protein Energy Landscape to Eliminate Structural Hallucinations",
-        "link": "/arxiv/2601.00647",
-        "arxiv_id": "2601.00647",
-        "authors": "QiWei Meng",
-        "subjects": "Computation and Language, Computational Engineering, Finance, and Science, Quantitative Methods",
-        "date": "2026-01-02",
-        "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.460455",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009546467118GSNCBken)', 'type': 'new_api_error'}}"
+        "index": "#1",
+        "title": "Mapping Human Anti-collusion Mechanisms to Multi-agent AI",
+        "link": "/arxiv/2601.00360",
+        "arxiv_id": "2601.00360",
+        "authors": "Jamiu Adekunle Idowu, Ahmed Almasoud, Ayman Alfahid",
+        "subjects": "Multiagent Systems, Artificial Intelligence, Computers and Society",
+        "date": "2026-01-01",
+        "category": "cs.MA",
+        "crawl_time": "2026-01-06T11:00:05.014974",
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#6",
-        "title": "Probabilistic Guarantees for Reducing Contextual Hallucinations in LLMs",
-        "link": "/arxiv/2601.00641",
-        "arxiv_id": "2601.00641",
-        "authors": "Nils Rautenberg, Sven Schippkus",
-        "subjects": "Computation and Language",
-        "date": "2026-01-02",
-        "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.460900",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009553233540Mo7GyzVG)', 'type': 'new_api_error'}}"
+        "title": "ClinicalReTrial: A Self-Evolving AI Agent for Clinical Trial Protocol Optimization",
+        "link": "/arxiv/2601.00290",
+        "arxiv_id": "2601.00290",
+        "authors": "Sixue Xing, Xuanye Xia, Kerui Wu, Meng Jiang, Jintai Chen, Tianfan Fu",
+        "subjects": "Artificial Intelligence, Multiagent Systems",
+        "date": "2026-01-01",
+        "category": "cs.MA",
+        "crawl_time": "2026-01-06T11:00:05.016361",
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
-        "index": "#7",
-        "title": "Beyond IVR: Benchmarking Customer Support LLM Agents for Business-Adherence",
-        "link": "/arxiv/2601.00596",
-        "arxiv_id": "2601.00596",
-        "authors": "Sumanth Balaji, Piyush Mishra, Aashraya Sachdeva, Suraj Agrawal",
+        "index": "#1",
+        "title": "Adapting Natural Language Processing Models Across Jurisdictions: A pilot Study in Canadian Cancer Registries",
+        "link": "/arxiv/2601.00787",
+        "arxiv_id": "2601.00787",
+        "authors": "Jonathan Simkin, Lovedeep Gondara, Zeeshan Rizvi, Gregory Doyle, Jeff Dowden, Dan Bond, Desmond Martin, Raymond Ng",
         "subjects": "Computation and Language",
         "date": "2026-01-02",
         "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.461338",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009556904527BLOush1J)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.458677",
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#8",
@@ -177,19 +81,67 @@
         "date": "2026-01-02",
         "category": "cs.CL",
         "crawl_time": "2026-01-06T11:00:05.461790",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009560882681bNNoUwSn)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
-        "index": "#9",
-        "title": "InfoSynth: Information-Guided Benchmark Synthesis for LLMs",
-        "link": "/arxiv/2601.00575",
-        "arxiv_id": "2601.00575",
-        "authors": "Ishir Garg, Neel Kolhe, Xuandong Zhao, Dawn Song",
+        "index": "#4",
+        "title": "Fast-weight Product Key Memory",
+        "link": "/arxiv/2601.00671",
+        "arxiv_id": "2601.00671",
+        "authors": "Tianyu Zhao, Llion Jones",
+        "subjects": "Computation and Language, Artificial Intelligence",
+        "date": "2026-01-02",
+        "category": "cs.CL",
+        "crawl_time": "2026-01-06T11:00:05.460022",
+        "filter_reason": "API调用错误: Error code: 525"
+    },
+    {
+        "index": "#6",
+        "title": "Probabilistic Guarantees for Reducing Contextual Hallucinations in LLMs",
+        "link": "/arxiv/2601.00641",
+        "arxiv_id": "2601.00641",
+        "authors": "Nils Rautenberg, Sven Schippkus",
         "subjects": "Computation and Language",
         "date": "2026-01-02",
         "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.462221",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 202601061100095657805868FbYB0I0)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.460900",
+        "filter_reason": "API调用错误: Error code: 522"
+    },
+    {
+        "index": "#2",
+        "title": "Offline Multi-Agent Reinforcement Learning for 6G Communications: Fundamentals, Applications and Future Directions",
+        "link": "/arxiv/2601.00321",
+        "arxiv_id": "2601.00321",
+        "authors": "Eslam Eldeeb, Hirley Alves",
+        "subjects": "Multiagent Systems",
+        "date": "2026-01-01",
+        "category": "cs.MA",
+        "crawl_time": "2026-01-06T11:00:05.015246",
+        "filter_reason": "API调用错误: Connection error."
+    },
+    {
+        "index": "#2",
+        "title": "Exploring the Performance of Large Language Models on Subjective Span Identification Tasks",
+        "link": "/arxiv/2601.00736",
+        "arxiv_id": "2601.00736",
+        "authors": "Alphaeus Dmonte, Roland Oruche, Tharindu Ranasinghe, Marcos Zampieri, Prasad Calyam",
+        "subjects": "Computation and Language, Artificial Intelligence",
+        "date": "2026-01-02",
+        "category": "cs.CL",
+        "crawl_time": "2026-01-06T11:00:05.459184",
+        "filter_reason": "API调用错误: Connection error."
+    },
+    {
+        "index": "#5",
+        "title": "Physio-DPO: Aligning Large Language Models with the Protein Energy Landscape to Eliminate Structural Hallucinations",
+        "link": "/arxiv/2601.00647",
+        "arxiv_id": "2601.00647",
+        "authors": "QiWei Meng",
+        "subjects": "Computation and Language, Computational Engineering, Finance, and Science, Quantitative Methods",
+        "date": "2026-01-02",
+        "category": "cs.CL",
+        "crawl_time": "2026-01-06T11:00:05.460455",
+        "filter_reason": "API调用错误: Connection error."
     },
     {
         "index": "#10",
@@ -201,19 +153,7 @@
         "date": "2026-01-02",
         "category": "cs.CL",
         "crawl_time": "2026-01-06T11:00:05.462702",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009593747579qYNlgJ6G)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#11",
-        "title": "ECR: Manifold-Guided Semantic Cues for Compact Language Models",
-        "link": "/arxiv/2601.00543",
-        "arxiv_id": "2601.00543",
-        "authors": "Chung-Wei Victor Yuan",
-        "subjects": "Computation and Language, Artificial Intelligence",
-        "date": "2026-01-02",
-        "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.463117",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009602444638GmqZiB5J)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Connection error."
     },
     {
         "index": "#12",
@@ -225,31 +165,7 @@
         "date": "2026-01-02",
         "category": "cs.CL",
         "crawl_time": "2026-01-06T11:00:05.494519",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009607638238M6goh5KW)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#13",
-        "title": "Rule-Based Approaches to Atomic Sentence Extraction",
-        "link": "/arxiv/2601.00506",
-        "arxiv_id": "2601.00506",
-        "authors": "Lineesha Kamana, Akshita Ananda Subramanian, Mehuli Ghosh, Suman Saha",
-        "subjects": "Computation and Language",
-        "date": "2026-01-01",
-        "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.495110",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009616858204gkKPSdwl)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#15",
-        "title": "Defensive M2S: Training Guardrail Models on Compressed Multi-turn Conversations",
-        "link": "/arxiv/2601.00454",
-        "arxiv_id": "2601.00454",
-        "authors": "Hyunjun Kim",
-        "subjects": "Computation and Language, Artificial Intelligence",
-        "date": "2026-01-01",
-        "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.496228",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009619169143scYL28DR)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Connection error."
     },
     {
         "index": "#14",
@@ -261,43 +177,31 @@
         "date": "2026-01-01",
         "category": "cs.CL",
         "crawl_time": "2026-01-06T11:00:05.495688",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009619797888UzEDBDui)', 'type': 'new_api_error'}}"
+        "filter_reason": "1.  **核心贡献分析**：这篇论文的核心贡献是提出一种针对历史职业教育与培训（VET）文档的命名实体识别（NER）方法。其重点在于解决OCR（光学字符识别）引入的噪声问题，通过噪声感知训练（NAT）和微调技术来提高模型在特定领域的鲁棒性。 2.  **第一步核心判断（排除）**： *   该论文属于典型的**非演化型应用**。它将模型（可能是基于Transformer的预训练模型）作为工具，应用于特定的垂直领域（历史文档处理）去解决该领域的具体任务（NER）。 *   论文未涉及构建LLM智能体、多智能体系统或自我演化机制。它关注的是模型在特定数据分布下的微调策略，而非智能体的架构或行为演化。 3.  **第二步与第三步指标检查**： *   **正面指标缺失**：论文中完全没有提及 `Agentic AI`、`Planning`（规划）、`Tool Use`（工具使用）、`Multi-Agent`（多智能体）或 `Self-Evolving`（自我演化）等核心概念。 *   **排除项确认**：虽然论文涉及文档处理，但其本质是NLP任务的应用，而非智能体研究。 综上所述，该论文仅是针对特定领域噪声数据的NER应用研究，不符合“LLM智能体及其演化”的研究范围。"
     },
     {
-        "index": "#16",
-        "title": "Language as Mathematical Structure: Examining Semantic Field Theory Against Language Games",
-        "link": "/arxiv/2601.00448",
-        "arxiv_id": "2601.00448",
-        "authors": "Dimitris Vartziotis",
+        "index": "#9",
+        "title": "InfoSynth: Information-Guided Benchmark Synthesis for LLMs",
+        "link": "/arxiv/2601.00575",
+        "arxiv_id": "2601.00575",
+        "authors": "Ishir Garg, Neel Kolhe, Xuandong Zhao, Dawn Song",
+        "subjects": "Computation and Language",
+        "date": "2026-01-02",
+        "category": "cs.CL",
+        "crawl_time": "2026-01-06T11:00:05.462221",
+        "filter_reason": "API调用错误: Connection error."
+    },
+    {
+        "index": "#11",
+        "title": "ECR: Manifold-Guided Semantic Cues for Compact Language Models",
+        "link": "/arxiv/2601.00543",
+        "arxiv_id": "2601.00543",
+        "authors": "Chung-Wei Victor Yuan",
         "subjects": "Computation and Language, Artificial Intelligence",
-        "date": "2026-01-01",
+        "date": "2026-01-02",
         "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.496798",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009627054303UoDwhPDp)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#17",
-        "title": "Comparative Efficiency Analysis of Lightweight Transformer Models: A Multi-Domain Empirical Benchmark for Enterprise NLP Deployment",
-        "link": "/arxiv/2601.00444",
-        "arxiv_id": "2601.00444",
-        "authors": "Muhammad Shahmeer Khan",
-        "subjects": "Computation and Language",
-        "date": "2026-01-01",
-        "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.497314",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009633730962n851rWVa)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#18",
-        "title": "Toward Better Temporal Structures for Geopolitical Events Forecasting",
-        "link": "/arxiv/2601.00430",
-        "arxiv_id": "2601.00430",
-        "authors": "Kian Ahrabian, Eric Boxer, Jay Pujara",
-        "subjects": "Computation and Language",
-        "date": "2026-01-01",
-        "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.497909",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009637112633k0bLL1Pu)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.463117",
+        "filter_reason": "API调用错误: Connection error."
     },
     {
         "index": "#19",
@@ -309,19 +213,79 @@
         "date": "2026-01-01",
         "category": "cs.CL",
         "crawl_time": "2026-01-06T11:00:05.498498",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009641547733rw5Rystj)', 'type': 'new_api_error'}}"
+        "filter_reason": "这篇论文的核心贡献是构建了一个名为 judgeWEL 的卢森堡语命名实体识别（NER）数据集。虽然论文中使用了大语言模型（LLM）来验证和过滤自动生成的标签，但这仅仅是利用 LLM 作为一种工具来辅助数据清洗和构建，而非构建、改进或演化 LLM 智能体。 根据筛选标准的第一步（核心判断），该论文属于“非演化型应用”。它将 LLM 应用于特定的 NLP 任务（数据集构建），解决的是低资源语言的标注问题，而不是研究智能体的规划、记忆、工具使用、自我反思或多智能体协作等 Agentic AI 的核心能力。论文中不涉及任何智能体框架、自主决策机制或自我演化算法。因此，它不符合关于 \"LLM智能体及其演化\" 的研究范围。"
     },
     {
-        "index": "#20",
-        "title": "Vision-Language Reasoning for Geolocalization: A Reinforcement Learning Approach",
-        "link": "/arxiv/2601.00388",
-        "arxiv_id": "2601.00388",
-        "authors": "Biao Wu, Meng Fang, Ling Chen, Ke Xu, Tao Cheng, Jun Wang",
+        "index": "#5",
+        "title": "Bio-inspired Agentic Self-healing Framework for Resilient Distributed Computing Continuum Systems",
+        "link": "/arxiv/2601.00339",
+        "arxiv_id": "2601.00339",
+        "authors": "Alaa Saleh, Praveen Kumar Donta, Roberto Morabito, Sasu Tarkoma, Anders Lindgren, Qiyang Zhang, Schahram Dustdar Susanna Pirttikangas, Lauri Lovén",
+        "subjects": "Artificial Intelligence, Distributed, Parallel, and Cluster Computing, Emerging Technologies, Multiagent Systems, Neural and Evolutionary Computing",
+        "date": "2026-01-01",
+        "category": "cs.MA",
+        "crawl_time": "2026-01-06T11:00:05.016084",
+        "filter_reason": "API调用错误: Connection error."
+    },
+    {
+        "index": "#3",
+        "title": "μACP: A Formal Calculus for Expressive, Resource-Constrained Agent Communication",
+        "link": "/arxiv/2601.00219",
+        "arxiv_id": "2601.00219",
+        "authors": "Arnab Mallick, Indraveni Chebolu",
+        "subjects": "Multiagent Systems, Networking and Internet Architecture",
+        "date": "2026-01-01",
+        "category": "cs.MA",
+        "crawl_time": "2026-01-06T11:00:05.015497",
+        "filter_reason": "API调用错误: Connection error."
+    },
+    {
+        "index": "#18",
+        "title": "Toward Better Temporal Structures for Geopolitical Events Forecasting",
+        "link": "/arxiv/2601.00430",
+        "arxiv_id": "2601.00430",
+        "authors": "Kian Ahrabian, Eric Boxer, Jay Pujara",
         "subjects": "Computation and Language",
         "date": "2026-01-01",
         "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.504467",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 202601061100096670898714AVNVzYK)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.497909",
+        "filter_reason": "这篇论文不符合研究范围，主要基于以下判断： 1.  **触犯排除标准（图相关）**: 论文的核心内容明确涉及“时间知识图谱”、“超关系时间知识图谱”以及“广义超图”。根据筛选标准第三步，涉及知识图谱等图相关技术的论文属于明确的排除类别。 2.  **核心贡献不符（非演化型应用）**: 论文的核心贡献在于提出一种新的数据结构形式化（HTKGHs）以及构建一个数据集（htkgh-polecat），旨在解决地缘政治事件预测中的数据表示问题。这属于将LLM应用于特定领域（地缘政治）的预测任务，而非构建、改进或演化LLM智能体的方法论。 3.  **缺乏Agentic特征**: 论文关注的是“关系预测”这一基础任务，并未涉及智能体的核心能力，如自主规划、工具使用、记忆机制、自我反思或多智能体协作等。 综上所述，该论文属于图数据挖掘与特定领域预测应用的交叉研究，不属于LLM智能体及其演化的研究范畴。"
+    },
+    {
+        "index": "#15",
+        "title": "Defensive M2S: Training Guardrail Models on Compressed Multi-turn Conversations",
+        "link": "/arxiv/2601.00454",
+        "arxiv_id": "2601.00454",
+        "authors": "Hyunjun Kim",
+        "subjects": "Computation and Language, Artificial Intelligence",
+        "date": "2026-01-01",
+        "category": "cs.CL",
+        "crawl_time": "2026-01-06T11:00:05.496228",
+        "filter_reason": "这篇论文不符合研究课题的要求，主要基于以下判断： 1.  **触犯核心排除标准（第三步）：** 论文的核心贡献明确属于 `Safety`（安全）和 `Security`（安保）范畴。摘要中提到的研究目标是 \"ensuring the safety of Large Language Model (LLM) deployments\"（确保LLM部署的安全），并在 \"SafeDialBench\"（越狱基准）上评估 \"attack detection recall\"（攻击检测召回率）。根据筛选标准第三步，只要论文的主要贡献是关于 Safety 或 Security，一律排除。 2.  **不符合核心目标（第一步）：** 论文的研究对象是 \"Guardrail models\"（护栏模型），旨在通过压缩对话历史来提高安全筛查的计算效率。这并不属于构建、改进或演化 LLM智能体（Agentic AI）的方法论，也不涉及多智能体系统或自我演化机制。 3.  **缺乏正面指标（第二步）：** 论文中未提及任何关于 `Planning`（规划）、`Tool Use`（工具使用）、`Multi-Agent`（多智能体）或 `Self-Evolving`（自我演化）等核心Agentic AI范式或能力。 综上所述，该论文主要关注LLM的安全基础设施优化，而非智能体的构建与演化，因此被排除。"
+    },
+    {
+        "index": "#7",
+        "title": "Beyond IVR: Benchmarking Customer Support LLM Agents for Business-Adherence",
+        "link": "/arxiv/2601.00596",
+        "arxiv_id": "2601.00596",
+        "authors": "Sumanth Balaji, Piyush Mishra, Aashraya Sachdeva, Suraj Agrawal",
+        "subjects": "Computation and Language",
+        "date": "2026-01-02",
+        "category": "cs.CL",
+        "crawl_time": "2026-01-06T11:00:05.461338",
+        "filter_reason": "API调用错误: Connection error."
+    },
+    {
+        "index": "#16",
+        "title": "Language as Mathematical Structure: Examining Semantic Field Theory Against Language Games",
+        "link": "/arxiv/2601.00448",
+        "arxiv_id": "2601.00448",
+        "authors": "Dimitris Vartziotis",
+        "subjects": "Computation and Language, Artificial Intelligence",
+        "date": "2026-01-01",
+        "category": "cs.CL",
+        "crawl_time": "2026-01-06T11:00:05.496798",
+        "filter_reason": "这篇论文不符合筛选标准，应予以排除。以下是详细的判断过程： 1.  **核心判断（第一步）**： *   论文的核心贡献在于提出一种语言学理论框架（Semantic Field Theory，语义场理论），并利用LLMs作为实证环境来探讨语言意义的数学结构与社会建构主义（语言游戏）之间的关系。 *   这是一篇典型的**理论语言学与认知科学**交叉论文，而非关于**构建、改进或演化 LLM智能体**的工程或方法论论文。它不涉及智能体的架构设计、规划能力、工具使用或自我演化机制。 2.  **正面指标缺失（第二步）**： *   论文中提到的“Language Games”（语言游戏）是指维特根斯坦哲学中的概念，用于解释语言的社会属性，而非指代AI领域的“多智能体博弈”或“智能体交互”。 *   论文虽然提到了Transformer架构和语用推理，但目的是为了分析其理论局限性和语言学意义，而非为了提升智能体的Agentic能力（如Planning、Tool Use、Memory等）。 3.  **排除标准确认（第三步）**： *   虽然论文未涉及安全、多模态或图技术等明确的排除项，但其本质属于**LLM的理论解释与语言学分析**，这属于基础理论研究，而非Agentic AI的应用开发或框架演化。 **结论**：该论文的研究焦点是“语言意义的数学结构与哲学解释”，而非“LLM智能体的构建与演化”。因此，它严格不属于您定义的 Agentic AI、Multi-Agent Systems 或 Self-Evolving 的研究范畴。"
     },
     {
         "index": "#21",
@@ -333,55 +297,19 @@
         "date": "2026-01-01",
         "category": "cs.CL",
         "crawl_time": "2026-01-06T11:00:05.504969",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009676915792xxgizlnM)', 'type': 'new_api_error'}}"
+        "filter_reason": "该论文的核心贡献是提出了一种名为 BERT-JEPA 的新训练范式，旨在通过引入 JEPA (Joint Embedding Predictive Architectures) 目标来改进 BERT 风格模型的 [CLS] 嵌入表示，使其具有语言不变性并提升多语言基准性能。 根据筛选标准的第一步（核心判断），这篇论文的本质属于**基础模型训练与表示学习**，而非构建或演化 LLM 智能体。它关注的是模型内部的嵌入空间优化和自监督学习技术，不涉及智能体的自主规划、工具使用、记忆机制、多智能体协作或自我演化框架。此外，论文中未出现任何关于 Agentic AI、Multi-Agent Systems 或 Self-Evolving 的核心范式或能力指标。因此，该论文完全不符合“LLM智能体及其演化”的研究范围。"
     },
     {
-        "index": "#22",
-        "title": "The Role of Mixed-Language Documents for Multilingual Large Language Model Pretraining",
-        "link": "/arxiv/2601.00364",
-        "arxiv_id": "2601.00364",
-        "authors": "Jiandong Shao, Raphael Tang, Crystina Zhang, Karin Sevegnani, Pontus Stenetorp, Jianfei Yang, Yao Lu",
+        "index": "#13",
+        "title": "Rule-Based Approaches to Atomic Sentence Extraction",
+        "link": "/arxiv/2601.00506",
+        "arxiv_id": "2601.00506",
+        "authors": "Lineesha Kamana, Akshita Ananda Subramanian, Mehuli Ghosh, Suman Saha",
         "subjects": "Computation and Language",
         "date": "2026-01-01",
         "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.505453",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009682477477U1ydtzub)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#23",
-        "title": "Robust Uncertainty Quantification for Factual Generation of Large Language Models",
-        "link": "/arxiv/2601.00348",
-        "arxiv_id": "2601.00348",
-        "authors": "Yuhao Zhang, Zhongliang Yang, Linna Zhou",
-        "subjects": "Computation and Language, Artificial Intelligence",
-        "date": "2026-01-01",
-        "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.505892",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009690806813wF4ZJKQ7)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#24",
-        "title": "DepFlow: Disentangled Speech Generation to Mitigate Semantic Bias in Depression Detection",
-        "link": "/arxiv/2601.00303",
-        "arxiv_id": "2601.00303",
-        "authors": "Yuxin Li, Xiangyu Zhang, Yifei Li, Zhiwei Guo, Haoyang Zhang, Eng Siong Chng, Cuntai Guan",
-        "subjects": "Computation and Language, Artificial Intelligence",
-        "date": "2026-01-01",
-        "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.506396",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009692719547HiFGUe9D)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#26",
-        "title": "Beyond Perfect APIs: A Comprehensive Evaluation of LLM Agents Under Real-World API Complexity",
-        "link": "/arxiv/2601.00268",
-        "arxiv_id": "2601.00268",
-        "authors": "Doyoung Kim, Zhiwei Ren, Jie Hao, Zhongkai Sun, Lichao Wang, Xiyao Ma, Zack Ye, Xu Han, Jun Yin, Heng Ji, Wei Shen, Xing Fan, Benjamin Yao, Chenlei Guo",
-        "subjects": "Computation and Language, Artificial Intelligence",
-        "date": "2026-01-01",
-        "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.507550",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 202601061100097017157567dYQdsqg)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.495110",
+        "filter_reason": "API调用错误: Connection error."
     },
     {
         "index": "#27",
@@ -393,31 +321,67 @@
         "date": "2026-01-01",
         "category": "cs.CL",
         "crawl_time": "2026-01-06T11:00:05.508081",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009705321993adKfHWnD)', 'type': 'new_api_error'}}"
+        "filter_reason": "这篇论文不符合我的研究范围，主要基于以下判断： 1.  **核心贡献不符 (第一步)**：论文的核心是关于利用LLM生成“反事实示例”，并评估这些示例在解释模型行为（可解释性）和数据增强方面的效果。这属于将LLM作为生成工具应用于特定任务（数据生成/模型解释），而非构建、改进或演化LLM智能体本身。 2.  **触犯排除标准 (第三步)**：摘要中明确指出反事实是“解释模型行为的一种有前景的方法”。根据筛选标准，只要论文的主要贡献涉及 `Interpretability` (可解释性) 或 `Explainability` (XAI)，一律排除。此外，该研究侧重于数据增强技术，而非Agentic AI的核心能力（如规划、工具使用、多智能体协作或自我演化）。 综上所述，该论文属于模型可解释性与数据增强领域的研究，与“LLM智能体及其演化”的研究焦点无关。"
     },
     {
-        "index": "#25",
-        "title": "Can Large Language Models Still Explain Themselves? Investigating the Impact of Quantization on Self-Explanations",
-        "link": "/arxiv/2601.00282",
-        "arxiv_id": "2601.00282",
-        "authors": "Qianli Wang, Nils Feldhus, Pepa Atanasova, Fedor Splitt, Simon Ostermann, Sebastian Möller, Vera Schmitt",
-        "subjects": "Computation and Language, Artificial Intelligence, Machine Learning",
+        "index": "#17",
+        "title": "Comparative Efficiency Analysis of Lightweight Transformer Models: A Multi-Domain Empirical Benchmark for Enterprise NLP Deployment",
+        "link": "/arxiv/2601.00444",
+        "arxiv_id": "2601.00444",
+        "authors": "Muhammad Shahmeer Khan",
+        "subjects": "Computation and Language",
         "date": "2026-01-01",
         "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.506970",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009699560200GXU5pbfG)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.497314",
+        "filter_reason": "API调用错误: Connection error."
     },
     {
-        "index": "#28",
-        "title": "Talk Less, Verify More: Improving LLM Assistants with Semantic Checks and Execution Feedback",
-        "link": "/arxiv/2601.00224",
-        "arxiv_id": "2601.00224",
-        "authors": "Yan Sun, Ming Cai, Stanley Kok",
-        "subjects": "Computation and Language, Software Engineering",
+        "index": "#23",
+        "title": "Robust Uncertainty Quantification for Factual Generation of Large Language Models",
+        "link": "/arxiv/2601.00348",
+        "arxiv_id": "2601.00348",
+        "authors": "Yuhao Zhang, Zhongliang Yang, Linna Zhou",
+        "subjects": "Computation and Language, Artificial Intelligence",
         "date": "2026-01-01",
         "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.508524",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 202601061100097151573958jyWzikF)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.505892",
+        "filter_reason": "解析失败"
+    },
+    {
+        "index": "#20",
+        "title": "Vision-Language Reasoning for Geolocalization: A Reinforcement Learning Approach",
+        "link": "/arxiv/2601.00388",
+        "arxiv_id": "2601.00388",
+        "authors": "Biao Wu, Meng Fang, Ling Chen, Ke Xu, Tao Cheng, Jun Wang",
+        "subjects": "Computation and Language",
+        "date": "2026-01-01",
+        "category": "cs.CL",
+        "crawl_time": "2026-01-06T11:00:05.504467",
+        "filter_reason": "API调用错误: Connection error."
+    },
+    {
+        "index": "#24",
+        "title": "DepFlow: Disentangled Speech Generation to Mitigate Semantic Bias in Depression Detection",
+        "link": "/arxiv/2601.00303",
+        "arxiv_id": "2601.00303",
+        "authors": "Yuxin Li, Xiangyu Zhang, Yifei Li, Zhiwei Guo, Haoyang Zhang, Eng Siong Chng, Cuntai Guan",
+        "subjects": "Computation and Language, Artificial Intelligence",
+        "date": "2026-01-01",
+        "category": "cs.CL",
+        "crawl_time": "2026-01-06T11:00:05.506396",
+        "filter_reason": "API调用错误: Connection error."
+    },
+    {
+        "index": "#22",
+        "title": "The Role of Mixed-Language Documents for Multilingual Large Language Model Pretraining",
+        "link": "/arxiv/2601.00364",
+        "arxiv_id": "2601.00364",
+        "authors": "Jiandong Shao, Raphael Tang, Crystina Zhang, Karin Sevegnani, Pontus Stenetorp, Jianfei Yang, Yao Lu",
+        "subjects": "Computation and Language",
+        "date": "2026-01-01",
+        "category": "cs.CL",
+        "crawl_time": "2026-01-06T11:00:05.505453",
+        "filter_reason": "API调用错误: Connection error."
     },
     {
         "index": "#29",
@@ -429,7 +393,43 @@
         "date": "2026-01-01",
         "category": "cs.CL",
         "crawl_time": "2026-01-06T11:00:05.508961",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009716646817Z2S75Uyc)', 'type': 'new_api_error'}}"
+        "filter_reason": "这篇论文的核心贡献是提出一个名为 **JP-TL-Bench** 的基准测试，用于评估日英翻译系统的质量。根据筛选标准，该论文不符合研究范围，具体原因如下： 1.  **核心判断不符（第一步）：** 论文的研究本质是 **评估方法** 和 **基准构建**，而非构建、改进或演化 LLM 智能体。虽然它使用了 LLM 作为“评判者”来比较翻译结果，但这属于评估指标或基础设施的范畴，而非 Agentic AI 的方法论或新框架。 2.  **缺乏 Agentic 核心要素（第二步）：** 论文内容未涉及智能体的核心能力，如规划、工具使用、记忆、自我反思或多智能体协作。它关注的是如何通过成对比较和 Bradley-Terry 模型来量化翻译质量，而非智能体的行为机制。 3.  **属于非演化型应用（第一步）：** 该论文将 LLM 应用于特定的翻译评估任务，旨在解决翻译质量判断的问题，并未涉及智能体的自我演化、自我完善或自主规划机制。 综上所述，该论文属于评估与基准测试领域，不属于 LLM 智能体及其演化的研究范畴。"
+    },
+    {
+        "index": "#25",
+        "title": "Can Large Language Models Still Explain Themselves? Investigating the Impact of Quantization on Self-Explanations",
+        "link": "/arxiv/2601.00282",
+        "arxiv_id": "2601.00282",
+        "authors": "Qianli Wang, Nils Feldhus, Pepa Atanasova, Fedor Splitt, Simon Ostermann, Sebastian Möller, Vera Schmitt",
+        "subjects": "Computation and Language, Artificial Intelligence, Machine Learning",
+        "date": "2026-01-01",
+        "category": "cs.CL",
+        "crawl_time": "2026-01-06T11:00:05.506970",
+        "filter_reason": "API调用错误: Connection error."
+    },
+    {
+        "index": "#26",
+        "title": "Beyond Perfect APIs: A Comprehensive Evaluation of LLM Agents Under Real-World API Complexity",
+        "link": "/arxiv/2601.00268",
+        "arxiv_id": "2601.00268",
+        "authors": "Doyoung Kim, Zhiwei Ren, Jie Hao, Zhongkai Sun, Lichao Wang, Xiyao Ma, Zack Ye, Xu Han, Jun Yin, Heng Ji, Wei Shen, Xing Fan, Benjamin Yao, Chenlei Guo",
+        "subjects": "Computation and Language, Artificial Intelligence",
+        "date": "2026-01-01",
+        "category": "cs.CL",
+        "crawl_time": "2026-01-06T11:00:05.507550",
+        "filter_reason": "API调用错误: Connection error."
+    },
+    {
+        "index": "#28",
+        "title": "Talk Less, Verify More: Improving LLM Assistants with Semantic Checks and Execution Feedback",
+        "link": "/arxiv/2601.00224",
+        "arxiv_id": "2601.00224",
+        "authors": "Yan Sun, Ming Cai, Stanley Kok",
+        "subjects": "Computation and Language, Software Engineering",
+        "date": "2026-01-01",
+        "category": "cs.CL",
+        "crawl_time": "2026-01-06T11:00:05.508524",
+        "filter_reason": "API调用错误: Connection error."
     },
     {
         "index": "#30",
@@ -441,19 +441,7 @@
         "date": "2026-01-01",
         "category": "cs.CL",
         "crawl_time": "2026-01-06T11:00:05.514670",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009744606775fNgI2ymP)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#32",
-        "title": "Understanding Emotion in Discourse: Recognition Insights and Linguistic Patterns for Generation",
-        "link": "/arxiv/2601.00181",
-        "arxiv_id": "2601.00181",
-        "authors": "Cheonkam Jeong, Adeline Nyamathi",
-        "subjects": "Computation and Language, Artificial Intelligence",
-        "date": "2026-01-01",
-        "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.515581",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009758738131yik2JHiL)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Connection error."
     },
     {
         "index": "#31",
@@ -465,91 +453,19 @@
         "date": "2026-01-01",
         "category": "cs.CL",
         "crawl_time": "2026-01-06T11:00:05.515154",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009759467230CJNc5xSN)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Connection error."
     },
     {
-        "index": "#33",
-        "title": "Pat-DEVAL: Chain-of-Legal-Thought Evaluation for Patent Description",
-        "link": "/arxiv/2601.00166",
-        "arxiv_id": "2601.00166",
-        "authors": "Yongmin Yoo, Kris W Pan",
-        "subjects": "Computation and Language",
+        "index": "#32",
+        "title": "Understanding Emotion in Discourse: Recognition Insights and Linguistic Patterns for Generation",
+        "link": "/arxiv/2601.00181",
+        "arxiv_id": "2601.00181",
+        "authors": "Cheonkam Jeong, Adeline Nyamathi",
+        "subjects": "Computation and Language, Artificial Intelligence",
         "date": "2026-01-01",
         "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.516000",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009761703025s41yEHKI)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#34",
-        "title": "Universal Adaptive Constraint Propagation: Scaling Structured Inference for Large Language Models via Meta-Reinforcement Learning",
-        "link": "/arxiv/2601.00095",
-        "arxiv_id": "2601.00095",
-        "authors": "Ibne Farabi Shihab, Sanjeda Akter, Anuj Sharma",
-        "subjects": "Computation and Language",
-        "date": "2025-12-31",
-        "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.516436",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009768468791ak0YRpo8)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#35",
-        "title": "RIMRULE: Improving Tool-Using Language Agents via MDL-Guided Rule Learning",
-        "link": "/arxiv/2601.00086",
-        "arxiv_id": "2601.00086",
-        "authors": "Xiang Gao, Yuguang Yao, Qi Zhang, Kaiwen Dong, Avinash Baidya, Ruocheng Guo, Hilaf Hasson, Kamalika Das",
-        "subjects": "Computation and Language",
-        "date": "2025-12-31",
-        "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.516947",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009775100127dfjo73jt)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#37",
-        "title": "Memory Bank Compression for Continual Adaptation of Large Language Models",
-        "link": "/arxiv/2601.00756",
-        "arxiv_id": "2601.00756",
-        "authors": "Thomas Katraouras, Dimitrios Rafailidis",
-        "subjects": "Machine Learning, Computation and Language",
-        "date": "2026-01-02",
-        "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.517838",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 202601061100097815064617XwF3nZM)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#36",
-        "title": "Geometry of Reason: Spectral Signatures of Valid Mathematical Reasoning",
-        "link": "/arxiv/2601.00791",
-        "arxiv_id": "2601.00791",
-        "authors": "Valentin Noël",
-        "subjects": "Machine Learning, Artificial Intelligence, Computation and Language, Logic in Computer Science",
-        "date": "2026-01-02",
-        "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.517406",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009785698866VNa8IX82)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#38",
-        "title": "TeleDoCTR: Domain-Specific and Contextual Troubleshooting for Telecommunications",
-        "link": "/arxiv/2601.00691",
-        "arxiv_id": "2601.00691",
-        "authors": "Mohamed Trabelsi, Huseyin Uzunalioglu",
-        "subjects": "Machine Learning, Computation and Language, Information Retrieval",
-        "date": "2026-01-02",
-        "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.518273",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009793569997llLHAuL2)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#39",
-        "title": "The Illusion of Insight in Reasoning Models",
-        "link": "/arxiv/2601.00514",
-        "arxiv_id": "2601.00514",
-        "authors": "Liv G. d'Aliberti, Manoel Horta Ribeiro",
-        "subjects": "Artificial Intelligence, Computation and Language",
-        "date": "2026-01-02",
-        "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.518697",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009794857995TlCx6ydM)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.515581",
+        "filter_reason": "API调用错误: Connection error."
     },
     {
         "index": "#40",
@@ -561,31 +477,7 @@
         "date": "2026-01-01",
         "category": "cs.CL",
         "crawl_time": "2026-01-06T11:00:05.519143",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009825989332sGDnWO5z)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#42",
-        "title": "From Sight to Insight: Improving Visual Reasoning Capabilities of Multimodal Models via Reinforcement Learning",
-        "link": "/arxiv/2601.00215",
-        "arxiv_id": "2601.00215",
-        "authors": "Omar Sharif, Eftekhar Hossain, Patrick Ng",
-        "subjects": "Computer Vision and Pattern Recognition, Computation and Language",
-        "date": "2026-01-01",
-        "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.525405",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009837359241dvyz76yU)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#43",
-        "title": "Overlooked Safety Vulnerability in LLMs: Malicious Intelligent Optimization Algorithm Request and its Jailbreak",
-        "link": "/arxiv/2601.00213",
-        "arxiv_id": "2601.00213",
-        "authors": "Haoran Gu, Handing Wang, Yi Mei, Mengjie Zhang, Yaochu Jin",
-        "subjects": "Cryptography and Security, Computation and Language",
-        "date": "2026-01-01",
-        "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.525896",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009839507656AgljjvB1)', 'type': 'new_api_error'}}"
+        "filter_reason": "这篇论文不符合我的研究范围，主要基于以下判断： 1.  **核心判断（第一步）：属于“非演化型应用”** 论文的核心贡献是提出一种结合树搜索和LLM语义评分的Chain-of-Thought (CoT) 方法，用于解决**电子商务领域**的具体问题——查询分类。这是将LLM作为工具应用于特定垂直领域（电商搜索）以提升分类准确率，而非构建、改进或演化LLM智能体本身的架构或方法论。 2.  **缺乏Agentic特征（第二步与第四步）** 虽然论文提到了“树搜索”，但这仅限于在分类法结构中进行路径查找，属于算法优化，并不具备智能体的核心特征。论文未涉及智能体的自主规划、工具使用、记忆机制、自我反思或多智能体协作。它关注的是静态的分类任务，而非智能体在环境中的动态交互或决策过程。 3.  **推理性质（第四步）** 论文中的CoT应用是为了提高特定任务（语义查询分类）的性能，属于“非Agentic的推理”范畴，即利用推理能力提升NLP任务效果，而非构建具有自主规划能力的Agentic框架。 综上所述，该论文是一篇典型的应用型研究，而非关于LLM智能体构建或演化的基础研究，因此予以排除。"
     },
     {
         "index": "#41",
@@ -597,7 +489,79 @@
         "date": "2026-01-01",
         "category": "cs.CL",
         "crawl_time": "2026-01-06T11:00:05.524934",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009835535446jg0oQYP5)', 'type': 'new_api_error'}}"
+        "filter_reason": "这篇论文的核心贡献是提出了一种名为 \"Deep Delta Learning (DDL)\" 的新型神经网络架构，旨在通过引入可学习的几何变换来改进深度残差网络中的恒等捷径连接。论文主要关注的是网络层的特征变换、梯度消失问题以及层间转移算子的谱分析。 根据筛选标准进行判断： 1.  **核心判断（第一步）**：该论文属于**基础设施**或基础模型架构的研究，而非构建、改进或演化 LLM 智能体的方法论。它不涉及智能体的规划、记忆、工具使用或多智能体协作。 2.  **正面指标（第二步）**：论文中未包含任何关于 Agentic AI、LLM-based Agents、Multi-Agent Systems 或 Self-Evolving 的核心范式或能力。 3.  **排除标准（第三步）**：虽然未明确涉及安全或多模态，但其本质是底层网络架构的数学与工程优化，与 Agentic AI 的研究焦点完全无关。 因此，该论文不符合 \"LLM智能体及其演化\" 的研究范围。"
+    },
+    {
+        "index": "#33",
+        "title": "Pat-DEVAL: Chain-of-Legal-Thought Evaluation for Patent Description",
+        "link": "/arxiv/2601.00166",
+        "arxiv_id": "2601.00166",
+        "authors": "Yongmin Yoo, Kris W Pan",
+        "subjects": "Computation and Language",
+        "date": "2026-01-01",
+        "category": "cs.CL",
+        "crawl_time": "2026-01-06T11:00:05.516000",
+        "filter_reason": "这篇论文的核心贡献是提出一个名为 Pat-DEVAL 的评估框架，用于评估专利描述的质量（特别是法律合规性和技术披露）。虽然论文中提到了 \"Chain-of-Legal-Thought (CoLT)\" 和 \"LLM-as-a-judge\" 范式，但这属于将大语言模型（LLM）作为工具应用于特定垂直领域（专利法/法律科技）的评估任务，而非构建或演化 LLM 智能体本身。 根据筛选标准的第一步（核心判断），该论文属于“非演化型应用”。它关注的是如何利用 LLM 进行文本质量评估，而不是研究智能体的规划、工具使用、多智能体协作或自我演化机制。尽管 CoLT 是一种推理机制，但在此处它是为了服务于评估指标，而非作为智能体在环境中行动或自主规划的框架。因此，该论文不符合关于 \"LLM智能体及其演化\" 的研究范围。"
+    },
+    {
+        "index": "#34",
+        "title": "Universal Adaptive Constraint Propagation: Scaling Structured Inference for Large Language Models via Meta-Reinforcement Learning",
+        "link": "/arxiv/2601.00095",
+        "arxiv_id": "2601.00095",
+        "authors": "Ibne Farabi Shihab, Sanjeda Akter, Anuj Sharma",
+        "subjects": "Computation and Language",
+        "date": "2025-12-31",
+        "category": "cs.CL",
+        "crawl_time": "2026-01-06T11:00:05.516436",
+        "filter_reason": "API调用错误: Connection error."
+    },
+    {
+        "index": "#36",
+        "title": "Geometry of Reason: Spectral Signatures of Valid Mathematical Reasoning",
+        "link": "/arxiv/2601.00791",
+        "arxiv_id": "2601.00791",
+        "authors": "Valentin Noël",
+        "subjects": "Machine Learning, Artificial Intelligence, Computation and Language, Logic in Computer Science",
+        "date": "2026-01-02",
+        "category": "cs.CL",
+        "crawl_time": "2026-01-06T11:00:05.517406",
+        "filter_reason": "API调用错误: Connection error."
+    },
+    {
+        "index": "#35",
+        "title": "RIMRULE: Improving Tool-Using Language Agents via MDL-Guided Rule Learning",
+        "link": "/arxiv/2601.00086",
+        "arxiv_id": "2601.00086",
+        "authors": "Xiang Gao, Yuguang Yao, Qi Zhang, Kaiwen Dong, Avinash Baidya, Ruocheng Guo, Hilaf Hasson, Kamalika Das",
+        "subjects": "Computation and Language",
+        "date": "2025-12-31",
+        "category": "cs.CL",
+        "crawl_time": "2026-01-06T11:00:05.516947",
+        "filter_reason": "API调用错误: Connection error."
+    },
+    {
+        "index": "#37",
+        "title": "Memory Bank Compression for Continual Adaptation of Large Language Models",
+        "link": "/arxiv/2601.00756",
+        "arxiv_id": "2601.00756",
+        "authors": "Thomas Katraouras, Dimitrios Rafailidis",
+        "subjects": "Machine Learning, Computation and Language",
+        "date": "2026-01-02",
+        "category": "cs.CL",
+        "crawl_time": "2026-01-06T11:00:05.517838",
+        "filter_reason": "API调用错误: Connection error."
+    },
+    {
+        "index": "#38",
+        "title": "TeleDoCTR: Domain-Specific and Contextual Troubleshooting for Telecommunications",
+        "link": "/arxiv/2601.00691",
+        "arxiv_id": "2601.00691",
+        "authors": "Mohamed Trabelsi, Huseyin Uzunalioglu",
+        "subjects": "Machine Learning, Computation and Language, Information Retrieval",
+        "date": "2026-01-02",
+        "category": "cs.CL",
+        "crawl_time": "2026-01-06T11:00:05.518273",
+        "filter_reason": "API调用错误: Connection error."
     },
     {
         "index": "#44",
@@ -609,19 +573,19 @@
         "date": "2026-01-01",
         "category": "cs.CL",
         "crawl_time": "2026-01-06T11:00:05.526340",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009841886600eIkLvgVY)', 'type': 'new_api_error'}}"
+        "filter_reason": "根据筛选标准，这篇论文不符合研究要求，具体判断过程如下： 1.  **核心判断（第一步）**： *   论文的核心贡献是构建并比较不同的时间序列预测模型（LSTM vs Transformer）在股票价格预测任务上的表现。 *   这属于**非演化型应用**。论文将深度学习模型作为工具应用于金融领域，旨在解决特定的预测问题，而非提出新的LLM智能体构建方法、多智能体协作框架或自我演化机制。 *   尽管标题中包含“StockBot”，但摘要明确指出其关注点是“预测准确性”和“架构归纳偏置”，而非智能体的自主性、规划或工具使用能力。 2.  **正面指标缺失（第二步）**： *   论文中未出现 `Agentic AI`、`Planning`、`Tool Use`、`Multi-Agent Systems` 或 `Self-Evolving` 等核心范式或能力指标。 *   研究焦点在于模型架构（LSTM与Transformer）的性能对比，而非智能体的行为逻辑或演化机制。 3.  **排除标准符合（第三步）**： *   该研究本质上是一个特定领域（金融/股票）的应用研究，属于排除范围。 综上所述，该论文属于传统的金融时间序列预测研究，不涉及LLM智能体的构建、改进或演化，因此予以排除。"
     },
     {
-        "index": "#45",
-        "title": "Learning Speech Representations with Variational Predictive Coding",
-        "link": "/arxiv/2601.00100",
-        "arxiv_id": "2601.00100",
-        "authors": "Sung-Lin Yeh, Peter Bell, Hao Tang",
-        "subjects": "Audio and Speech Processing, Computation and Language",
-        "date": "2025-12-31",
+        "index": "#39",
+        "title": "The Illusion of Insight in Reasoning Models",
+        "link": "/arxiv/2601.00514",
+        "arxiv_id": "2601.00514",
+        "authors": "Liv G. d'Aliberti, Manoel Horta Ribeiro",
+        "subjects": "Artificial Intelligence, Computation and Language",
+        "date": "2026-01-02",
         "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.526797",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009847243089jPX8fyuC)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.518697",
+        "filter_reason": "API调用错误: Connection error."
     },
     {
         "index": "#47",
@@ -633,55 +597,43 @@
         "date": "2025-12-31",
         "category": "cs.CL",
         "crawl_time": "2026-01-06T11:00:05.527763",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009860226093iH3CnhuH)', 'type': 'new_api_error'}}"
+        "filter_reason": "这篇论文的核心贡献在于揭示LLM模型组合技术（如权重合并、分词器移植）中存在的供应链安全漏洞，并提出了一种名为“breaker token”的隐秘攻击方法。根据筛选标准，该论文不符合研究要求，原因如下： 1.  **触犯排除标准（安全与对齐）**：论文明确涉及“Stealthy Sabotage”（隐秘破坏）、“malicious feature”（恶意特征）、“attack”（攻击）以及“evade outlier detection”（规避异常值检测）。根据第三步排除标准，凡是主要贡献涉及 `Safety`、`Security` 或攻击机制的论文，一律排除。 2.  **核心判断不符（基础设施 vs. 智能体构建）**：论文关注的是模型组合、分词器移植等底层基础设施和部署优化技术，而非构建、改进或演化LLM智能体的方法论。它不涉及智能体的规划、工具使用、多智能体协作或自我演化机制。 3.  **非Agentic AI研究**：尽管论文讨论了模型的生成能力，但其目的是破坏模型的生成，而非赋予智能体自主性、规划能力或让其进行自我完善。 综上所述，"
     },
     {
-        "index": "#46",
-        "title": "The Agentic Leash: Extracting Causal Feedback Fuzzy Cognitive Maps with LLMs",
-        "link": "/arxiv/2601.00097",
-        "arxiv_id": "2601.00097",
-        "authors": "Akash Kumar Panda, Olaoluwa Adigun, Bart Kosko",
-        "subjects": "Artificial Intelligence, Computation and Language, Human-Computer Interaction, Information Retrieval",
+        "index": "#45",
+        "title": "Learning Speech Representations with Variational Predictive Coding",
+        "link": "/arxiv/2601.00100",
+        "arxiv_id": "2601.00100",
+        "authors": "Sung-Lin Yeh, Peter Bell, Hao Tang",
+        "subjects": "Audio and Speech Processing, Computation and Language",
         "date": "2025-12-31",
         "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.527274",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009857955760GIqqI0MA)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.526797",
+        "filter_reason": "这篇论文不符合我的研究范围，具体判断依据如下： 1.  **核心判断（第一步）**：论文的核心贡献在于提出一种新的语音表征学习方法（Variational Predictive Coding），用于改进HuBERT目标函数。这属于**自监督学习**和**音频信号处理**的基础模型训练范畴，而非构建、改进或演化LLM智能体。论文不涉及智能体的架构、规划、工具使用或交互机制。 2.  **缺乏正面指标（第二步）**：论文中未出现任何关于Agentic AI的核心范式或能力关键词（如Planning, Tool Use, Memory, Multi-Agent Collaboration等）。其重点在于模型底层的参数化和优化，而非智能体的行为逻辑或演化机制。 3.  **符合排除标准（第三步）**：虽然论文主要关注语音而非视觉，但它属于特定模态（音频）的基础表征学习研究，类似于被排除的多模态基础模型研究。它并未将语音作为智能体感知环境并进行决策的工具，而是作为研究表征学习本身的对象。 综上所述，该论文属于语音处理领域的基础研究，与“LLM智能体及其演化”这一课题无关，因此予以排除。"
     },
     {
-        "index": "#49",
-        "title": "Reasoning in Action: MCTS-Driven Knowledge Retrieval for Large Language Models",
-        "link": "/arxiv/2601.00003",
-        "arxiv_id": "2601.00003",
-        "authors": "Shuqi Liu, Bowei He, Chen Ma, Linqi Song",
-        "subjects": "Artificial Intelligence, Computation and Language",
-        "date": "2025-11-28",
+        "index": "#42",
+        "title": "From Sight to Insight: Improving Visual Reasoning Capabilities of Multimodal Models via Reinforcement Learning",
+        "link": "/arxiv/2601.00215",
+        "arxiv_id": "2601.00215",
+        "authors": "Omar Sharif, Eftekhar Hossain, Patrick Ng",
+        "subjects": "Computer Vision and Pattern Recognition, Computation and Language",
+        "date": "2026-01-01",
         "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.528744",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009874049587Uh5ELwFQ)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.525405",
+        "filter_reason": "API调用错误: Connection error."
     },
     {
-        "index": "#48",
-        "title": "Finetuning Large Language Models for Automated Depression Screening in Nigerian Pidgin English: GENSCORE Pilot Study",
-        "link": "/arxiv/2601.00004",
-        "arxiv_id": "2601.00004",
-        "authors": "Isaac Iyinoluwa Olufadewa, Miracle Ayomikun Adesina, Ezekiel Ayodeji Oladejo, Uthman Babatunde Usman, Owen Kolade Adeniyi, Matthew Tolulope Olawoyin",
-        "subjects": "Artificial Intelligence, Computation and Language, Machine Learning",
-        "date": "2025-11-28",
+        "index": "#43",
+        "title": "Overlooked Safety Vulnerability in LLMs: Malicious Intelligent Optimization Algorithm Request and its Jailbreak",
+        "link": "/arxiv/2601.00213",
+        "arxiv_id": "2601.00213",
+        "authors": "Haoran Gu, Handing Wang, Yi Mei, Mengjie Zhang, Yaochu Jin",
+        "subjects": "Cryptography and Security, Computation and Language",
+        "date": "2026-01-01",
         "category": "cs.CL",
-        "crawl_time": "2026-01-06T11:00:05.528260",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009876926579QQupNinW)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#1",
-        "title": "An Agentic Framework for Neuro-Symbolic Programming",
-        "link": "/arxiv/2601.00743",
-        "arxiv_id": "2601.00743",
-        "authors": "Aliakbar Nafar, Chetan Chigurupati, Danial Kamali, Hamid Karimian, Parisa Kordjamshidi",
-        "subjects": "Artificial Intelligence",
-        "date": "2026-01-02",
-        "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.941882",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009902046618ZW2M7rks)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.525896",
+        "filter_reason": "这篇论文的核心贡献在于揭示和评估LLM在生成“智能优化算法”时的安全漏洞，并提出了名为MOBjailbreak的越狱方法以及相应的测试基准。 根据筛选标准，判断过程如下： 1.  **核心判断（第一步）**：论文的本质是**安全研究**，而非构建或演化LLM智能体。虽然它涉及“智能优化算法”，但这只是作为攻击的载体，论文的重点在于如何诱导LLM生成恶意代码以及如何防御这种攻击，而非提出新的智能体架构或演化机制。 2.  **排除标准（第三步）**：论文明确属于**安全与对齐**范畴。标题和摘要中多次出现“Safety Vulnerability”（安全漏洞）、“Jailbreak”（越狱）、“Malicious”（恶意）、“Defenses”（防御）以及“Alignment techniques”（对齐技术）。根据筛选规则，只要论文的主要贡献是关于Safety、Security或Alignment，一律排除。 综上所述，该论文属于LLM安全领域的研究，不符合关于“LLM智能体及其演化”的构建、改进或演化的研究目标。"
     },
     {
         "index": "#3",
@@ -693,43 +645,7 @@
         "date": "2026-01-02",
         "category": "cs.AI",
         "crawl_time": "2026-01-06T11:00:05.943016",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009916869922cSx8SQ0I)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#2",
-        "title": "A Vision-and-Knowledge Enhanced Large Language Model for Generalizable Pedestrian Crossing Behavior Inference",
-        "link": "/arxiv/2601.00694",
-        "arxiv_id": "2601.00694",
-        "authors": "Qingwen Pu, Kun Xie, Hong Yang, Guocong Zhai",
-        "subjects": "Artificial Intelligence",
-        "date": "2026-01-02",
-        "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.942462",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009917550039KUlY42oM)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#6",
-        "title": "Can Semantic Methods Enhance Team Sports Tactics? A Methodology for Football with Broader Applications",
-        "link": "/arxiv/2601.00421",
-        "arxiv_id": "2601.00421",
-        "authors": "Alessio Di Rubbo, Mattia Neri, Remo Pareschi, Marco Pedroni, Roberto Valtancoli, Paolino Zica",
-        "subjects": "Artificial Intelligence",
-        "date": "2026-01-01",
-        "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.944513",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009920524355dXZaioPe)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#5",
-        "title": "Progressive Ideation using an Agentic AI Framework for Human-AI Co-Creation",
-        "link": "/arxiv/2601.00475",
-        "arxiv_id": "2601.00475",
-        "authors": "Sankar B, Srinidhi Ranjini Girish, Aadya Bharti, Dibakar Sen",
-        "subjects": "Artificial Intelligence, Human-Computer Interaction",
-        "date": "2026-01-01",
-        "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.943971",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 202601061100099199181845MBNoqsZ)', 'type': 'new_api_error'}}"
+        "filter_reason": "这篇论文的核心贡献是提出了一种名为 DA-DPO 的训练框架，旨在通过难度感知的偏好优化来减少多模态大语言模型（MLLMs）的幻觉。根据筛选标准，该论文被排除的原因如下： 1.  **触犯排除标准（安全与对齐）：** 论文的研究目标明确为“Reducing MLLM Hallucinations”（减少MLLM幻觉）。根据第三步排除标准，凡是主要贡献涉及 `Hallucination`（幻觉）以及 `Safety`、`Alignment`（对齐）的论文，一律排除。DA-DPO 本质上是一种模型对齐技术，而非智能体构建技术。 2.  **触犯排除标准（多模态与视觉）：** 论文的研究对象是 `MLLMs`（Multimodal Large Language Models），且方法涉及视觉-语言模型。虽然视觉可以作为智能体的工具，但本论文的核心是改进基础多模态模型的训练过程，而非构建使用视觉作为感知工具的智能体框架。 3.  **不符合核心目标（Agentic AI）：** 论文关注的是模型层面的微调和数据加权策略，以提升模型输出的准确性和鲁棒性。它不涉及智能体的核心要素，如 `Planning`（规划）、`Tool Use`（工具使用）、`Memory`（记忆）、`Multi-Agent`（多智能体协作）或 `Self-Evolving`（自我演化机制）。 综上所述，该论文属于模型对齐与多模态模型优化领域，不属于 LLM智能体构建或演化的研究范畴。"
     },
     {
         "index": "#7",
@@ -741,103 +657,79 @@
         "date": "2026-01-01",
         "category": "cs.AI",
         "crawl_time": "2026-01-06T11:00:05.945003",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009925222496miISKwfi)', 'type': 'new_api_error'}}"
+        "filter_reason": "1.  **核心贡献不符 (第一步 - 核心判断)**: *   这篇论文的核心贡献是提出一个名为 ACCD 的框架，用于解决**社交媒体中的协同虚假行为检测**这一特定领域的问题。 *   论文主要采用的是收敛交叉映射 (CCM)、主动学习和半监督分类等传统机器学习/数据挖掘技术，而非构建或演化 LLM 智能体。 *   摘要中未提及 LLM、大语言模型或 Agentic AI 相关的核心概念，因此它属于“非演化型应用”，即将算法应用于社交媒体安全领域，而非研究智能体本身的架构或演化。 2.  **触犯排除标准 (第三步 - 排除标准)**: *   **安全与对齐**: 论文的研究目标是检测协同攻击和机器人行为，这完全属于 **Security (安全)** 和 **Safety** 的范畴。根据筛选标准，只要主要贡献是关于 Security 的，一律排除。 3.  **概念误读 (第二步 & 第四步)**: *   虽然论文标题和摘要中提到了 \"Memory-Guided\" (记忆引导) 和 \"Self-verification\" (自我验证)，但这并非指 LLM 智能体的上下文记忆或自我反思机制。这里的“记忆”指的是存储历史检测经验以优化参数，“自我验证”指的是模型验证模块，属于传统机器学习模型的优化策略，不具备 Agentic AI 的自主性、规划或工具使用特征。 综上所述，该论文是一篇关于社交媒体安全的机器学习应用论文，与 LLM 智能体及其演化的研究课题无关。"
     },
     {
-        "index": "#9",
-        "title": "Multiagent Reinforcement Learning for Liquidity Games",
-        "link": "/arxiv/2601.00324",
-        "arxiv_id": "2601.00324",
-        "authors": "Alicia Vidler, Gal A. Kaminka",
-        "subjects": "Artificial Intelligence",
-        "date": "2026-01-01",
-        "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.946029",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009932526894HUXnXOc7)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#11",
-        "title": "Will LLM-powered Agents Bias Against Humans? Exploring the Belief-Dependent Vulnerability",
-        "link": "/arxiv/2601.00240",
-        "arxiv_id": "2601.00240",
-        "authors": "Zongwei Wang, Bincheng Gu, Hongyu Yu, Junliang Yu, Tao He, Jiayin Feng, Min Gao",
-        "subjects": "Artificial Intelligence, Computers and Society",
-        "date": "2026-01-01",
-        "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.947379",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009934889640xKvej1Aq)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#12",
-        "title": "FlashInfer-Bench: Building the Virtuous Cycle for AI-driven LLM Systems",
-        "link": "/arxiv/2601.00227",
-        "arxiv_id": "2601.00227",
-        "authors": "Shanli Xing, Yiyan Zhai, Alexander Jiang, Yixin Dong, Yong Wu, Zihao Ye, Charlie Ruan, Yingyi Huang, Yineng Zhang, Liangsheng Yin, Aksara Bayyapu, Luis Ceze, Tianqi Chen",
-        "subjects": "Artificial Intelligence",
-        "date": "2026-01-01",
-        "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.948037",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009948473323laATle5v)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#13",
-        "title": "An AI Monkey Gets Grapes for Sure -- Sphere Neural Networks for Reliable Decision-Making",
-        "link": "/arxiv/2601.00142",
-        "arxiv_id": "2601.00142",
-        "authors": "Tiansi Dong, Henry He, Pietro Liò, Mateja Jamnik",
-        "subjects": "Artificial Intelligence",
-        "date": "2026-01-01",
-        "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.948503",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009954461013VShrO2y7)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#14",
-        "title": "Explicit Abstention Knobs for Predictable Reliability in Video Question Answering",
-        "link": "/arxiv/2601.00138",
-        "arxiv_id": "2601.00138",
-        "authors": "Jorge Ortiz",
-        "subjects": "Artificial Intelligence, Computer Vision and Pattern Recognition",
+        "index": "#46",
+        "title": "The Agentic Leash: Extracting Causal Feedback Fuzzy Cognitive Maps with LLMs",
+        "link": "/arxiv/2601.00097",
+        "arxiv_id": "2601.00097",
+        "authors": "Akash Kumar Panda, Olaoluwa Adigun, Bart Kosko",
+        "subjects": "Artificial Intelligence, Computation and Language, Human-Computer Interaction, Information Retrieval",
         "date": "2025-12-31",
-        "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.948986",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009976720161XxRUEJAG)', 'type': 'new_api_error'}}"
+        "category": "cs.CL",
+        "crawl_time": "2026-01-06T11:00:05.527274",
+        "filter_reason": "API调用错误: Connection error."
     },
     {
-        "index": "#15",
-        "title": "Constructing a Neuro-Symbolic Mathematician from First Principles",
-        "link": "/arxiv/2601.00125",
-        "arxiv_id": "2601.00125",
-        "authors": "Keqin Xie",
+        "index": "#48",
+        "title": "Finetuning Large Language Models for Automated Depression Screening in Nigerian Pidgin English: GENSCORE Pilot Study",
+        "link": "/arxiv/2601.00004",
+        "arxiv_id": "2601.00004",
+        "authors": "Isaac Iyinoluwa Olufadewa, Miracle Ayomikun Adesina, Ezekiel Ayodeji Oladejo, Uthman Babatunde Usman, Owen Kolade Adeniyi, Matthew Tolulope Olawoyin",
+        "subjects": "Artificial Intelligence, Computation and Language, Machine Learning",
+        "date": "2025-11-28",
+        "category": "cs.CL",
+        "crawl_time": "2026-01-06T11:00:05.528260",
+        "filter_reason": "API调用错误: Connection error."
+    },
+    {
+        "index": "#2",
+        "title": "A Vision-and-Knowledge Enhanced Large Language Model for Generalizable Pedestrian Crossing Behavior Inference",
+        "link": "/arxiv/2601.00694",
+        "arxiv_id": "2601.00694",
+        "authors": "Qingwen Pu, Kun Xie, Hong Yang, Guocong Zhai",
         "subjects": "Artificial Intelligence",
-        "date": "2025-12-31",
+        "date": "2026-01-02",
         "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.949429",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009995797740U6K0WqU6)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.942462",
+        "filter_reason": "这篇论文不符合我的研究范围，主要基于以下判断依据： 1.  **属于“非演化型应用” (第一步排除标准)**: 论文的核心贡献是构建了一个名为 PedX-LLM 的模型，用于解决特定领域的问题——**行人过街行为推断**。虽然它使用了 LLM，但其本质是将 LLM 作为一种推理引擎应用到交通/自动驾驶领域，而非提出一种通用的、可迁移的 LLM 智能体构建方法或演化框架。这符合“将 LLM 应用到特定领域（如交通）去解决该领域问题”的排除标准。 2.  **涉及多模态与视觉 (第三步排除标准)**: 论文标题明确指出是“Vision-and-Knowledge Enhanced”（视觉与知识增强），摘要中也强调集成了“LLaVA-extracted visual features”（LLaVA 提取的视觉特征）。根据筛选标准，涉及 Vision、MLLMs 等多模态技术的论文通常被排除，除非视觉仅作为智能体感知环境的工具且不是研究核心。在本论文中，视觉模块的集成是提升性能的关键贡献点，属于多模态模型的研究范畴，而非纯粹的 Agentic AI 框架研究。 3.  **缺乏核心 Agentic 特征 (第一步与第二步)**: 论文关注的是基于视觉和文本输入的“行为推断”或“决策预测”，这是一个典型的监督学习或预测任务。它缺乏 LLM 智能体的核心特征，如**自主规划**、**工具使用**、**记忆机制**或**自我反思**。虽然摘要中提到了“reasoning”（推理），但这指的是模型内部的语义理解能力，而非智能体在复杂任务中采取多步行动的 Agentic 规划能力。 综上所述，该论文是一篇典型的多模态大模型在垂直领域的应用论文，不符合关于“LLM智能体及其演化”的研究课题要求。"
     },
     {
-        "index": "#17",
-        "title": "Mortar: Evolving Mechanics for Automatic Game Design",
-        "link": "/arxiv/2601.00105",
-        "arxiv_id": "2601.00105",
-        "authors": "Muhammad U. Nasir, Yuchen Li, Steven James, Julian Togelius",
-        "subjects": "Artificial Intelligence",
-        "date": "2025-12-31",
-        "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.950428",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009994853224x5GcnpdK)', 'type': 'new_api_error'}}"
+        "index": "#49",
+        "title": "Reasoning in Action: MCTS-Driven Knowledge Retrieval for Large Language Models",
+        "link": "/arxiv/2601.00003",
+        "arxiv_id": "2601.00003",
+        "authors": "Shuqi Liu, Bowei He, Chen Ma, Linqi Song",
+        "subjects": "Artificial Intelligence, Computation and Language",
+        "date": "2025-11-28",
+        "category": "cs.CL",
+        "crawl_time": "2026-01-06T11:00:05.528744",
+        "filter_reason": "API调用错误: Connection error."
     },
     {
-        "index": "#16",
-        "title": "Ask, Clarify, Optimize: Human-LLM Agent Collaboration for Smarter Inventory Control",
-        "link": "/arxiv/2601.00121",
-        "arxiv_id": "2601.00121",
-        "authors": "Yaqi Duan, Yichun Hu, Jiashuo Jiang",
+        "index": "#5",
+        "title": "Progressive Ideation using an Agentic AI Framework for Human-AI Co-Creation",
+        "link": "/arxiv/2601.00475",
+        "arxiv_id": "2601.00475",
+        "authors": "Sankar B, Srinidhi Ranjini Girish, Aadya Bharti, Dibakar Sen",
         "subjects": "Artificial Intelligence, Human-Computer Interaction",
-        "date": "2025-12-31",
+        "date": "2026-01-01",
         "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.949964",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110009997991990Crz7jSlP)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.943971",
+        "filter_reason": "API调用错误: Connection error."
+    },
+    {
+        "index": "#6",
+        "title": "Can Semantic Methods Enhance Team Sports Tactics? A Methodology for Football with Broader Applications",
+        "link": "/arxiv/2601.00421",
+        "arxiv_id": "2601.00421",
+        "authors": "Alessio Di Rubbo, Mattia Neri, Remo Pareschi, Marco Pedroni, Roberto Valtancoli, Paolino Zica",
+        "subjects": "Artificial Intelligence",
+        "date": "2026-01-01",
+        "category": "cs.AI",
+        "crawl_time": "2026-01-06T11:00:05.944513",
+        "filter_reason": "API调用错误: Connection error."
     },
     {
         "index": "#19",
@@ -849,19 +741,31 @@
         "date": "2025-12-29",
         "category": "cs.AI",
         "crawl_time": "2026-01-06T11:00:05.951468",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 202601061100104606033H2tJ3HAM)', 'type': 'new_api_error'}}"
+        "filter_reason": "解析失败"
     },
     {
-        "index": "#21",
-        "title": "A multi-algorithm approach for operational human resources workload balancing in a last mile urban delivery system",
-        "link": "/arxiv/2601.00023",
-        "arxiv_id": "2601.00023",
-        "authors": "Luis M. Moreno-Saavedra, Silvia Jimenez-Fernandez, Antonio Portilla-Figueras, David Casillas-Perez, Sancho Salcedo-Sanz",
-        "subjects": "Artificial Intelligence, Machine Learning",
-        "date": "2025-12-24",
+        "index": "#9",
+        "title": "Multiagent Reinforcement Learning for Liquidity Games",
+        "link": "/arxiv/2601.00324",
+        "arxiv_id": "2601.00324",
+        "authors": "Alicia Vidler, Gal A. Kaminka",
+        "subjects": "Artificial Intelligence",
+        "date": "2026-01-01",
         "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.952848",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 202601061100109437178kb03aseG)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.946029",
+        "filter_reason": "API调用错误: Connection error."
+    },
+    {
+        "index": "#11",
+        "title": "Will LLM-powered Agents Bias Against Humans? Exploring the Belief-Dependent Vulnerability",
+        "link": "/arxiv/2601.00240",
+        "arxiv_id": "2601.00240",
+        "authors": "Zongwei Wang, Bincheng Gu, Hongyu Yu, Junliang Yu, Tao He, Jiayin Feng, Min Gao",
+        "subjects": "Artificial Intelligence, Computers and Society",
+        "date": "2026-01-01",
+        "category": "cs.AI",
+        "crawl_time": "2026-01-06T11:00:05.947379",
+        "filter_reason": "API调用错误: Connection error."
     },
     {
         "index": "#20",
@@ -873,67 +777,79 @@
         "date": "2025-12-26",
         "category": "cs.AI",
         "crawl_time": "2026-01-06T11:00:05.952235",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 202601061100105122849MIkvKYeb)', 'type': 'new_api_error'}}"
+        "filter_reason": "根据第一步的核心判断标准，这篇论文不符合要求。论文的核心贡献是提出一种基于规则的框架和一种新的手牌评估度量，用于Classic Indian Rummy（印度纸牌游戏）的策略建模。这属于传统的人工智能或博弈论研究，而非基于大语言模型（LLM）的智能体研究。 具体分析如下： 1.  **缺乏LLM核心**：论文明确提到使用的是 \"rule-based framework\"（基于规则的框架）和 \"traditional heuristics\"（传统启发式方法），完全没有涉及大语言模型（LLM）或Transformer架构。 2.  **非Agentic AI研究焦点**：虽然论文涉及智能体在游戏中的决策，但它侧重于特定领域（纸牌游戏）的规则和度量优化，而不是构建通用的LLM智能体架构、规划能力或工具使用机制。 3.  **排除类别**：该论文属于将传统算法应用于特定领域（游戏）解决问题的范畴，符合第一步中的“非演化型应用”排除标准，且不属于“自我演化”或“多智能体协作”的LLM研究范畴。 因此，该论文与“LLM智能体及其演化”的研究课题无关。"
     },
     {
-        "index": "#22",
-        "title": "Toward a Physical Theory of Intelligence",
-        "link": "/arxiv/2601.00021",
-        "arxiv_id": "2601.00021",
-        "authors": "Peter David Fagan",
+        "index": "#12",
+        "title": "FlashInfer-Bench: Building the Virtuous Cycle for AI-driven LLM Systems",
+        "link": "/arxiv/2601.00227",
+        "arxiv_id": "2601.00227",
+        "authors": "Shanli Xing, Yiyan Zhai, Alexander Jiang, Yixin Dong, Yong Wu, Zihao Ye, Charlie Ruan, Yingyi Huang, Yineng Zhang, Liangsheng Yin, Aksara Bayyapu, Luis Ceze, Tianqi Chen",
         "subjects": "Artificial Intelligence",
-        "date": "2025-12-22",
+        "date": "2026-01-01",
         "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.953278",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 2026010611001013969605r08WKJNS)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.948037",
+        "filter_reason": "API调用错误: Connection error."
     },
     {
-        "index": "#26",
-        "title": "FedHypeVAE: Federated Learning with Hypernetwork Generated Conditional VAEs for Differentially Private Embedding Sharing",
-        "link": "/arxiv/2601.00785",
-        "arxiv_id": "2601.00785",
-        "authors": "Sunny Gupta, Amit Sethi",
-        "subjects": "Machine Learning, Artificial Intelligence, Computer Vision and Pattern Recognition",
-        "date": "2026-01-02",
+        "index": "#13",
+        "title": "An AI Monkey Gets Grapes for Sure -- Sphere Neural Networks for Reliable Decision-Making",
+        "link": "/arxiv/2601.00142",
+        "arxiv_id": "2601.00142",
+        "authors": "Tiansi Dong, Henry He, Pietro Liò, Mateja Jamnik",
+        "subjects": "Artificial Intelligence",
+        "date": "2026-01-01",
         "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.955372",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 2026010611001023626113XVVJPNW2)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.948503",
+        "filter_reason": "API调用错误: Connection error."
     },
     {
-        "index": "#27",
-        "title": "LLM Agents for Combinatorial Efficient Frontiers: Investment Portfolio Optimization",
-        "link": "/arxiv/2601.00770",
-        "arxiv_id": "2601.00770",
-        "authors": "Simon Paquette-Greenbaum, Jiangbo Yu",
-        "subjects": "Computational Engineering, Finance, and Science, Artificial Intelligence, General Economics",
-        "date": "2026-01-02",
+        "index": "#14",
+        "title": "Explicit Abstention Knobs for Predictable Reliability in Video Question Answering",
+        "link": "/arxiv/2601.00138",
+        "arxiv_id": "2601.00138",
+        "authors": "Jorge Ortiz",
+        "subjects": "Artificial Intelligence, Computer Vision and Pattern Recognition",
+        "date": "2025-12-31",
         "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.955898",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 2026010611001032035107MQ5TDDfL)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.948986",
+        "filter_reason": "API调用错误: Connection error."
     },
     {
-        "index": "#28",
-        "title": "Stochastic Actor-Critic: Mitigating Overestimation via Temporal Aleatoric Uncertainty",
-        "link": "/arxiv/2601.00737",
-        "arxiv_id": "2601.00737",
-        "authors": "Uğurcan Özalp",
-        "subjects": "Machine Learning, Artificial Intelligence, Systems and Control",
-        "date": "2026-01-02",
+        "index": "#15",
+        "title": "Constructing a Neuro-Symbolic Mathematician from First Principles",
+        "link": "/arxiv/2601.00125",
+        "arxiv_id": "2601.00125",
+        "authors": "Keqin Xie",
+        "subjects": "Artificial Intelligence",
+        "date": "2025-12-31",
         "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.956372",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 2026010611001053128281HuRLiAZO)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.949429",
+        "filter_reason": "API调用错误: Connection error."
     },
     {
-        "index": "#30",
-        "title": "Detecting Performance Degradation under Data Shift in Pathology Vision-Language Model",
-        "link": "/arxiv/2601.00716",
-        "arxiv_id": "2601.00716",
-        "authors": "Hao Guan, Li Zhou",
-        "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
-        "date": "2026-01-02",
+        "index": "#17",
+        "title": "Mortar: Evolving Mechanics for Automatic Game Design",
+        "link": "/arxiv/2601.00105",
+        "arxiv_id": "2601.00105",
+        "authors": "Muhammad U. Nasir, Yuchen Li, Steven James, Julian Togelius",
+        "subjects": "Artificial Intelligence",
+        "date": "2025-12-31",
         "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.962473",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 2026010611001076142631SCe1pNZq)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.950428",
+        "filter_reason": "API调用错误: Connection error."
+    },
+    {
+        "index": "#16",
+        "title": "Ask, Clarify, Optimize: Human-LLM Agent Collaboration for Smarter Inventory Control",
+        "link": "/arxiv/2601.00121",
+        "arxiv_id": "2601.00121",
+        "authors": "Yaqi Duan, Yichun Hu, Jiashuo Jiang",
+        "subjects": "Artificial Intelligence, Human-Computer Interaction",
+        "date": "2025-12-31",
+        "category": "cs.AI",
+        "crawl_time": "2026-01-06T11:00:05.949964",
+        "filter_reason": "API调用错误: Connection error."
     },
     {
         "index": "#31",
@@ -945,43 +861,55 @@
         "date": "2026-01-02",
         "category": "cs.AI",
         "crawl_time": "2026-01-06T11:00:05.962862",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 2026010611001075152721My4YU7Rh)', 'type': 'new_api_error'}}"
+        "filter_reason": "这篇论文的核心贡献是提出了一种名为 QSLM 的量化框架，用于压缩 Spike-driven Language Models (SLMs)，以减少其内存占用和功耗，从而适应资源受限的嵌入式设备。 根据筛选标准进行判断： 1.  **第一步（核心判断）**：论文的研究重点在于模型的**基础设施**和**部署优化**。它解决的是模型压缩、量化策略和硬件资源消耗问题，而非构建、改进或演化 LLM 智能体的方法论。根据筛选标准中的排除项：“排除主要关注模型基础设施、部署优化、硬件加速的研究”，该论文应被排除。 2.  **第二步（正面指标）**：论文未涉及任何 Agentic AI 的核心范式（如规划、工具使用、自我反思）或多智能体系统。 3.  **关于“记忆”的区分**：虽然摘要中提到了 \"memory footprints\"（内存占用），但这指的是计算机硬件的存储资源，而非智能体架构中的 \"Memory\"（记忆机制，即存储过去经验或上下文的能力）。两者本质完全不同。 综上所述，该论文属于模型压缩与部署优化领域，不符合关于 \"LLM智能体及其演化\" 的研究课题要求。"
     },
     {
-        "index": "#34",
-        "title": "Avatar Forcing: Real-Time Interactive Head Avatar Generation for Natural Conversation",
-        "link": "/arxiv/2601.00664",
-        "arxiv_id": "2601.00664",
-        "authors": "Taekyung Ki, Sangwon Jang, Jaehyeong Jo, Jaehong Yoon, Sung Ju Hwang",
-        "subjects": "Machine Learning, Artificial Intelligence, Computer Vision and Pattern Recognition, Human-Computer Interaction, Multimedia",
-        "date": "2026-01-02",
+        "index": "#22",
+        "title": "Toward a Physical Theory of Intelligence",
+        "link": "/arxiv/2601.00021",
+        "arxiv_id": "2601.00021",
+        "authors": "Peter David Fagan",
+        "subjects": "Artificial Intelligence",
+        "date": "2025-12-22",
         "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.963953",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 2026010611001080440663oIZv9C20)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.953278",
+        "filter_reason": "这篇论文不符合我的研究范围，依据如下： 1.  **核心判断（第一步）**：论文的核心贡献是提出一个关于智能的**物理理论**，基于不可逆信息处理、守恒定律和热力学。它试图从物理学角度定义智能，并分析生物系统中的能量与信息转换。这属于**基础理论**或**理论物理**的范畴，而非关于如何构建、改进或演化 LLM智能体的方法论或新框架。它没有涉及具体的智能体架构设计（如记忆机制、工具调用模块）或工程实现。 2.  **排除标准（第三步）**：论文摘要中明确提到 \"Finally, we propose a physically grounded perspective on artificial intelligence safety...\"（最后，我们提出了一个基于物理的人工智能安全视角）。根据筛选标准，只要论文的主要贡献涉及 Safety（安全），即属于排除范围。尽管安全只是其结论的一部分，但整篇论文的性质更偏向于理论物理探讨，而非 Agentic AI 的技术实现。 3.  **缺乏正面指标（第二步）**：论文虽然提到了 \"agent-environment process\"（智能体-环境过程），但这是在物理系统建模的语境下，而非指代 LLM-based Agents。文中缺乏 `LLM-based Agents`、`Multi-Agent Systems`、`Self-Evolving`、`Planning`（在算法层面）、`Tool Use` 等核心关键词或相关技术细节。 综上所述，该论文探讨的是智能的物理学本质，而非 LLM智能体的构建与演化技术，因此予以排除。"
     },
     {
-        "index": "#32",
-        "title": "IRPO: Scaling the Bradley-Terry Model via Reinforcement Learning",
-        "link": "/arxiv/2601.00677",
-        "arxiv_id": "2601.00677",
-        "authors": "Haonan Song, Qingchen Xie, Huan Zhu, Feng Xiao, Luxi Xing, Fuzhen Li, Liu Kang, Feng Jiang, Zhiyong Zheng, Fan Yang",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2026-01-02",
+        "index": "#21",
+        "title": "A multi-algorithm approach for operational human resources workload balancing in a last mile urban delivery system",
+        "link": "/arxiv/2601.00023",
+        "arxiv_id": "2601.00023",
+        "authors": "Luis M. Moreno-Saavedra, Silvia Jimenez-Fernandez, Antonio Portilla-Figueras, David Casillas-Perez, Sancho Salcedo-Sanz",
+        "subjects": "Artificial Intelligence, Machine Learning",
+        "date": "2025-12-24",
         "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.963250",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 2026010611001077285985It5i2chV)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.952848",
+        "filter_reason": "API调用错误: Connection error."
     },
     {
-        "index": "#35",
-        "title": "Interpretability-Guided Bi-objective Optimization: Aligning Accuracy and Explainability",
-        "link": "/arxiv/2601.00655",
-        "arxiv_id": "2601.00655",
-        "authors": "Kasra Fouladi, Hamta Rahmani",
-        "subjects": "Machine Learning, Artificial Intelligence",
+        "index": "#28",
+        "title": "Stochastic Actor-Critic: Mitigating Overestimation via Temporal Aleatoric Uncertainty",
+        "link": "/arxiv/2601.00737",
+        "arxiv_id": "2601.00737",
+        "authors": "Uğurcan Özalp",
+        "subjects": "Machine Learning, Artificial Intelligence, Systems and Control",
         "date": "2026-01-02",
         "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.964269",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 2026010611001084152872DavCViUJ)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.956372",
+        "filter_reason": "API调用错误: Error code: 522"
+    },
+    {
+        "index": "#30",
+        "title": "Detecting Performance Degradation under Data Shift in Pathology Vision-Language Model",
+        "link": "/arxiv/2601.00716",
+        "arxiv_id": "2601.00716",
+        "authors": "Hao Guan, Li Zhou",
+        "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
+        "date": "2026-01-02",
+        "category": "cs.AI",
+        "crawl_time": "2026-01-06T11:00:05.962473",
+        "filter_reason": "根据您提供的筛选标准，这篇论文**不符合**您的研究范围，具体判断依据如下： 1.  **核心判断（第一步）：** *   该论文的核心贡献是提出了一种监控和检测**病理学视觉-语言模型**在数据分布偏移下性能退化的方法（包括DomainSAT工具箱和基于置信度的指标）。 *   这属于**非演化型应用**。论文将VLM作为工具应用于病理学领域，重点在于评估和监控其可靠性，而非构建、改进或演化LLM智能体本身。它没有涉及智能体的规划、记忆、工具使用或自我演化框架。 2.  **排除标准（第三步）：** *   **多模态与视觉：** 论文明确聚焦于“Pathology Vision-Language Model”（病理学视觉-语言模型）和医学图像分析。根据您的规则，涉及Vision、Vision-Language的论文通常被排除，除非它们仅作为智能体感知环境的工具。在此文中，VLM是研究的核心对象，而非智能体的工具，因此符合排除条件。 *   **安全与可靠性：** 论文的研究目标是“monitoring model reliability”（监控模型可靠性）和“detecting performance degradation”（检测性能退化）。这属于模型评估、鲁棒性和可靠性监控的范畴，与您明确排除的“Safety”、“Security”及“Interpretability”等关注点高度重合，不属于Agentic AI的构建。 综上所述，该论文是一篇关于医疗多模态模型可靠性监控的应用型研究，缺乏关于LLM智能体构建、多智能体协作或自我演化机制的核心贡献。"
     },
     {
         "index": "#37",
@@ -993,43 +921,31 @@
         "date": "2026-01-02",
         "category": "cs.AI",
         "crawl_time": "2026-01-06T11:00:05.965111",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 2026010611001088777618gAt0n0tx)', 'type': 'new_api_error'}}"
+        "filter_reason": "1.  **核心判断（第一步）**：这篇论文的本质属于**理论优化**和**算法设计**领域。其核心贡献是提出了一种针对非单调 $\\gamma$-弱 DR-次模函数最大化的近似算法，涉及 Frank-Wolfe 框架和贪心步骤的数学改进。这完全不属于构建、改进或演化 LLM智能体的范畴，也不涉及智能体的架构设计。 2.  **缺乏正面指标（第二步）**：论文摘要中完全没有提及任何与 Agentic AI 相关的核心范式或能力。它不涉及 `LLM-based Agents`、`Multi-Agent Systems` 或 `Self-Evolving`，也不包含 `Planning`（在智能体规划意义上）、`Tool Use`、`Memory` 或 `ReAct` 等智能体关键能力。 3.  **与研究目标不符**：该论文解决的是数学上的函数最大化问题，而非如何让 AI 智能体在环境中自主行动、协作或自我进化。因此，它严格处于你的研究焦点（Agentic AI）之外。"
     },
     {
-        "index": "#36",
-        "title": "Noise-Robust Tiny Object Localization with Flows",
-        "link": "/arxiv/2601.00617",
-        "arxiv_id": "2601.00617",
-        "authors": "Huixin Sun, Linlin Yang, Ronyu Chen, Kerui Gu, Baochang Zhang, Angela Yao, Xianbin Cao",
-        "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
+        "index": "#27",
+        "title": "LLM Agents for Combinatorial Efficient Frontiers: Investment Portfolio Optimization",
+        "link": "/arxiv/2601.00770",
+        "arxiv_id": "2601.00770",
+        "authors": "Simon Paquette-Greenbaum, Jiangbo Yu",
+        "subjects": "Computational Engineering, Finance, and Science, Artificial Intelligence, General Economics",
         "date": "2026-01-02",
         "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.964644",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 2026010611001083024242nD38ymxP)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.955898",
+        "filter_reason": "API调用错误: Connection error."
     },
     {
-        "index": "#38",
-        "title": "HFedMoE: Resource-aware Heterogeneous Federated Learning with Mixture-of-Experts",
-        "link": "/arxiv/2601.00583",
-        "arxiv_id": "2601.00583",
-        "authors": "Zihan Fang, Zheng Lin, Senkang Hu, Yanan Ma, Yihang Tao, Yiqin Deng, Xianhao Chen, Yuguang Fang",
-        "subjects": "Machine Learning, Artificial Intelligence, Networking and Internet Architecture",
+        "index": "#26",
+        "title": "FedHypeVAE: Federated Learning with Hypernetwork Generated Conditional VAEs for Differentially Private Embedding Sharing",
+        "link": "/arxiv/2601.00785",
+        "arxiv_id": "2601.00785",
+        "authors": "Sunny Gupta, Amit Sethi",
+        "subjects": "Machine Learning, Artificial Intelligence, Computer Vision and Pattern Recognition",
         "date": "2026-01-02",
         "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.965679",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010100778055wV0QUg7M)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#40",
-        "title": "Learning to be Reproducible: Custom Loss Design for Robust Neural Networks",
-        "link": "/arxiv/2601.00578",
-        "arxiv_id": "2601.00578",
-        "authors": "Waqas Ahmed, Sheeba Samuel, Kevin Coakley, Birgitta Koenig-Ries, Odd Erik Gundersen",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2026-01-02",
-        "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.966701",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010108626520QiogPgyD)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.955372",
+        "filter_reason": "该论文的核心贡献是提出一种名为 FedHypeVAE 的联邦学习框架，旨在解决非独立同分布数据下的隐私保护嵌入共享问题。它主要涉及差分隐私、超网络和变分自编码器（VAE）等技术，属于分布式机器学习基础设施和数据隐私保护的范畴。该论文完全不涉及 LLM 智能体的构建、多智能体系统或自我演化机制，也不包含规划、工具使用或反思等 Agentic AI 的核心能力。因此，它不符合“LLM智能体及其演化”的研究范围。"
     },
     {
         "index": "#41",
@@ -1041,55 +957,55 @@
         "date": "2026-01-02",
         "category": "cs.AI",
         "crawl_time": "2026-01-06T11:00:05.972547",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010127131126LHNdBlK1)', 'type': 'new_api_error'}}"
+        "filter_reason": "这篇论文不符合我的研究范围，依据如下： 1.  **核心判断（第一步）：** 该论文的本质属于**信息检索**领域的优化研究，而非构建或演化LLM智能体。论文的核心贡献是提出了一种“学术概念索引”以及基于此的查询生成（CCQGen）和上下文增强（CCExpand）方法，旨在解决科学文档检索中的匹配问题。虽然它使用了LLM，但只是将LLM作为生成合成查询和辅助文本的工具，属于“非演化型应用”的范畴。 2.  **缺乏Agentic特征（第二步）：** 论文中没有体现智能体的核心特征。它不涉及智能体的自主规划、工具使用、记忆机制或自我反思。LLM在这里仅是被调用的生成模型，而非具备自主决策能力的Agent。 3.  **不符合自我演化或多智能体方向：** 论文既没有涉及多智能体系统的协作或通信，也没有提出任何自我演化、自我完善或迭代的机制。它是一个静态的检索优化框架，而非动态演化的智能体系统。 综上所述，该论文主要关注的是利用LLM改进特定领域（科学文献）的检索效果，属于应用层面的优化，不符合“LLM智能体及其演化”的核心研究目标。"
     },
     {
-        "index": "#42",
-        "title": "Cracking IoT Security: Can LLMs Outsmart Static Analysis Tools?",
-        "link": "/arxiv/2601.00559",
-        "arxiv_id": "2601.00559",
-        "authors": "Jason Quantrill, Noura Khajehnouri, Zihan Guo, Manar H. Alalfi",
-        "subjects": "Cryptography and Security, Artificial Intelligence",
+        "index": "#32",
+        "title": "IRPO: Scaling the Bradley-Terry Model via Reinforcement Learning",
+        "link": "/arxiv/2601.00677",
+        "arxiv_id": "2601.00677",
+        "authors": "Haonan Song, Qingchen Xie, Huan Zhu, Feng Xiao, Luxi Xing, Fuzhen Li, Liu Kang, Feng Jiang, Zhiyong Zheng, Fan Yang",
+        "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2026-01-02",
         "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.973182",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010150615136YkIY3Vrn)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.963250",
+        "filter_reason": "这篇论文不符合我的研究范围，主要基于以下判断： 1.  **核心贡献属于对齐与训练算法，而非智能体构建**： 论文的核心贡献是提出了一种新的强化学习框架 **IRPO (Intergroup Relative Preference Optimization)**，旨在解决生成式奖励模型（GRMs）在训练过程中的计算瓶颈问题。这属于**模型对齐**和**训练基础设施**的范畴，而非构建、改进或演化 LLM 智能体的架构或行为模式。 2.  **触犯了明确的排除标准（安全与对齐）**： 根据筛选标准第三步，只要论文的主要贡献是关于 `Alignment` (对齐) 的，一律排除。本文主要讨论的是通过强化学习优化奖励模型以符合人类偏好（Bradley-Terry model, Preference Optimization），这是典型的对齐研究。 3.  **缺乏 Agentic AI 的核心要素**： 论文虽然提到了 Chain-of-Thought (CoT)，但仅将其作为提高奖励模型性能的辅助手段（用于生成更好的响应以供评估），而非作为智能体自主规划、推理或解决问题的核心机制。文中未涉及智能体的规划、工具使用、记忆机制、多智能体协作或自我演化循环。 综上所述，该论文侧重于底层训练算法的效率优化和对齐技术，与“LLM智能体及其演化”的研究目标不符，因此排除。"
     },
     {
-        "index": "#43",
-        "title": "A Comprehensive Dataset for Human vs. AI Generated Image Detection",
-        "link": "/arxiv/2601.00553",
-        "arxiv_id": "2601.00553",
-        "authors": "Rajarshi Roy, Nasrin Imanpour, Ashhar Aziz, Shashwat Bajpai, Gurpreet Singh, Shwetangshu Biswas, Kapil Wanaskar, Parth Patwa, Subhankar Ghosh, Shreyas Dixit, Nilesh Ranjan Pal, Vipula Rawte, Ritvik Garimella, Gaytri Jena, Vasu Sharma, Vinija Jain, Aman Chadha, Aishwarya Naresh Reganti, Amitava Das",
-        "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
+        "index": "#34",
+        "title": "Avatar Forcing: Real-Time Interactive Head Avatar Generation for Natural Conversation",
+        "link": "/arxiv/2601.00664",
+        "arxiv_id": "2601.00664",
+        "authors": "Taekyung Ki, Sangwon Jang, Jaehyeong Jo, Jaehong Yoon, Sung Ju Hwang",
+        "subjects": "Machine Learning, Artificial Intelligence, Computer Vision and Pattern Recognition, Human-Computer Interaction, Multimedia",
         "date": "2026-01-02",
         "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.973995",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010157435007q8QKtUXV)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.963953",
+        "filter_reason": "API调用错误: Connection error."
     },
     {
-        "index": "#44",
-        "title": "CoCo-Fed: A Unified Framework for Memory- and Communication-Efficient Federated Learning at the Wireless Edge",
-        "link": "/arxiv/2601.00549",
-        "arxiv_id": "2601.00549",
-        "authors": "Zhiheng Guo, Zhaoyang Liu, Zihan Cen, Chenyuan Feng, Xinghua Sun, Xiang Chen, Tony Q. S. Quek, Xijun Wang",
-        "subjects": "Information Theory, Artificial Intelligence",
+        "index": "#35",
+        "title": "Interpretability-Guided Bi-objective Optimization: Aligning Accuracy and Explainability",
+        "link": "/arxiv/2601.00655",
+        "arxiv_id": "2601.00655",
+        "authors": "Kasra Fouladi, Hamta Rahmani",
+        "subjects": "Machine Learning, Artificial Intelligence",
         "date": "2026-01-02",
         "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.974565",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 202601061100101586618287nIkdK6f)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.964269",
+        "filter_reason": "API调用错误: Connection error."
     },
     {
-        "index": "#46",
-        "title": "Parametrized Sharing for Multi-Agent Hybrid DRL for Multiple Multi-Functional RISs-Aided Downlink NOMA Networks",
-        "link": "/arxiv/2601.00538",
-        "arxiv_id": "2601.00538",
-        "authors": "Chi-Te Kuo, Li-Hsiang Shen, Jyun-Jhe Huang",
-        "subjects": "Signal Processing, Artificial Intelligence",
+        "index": "#38",
+        "title": "HFedMoE: Resource-aware Heterogeneous Federated Learning with Mixture-of-Experts",
+        "link": "/arxiv/2601.00583",
+        "arxiv_id": "2601.00583",
+        "authors": "Zihan Fang, Zheng Lin, Senkang Hu, Yanan Ma, Yihang Tao, Yiqin Deng, Xianhao Chen, Yuguang Fang",
+        "subjects": "Machine Learning, Artificial Intelligence, Networking and Internet Architecture",
         "date": "2026-01-02",
         "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.975610",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 202601061100101608023924M5i0ory)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.965679",
+        "filter_reason": "这篇论文的核心贡献是提出了一种名为 HFedMoE 的联邦学习框架，旨在解决在资源受限设备（如移动设备）上微调大型语言模型（LLM）时的计算效率和资源分配问题。 根据筛选标准，我的判断过程如下： 1.  **第一步：核心判断（排除）** *   论文的研究重点在于**模型基础设施**和**部署优化**。它关注的是如何通过混合专家模型和联邦学习技术来降低计算负担、适应异构硬件资源以及优化模型聚合策略。 *   这完全符合第一步排除标准中的第3点：“排除主要关注模型基础设施、部署优化、硬件加速的研究”。论文并未涉及构建具有自主性的智能体，而是关注模型训练/微调的工程实现。 2.  **第二步：正面指标（缺失）** *   论文中没有出现任何关于 `Agentic AI`、`Planning`（规划）、`Tool Use`（工具使用）、`Memory`（记忆）或 `Self-Reflection`（自我反思）等智能体核心能力的描述。 *   虽然论文涉及“Federated Learning”（联邦学习）和多个“Clients”（客户端），但这属于分布式计算系统的架构，而非“Multi-Agent Systems”（多智能体系统）。这里的客户端不具备自主性、协作意图或社会学习等智能体特征，仅仅是数据持有者和计算节点。 3.  **第三步：排除标准（符合）** *   该研究本质上属于系统优化和计算资源管理，不属于我的研究焦点（Agentic AI, Multi-Agent, Self-Evolving）。 综上所述，该论文属于基础设施与部署优化范畴，不符合“LLM智能体及其演化”的研究目标，因此予以排除。"
     },
     {
         "index": "#47",
@@ -1101,55 +1017,31 @@
         "date": "2026-01-02",
         "category": "cs.AI",
         "crawl_time": "2026-01-06T11:00:05.976072",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 202601061100101723268559wIpgvN8)', 'type': 'new_api_error'}}"
+        "filter_reason": "这篇论文完全不符合研究范围，具体判断依据如下： 1.  **核心模型不符**：论文的研究对象是 LSTM（长短期记忆网络），这是一种传统的循环神经网络（RNN），而非大语言模型（LLM）。我的研究核心明确限定为 \"LLM-based Agents\"。 2.  **研究主题偏离**：论文的核心贡献在于针对“零售销售预测”这一特定垂直领域进行“模型压缩”和优化（减少隐藏单元数量以降低计算资源消耗）。这属于传统的机器学习应用优化和基础设施/部署效率范畴。 3.  **缺乏智能体特性**：论文未涉及任何 Agentic AI 的核心要素（如规划、工具使用、记忆、自我反思）或多智能体协作、自我演化机制。它仅仅是在优化一个用于预测的静态神经网络模型。 综上所述，该论文属于“非演化型应用”及“基础设施/部署优化”类研究，与 LLM 智能体及其演化的核心目标无关，因此应予排除。"
     },
     {
-        "index": "#49",
-        "title": "Trajectory Guard -- A Lightweight, Sequence-Aware Model for Real-Time Anomaly Detection in Agentic AI",
-        "link": "/arxiv/2601.00516",
-        "arxiv_id": "2601.00516",
-        "authors": "Laksh Advani",
-        "subjects": "Machine Learning, Artificial Intelligence",
+        "index": "#36",
+        "title": "Noise-Robust Tiny Object Localization with Flows",
+        "link": "/arxiv/2601.00617",
+        "arxiv_id": "2601.00617",
+        "authors": "Huixin Sun, Linlin Yang, Ronyu Chen, Kerui Gu, Baochang Zhang, Angela Yao, Xianbin Cao",
+        "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
         "date": "2026-01-02",
         "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.977136",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 202601061100101704612687S6gjLbr)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.964644",
+        "filter_reason": "API调用错误: Connection error."
     },
     {
-        "index": "#48",
-        "title": "Probability-Aware Parking Selection",
-        "link": "/arxiv/2601.00521",
-        "arxiv_id": "2601.00521",
-        "authors": "Cameron Hickert, Sirui Li, Zhengbing He, Cathy Wu",
-        "subjects": "Systems and Control, Artificial Intelligence, Applications",
+        "index": "#42",
+        "title": "Cracking IoT Security: Can LLMs Outsmart Static Analysis Tools?",
+        "link": "/arxiv/2601.00559",
+        "arxiv_id": "2601.00559",
+        "authors": "Jason Quantrill, Noura Khajehnouri, Zihan Guo, Manar H. Alalfi",
+        "subjects": "Cryptography and Security, Artificial Intelligence",
         "date": "2026-01-02",
         "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.976613",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010170963068NkWymlcn)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#50",
-        "title": "MotionPhysics: Learnable Motion Distillation for Text-Guided Simulation",
-        "link": "/arxiv/2601.00504",
-        "arxiv_id": "2601.00504",
-        "authors": "Miaowei Wang, Jakub Zadrożny, Oisin Mac Aodha, Amir Vaxman",
-        "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence, Graphics",
-        "date": "2026-01-01",
-        "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.982975",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010175583973pS9UEw0W)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#51",
-        "title": "Multi-Agent Coordinated Rename Refactoring",
-        "link": "/arxiv/2601.00482",
-        "arxiv_id": "2601.00482",
-        "authors": "Abhiram Bellur, Mohammed Raihan Ullah, Fraol Batole, Mohit Kansara, Masaharu Morimoto, Kai Ishikawa, Haifeng Chen, Yaroslav Zharov, Timofey Bryksin, Tien N. Nguyen, Hridesh Rajan, Danny Dig",
-        "subjects": "Software Engineering, Artificial Intelligence",
-        "date": "2026-01-01",
-        "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.983652",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010187826723Mgwr9FWu)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.973182",
+        "filter_reason": "API调用错误: Error code: 525"
     },
     {
         "index": "#52",
@@ -1161,7 +1053,7 @@
         "date": "2026-01-01",
         "category": "cs.AI",
         "crawl_time": "2026-01-06T11:00:05.984276",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010201334532QRmBFZvw)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 525"
     },
     {
         "index": "#53",
@@ -1173,31 +1065,43 @@
         "date": "2026-01-01",
         "category": "cs.AI",
         "crawl_time": "2026-01-06T11:00:05.984811",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010226874882Kll5DIjI)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
-        "index": "#54",
-        "title": "Geometric Regularization in Mixture-of-Experts: The Disconnect Between Weights and Activations",
-        "link": "/arxiv/2601.00457",
-        "arxiv_id": "2601.00457",
-        "authors": "Hyunjun Kim",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2026-01-01",
+        "index": "#48",
+        "title": "Probability-Aware Parking Selection",
+        "link": "/arxiv/2601.00521",
+        "arxiv_id": "2601.00521",
+        "authors": "Cameron Hickert, Sirui Li, Zhengbing He, Cathy Wu",
+        "subjects": "Systems and Control, Artificial Intelligence, Applications",
+        "date": "2026-01-02",
         "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.985297",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010233269775AotXZj3t)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.976613",
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
-        "index": "#58",
-        "title": "RMAAT: Astrocyte-Inspired Memory Compression and Replay for Efficient Long-Context Transformers",
-        "link": "/arxiv/2601.00426",
-        "arxiv_id": "2601.00426",
-        "authors": "Md Zesun Ahmed Mia, Malyaban Bal, Abhronil Sengupta",
-        "subjects": "Neural and Evolutionary Computing, Artificial Intelligence, Emerging Technologies, Machine Learning",
-        "date": "2026-01-01",
+        "index": "#43",
+        "title": "A Comprehensive Dataset for Human vs. AI Generated Image Detection",
+        "link": "/arxiv/2601.00553",
+        "arxiv_id": "2601.00553",
+        "authors": "Rajarshi Roy, Nasrin Imanpour, Ashhar Aziz, Shashwat Bajpai, Gurpreet Singh, Shwetangshu Biswas, Kapil Wanaskar, Parth Patwa, Subhankar Ghosh, Shreyas Dixit, Nilesh Ranjan Pal, Vipula Rawte, Ritvik Garimella, Gaytri Jena, Vasu Sharma, Vinija Jain, Aman Chadha, Aishwarya Naresh Reganti, Amitava Das",
+        "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
+        "date": "2026-01-02",
         "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.987275",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 202601061100102402467134WiU0iJ1)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.973995",
+        "filter_reason": "API调用错误: Error code: 522"
+    },
+    {
+        "index": "#44",
+        "title": "CoCo-Fed: A Unified Framework for Memory- and Communication-Efficient Federated Learning at the Wireless Edge",
+        "link": "/arxiv/2601.00549",
+        "arxiv_id": "2601.00549",
+        "authors": "Zhiheng Guo, Zhaoyang Liu, Zihan Cen, Chenyuan Feng, Xinghua Sun, Xiang Chen, Tony Q. S. Quek, Xijun Wang",
+        "subjects": "Information Theory, Artificial Intelligence",
+        "date": "2026-01-02",
+        "category": "cs.AI",
+        "crawl_time": "2026-01-06T11:00:05.974565",
+        "filter_reason": "API调用错误: Error code: 525"
     },
     {
         "index": "#55",
@@ -1209,19 +1113,31 @@
         "date": "2026-01-01",
         "category": "cs.AI",
         "crawl_time": "2026-01-06T11:00:05.985771",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010238526697OF2hAgic)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
-        "index": "#59",
-        "title": "E-GRPO: High Entropy Steps Drive Effective Reinforcement Learning for Flow Models",
-        "link": "/arxiv/2601.00423",
-        "arxiv_id": "2601.00423",
-        "authors": "Shengjun Zhang, Zhang Zhang, Chensheng Dai, Yueqi Duan",
-        "subjects": "Machine Learning, Artificial Intelligence, Computer Vision and Pattern Recognition",
+        "index": "#49",
+        "title": "Trajectory Guard -- A Lightweight, Sequence-Aware Model for Real-Time Anomaly Detection in Agentic AI",
+        "link": "/arxiv/2601.00516",
+        "arxiv_id": "2601.00516",
+        "authors": "Laksh Advani",
+        "subjects": "Machine Learning, Artificial Intelligence",
+        "date": "2026-01-02",
+        "category": "cs.AI",
+        "crawl_time": "2026-01-06T11:00:05.977136",
+        "filter_reason": "API调用错误: Connection error."
+    },
+    {
+        "index": "#58",
+        "title": "RMAAT: Astrocyte-Inspired Memory Compression and Replay for Efficient Long-Context Transformers",
+        "link": "/arxiv/2601.00426",
+        "arxiv_id": "2601.00426",
+        "authors": "Md Zesun Ahmed Mia, Malyaban Bal, Abhronil Sengupta",
+        "subjects": "Neural and Evolutionary Computing, Artificial Intelligence, Emerging Technologies, Machine Learning",
         "date": "2026-01-01",
         "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.993155",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010247563469bf2RULZU)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.987275",
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#62",
@@ -1233,7 +1149,31 @@
         "date": "2026-01-01",
         "category": "cs.AI",
         "crawl_time": "2026-01-06T11:00:05.994875",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010246662034dapHsC6A)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
+    },
+    {
+        "index": "#59",
+        "title": "E-GRPO: High Entropy Steps Drive Effective Reinforcement Learning for Flow Models",
+        "link": "/arxiv/2601.00423",
+        "arxiv_id": "2601.00423",
+        "authors": "Shengjun Zhang, Zhang Zhang, Chensheng Dai, Yueqi Duan",
+        "subjects": "Machine Learning, Artificial Intelligence, Computer Vision and Pattern Recognition",
+        "date": "2026-01-01",
+        "category": "cs.AI",
+        "crawl_time": "2026-01-06T11:00:05.993155",
+        "filter_reason": "API调用错误: Error code: 522"
+    },
+    {
+        "index": "#40",
+        "title": "Learning to be Reproducible: Custom Loss Design for Robust Neural Networks",
+        "link": "/arxiv/2601.00578",
+        "arxiv_id": "2601.00578",
+        "authors": "Waqas Ahmed, Sheeba Samuel, Kevin Coakley, Birgitta Koenig-Ries, Odd Erik Gundersen",
+        "subjects": "Machine Learning, Artificial Intelligence",
+        "date": "2026-01-02",
+        "category": "cs.AI",
+        "crawl_time": "2026-01-06T11:00:05.966701",
+        "filter_reason": "API调用错误: Connection error."
     },
     {
         "index": "#63",
@@ -1245,19 +1185,19 @@
         "date": "2026-01-01",
         "category": "cs.AI",
         "crawl_time": "2026-01-06T11:00:05.995551",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010251521895PhUU5S2S)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
-        "index": "#64",
-        "title": "In Line with Context: Repository-Level Code Generation via Context Inlining",
-        "link": "/arxiv/2601.00376",
-        "arxiv_id": "2601.00376",
-        "authors": "Chao Hu, Wenhao Zeng, Yuling Shi, Beijun Shen, Xiaodong Gu",
-        "subjects": "Software Engineering, Artificial Intelligence",
+        "index": "#50",
+        "title": "MotionPhysics: Learnable Motion Distillation for Text-Guided Simulation",
+        "link": "/arxiv/2601.00504",
+        "arxiv_id": "2601.00504",
+        "authors": "Miaowei Wang, Jakub Zadrożny, Oisin Mac Aodha, Amir Vaxman",
+        "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence, Graphics",
         "date": "2026-01-01",
         "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:05.996063",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010254612256IEHGBwUz)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.982975",
+        "filter_reason": "API调用错误: Error code: 525"
     },
     {
         "index": "#65",
@@ -1269,7 +1209,19 @@
         "date": "2026-01-01",
         "category": "cs.AI",
         "crawl_time": "2026-01-06T11:00:05.996817",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010267458546yTBfU4sH)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
+    },
+    {
+        "index": "#64",
+        "title": "In Line with Context: Repository-Level Code Generation via Context Inlining",
+        "link": "/arxiv/2601.00376",
+        "arxiv_id": "2601.00376",
+        "authors": "Chao Hu, Wenhao Zeng, Yuling Shi, Beijun Shen, Xiaodong Gu",
+        "subjects": "Software Engineering, Artificial Intelligence",
+        "date": "2026-01-01",
+        "category": "cs.AI",
+        "crawl_time": "2026-01-06T11:00:05.996063",
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#69",
@@ -1281,19 +1233,19 @@
         "date": "2026-01-01",
         "category": "cs.AI",
         "crawl_time": "2026-01-06T11:00:06.004147",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010276331490E46LLbrD)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
-        "index": "#70",
-        "title": "HarmoniAD: Harmonizing Local Structures and Global Semantics for Anomaly Detection",
-        "link": "/arxiv/2601.00327",
-        "arxiv_id": "2601.00327",
-        "authors": "Naiqi Zhang, Chuancheng Shi, Jingtong Dou, Wenhua Wu, Fei Shen, Jianhua Cao",
-        "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
+        "index": "#51",
+        "title": "Multi-Agent Coordinated Rename Refactoring",
+        "link": "/arxiv/2601.00482",
+        "arxiv_id": "2601.00482",
+        "authors": "Abhiram Bellur, Mohammed Raihan Ullah, Fraol Batole, Mohit Kansara, Masaharu Morimoto, Kai Ishikawa, Haifeng Chen, Yaroslav Zharov, Timofey Bryksin, Tien N. Nguyen, Hridesh Rajan, Danny Dig",
+        "subjects": "Software Engineering, Artificial Intelligence",
         "date": "2026-01-01",
         "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:06.004705",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010297526152YWmI3nsl)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.983652",
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#71",
@@ -1305,19 +1257,7 @@
         "date": "2026-01-01",
         "category": "cs.AI",
         "crawl_time": "2026-01-06T11:00:06.005259",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010307331494BgfnYuq0)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#76",
-        "title": "Benchmarking Preprocessing and Integration Methods in Single-Cell Genomics",
-        "link": "/arxiv/2601.00277",
-        "arxiv_id": "2601.00277",
-        "authors": "Ali Anaissi, Seid Miad Zandavi, Weidong Huang, Junaid Akram, Basem Suleiman, Ali Braytee, Jie Hua",
-        "subjects": "Quantitative Methods, Artificial Intelligence",
-        "date": "2026-01-01",
-        "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:06.013295",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010321661855juCEUjJj)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#72",
@@ -1329,19 +1269,7 @@
         "date": "2026-01-01",
         "category": "cs.AI",
         "crawl_time": "2026-01-06T11:00:06.005755",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010320100191bqa9fGen)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#74",
-        "title": "Towards Automated Differential Diagnosis of Skin Diseases Using Deep Learning and Imbalance-Aware Strategies",
-        "link": "/arxiv/2601.00286",
-        "arxiv_id": "2601.00286",
-        "authors": "Ali Anaissi, Ali Braytee, Weidong Huang, Junaid Akram, Alaa Farhat, Jie Hua",
-        "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
-        "date": "2026-01-01",
-        "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:06.006853",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010318868453nTy2XLJJ)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#77",
@@ -1353,7 +1281,19 @@
         "date": "2026-01-01",
         "category": "cs.AI",
         "crawl_time": "2026-01-06T11:00:06.013882",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010326816378KhOYjOKV)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
+    },
+    {
+        "index": "#74",
+        "title": "Towards Automated Differential Diagnosis of Skin Diseases Using Deep Learning and Imbalance-Aware Strategies",
+        "link": "/arxiv/2601.00286",
+        "arxiv_id": "2601.00286",
+        "authors": "Ali Anaissi, Ali Braytee, Weidong Huang, Junaid Akram, Alaa Farhat, Jie Hua",
+        "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
+        "date": "2026-01-01",
+        "category": "cs.AI",
+        "crawl_time": "2026-01-06T11:00:06.006853",
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#82",
@@ -1365,31 +1305,31 @@
         "date": "2026-01-01",
         "category": "cs.AI",
         "crawl_time": "2026-01-06T11:00:06.016803",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010332255909vFOW1DEA)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
-        "index": "#81",
-        "title": "An Empirical Evaluation of LLM-Based Approaches for Code Vulnerability Detection: RAG, SFT, and Dual-Agent Systems",
-        "link": "/arxiv/2601.00254",
-        "arxiv_id": "2601.00254",
-        "authors": "Md Hasan Saju, Maher Muhtadi, Akramul Azim",
-        "subjects": "Software Engineering, Artificial Intelligence",
+        "index": "#76",
+        "title": "Benchmarking Preprocessing and Integration Methods in Single-Cell Genomics",
+        "link": "/arxiv/2601.00277",
+        "arxiv_id": "2601.00277",
+        "authors": "Ali Anaissi, Seid Miad Zandavi, Weidong Huang, Junaid Akram, Basem Suleiman, Ali Braytee, Jie Hua",
+        "subjects": "Quantitative Methods, Artificial Intelligence",
         "date": "2026-01-01",
         "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:06.016239",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010327552356cO1lFROK)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:06.013295",
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
-        "index": "#83",
-        "title": "GRIT -- Geometry-Aware PEFT with K-FACPreconditioning, Fisher-Guided Reprojection, andDynamic Rank Adaptation",
-        "link": "/arxiv/2601.00231",
-        "arxiv_id": "2601.00231",
-        "authors": "Pritish Saha, Chandrav Rajbangshi, Rudra Goyal, Mohit Goyal, Anurag Deo, Biswajit Roy, Ningthoujam Dhanachandra Singh, Raxit Goswami, Amitava Das",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2026-01-01",
+        "index": "#46",
+        "title": "Parametrized Sharing for Multi-Agent Hybrid DRL for Multiple Multi-Functional RISs-Aided Downlink NOMA Networks",
+        "link": "/arxiv/2601.00538",
+        "arxiv_id": "2601.00538",
+        "authors": "Chi-Te Kuo, Li-Hsiang Shen, Jyun-Jhe Huang",
+        "subjects": "Signal Processing, Artificial Intelligence",
+        "date": "2026-01-02",
         "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:06.017420",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010344487423Nfxcls5X)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.975610",
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#85",
@@ -1401,31 +1341,7 @@
         "date": "2026-01-01",
         "category": "cs.AI",
         "crawl_time": "2026-01-06T11:00:06.023650",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010351091559FysxN0uq)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#86",
-        "title": "SSI-GAN: Semi-Supervised Swin-Inspired Generative Adversarial Networks for Neuronal Spike Classification",
-        "link": "/arxiv/2601.00189",
-        "arxiv_id": "2601.00189",
-        "authors": "Danial Sharifrazi, Nouman Javed, Mojtaba Mohammadi, Seyede Sana Salehi, Roohallah Alizadehsani, Prasad N. Paradkar, U. Rajendra Acharya, Asim Bhatti",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2026-01-01",
-        "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:06.024243",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010373238702O8brm2RX)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#88",
-        "title": "Hear the Heartbeat in Phases: Physiologically Grounded Phase-Aware ECG Biometrics",
-        "link": "/arxiv/2601.00170",
-        "arxiv_id": "2601.00170",
-        "authors": "Jintao Huang, Lu Leng, Yi Zhang, Ziyuan Yang",
-        "subjects": "Image and Video Processing, Artificial Intelligence",
-        "date": "2026-01-01",
-        "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:06.025255",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010380893457cRuoLgki)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#89",
@@ -1437,7 +1353,19 @@
         "date": "2026-01-01",
         "category": "cs.AI",
         "crawl_time": "2026-01-06T11:00:06.025729",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010398452025hCpDFko0)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
+    },
+    {
+        "index": "#83",
+        "title": "GRIT -- Geometry-Aware PEFT with K-FACPreconditioning, Fisher-Guided Reprojection, andDynamic Rank Adaptation",
+        "link": "/arxiv/2601.00231",
+        "arxiv_id": "2601.00231",
+        "authors": "Pritish Saha, Chandrav Rajbangshi, Rudra Goyal, Mohit Goyal, Anurag Deo, Biswajit Roy, Ningthoujam Dhanachandra Singh, Raxit Goswami, Amitava Das",
+        "subjects": "Machine Learning, Artificial Intelligence",
+        "date": "2026-01-01",
+        "category": "cs.AI",
+        "crawl_time": "2026-01-06T11:00:06.017420",
+        "filter_reason": "API调用错误: Error code: 525"
     },
     {
         "index": "#90",
@@ -1449,7 +1377,19 @@
         "date": "2026-01-01",
         "category": "cs.AI",
         "crawl_time": "2026-01-06T11:00:06.026329",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010399111969hXMBegcu)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
+    },
+    {
+        "index": "#86",
+        "title": "SSI-GAN: Semi-Supervised Swin-Inspired Generative Adversarial Networks for Neuronal Spike Classification",
+        "link": "/arxiv/2601.00189",
+        "arxiv_id": "2601.00189",
+        "authors": "Danial Sharifrazi, Nouman Javed, Mojtaba Mohammadi, Seyede Sana Salehi, Roohallah Alizadehsani, Prasad N. Paradkar, U. Rajendra Acharya, Asim Bhatti",
+        "subjects": "Machine Learning, Artificial Intelligence",
+        "date": "2026-01-01",
+        "category": "cs.AI",
+        "crawl_time": "2026-01-06T11:00:06.024243",
+        "filter_reason": "API调用错误: Error code: 525"
     },
     {
         "index": "#91",
@@ -1461,7 +1401,19 @@
         "date": "2026-01-01",
         "category": "cs.AI",
         "crawl_time": "2026-01-06T11:00:06.026807",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010401900599XqLUekQU)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
+    },
+    {
+        "index": "#88",
+        "title": "Hear the Heartbeat in Phases: Physiologically Grounded Phase-Aware ECG Biometrics",
+        "link": "/arxiv/2601.00170",
+        "arxiv_id": "2601.00170",
+        "authors": "Jintao Huang, Lu Leng, Yi Zhang, Ziyuan Yang",
+        "subjects": "Image and Video Processing, Artificial Intelligence",
+        "date": "2026-01-01",
+        "category": "cs.AI",
+        "crawl_time": "2026-01-06T11:00:06.025255",
+        "filter_reason": "API调用错误: Error code: 525"
     },
     {
         "index": "#92",
@@ -1473,55 +1425,7 @@
         "date": "2025-12-31",
         "category": "cs.AI",
         "crawl_time": "2026-01-06T11:00:06.027330",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010404743995EjF8gOFr)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#93",
-        "title": "Toward Large-Scale Photonics-Empowered AI Systems: From Physical Design Automation to System-Algorithm Co-Exploration",
-        "link": "/arxiv/2601.00129",
-        "arxiv_id": "2601.00129",
-        "authors": "Ziang Yin, Hongjian Zhou, Nicholas Gangi, Meng Zhang, Jeff Zhang, Zhaoran Rena Huang, Jiaqi Gu",
-        "subjects": "Optics, Artificial Intelligence, Hardware Architecture, Emerging Technologies",
-        "date": "2025-12-31",
-        "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:06.027943",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 202601061100104109816915big9GJK)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#94",
-        "title": "Large Empirical Case Study: Go-Explore adapted for AI Red Team Testing",
-        "link": "/arxiv/2601.00042",
-        "arxiv_id": "2601.00042",
-        "authors": "Manish Bhatt, Adrian Wood, Idan Habler, Ammar Al-Kahfah",
-        "subjects": "Cryptography and Security, Artificial Intelligence, Machine Learning",
-        "date": "2025-12-31",
-        "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:06.033683",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010411390539pRySngs0)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#95",
-        "title": "Personalized Spiking Neural Networks with Ferroelectric Synapses for EEG Signal Processing",
-        "link": "/arxiv/2601.00020",
-        "arxiv_id": "2601.00020",
-        "authors": "Nikhil Garg, Anxiong Song, Niklas Plessnig, Nathan Savoia, Laura Bégon-Lours",
-        "subjects": "Neural and Evolutionary Computing, Artificial Intelligence, Machine Learning",
-        "date": "2025-12-22",
-        "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:06.034279",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 202601061100104231077602n68KiSY)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#96",
-        "title": "Modeling Day-Long ECG Signals to Predict Heart Failure Risk with Explainable AI",
-        "link": "/arxiv/2601.00014",
-        "arxiv_id": "2601.00014",
-        "authors": "Eran Zvuloni, Ronit Almog, Michael Glikson, Shany Brimer Biton, Ilan Green, Izhar Laufer, Offer Amir, Joachim A. Behar",
-        "subjects": "Signal Processing, Artificial Intelligence, Machine Learning",
-        "date": "2025-12-20",
-        "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:06.034876",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010425882759EEeVM3hX)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 525"
     },
     {
         "index": "#97",
@@ -1533,19 +1437,43 @@
         "date": "2025-12-20",
         "category": "cs.AI",
         "crawl_time": "2026-01-06T11:00:06.035452",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010447530224bqdVvV0J)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
-        "index": "#98",
-        "title": "Yahtzee: Reinforcement Learning Techniques for Stochastic Combinatorial Games",
-        "link": "/arxiv/2601.00007",
-        "arxiv_id": "2601.00007",
-        "authors": "Nicholas A. Pape",
-        "subjects": "Machine Learning, Artificial Intelligence",
-        "date": "2025-12-18",
+        "index": "#93",
+        "title": "Toward Large-Scale Photonics-Empowered AI Systems: From Physical Design Automation to System-Algorithm Co-Exploration",
+        "link": "/arxiv/2601.00129",
+        "arxiv_id": "2601.00129",
+        "authors": "Ziang Yin, Hongjian Zhou, Nicholas Gangi, Meng Zhang, Jeff Zhang, Zhaoran Rena Huang, Jiaqi Gu",
+        "subjects": "Optics, Artificial Intelligence, Hardware Architecture, Emerging Technologies",
+        "date": "2025-12-31",
         "category": "cs.AI",
-        "crawl_time": "2026-01-06T11:00:06.035902",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010452528710WUN7nZzj)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:06.027943",
+        "filter_reason": "API调用错误: Error code: 522"
+    },
+    {
+        "index": "#94",
+        "title": "Large Empirical Case Study: Go-Explore adapted for AI Red Team Testing",
+        "link": "/arxiv/2601.00042",
+        "arxiv_id": "2601.00042",
+        "authors": "Manish Bhatt, Adrian Wood, Idan Habler, Ammar Al-Kahfah",
+        "subjects": "Cryptography and Security, Artificial Intelligence, Machine Learning",
+        "date": "2025-12-31",
+        "category": "cs.AI",
+        "crawl_time": "2026-01-06T11:00:06.033683",
+        "filter_reason": "API调用错误: Error code: 522"
+    },
+    {
+        "index": "#95",
+        "title": "Personalized Spiking Neural Networks with Ferroelectric Synapses for EEG Signal Processing",
+        "link": "/arxiv/2601.00020",
+        "arxiv_id": "2601.00020",
+        "authors": "Nikhil Garg, Anxiong Song, Niklas Plessnig, Nathan Savoia, Laura Bégon-Lours",
+        "subjects": "Neural and Evolutionary Computing, Artificial Intelligence, Machine Learning",
+        "date": "2025-12-22",
+        "category": "cs.AI",
+        "crawl_time": "2026-01-06T11:00:06.034279",
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#99",
@@ -1557,19 +1485,31 @@
         "date": "2025-12-07",
         "category": "cs.AI",
         "crawl_time": "2026-01-06T11:00:06.036364",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010474582311TY8D83F5)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
-        "index": "#3",
-        "title": "Categorical Reparameterization with Denoising Diffusion models",
-        "link": "/arxiv/2601.00781",
-        "arxiv_id": "2601.00781",
-        "authors": "Samson Gourevitch, Alain Durmus, Eric Moulines, Jimmy Olsson, Yazid Janati",
-        "subjects": "Machine Learning, Machine Learning",
-        "date": "2026-01-02",
-        "category": "cs.LG",
-        "crawl_time": "2026-01-06T11:00:05.958870",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010477012053zun7ECKI)', 'type': 'new_api_error'}}"
+        "index": "#98",
+        "title": "Yahtzee: Reinforcement Learning Techniques for Stochastic Combinatorial Games",
+        "link": "/arxiv/2601.00007",
+        "arxiv_id": "2601.00007",
+        "authors": "Nicholas A. Pape",
+        "subjects": "Machine Learning, Artificial Intelligence",
+        "date": "2025-12-18",
+        "category": "cs.AI",
+        "crawl_time": "2026-01-06T11:00:06.035902",
+        "filter_reason": "API调用错误: Error code: 525"
+    },
+    {
+        "index": "#54",
+        "title": "Geometric Regularization in Mixture-of-Experts: The Disconnect Between Weights and Activations",
+        "link": "/arxiv/2601.00457",
+        "arxiv_id": "2601.00457",
+        "authors": "Hyunjun Kim",
+        "subjects": "Machine Learning, Artificial Intelligence",
+        "date": "2026-01-01",
+        "category": "cs.AI",
+        "crawl_time": "2026-01-06T11:00:05.985297",
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#5",
@@ -1581,19 +1521,19 @@
         "date": "2026-01-02",
         "category": "cs.LG",
         "crawl_time": "2026-01-06T11:00:05.960012",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010477996289oBzHcZLE)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
-        "index": "#6",
-        "title": "The Reasoning-Creativity Trade-off: Toward Creativity-Driven Problem Solving",
-        "link": "/arxiv/2601.00747",
-        "arxiv_id": "2601.00747",
-        "authors": "Max Ruiz Luyten, Mihaela van der Schaar",
-        "subjects": "Machine Learning",
+        "index": "#3",
+        "title": "Categorical Reparameterization with Denoising Diffusion models",
+        "link": "/arxiv/2601.00781",
+        "arxiv_id": "2601.00781",
+        "authors": "Samson Gourevitch, Alain Durmus, Eric Moulines, Jimmy Olsson, Yazid Janati",
+        "subjects": "Machine Learning, Machine Learning",
         "date": "2026-01-02",
         "category": "cs.LG",
-        "crawl_time": "2026-01-06T11:00:05.960559",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010481461099N9CDiTGg)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.958870",
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#8",
@@ -1605,19 +1545,7 @@
         "date": "2026-01-02",
         "category": "cs.LG",
         "crawl_time": "2026-01-06T11:00:05.961668",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010486086507SwQXI2k1)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#11",
-        "title": "ARISE: Adaptive Reinforcement Integrated with Swarm Exploration",
-        "link": "/arxiv/2601.00693",
-        "arxiv_id": "2601.00693",
-        "authors": "Rajiv Chaitanya M, D R Ramesh Babu",
-        "subjects": "Machine Learning, Systems and Control",
-        "date": "2026-01-02",
-        "category": "cs.LG",
-        "crawl_time": "2026-01-06T11:00:05.968194",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010502086591tua1hFjC)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#10",
@@ -1629,43 +1557,19 @@
         "date": "2026-01-02",
         "category": "cs.LG",
         "crawl_time": "2026-01-06T11:00:05.967765",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010503283382VJFqyH4h)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
-        "index": "#16",
-        "title": "Do Chatbot LLMs Talk Too Much? The YapBench Benchmark",
-        "link": "/arxiv/2601.00624",
-        "arxiv_id": "2601.00624",
-        "authors": "Vadim Borisov, Michael Gröger, Mina Mikhael, Richard H. Schreiber",
-        "subjects": "Machine Learning",
+        "index": "#11",
+        "title": "ARISE: Adaptive Reinforcement Integrated with Swarm Exploration",
+        "link": "/arxiv/2601.00693",
+        "arxiv_id": "2601.00693",
+        "authors": "Rajiv Chaitanya M, D R Ramesh Babu",
+        "subjects": "Machine Learning, Systems and Control",
         "date": "2026-01-02",
         "category": "cs.LG",
-        "crawl_time": "2026-01-06T11:00:05.970604",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010523135788IUWmYk9I)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#18",
-        "title": "Traffic-Aware Optimal Taxi Placement Using Graph Neural Network-Based Reinforcement Learning",
-        "link": "/arxiv/2601.00607",
-        "arxiv_id": "2601.00607",
-        "authors": "Sonia Khetarpaul, P Y Sharan",
-        "subjects": "Machine Learning",
-        "date": "2026-01-02",
-        "category": "cs.LG",
-        "crawl_time": "2026-01-06T11:00:05.971477",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010524808085pOAhp3ps)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#19",
-        "title": "Cycling Race Time Prediction: A Personalized Machine Learning Approach Using Route Topology and Training Load",
-        "link": "/arxiv/2601.00604",
-        "arxiv_id": "2601.00604",
-        "authors": "Francisco Aguilera Moreno",
-        "subjects": "Machine Learning",
-        "date": "2026-01-02",
-        "category": "cs.LG",
-        "crawl_time": "2026-01-06T11:00:05.971874",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010547183144paP49d0V)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.968194",
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#9",
@@ -1677,19 +1581,31 @@
         "date": "2026-01-02",
         "category": "cs.LG",
         "crawl_time": "2026-01-06T11:00:05.967274",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010545127223vpgCwTBX)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
-        "index": "#22",
-        "title": "Adversarial Samples Are Not Created Equal",
-        "link": "/arxiv/2601.00577",
-        "arxiv_id": "2601.00577",
-        "authors": "Jennifer Crawford, Amol Khanna, Fred Lu, Amy R. Wagoner, Stella Biderman, Andre T. Nguyen, Edward Raff",
+        "index": "#18",
+        "title": "Traffic-Aware Optimal Taxi Placement Using Graph Neural Network-Based Reinforcement Learning",
+        "link": "/arxiv/2601.00607",
+        "arxiv_id": "2601.00607",
+        "authors": "Sonia Khetarpaul, P Y Sharan",
         "subjects": "Machine Learning",
         "date": "2026-01-02",
         "category": "cs.LG",
-        "crawl_time": "2026-01-06T11:00:05.978506",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010555301442CYFdcu2s)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.971477",
+        "filter_reason": "API调用错误: Error code: 522"
+    },
+    {
+        "index": "#19",
+        "title": "Cycling Race Time Prediction: A Personalized Machine Learning Approach Using Route Topology and Training Load",
+        "link": "/arxiv/2601.00604",
+        "arxiv_id": "2601.00604",
+        "authors": "Francisco Aguilera Moreno",
+        "subjects": "Machine Learning",
+        "date": "2026-01-02",
+        "category": "cs.LG",
+        "crawl_time": "2026-01-06T11:00:05.971874",
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#23",
@@ -1701,7 +1617,31 @@
         "date": "2026-01-02",
         "category": "cs.LG",
         "crawl_time": "2026-01-06T11:00:05.978892",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 2026010611001055475859709r4YC4o)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
+    },
+    {
+        "index": "#22",
+        "title": "Adversarial Samples Are Not Created Equal",
+        "link": "/arxiv/2601.00577",
+        "arxiv_id": "2601.00577",
+        "authors": "Jennifer Crawford, Amol Khanna, Fred Lu, Amy R. Wagoner, Stella Biderman, Andre T. Nguyen, Edward Raff",
+        "subjects": "Machine Learning",
+        "date": "2026-01-02",
+        "category": "cs.LG",
+        "crawl_time": "2026-01-06T11:00:05.978506",
+        "filter_reason": "API调用错误: Error code: 522"
+    },
+    {
+        "index": "#70",
+        "title": "HarmoniAD: Harmonizing Local Structures and Global Semantics for Anomaly Detection",
+        "link": "/arxiv/2601.00327",
+        "arxiv_id": "2601.00327",
+        "authors": "Naiqi Zhang, Chuancheng Shi, Jingtong Dou, Wenhua Wu, Fei Shen, Jianhua Cao",
+        "subjects": "Computer Vision and Pattern Recognition, Artificial Intelligence",
+        "date": "2026-01-01",
+        "category": "cs.AI",
+        "crawl_time": "2026-01-06T11:00:06.004705",
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#25",
@@ -1713,19 +1653,7 @@
         "date": "2026-01-02",
         "category": "cs.LG",
         "crawl_time": "2026-01-06T11:00:05.979754",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010562091204nzXzp5PO)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#24",
-        "title": "Cloud-Native Generative AI for Automated Planogram Synthesis: A Diffusion Model Approach for Multi-Store Retail Optimization",
-        "link": "/arxiv/2601.00527",
-        "arxiv_id": "2601.00527",
-        "authors": "Ravi Teja Pagidoju, Shriya Agarwal",
-        "subjects": "Machine Learning",
-        "date": "2026-01-02",
-        "category": "cs.LG",
-        "crawl_time": "2026-01-06T11:00:05.979295",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010564348300L2cg0tD2)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#27",
@@ -1737,7 +1665,7 @@
         "date": "2026-01-02",
         "category": "cs.LG",
         "crawl_time": "2026-01-06T11:00:05.980618",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010577709257r69MJoHP)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 525"
     },
     {
         "index": "#29",
@@ -1749,7 +1677,19 @@
         "date": "2026-01-01",
         "category": "cs.LG",
         "crawl_time": "2026-01-06T11:00:05.981430",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010583534999vbZPT0lf)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
+    },
+    {
+        "index": "#81",
+        "title": "An Empirical Evaluation of LLM-Based Approaches for Code Vulnerability Detection: RAG, SFT, and Dual-Agent Systems",
+        "link": "/arxiv/2601.00254",
+        "arxiv_id": "2601.00254",
+        "authors": "Md Hasan Saju, Maher Muhtadi, Akramul Azim",
+        "subjects": "Software Engineering, Artificial Intelligence",
+        "date": "2026-01-01",
+        "category": "cs.AI",
+        "crawl_time": "2026-01-06T11:00:06.016239",
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#31",
@@ -1761,19 +1701,7 @@
         "date": "2026-01-01",
         "category": "cs.LG",
         "crawl_time": "2026-01-06T11:00:05.987494",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010594863842VM2FElf3)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#32",
-        "title": "Detecting Spike Wave Discharges (SWD) using 1-dimensional Residual UNet",
-        "link": "/arxiv/2601.00459",
-        "arxiv_id": "2601.00459",
-        "authors": "Saurav Sengupta, Scott Kilianski, Suchetha Sharma, Sakina Lashkeri, Ashley McHugh, Mark Beenhakker, Donald E. Brown",
-        "subjects": "Machine Learning, Signal Processing",
-        "date": "2026-01-01",
-        "category": "cs.LG",
-        "crawl_time": "2026-01-06T11:00:05.988054",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010597255583DJItiDgI)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#35",
@@ -1785,43 +1713,7 @@
         "date": "2026-01-01",
         "category": "cs.LG",
         "crawl_time": "2026-01-06T11:00:05.989328",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010620519416lt2hW5WL)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#36",
-        "title": "Controllable Concept Bottleneck Models",
-        "link": "/arxiv/2601.00451",
-        "arxiv_id": "2601.00451",
-        "authors": "Hongbin Lin, Chenyang Ren, Juangui Xu, Zhengyu Hu, Cheng-Long Wang, Yao Shu, Hui Xiong, Jingfeng Zhang, Di Wang, Lijie Hu",
-        "subjects": "Machine Learning",
-        "date": "2026-01-01",
-        "category": "cs.LG",
-        "crawl_time": "2026-01-06T11:00:05.989856",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010622221995FrQXZH0P)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#37",
-        "title": "A Comparative Study of Adaptation Strategies for Time Series Foundation Models in Anomaly Detection",
-        "link": "/arxiv/2601.00446",
-        "arxiv_id": "2601.00446",
-        "authors": "Miseon Park, Kijung Yoon",
-        "subjects": "Machine Learning",
-        "date": "2026-01-01",
-        "category": "cs.LG",
-        "crawl_time": "2026-01-06T11:00:05.990261",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010632047542WfrdAenT)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#38",
-        "title": "A Comparative Analysis of Interpretable Machine Learning Methods",
-        "link": "/arxiv/2601.00428",
-        "arxiv_id": "2601.00428",
-        "authors": "Mattia Billa, Giovanni Orlandi, Veronica Guidetti, Federica Mandreoli",
-        "subjects": "Machine Learning",
-        "date": "2026-01-01",
-        "category": "cs.LG",
-        "crawl_time": "2026-01-06T11:00:05.990687",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 2026010611001063458186939zxXfMT)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#42",
@@ -1833,79 +1725,67 @@
         "date": "2026-01-01",
         "category": "cs.LG",
         "crawl_time": "2026-01-06T11:00:05.997711",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010639036131LjLaEUe7)', 'type': 'new_api_error'}}"
+        "filter_reason": "这篇论文不符合我的研究范围，具体判断依据如下： 1.  **核心判断（第一步）**： *   论文的核心贡献是提出一种基于神经网络（Neural Network）和传统机器学习方法（如PCA、决策树、KNN）的故障检测技术，应用于纳型卫星的电气电源系统。 *   该研究属于典型的**非演化型应用**，即将机器学习模型作为工具应用于航空航天工程领域解决具体的故障诊断问题，而非构建、改进或演化LLM智能体。 2.  **缺乏核心关注点（第二步）**： *   论文中未涉及任何关于 `Agentic AI`、`LLM-based Agents`、`Multi-Agent Systems` 或 `Self-Evolving` 的方法论或框架。 *   论文未提及大语言模型（LLM），也未涉及智能体的核心能力（如规划、工具使用、记忆、自我反思等）。 3.  **结论**： 该论文属于传统的信号处理与故障诊断领域的应用研究，与“LLM智能体及其演化”这一课题无直接关联，因此予以排除。"
     },
     {
-        "index": "#41",
-        "title": "Real-Time Human Detection for Aerial Captured Video Sequences via Deep Models",
-        "link": "/arxiv/2601.00391",
-        "arxiv_id": "2601.00391",
-        "authors": "Nouar AlDahoul, Aznul Qalid Md Sabri, Ali Mohammed Mansoor",
+        "index": "#38",
+        "title": "A Comparative Analysis of Interpretable Machine Learning Methods",
+        "link": "/arxiv/2601.00428",
+        "arxiv_id": "2601.00428",
+        "authors": "Mattia Billa, Giovanni Orlandi, Veronica Guidetti, Federica Mandreoli",
         "subjects": "Machine Learning",
         "date": "2026-01-01",
         "category": "cs.LG",
-        "crawl_time": "2026-01-06T11:00:05.992091",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010640130932B4QIFfeM)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.990687",
+        "filter_reason": "这篇论文不符合研究课题的要求，主要基于以下判断： 1.  **核心贡献不符 (第一步)**: 论文的核心是对表格数据的可解释机器学习方法（如线性模型、决策树、可解释提升机等）进行大规模的对比评估。它并不涉及构建、改进或演化 LLM智能体，也没有提出任何关于 Agentic AI、多智能体系统或自我演化的方法论或新框架。 2.  **触犯明确的排除标准 (第三步)**: 筛选标准中明确规定，只要论文的主要贡献是关于 `Interpretability` (可解释性) 或 `Explainability (XAI)`，一律排除。本论文的标题和摘要均明确指出其研究重点是“Interpretable Machine Learning Methods”和“Explainable Boosting Machines”，完全属于被排除的范畴。 3.  **缺乏正面指标 (第二步)**: 论文中未出现任何关于 `Agentic AI`、`LLM-based Agents`、`Multi-Agent Systems`、`Self-Evolving`、`Planning` 或 `Tool Use` 等核心关注点的内容。 综上所述，该论文属于传统的机器学习模型评估与可解释性研究，与 LLM智能体及其演化的研究目标无关。"
     },
     {
-        "index": "#43",
-        "title": "Quantum King-Ring Domination in Chess: A QAOA Approach",
-        "link": "/arxiv/2601.00318",
-        "arxiv_id": "2601.00318",
-        "authors": "Gerhard Stenzel, Michael Kölle, Tobias Rohe, Julian Hager, Leo Sünkel, Maximilian Zorn, Claudia Linnhoff-Popien",
-        "subjects": "Machine Learning, Quantum Physics",
+        "index": "#32",
+        "title": "Detecting Spike Wave Discharges (SWD) using 1-dimensional Residual UNet",
+        "link": "/arxiv/2601.00459",
+        "arxiv_id": "2601.00459",
+        "authors": "Saurav Sengupta, Scott Kilianski, Suchetha Sharma, Sakina Lashkeri, Ashley McHugh, Mark Beenhakker, Donald E. Brown",
+        "subjects": "Machine Learning, Signal Processing",
         "date": "2026-01-01",
         "category": "cs.LG",
-        "crawl_time": "2026-01-06T11:00:05.998247",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010651610762cfJi1OYk)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.988054",
+        "filter_reason": "API调用错误: Connection error."
     },
     {
-        "index": "#44",
-        "title": "Can Optimal Transport Improve Federated Inverse Reinforcement Learning?",
-        "link": "/arxiv/2601.00309",
-        "arxiv_id": "2601.00309",
-        "authors": "David Millard, Ali Baheri",
-        "subjects": "Machine Learning, Systems and Control",
-        "date": "2026-01-01",
-        "category": "cs.LG",
-        "crawl_time": "2026-01-06T11:00:05.998674",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010660214063YkkDXI21)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#45",
-        "title": "Task-Driven Kernel Flows: Label Rank Compression and Laplacian Spectral Filtering",
-        "link": "/arxiv/2601.00276",
-        "arxiv_id": "2601.00276",
-        "authors": "Hongxi Li, Chunlin Huang",
+        "index": "#36",
+        "title": "Controllable Concept Bottleneck Models",
+        "link": "/arxiv/2601.00451",
+        "arxiv_id": "2601.00451",
+        "authors": "Hongbin Lin, Chenyang Ren, Juangui Xu, Zhengyu Hu, Cheng-Long Wang, Yao Shu, Hui Xiong, Jingfeng Zhang, Di Wang, Lijie Hu",
         "subjects": "Machine Learning",
         "date": "2026-01-01",
         "category": "cs.LG",
-        "crawl_time": "2026-01-06T11:00:05.999072",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010665848231lbggzTA1)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.989856",
+        "filter_reason": "API调用错误: Connection error."
     },
     {
-        "index": "#47",
-        "title": "Robust Graph Fine-Tuning with Adversarial Graph Prompting",
-        "link": "/arxiv/2601.00229",
-        "arxiv_id": "2601.00229",
-        "authors": "Ziyan Zhang, Bo Jiang, Jin Tang",
-        "subjects": "Machine Learning",
-        "date": "2026-01-01",
-        "category": "cs.LG",
-        "crawl_time": "2026-01-06T11:00:06.000016",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010670839215wF4TQTGx)', 'type': 'new_api_error'}}"
+        "index": "#96",
+        "title": "Modeling Day-Long ECG Signals to Predict Heart Failure Risk with Explainable AI",
+        "link": "/arxiv/2601.00014",
+        "arxiv_id": "2601.00014",
+        "authors": "Eran Zvuloni, Ronit Almog, Michael Glikson, Shany Brimer Biton, Ilan Green, Izhar Laufer, Offer Amir, Joachim A. Behar",
+        "subjects": "Signal Processing, Artificial Intelligence, Machine Learning",
+        "date": "2025-12-20",
+        "category": "cs.AI",
+        "crawl_time": "2026-01-06T11:00:06.034876",
+        "filter_reason": "这篇论文的核心贡献在于提出了一种名为 DeepHHF 的深度学习模型，用于分析24小时心电图（ECG）数据以预测心力衰竭风险。 根据筛选标准，该论文被排除的原因如下： 1.  **核心判断（第一步）**：该论文属于典型的“非演化型应用”。它将深度学习模型作为工具应用到特定的医疗领域（心脏病学），旨在解决该领域的具体问题（心衰预测），而非构建、改进或演化 LLM 智能体。论文中完全没有涉及 LLM、智能体架构或演化机制。 2.  **排除标准（第三步）**：论文明确提到了“Explainable AI”（可解释性分析），并将其作为研究的一部分，这直接命中了排除标准中的“Interpretability (可解释性)”和“Explainability (XAI)”。 3.  **缺乏正面指标（第二步）**：论文中不包含任何关于 Agentic AI、Multi-Agent Systems、Self-Evolving、Planning、Tool Use 或 Memory 等核心关注点的内容。 综上所述，该论文属于医疗AI应用研究，与“LLM智能体及其演化”的研究课题无关。"
     },
     {
-        "index": "#48",
-        "title": "Unknown Aware AI-Generated Content Attribution",
-        "link": "/arxiv/2601.00218",
-        "arxiv_id": "2601.00218",
-        "authors": "Ellie Thieu, Jifan Zhang, Haoyue Bai",
+        "index": "#24",
+        "title": "Cloud-Native Generative AI for Automated Planogram Synthesis: A Diffusion Model Approach for Multi-Store Retail Optimization",
+        "link": "/arxiv/2601.00527",
+        "arxiv_id": "2601.00527",
+        "authors": "Ravi Teja Pagidoju, Shriya Agarwal",
         "subjects": "Machine Learning",
-        "date": "2026-01-01",
+        "date": "2026-01-02",
         "category": "cs.LG",
-        "crawl_time": "2026-01-06T11:00:06.000428",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010693289276vkTH7MAU)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.979295",
+        "filter_reason": "API调用错误: Connection error."
     },
     {
         "index": "#49",
@@ -1917,7 +1797,55 @@
         "date": "2026-01-01",
         "category": "cs.LG",
         "crawl_time": "2026-01-06T11:00:06.000861",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010698057633bSazCUFA)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
+    },
+    {
+        "index": "#43",
+        "title": "Quantum King-Ring Domination in Chess: A QAOA Approach",
+        "link": "/arxiv/2601.00318",
+        "arxiv_id": "2601.00318",
+        "authors": "Gerhard Stenzel, Michael Kölle, Tobias Rohe, Julian Hager, Leo Sünkel, Maximilian Zorn, Claudia Linnhoff-Popien",
+        "subjects": "Machine Learning, Quantum Physics",
+        "date": "2026-01-01",
+        "category": "cs.LG",
+        "crawl_time": "2026-01-06T11:00:05.998247",
+        "filter_reason": "API调用错误: Error code: 525"
+    },
+    {
+        "index": "#44",
+        "title": "Can Optimal Transport Improve Federated Inverse Reinforcement Learning?",
+        "link": "/arxiv/2601.00309",
+        "arxiv_id": "2601.00309",
+        "authors": "David Millard, Ali Baheri",
+        "subjects": "Machine Learning, Systems and Control",
+        "date": "2026-01-01",
+        "category": "cs.LG",
+        "crawl_time": "2026-01-06T11:00:05.998674",
+        "filter_reason": "API调用错误: Error code: 522"
+    },
+    {
+        "index": "#41",
+        "title": "Real-Time Human Detection for Aerial Captured Video Sequences via Deep Models",
+        "link": "/arxiv/2601.00391",
+        "arxiv_id": "2601.00391",
+        "authors": "Nouar AlDahoul, Aznul Qalid Md Sabri, Ali Mohammed Mansoor",
+        "subjects": "Machine Learning",
+        "date": "2026-01-01",
+        "category": "cs.LG",
+        "crawl_time": "2026-01-06T11:00:05.992091",
+        "filter_reason": "API调用错误: Error code: 522"
+    },
+    {
+        "index": "#37",
+        "title": "A Comparative Study of Adaptation Strategies for Time Series Foundation Models in Anomaly Detection",
+        "link": "/arxiv/2601.00446",
+        "arxiv_id": "2601.00446",
+        "authors": "Miseon Park, Kijung Yoon",
+        "subjects": "Machine Learning",
+        "date": "2026-01-01",
+        "category": "cs.LG",
+        "crawl_time": "2026-01-06T11:00:05.990261",
+        "filter_reason": "API调用错误: Connection error."
     },
     {
         "index": "#51",
@@ -1929,19 +1857,7 @@
         "date": "2026-01-01",
         "category": "cs.LG",
         "crawl_time": "2026-01-06T11:00:06.001808",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010708292324SJKOWYGe)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#53",
-        "title": "Sequential Reservoir Computing for Efficient High-Dimensional Spatiotemporal Forecasting",
-        "link": "/arxiv/2601.00172",
-        "arxiv_id": "2601.00172",
-        "authors": "Ata Akbari Asanjan, Filip Wudarski, Daniel O'Connor, Shaun Geaney, Elena Strbac, P. Aaron Lott, Davide Venturelli",
-        "subjects": "Machine Learning, Neural and Evolutionary Computing",
-        "date": "2026-01-01",
-        "category": "cs.LG",
-        "crawl_time": "2026-01-06T11:00:06.002712",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010715193239XKqiAAPf)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#52",
@@ -1953,43 +1869,19 @@
         "date": "2026-01-01",
         "category": "cs.LG",
         "crawl_time": "2026-01-06T11:00:06.002216",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 202601061100107111445476SAlRraz)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
-        "index": "#55",
-        "title": "The Weather Paradox: Why Precipitation Fails to Predict Traffic Accident Severity in Large-Scale US Data",
-        "link": "/arxiv/2601.00152",
-        "arxiv_id": "2601.00152",
-        "authors": "Yann Bellec, Rohan Kaman, Siwen Cui, Aarav Agrawal, Calvin Chen",
-        "subjects": "Machine Learning, Applications",
-        "date": "2026-01-01",
-        "category": "cs.LG",
-        "crawl_time": "2026-01-06T11:00:06.008830",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010718091717Odyxvzbr)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#56",
-        "title": "Reinforcement Learning with Function Approximation for Non-Markov Processes",
-        "link": "/arxiv/2601.00151",
-        "arxiv_id": "2601.00151",
-        "authors": "Ali Devran Kara",
-        "subjects": "Machine Learning, Optimization and Control",
-        "date": "2026-01-01",
-        "category": "cs.LG",
-        "crawl_time": "2026-01-06T11:00:06.009236",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 202601061100107249010677DphYC2J)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#58",
-        "title": "Dynamic Bayesian Optimization Framework for Instruction Tuning in Partial Differential Equation Discovery",
-        "link": "/arxiv/2601.00088",
-        "arxiv_id": "2601.00088",
-        "authors": "Junqi Qu, Yan Zhang, Shangqian Gao, Shibo Li",
+        "index": "#45",
+        "title": "Task-Driven Kernel Flows: Label Rank Compression and Laplacian Spectral Filtering",
+        "link": "/arxiv/2601.00276",
+        "arxiv_id": "2601.00276",
+        "authors": "Hongxi Li, Chunlin Huang",
         "subjects": "Machine Learning",
-        "date": "2025-12-31",
+        "date": "2026-01-01",
         "category": "cs.LG",
-        "crawl_time": "2026-01-06T11:00:06.010119",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010736571927cFnr30lG)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.999072",
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#57",
@@ -2001,19 +1893,79 @@
         "date": "2025-12-31",
         "category": "cs.LG",
         "crawl_time": "2026-01-06T11:00:06.009683",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010738828816n6qCbrcf)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
-        "index": "#59",
-        "title": "Exploration in the Limit",
-        "link": "/arxiv/2601.00084",
-        "arxiv_id": "2601.00084",
-        "authors": "Brian M. Cho, Nathan Kallus",
-        "subjects": "Machine Learning, Statistics Theory, Methodology",
+        "index": "#56",
+        "title": "Reinforcement Learning with Function Approximation for Non-Markov Processes",
+        "link": "/arxiv/2601.00151",
+        "arxiv_id": "2601.00151",
+        "authors": "Ali Devran Kara",
+        "subjects": "Machine Learning, Optimization and Control",
+        "date": "2026-01-01",
+        "category": "cs.LG",
+        "crawl_time": "2026-01-06T11:00:06.009236",
+        "filter_reason": "API调用错误: Error code: 522"
+    },
+    {
+        "index": "#47",
+        "title": "Robust Graph Fine-Tuning with Adversarial Graph Prompting",
+        "link": "/arxiv/2601.00229",
+        "arxiv_id": "2601.00229",
+        "authors": "Ziyan Zhang, Bo Jiang, Jin Tang",
+        "subjects": "Machine Learning",
+        "date": "2026-01-01",
+        "category": "cs.LG",
+        "crawl_time": "2026-01-06T11:00:06.000016",
+        "filter_reason": "API调用错误: Error code: 522"
+    },
+    {
+        "index": "#53",
+        "title": "Sequential Reservoir Computing for Efficient High-Dimensional Spatiotemporal Forecasting",
+        "link": "/arxiv/2601.00172",
+        "arxiv_id": "2601.00172",
+        "authors": "Ata Akbari Asanjan, Filip Wudarski, Daniel O'Connor, Shaun Geaney, Elena Strbac, P. Aaron Lott, Davide Venturelli",
+        "subjects": "Machine Learning, Neural and Evolutionary Computing",
+        "date": "2026-01-01",
+        "category": "cs.LG",
+        "crawl_time": "2026-01-06T11:00:06.002712",
+        "filter_reason": "API调用错误: Error code: 522"
+    },
+    {
+        "index": "#58",
+        "title": "Dynamic Bayesian Optimization Framework for Instruction Tuning in Partial Differential Equation Discovery",
+        "link": "/arxiv/2601.00088",
+        "arxiv_id": "2601.00088",
+        "authors": "Junqi Qu, Yan Zhang, Shangqian Gao, Shibo Li",
+        "subjects": "Machine Learning",
         "date": "2025-12-31",
         "category": "cs.LG",
-        "crawl_time": "2026-01-06T11:00:06.010557",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010745012845ZGuIEy5T)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:06.010119",
+        "filter_reason": "API调用错误: Error code: 522"
+    },
+    {
+        "index": "#48",
+        "title": "Unknown Aware AI-Generated Content Attribution",
+        "link": "/arxiv/2601.00218",
+        "arxiv_id": "2601.00218",
+        "authors": "Ellie Thieu, Jifan Zhang, Haoyue Bai",
+        "subjects": "Machine Learning",
+        "date": "2026-01-01",
+        "category": "cs.LG",
+        "crawl_time": "2026-01-06T11:00:06.000428",
+        "filter_reason": "API调用错误: Error code: 522"
+    },
+    {
+        "index": "#55",
+        "title": "The Weather Paradox: Why Precipitation Fails to Predict Traffic Accident Severity in Large-Scale US Data",
+        "link": "/arxiv/2601.00152",
+        "arxiv_id": "2601.00152",
+        "authors": "Yann Bellec, Rohan Kaman, Siwen Cui, Aarav Agrawal, Calvin Chen",
+        "subjects": "Machine Learning, Applications",
+        "date": "2026-01-01",
+        "category": "cs.LG",
+        "crawl_time": "2026-01-06T11:00:06.008830",
+        "filter_reason": "API调用错误: Error code: 525"
     },
     {
         "index": "#60",
@@ -2025,19 +1977,19 @@
         "date": "2025-12-31",
         "category": "cs.LG",
         "crawl_time": "2026-01-06T11:00:06.010975",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010767650292wEdAcp4r)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
-        "index": "#64",
-        "title": "Two Deep Learning Approaches for Automated Segmentation of Left Ventricle in Cine Cardiac MRI",
-        "link": "/arxiv/2601.00794",
-        "arxiv_id": "2601.00794",
-        "authors": "Wenhui Chu, Nikolaos V. Tsekos",
-        "subjects": "Computer Vision and Pattern Recognition, Machine Learning",
+        "index": "#6",
+        "title": "The Reasoning-Creativity Trade-off: Toward Creativity-Driven Problem Solving",
+        "link": "/arxiv/2601.00747",
+        "arxiv_id": "2601.00747",
+        "authors": "Max Ruiz Luyten, Mihaela van der Schaar",
+        "subjects": "Machine Learning",
         "date": "2026-01-02",
         "category": "cs.LG",
-        "crawl_time": "2026-01-06T11:00:06.012696",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010773747262PCLSAv6f)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:05.960559",
+        "filter_reason": "API调用错误: Connection error."
     },
     {
         "index": "#65",
@@ -2049,19 +2001,19 @@
         "date": "2026-01-02",
         "category": "cs.LG",
         "crawl_time": "2026-01-06T11:00:06.018305",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010782405857Dxkn2e03)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
-        "index": "#67",
-        "title": "Sparse FEONet: A Low-Cost, Memory-Efficient Operator Network via Finite-Element Local Sparsity for Parametric PDEs",
-        "link": "/arxiv/2601.00672",
-        "arxiv_id": "2601.00672",
-        "authors": "Seungchan Ko, Jiyeon Kim, Dongwook Shin",
-        "subjects": "Numerical Analysis, Machine Learning",
+        "index": "#64",
+        "title": "Two Deep Learning Approaches for Automated Segmentation of Left Ventricle in Cine Cardiac MRI",
+        "link": "/arxiv/2601.00794",
+        "arxiv_id": "2601.00794",
+        "authors": "Wenhui Chu, Nikolaos V. Tsekos",
+        "subjects": "Computer Vision and Pattern Recognition, Machine Learning",
         "date": "2026-01-02",
         "category": "cs.LG",
-        "crawl_time": "2026-01-06T11:00:06.019199",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010794728587pwddpnev)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:06.012696",
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#68",
@@ -2073,19 +2025,7 @@
         "date": "2026-01-02",
         "category": "cs.LG",
         "crawl_time": "2026-01-06T11:00:06.019621",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010794869603gBD9txUl)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#69",
-        "title": "HyperPriv-EPN: Hypergraph Learning with Privileged Knowledge for Ependymoma Prognosis",
-        "link": "/arxiv/2601.00626",
-        "arxiv_id": "2601.00626",
-        "authors": "Shuren Gabriel Yu, Sikang Ren, Yongji Tian",
-        "subjects": "Computer Vision and Pattern Recognition, Machine Learning",
-        "date": "2026-01-02",
-        "category": "cs.LG",
-        "crawl_time": "2026-01-06T11:00:06.020056",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010797402420UUV4a7DU)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#70",
@@ -2097,31 +2037,19 @@
         "date": "2026-01-02",
         "category": "cs.LG",
         "crawl_time": "2026-01-06T11:00:06.020523",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010798639255cVBo1Vhs)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
-        "index": "#71",
-        "title": "Generative Conditional Missing Imputation Networks",
-        "link": "/arxiv/2601.00517",
-        "arxiv_id": "2601.00517",
-        "authors": "George Sun, Yi-Hui Zhou",
-        "subjects": "Machine Learning, Machine Learning",
+        "index": "#69",
+        "title": "HyperPriv-EPN: Hypergraph Learning with Privileged Knowledge for Ependymoma Prognosis",
+        "link": "/arxiv/2601.00626",
+        "arxiv_id": "2601.00626",
+        "authors": "Shuren Gabriel Yu, Sikang Ren, Yongji Tian",
+        "subjects": "Computer Vision and Pattern Recognition, Machine Learning",
         "date": "2026-01-02",
         "category": "cs.LG",
-        "crawl_time": "2026-01-06T11:00:06.020960",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010807663937XlxGtQTA)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#72",
-        "title": "Improving LLM-Assisted Secure Code Generation through Retrieval-Augmented-Generation and Multi-Tool Feedback",
-        "link": "/arxiv/2601.00509",
-        "arxiv_id": "2601.00509",
-        "authors": "Vidyut Sriram, Sawan Pandita, Achintya Lakshmanan, Aneesh Shamraj, Suman Saha",
-        "subjects": "Cryptography and Security, Machine Learning",
-        "date": "2026-01-01",
-        "category": "cs.LG",
-        "crawl_time": "2026-01-06T11:00:06.021408",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010815352839Ty0TgkMP)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:06.020056",
+        "filter_reason": "API调用错误: Error code: 525"
     },
     {
         "index": "#73",
@@ -2133,7 +2061,7 @@
         "date": "2026-01-01",
         "category": "cs.LG",
         "crawl_time": "2026-01-06T11:00:06.021965",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010817937223taagV5pg)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#76",
@@ -2145,7 +2073,43 @@
         "date": "2026-01-01",
         "category": "cs.LG",
         "crawl_time": "2026-01-06T11:00:06.028498",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010843403319UVoG7Nek)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
+    },
+    {
+        "index": "#72",
+        "title": "Improving LLM-Assisted Secure Code Generation through Retrieval-Augmented-Generation and Multi-Tool Feedback",
+        "link": "/arxiv/2601.00509",
+        "arxiv_id": "2601.00509",
+        "authors": "Vidyut Sriram, Sawan Pandita, Achintya Lakshmanan, Aneesh Shamraj, Suman Saha",
+        "subjects": "Cryptography and Security, Machine Learning",
+        "date": "2026-01-01",
+        "category": "cs.LG",
+        "crawl_time": "2026-01-06T11:00:06.021408",
+        "filter_reason": "API调用错误: Error code: 522"
+    },
+    {
+        "index": "#16",
+        "title": "Do Chatbot LLMs Talk Too Much? The YapBench Benchmark",
+        "link": "/arxiv/2601.00624",
+        "arxiv_id": "2601.00624",
+        "authors": "Vadim Borisov, Michael Gröger, Mina Mikhael, Richard H. Schreiber",
+        "subjects": "Machine Learning",
+        "date": "2026-01-02",
+        "category": "cs.LG",
+        "crawl_time": "2026-01-06T11:00:05.970604",
+        "filter_reason": "API调用错误: Connection error."
+    },
+    {
+        "index": "#71",
+        "title": "Generative Conditional Missing Imputation Networks",
+        "link": "/arxiv/2601.00517",
+        "arxiv_id": "2601.00517",
+        "authors": "George Sun, Yi-Hui Zhou",
+        "subjects": "Machine Learning, Machine Learning",
+        "date": "2026-01-02",
+        "category": "cs.LG",
+        "crawl_time": "2026-01-06T11:00:06.020960",
+        "filter_reason": "API调用错误: Error code: 525"
     },
     {
         "index": "#77",
@@ -2157,7 +2121,7 @@
         "date": "2026-01-01",
         "category": "cs.LG",
         "crawl_time": "2026-01-06T11:00:06.029093",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 2026010611001085260506613LOBnqb)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#78",
@@ -2169,7 +2133,7 @@
         "date": "2026-01-01",
         "category": "cs.LG",
         "crawl_time": "2026-01-06T11:00:06.029558",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010856606958xBNa8sD0)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#81",
@@ -2181,7 +2145,7 @@
         "date": "2026-01-01",
         "category": "cs.LG",
         "crawl_time": "2026-01-06T11:00:06.030947",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 202601061100108746646794aCjuw8j)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 525"
     },
     {
         "index": "#82",
@@ -2193,19 +2157,7 @@
         "date": "2026-01-01",
         "category": "cs.LG",
         "crawl_time": "2026-01-06T11:00:06.031402",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010878492658OVe65tr1)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#87",
-        "title": "Application Research of a Deep Learning Model Integrating CycleGAN and YOLO in PCB Infrared Defect Detection",
-        "link": "/arxiv/2601.00237",
-        "arxiv_id": "2601.00237",
-        "authors": "Chao Yang, Haoyuan Zheng, Yue Ma",
-        "subjects": "Computer Vision and Pattern Recognition, Machine Learning, Robotics",
-        "date": "2026-01-01",
-        "category": "cs.LG",
-        "crawl_time": "2026-01-06T11:00:06.037083",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010880852977Iy1sPgi9)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#84",
@@ -2217,19 +2169,7 @@
         "date": "2026-01-01",
         "category": "cs.LG",
         "crawl_time": "2026-01-06T11:00:06.032382",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010881577412g9le3LMw)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#85",
-        "title": "Modern Neuromorphic AI: From Intra-Token to Inter-Token Processing",
-        "link": "/arxiv/2601.00245",
-        "arxiv_id": "2601.00245",
-        "authors": "Osvaldo Simeone",
-        "subjects": "Neural and Evolutionary Computing, Information Theory, Machine Learning",
-        "date": "2026-01-01",
-        "category": "cs.LG",
-        "crawl_time": "2026-01-06T11:00:06.032831",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010882316034lEKNV5yc)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#88",
@@ -2241,19 +2181,7 @@
         "date": "2026-01-01",
         "category": "cs.LG",
         "crawl_time": "2026-01-06T11:00:06.037621",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010891489592COI2h5bm)', 'type': 'new_api_error'}}"
-    },
-    {
-        "index": "#90",
-        "title": "Combining datasets with different ground truths using Low-Rank Adaptation to generalize image-based CNN models for photometric redshift prediction",
-        "link": "/arxiv/2601.00146",
-        "arxiv_id": "2601.00146",
-        "authors": "Vikram Seenivasan, Srinath Saikrishnan, Andrew Lizarraga, Jonathan Soriano, Bernie Boscoe, Tuan Do",
-        "subjects": "Instrumentation and Methods for Astrophysics, Machine Learning",
-        "date": "2026-01-01",
-        "category": "cs.LG",
-        "crawl_time": "2026-01-06T11:00:06.038525",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010892630500MquIx0ZC)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#91",
@@ -2265,19 +2193,43 @@
         "date": "2025-12-31",
         "category": "cs.LG",
         "crawl_time": "2026-01-06T11:00:06.038989",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010916270915ltz34VFb)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
-        "index": "#92",
-        "title": "Reinforcement learning with timed constraints for robotics motion planning",
-        "link": "/arxiv/2601.00087",
-        "arxiv_id": "2601.00087",
-        "authors": "Zhaoan Wang, Junchao Li, Mahdi Mohammad, Shaoping Xiao",
-        "subjects": "Robotics, Machine Learning",
-        "date": "2025-12-31",
+        "index": "#87",
+        "title": "Application Research of a Deep Learning Model Integrating CycleGAN and YOLO in PCB Infrared Defect Detection",
+        "link": "/arxiv/2601.00237",
+        "arxiv_id": "2601.00237",
+        "authors": "Chao Yang, Haoyuan Zheng, Yue Ma",
+        "subjects": "Computer Vision and Pattern Recognition, Machine Learning, Robotics",
+        "date": "2026-01-01",
         "category": "cs.LG",
-        "crawl_time": "2026-01-06T11:00:06.039445",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010928873780B91ZJDtq)', 'type': 'new_api_error'}}"
+        "crawl_time": "2026-01-06T11:00:06.037083",
+        "filter_reason": "API调用错误: Error code: 522"
+    },
+    {
+        "index": "#85",
+        "title": "Modern Neuromorphic AI: From Intra-Token to Inter-Token Processing",
+        "link": "/arxiv/2601.00245",
+        "arxiv_id": "2601.00245",
+        "authors": "Osvaldo Simeone",
+        "subjects": "Neural and Evolutionary Computing, Information Theory, Machine Learning",
+        "date": "2026-01-01",
+        "category": "cs.LG",
+        "crawl_time": "2026-01-06T11:00:06.032831",
+        "filter_reason": "API调用错误: Error code: 525"
+    },
+    {
+        "index": "#90",
+        "title": "Combining datasets with different ground truths using Low-Rank Adaptation to generalize image-based CNN models for photometric redshift prediction",
+        "link": "/arxiv/2601.00146",
+        "arxiv_id": "2601.00146",
+        "authors": "Vikram Seenivasan, Srinath Saikrishnan, Andrew Lizarraga, Jonathan Soriano, Bernie Boscoe, Tuan Do",
+        "subjects": "Instrumentation and Methods for Astrophysics, Machine Learning",
+        "date": "2026-01-01",
+        "category": "cs.LG",
+        "crawl_time": "2026-01-06T11:00:06.038525",
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#93",
@@ -2289,7 +2241,7 @@
         "date": "2025-12-31",
         "category": "cs.LG",
         "crawl_time": "2026-01-06T11:00:06.040061",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010932953760llOwgSoO)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#94",
@@ -2301,7 +2253,7 @@
         "date": "2025-12-31",
         "category": "cs.LG",
         "crawl_time": "2026-01-06T11:00:06.040637",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010948395576b4VgCHrA)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#97",
@@ -2313,7 +2265,7 @@
         "date": "2025-12-31",
         "category": "cs.LG",
         "crawl_time": "2026-01-06T11:00:06.042079",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 2026010611001095938809954r9qVdZ)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#95",
@@ -2325,7 +2277,7 @@
         "date": "2025-12-31",
         "category": "cs.LG",
         "crawl_time": "2026-01-06T11:00:06.041090",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010958004089qjld14JI)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
     },
     {
         "index": "#98",
@@ -2337,6 +2289,42 @@
         "date": "2025-12-30",
         "category": "cs.LG",
         "crawl_time": "2026-01-06T11:00:06.042556",
-        "filter_reason": "API调用错误: Error code: 401 - {'error': {'code': '', 'message': '无效的令牌 (request id: 20260106110010961252926i1P3I0KC)', 'type': 'new_api_error'}}"
+        "filter_reason": "API调用错误: Error code: 522"
+    },
+    {
+        "index": "#59",
+        "title": "Exploration in the Limit",
+        "link": "/arxiv/2601.00084",
+        "arxiv_id": "2601.00084",
+        "authors": "Brian M. Cho, Nathan Kallus",
+        "subjects": "Machine Learning, Statistics Theory, Methodology",
+        "date": "2025-12-31",
+        "category": "cs.LG",
+        "crawl_time": "2026-01-06T11:00:06.010557",
+        "filter_reason": "API调用错误: Error code: 522"
+    },
+    {
+        "index": "#67",
+        "title": "Sparse FEONet: A Low-Cost, Memory-Efficient Operator Network via Finite-Element Local Sparsity for Parametric PDEs",
+        "link": "/arxiv/2601.00672",
+        "arxiv_id": "2601.00672",
+        "authors": "Seungchan Ko, Jiyeon Kim, Dongwook Shin",
+        "subjects": "Numerical Analysis, Machine Learning",
+        "date": "2026-01-02",
+        "category": "cs.LG",
+        "crawl_time": "2026-01-06T11:00:06.019199",
+        "filter_reason": "API调用错误: Error code: 522"
+    },
+    {
+        "index": "#92",
+        "title": "Reinforcement learning with timed constraints for robotics motion planning",
+        "link": "/arxiv/2601.00087",
+        "arxiv_id": "2601.00087",
+        "authors": "Zhaoan Wang, Junchao Li, Mahdi Mohammad, Shaoping Xiao",
+        "subjects": "Robotics, Machine Learning",
+        "date": "2025-12-31",
+        "category": "cs.LG",
+        "crawl_time": "2026-01-06T11:00:06.039445",
+        "filter_reason": "这篇论文不符合我的研究范围，依据如下： 1.  **核心判断（第一步）：** 论文的核心贡献是提出一种结合 Metric Interval Temporal Logic (MITL) 和 Reinforcement Learning (RL) 的框架，用于解决机器人在动态环境下的运动规划问题。这属于传统的机器人控制与强化学习结合的研究，完全基于 Q-learning、MDP/POMDP 和自动机理论，**并未涉及大语言模型（LLM）**。因此，它不属于构建、改进或演化 LLM 智能体的范畴。 2.  **排除标准（第一步 & 第三步）：** *   **非演化型应用：** 该论文是将一种算法框架（RL + MITL）应用到特定的垂直领域——机器人运动规划中，旨在解决该领域的具体问题（满足时间约束的策略合成）。根据第一步的排除规则，这属于“非演化型应用”。 *   **缺乏 Agentic AI 特征：** 尽管论文涉及“Planning”，但这是基于自动机和强化学习的传统控制规划，而非基于 LLM 的 Agentic AI 规划（如 ReAct, ToT 等）。论文中没有体现 LLM 智能体的自主性、工具使用或记忆机制。 综上所述，该论文属于传统的机器人学与强化学习交叉领域的研究，与“LLM智能体及其演化”这一核心课题无关，因此予以排除。"
     }
 ]

@@ -1,1 +1,28 @@
-[]
+[
+    {
+        "index": "#5",
+        "title": "SWE-RM: Execution-free Feedback For Software Engineering Agents",
+        "link": "/arxiv/2512.21919",
+        "arxiv_id": "2512.21919",
+        "authors": "KaShun Shum, Binyuan Hui, Jiawei Chen, Lei Zhang, X. W., Jiaxi Yang, Yuzhen Huang, Junyang Lin, Junxian He",
+        "summary": "Execution-based feedback like unit testing is widely used in the development of coding agents through test-time scaling (TTS) and reinforcement learning (RL). This paradigm requires scalable and reliable collection of unit test cases to provide accurate feedback, and the resulting feedback is often sparse and cannot effectively distinguish between trajectories that are both successful or both unsuccessful. In contrast, execution-free feedback from reward models can provide more fine-grained signals without depending on unit test cases. Despite this potential, execution-free feedback for realistic software engineering (SWE) agents remains underexplored. Aiming to develop versatile reward models that are effective across TTS and RL, however, we observe that two verifiers with nearly identical TTS performance can nevertheless yield very different results in RL. Intuitively, TTS primarily reflects the model's ability to select the best trajectory, but this ability does not necessarily generalize to RL. To address this limitation, we identify two additional aspects that are crucial for RL training: classification accuracy and calibration. We then conduct comprehensive controlled experiments to investigate how to train a robust reward model that performs well across these metrics. In particular, we analyze the impact of various factors such as training data scale, policy mixtures, and data source composition. Guided by these investigations, we introduce SWE-RM, an accurate and robust reward model adopting a mixture-of-experts architecture with 30B total parameters and 3B activated during inference. SWE-RM substantially improves SWE agents on both TTS and RL performance. For example, it increases the accuracy of Qwen3-Coder-Flash from 51.6% to 62.0%, and Qwen3-Coder-Max from 67.0% to 74.6% on SWE-Bench Verified using TTS, achieving new state-of-the-art performance among open-source models.",
+        "subjects": "Computation and Language",
+        "date": "2025-12-26",
+        "category": "cs.CL",
+        "crawl_time": "2025-12-30T11:00:05.179279",
+        "filter_reason": "这篇论文完全符合我的研究范围，属于“自我演化”和“单智能体”方向的交叉研究。 1.  **核心贡献符合第一步（核心判断）**： *   论文的核心贡献是提出了 **SWE-RM**，一种用于软件工程智能体的奖励模型。 *   它不是简单地将智能体作为工具应用，而是致力于**改进智能体本身**的反馈机制。论文旨在解决现有基于执行的反馈（如单元测试）存在的稀疏性和依赖性问题，提出了一种免执行的反馈机制。 2.  **高度契合第二步（正面指标）与第三步（自我演化）**： *   **自我演化机制**：论文明确指出该模型旨在支持 **Reinforcement Learning (RL)** 和 **Test-time scaling (TTS)**。RL 是智能体通过环境反馈进行自我完善和迭代的核心技术，属于典型的“自我演化”范畴。TTS 则涉及智能体在推理时的搜索和规划。 *   **智能体能力**：论文讨论了如何通过奖励模型提供更细粒度的信号，帮助智能体进行 **Self-Correction**（自我修正）和 **Trajectory Selection**（轨迹选择，即规划的一部分）。 3.  **符合第四步（特殊和模糊情况）**： *   虽然论文的应用场景是软件工程（SWE），但其核心在于提出一种新的“反馈/奖励机制”，这种机制是智能体实现自我演化和改进的关键组件。根据第四步中关于“自我演化的应用”的例外规则，只要核心是提出新的演化/改进机制，即使应用在特定领域，也应保留。 综上所述，SWE-RM 提供了一种让智能体通过更高质量的反馈进行自我学习和优化的新方法，直接贡献于 LLM 智能体的演化能力，因此予以保留。"
+    },
+    {
+        "index": "#27",
+        "title": "Beyond Heuristics: A Decision-Theoretic Framework for Agent Memory Management",
+        "link": "/arxiv/2512.21567",
+        "arxiv_id": "2512.21567",
+        "authors": "Changzhi Sun, Xiangyu Chen, Jixiang Luo, Dell Zhang, Xuelong Li",
+        "summary": "External memory is a key component of modern large language model (LLM) systems, enabling long-term interaction and personalization. Despite its importance, memory management is still largely driven by hand-designed heuristics, offering little insight into the long-term and uncertain consequences of memory decisions. In practice, choices about what to read or write shape future retrieval and downstream behavior in ways that are difficult to anticipate. We argue that memory management should be viewed as a sequential decision-making problem under uncertainty, where the utility of memory is delayed and dependent on future interactions. To this end, we propose DAM (Decision-theoretic Agent Memory), a decision-theoretic framework that decomposes memory management into immediate information access and hierarchical storage maintenance. Within this architecture, candidate operations are evaluated via value functions and uncertainty estimators, enabling an aggregate policy to arbitrate decisions based on estimated long-term utility and risk. Our contribution is not a new algorithm, but a principled reframing that clarifies the limitations of heuristic approaches and provides a foundation for future research on uncertainty-aware memory systems.",
+        "subjects": "Computation and Language",
+        "date": "2025-12-25",
+        "category": "cs.CL",
+        "crawl_time": "2025-12-30T11:00:05.200132",
+        "filter_reason": "1.  **核心判断符合 (第一步)**: 该论文的核心贡献是提出了一种名为 DAM (Decision-theoretic Agent Memory) 的框架，用于解决 LLM 智能体中的“记忆管理”问题。这直接属于“构建、改进 LLM 智能体”的范畴，而非将智能体作为工具应用到特定领域（如医疗、金融等），也不是关于基础设施或基础模型推理能力的提升。 2.  **命中核心关注点 (第二步)**: *   **单智能体能力**: 论文明确聚焦于智能体的 **Memory (记忆)** 机制。记忆是您列出的单智能体核心能力之一（规划、记忆、工具使用、自我反思）。 *   **Agentic AI**: 论文将记忆管理视为“不确定性下的序列决策问题”，这属于 Agentic AI 的核心方法论，旨在提升智能体在长期交互中的表现。 3.  **无排除项 (第三步)**: 论文不涉及安全与对齐、多模态视觉核心研究或图技术，因此不在排除范围内。 4.  **综合结论**: 该论文致力于改进 LLM 智能体的关键组件（记忆），提出了新的决策理论框架来替代传统的启发式方法，从而提升智能体的长期交互能力。这完全符合您的研究课题中关于“单智能体”及其能力演化的方向。"
+    }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "index": "#20",
+    "title": "ABBEL: LLM Agents Acting through Belief Bottlenecks Expressed in Language",
+    "link": "/arxiv/2512.20111",
+    "arxiv_id": "2512.20111",
+    "authors": "Aly Lidayan, Jakob Bjorner, Satvik Golechha, Kartik Goyal, Alane Suhr",
+    "summary": "As the length of sequential decision-making tasks increases, it becomes computationally impractical to keep full interaction histories in context. We introduce a general framework for LLM agents to maintain concise contexts through multi-step interaction: Acting through Belief Bottlenecks Expressed in Language (ABBEL), and methods to further improve ABBEL agents with RL post-training. ABBEL replaces long multi-step interaction history by a belief state, i.e., a natural language summary of what has been discovered about task-relevant unknowns. Under ABBEL, at each step the agent first updates a prior belief with the most recent observation from the environment to form a posterior belief, then uses only the posterior to select an action. We systematically evaluate frontier models under ABBEL across six diverse multi-step environments, finding that ABBEL supports generating interpretable beliefs while maintaining near-constant memory use over interaction steps. However, bottleneck approaches are generally prone to error propagation, which we observe causing inferior performance when compared to the full context setting due to errors in belief updating. Therefore, we train LLMs to generate and act on beliefs within the ABBEL framework via reinforcement learning (RL). We experiment with belief grading, to reward higher quality beliefs, as well as belief length penalties to reward more compressed beliefs. Our experiments demonstrate the ability of RL to improve ABBEL's performance beyond the full context setting, while using less memory than contemporaneous approaches.",
+    "subjects": "Computation and Language, Artificial Intelligence, Machine Learning",
+    "date": "2025-12-23",
+    "category": "cs.CL",
+    "crawl_time": "2025-12-25T11:00:03.826559",
+    "filter_reason": "这篇论文完全符合我的研究范围，属于“单智能体”和“自我演化”方向的交叉研究。具体判断依据如下： 1.  **核心贡献符合要求 (第一步)**: 论文的核心贡献是提出了一种名为 ABBEL 的新框架，旨在解决 LLM 智能体在长序列决策任务中的上下文管理问题。这属于构建和改进 LLM 智能体方法论的范畴，而非简单的应用或基础设施研究。 2.  **高度契合核心关注点 (第二步)**: *   **Agentic AI & 单智能体**: 论文明确研究 LLM Agents，涉及智能体如何通过“信念状态”来处理多步交互、环境观察和行动选择，这是典型的智能体规划与记忆机制研究。 *   **自我演化**: 论文不仅提出了框架，还引入了强化学习（RL）后训练机制来改进智能体生成信念和采取行动的能力。这种通过反馈（RL奖励）进行迭代优化和自我完善的过程，符合“自我演化”的定义。 3.  **不涉及排除项 (第三步)**: 论文主要关注智能体的架构优化和性能提升，不涉及安全对齐、多模态视觉核心研究或图神经网络等排除领域。 综上所述，ABBEL 提出了一种改进智能体记忆和决策机制的方法，并结合 RL 进行自我优化，精准契合“LLM智能体及其演化”的研究课题。",
+    "summary2": "本文旨在解决长序列决策任务中上下文长度超出限制的问题。针对长视距交互场景，我们提出了一种基于自然语言信念瓶颈的ABBEL框架，通过维护简洁的信念状态替代完整交互历史，并利用强化学习进行后训练优化。我们在Wordle、ColBench等六个多步环境中通过Success Rate和Peak Token Usage验证了其有效性，实现了在保持高性能的同时显著降低内存使用。",
+    "inspiration_trace": "生成灵感溯源时发生错误",
+    "summary_translation": "随着序列决策任务长度的增加，在上下文中保留完整的交互历史在计算上变得不可行。我们介绍了一个通用框架，用于 LLM（大语言模型）智能体通过多步交互保持简洁的上下文：Acting through Belief Bottlenecks Expressed in Language (ABBEL，基于语言表达的信念瓶颈行动)，以及利用 RL post-training（强化学习后训练）进一步改进 ABBEL 智能体的方法。ABBEL 用 belief state（信念状态）替换了冗长的多步交互历史，即关于任务相关未知因素已发现内容的自然语言摘要。在 ABBEL 框架下，智能体在每一步首先利用来自环境的最新观测更新 prior belief（先验信念）以形成 posterior belief（后验信念），然后仅使用后验信念来选择动作。我们在六个不同的多步环境中系统地评估了 ABBEL 下的 frontier models（前沿模型），发现 ABBEL 支持生成可解释的信念，同时在交互步骤中保持近乎恒定的内存使用。然而，bottleneck approaches（瓶颈方法）通常容易受到 error propagation（错误传播）的影响，我们观察到由于信念更新中的错误，这导致与 full context setting（全上下文设置）相比性能较差。因此，我们通过 reinforcement learning (RL，强化学习) 训练 LLM 在 ABBEL 框架内生成信念并基于信念行动。我们尝试了 belief grading（信念评分）以奖励更高质量的信念，以及 belief length penalties（信念长度惩罚）以奖励更压缩的信念。我们的实验证明了 RL 将 ABBEL 的性能提升至超越全上下文设置的能力，同时使用的内存少于 contemporaneous approaches（同期方法）。",
+    "summary_generated_time": "2026-01-09 14:27:18",
+    "summary_model": "z-ai/glm-4.7"
+  }
+]

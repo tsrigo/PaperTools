@@ -42,7 +42,7 @@ MAX_PAPERS_TOTAL_FULL = 10000
 MAX_PAPERS_TOTAL_DEFAULT = 100
 
 # 多线程配置
-MAX_WORKERS = 10  # 默认线程数
+MAX_WORKERS = 4  # 默认线程数
 
 # 论文筛选Prompt模板
 PAPER_FILTER_PROMPT = """你是一位顶尖的人工智能研究员，正在为一项关于 "LLM智能体及其演化"（LLM-based Agents and their Evolution） 的研究课题筛选前沿论文。请你严格、精准地判断这篇论文是否符合我的研究范围。
@@ -74,6 +74,7 @@ PAPER_FILTER_PROMPT = """你是一位顶尖的人工智能研究员，正在为�
 
 - 安全与对齐: 只要论文的主要贡献是关于 `Safety`, `Security`, `Interpretability` (可解释性), `Explainability (XAI)`, `Alignment` (对齐), `Watermarking` (水印), 或 `Hallucination` (幻觉)，一律排除。
 - 多模态与视觉: `Vision`, `Vision-Language`, `MLLMs`, `VLMs`, `Video Understanding`, `3D Vision`, `Diffusion Models` (除非它们被用作智能体感知环境的工具，而不是研究的核心)。
+- 图：涉及知识图谱，图神经网络等图相关技术的论文。
 
 第四步：处理特殊和模糊情况 (核心规则)
 

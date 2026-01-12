@@ -1,1 +1,80 @@
-[]
+[
+    {
+        "index": "#5",
+        "title": "PAACE: A Plan-Aware Automated Agent Context Engineering Framework",
+        "link": "/arxiv/2512.16970",
+        "arxiv_id": "2512.16970",
+        "authors": "Kamer Ali Yuksel",
+        "summary": "Large Language Model (LLM) agents are increasingly deployed in complex, multi-step workflows involving planning, tool use, reflection, and interaction with external knowledge systems. These workflows generate rapidly expanding contexts that must be curated, transformed, and compressed to maintain fidelity, avoid attention dilution, and reduce inference cost. Prior work on summarization and query-aware compression largely ignores the multi-step, plan-aware nature of agentic reasoning. In this work, we introduce PAACE (Plan-Aware Automated Context Engineering), a unified framework for optimizing the evolving state of LLM agents through next-k-task relevance modeling, plan-structure analysis, instruction co-refinement, and function-preserving compression. PAACE comprises (1) PAACE-Syn, a large-scale generator of synthetic agent workflows annotated with stepwise compression supervision, and (2) PAACE-FT, a family of distilled, plan-aware compressors trained from successful teacher demonstrations. Experiments on long-horizon benchmarks (AppWorld, OfficeBench, and 8-Objective QA) demonstrate that PAACE consistently improves agent correctness while substantially reducing context load. On AppWorld, PAACE achieves higher accuracy than all baselines while lowering peak context and cumulative dependency. On OfficeBench and multi-hop QA, PAACE improves both accuracy and F1, achieving fewer steps, lower peak tokens, and reduced attention dependency. Distilled PAACE-FT retains 97 percent of the teacher's performance while reducing inference cost by over an order of magnitude, enabling practical deployment of plan-aware compression with compact models.",
+        "subjects": "Artificial Intelligence, Computation and Language, Machine Learning, Multiagent Systems",
+        "date": "2025-12-18",
+        "category": "cs.MA",
+        "crawl_time": "2025-12-23T11:00:04.854123",
+        "filter_reason": "这篇论文完全符合筛选标准，属于核心关注的“单智能体”研究方向。 1.  **核心贡献判断 (第一步)**: 论文的核心贡献是提出了 **PAACE** 框架，这是一个用于优化 LLM 智能体在复杂工作流中“演化状态”的统一框架。它不是将智能体作为工具应用到特定垂直领域（如医疗、金融），而是致力于**改进智能体本身**的上下文工程机制，解决智能体在长视界任务中的上下文膨胀和注意力稀释问题。这符合“构建、改进 LLM 智能体”的核心目标。 2.  **符合核心关注点 (第二步)**: *   **Agentic AI**: 论文明确针对 LLM 智能体，涉及智能体的规划、工具使用和反思。 *   **Planning (规划)**: 论文强调 \"Plan-Aware\"（感知计划），通过分析计划结构和 next-k-task relevance modeling 来优化上下文，直接关联到智能体的规划能力。 *   **Memory (记忆)**: 论文处理的是智能体工作流中“快速扩展的上下文”，这本质上是智能体的短期记忆管理问题。 3.  **排除标准检查 (第三步)**: 论文不涉及安全对齐、多模态视觉核心研究或图神经网络，因此不在排除范围内。 4.  **特殊情况处理 (第四步)**: *   **推理/规划**: 论文关注的是智能体在多步骤工作流中的推理过程，通过压缩和优化上下文来辅助智能体更好地执行规划，属于 Agentic 的范畴，而非单纯的 LLM 基础推理能力提升（如数学题求解）。 综上所述，PAACE 提出了一种改进智能体架构（特别是上下文管理和规划感知）的新方法，能够提升智能体在复杂任务中的表现，符合“LLM智能体及其演化”的研究课题。"
+    },
+    {
+        "index": "#3",
+        "title": "On the Role of Contextual Information and Ego States in LLM Agent Behavior for Transactional Analysis Dialogues",
+        "link": "/arxiv/2512.17060",
+        "arxiv_id": "2512.17060",
+        "authors": "Monika Zamojska, Jarosław A. Chudziak",
+        "summary": "LLM-powered agents are now used in many areas, from customer support to education, and there is increasing interest in their ability to act more like humans. This includes fields such as social, political, and psychological research, where the goal is to model group dynamics and social behavior. However, current LLM agents often lack the psychological depth and consistency needed to capture the real patterns of human thinking. They usually provide direct or statistically likely answers, but they miss the deeper goals, emotional conflicts, and motivations that drive real human interactions. This paper proposes a Multi-Agent System (MAS) inspired by Transactional Analysis (TA) theory. In the proposed system, each agent is divided into three ego states - Parent, Adult, and Child. The ego states are treated as separate knowledge structures with their own perspectives and reasoning styles. To enrich their response process, they have access to an information retrieval mechanism that allows them to retrieve relevant contextual information from their vector stores. This architecture is evaluated through ablation tests in a simulated dialogue scenario, comparing agents with and without information retrieval. The results are promising and open up new directions for exploring how psychologically grounded structures can enrich agent behavior. The contribution is an agent architecture that integrates Transactional Analysis theory with contextual information retrieval to enhance the realism of LLM-based multi-agent simulations.",
+        "subjects": "Multiagent Systems, Artificial Intelligence",
+        "date": "2025-12-18",
+        "category": "cs.MA",
+        "crawl_time": "2025-12-23T11:00:04.853583",
+        "filter_reason": "这篇论文符合筛选标准，应予以保留。具体判断过程如下： 1.  **核心判断（第一步）**： *   论文的核心贡献是提出了一种受交互分析理论启发的**多智能体系统（MAS）架构**。它不仅仅是将现有的LLM作为工具应用，而是设计了一种新的智能体内部结构（将智能体划分为父母、成人、儿童三种自我状态）并结合了上下文检索机制。这属于“构建、改进LLM智能体”的范畴，符合保留条件。 2.  **正面指标匹配（第二步）**： *   **多智能体**: 论文明确提出了Multi-Agent System (MAS)，旨在模拟群体动力学和社会行为。 *   **智能体能力**: 论文涉及智能体的**记忆**（通过向量存储检索上下文信息）和特定的**推理风格**（基于不同自我状态的推理）。 *   **核心范式**: 符合 `LLM-based Agents` 和 `Multi-Agent Systems` 的定义。 3.  **排除标准检查（第三步）**： *   论文不涉及安全与对齐、多模态视觉技术或图神经网络，因此不在排除之列。 4.  **特殊情况处理（第四步）**： *   虽然论文涉及心理学领域，但其核心在于**构建智能体架构**以增强模拟的真实感，而非单纯的应用研究。它属于对智能体行为和认知结构的改进，符合研究目标。 综上所述，该论文通过引入心理学理论改进了多智能体的架构和行为模式，属于Agentic AI和多智能体系统的研究范畴。"
+    },
+    {
+        "index": "#19",
+        "title": "Seed-Prover 1.5: Mastering Undergraduate-Level Theorem Proving via Learning from Experience",
+        "link": "/arxiv/2512.17260",
+        "arxiv_id": "2512.17260",
+        "authors": "Jiangjie Chen, Wenxiang Chen, Jiacheng Du, Jinyi Hu, Zhicheng Jiang, Allan Jie, Xiaoran Jin, Xing Jin, Chenggang Li, Wenlei Shi, Zhihong Wang, Mingxuan Wang, Chenrui Wei, Shufa Wei, Huajian Xin, Fan Yang, Weihao Gao, Zheng Yuan, Tianyang Zhan, Zeyu Zheng, Tianxi Zhou, Thomas Hanwen Zhu",
+        "summary": "Large language models have recently made significant progress to generate rigorous mathematical proofs. In contrast, utilizing LLMs for theorem proving in formal languages (such as Lean) remains challenging and computationally expensive, particularly when addressing problems at the undergraduate level and beyond. In this work, we present \\textbf{Seed-Prover 1.5}, a formal theorem-proving model trained via large-scale agentic reinforcement learning, alongside an efficient test-time scaling (TTS) workflow. Through extensive interactions with Lean and other tools, the model continuously accumulates experience during the RL process, substantially enhancing the capability and efficiency of formal theorem proving. Furthermore, leveraging recent advancements in natural language proving, our TTS workflow efficiently bridges the gap between natural and formal languages. Compared to state-of-the-art methods, Seed-Prover 1.5 achieves superior performance with a smaller compute budget. It solves \\textbf{88\\% of PutnamBench} (undergraduate-level), \\textbf{80\\% of Fate-H} (graduate-level), and \\textbf{33\\% of Fate-X} (PhD-level) problems. Notably, using our system, we solved \\textbf{11 out of 12 problems} from Putnam 2025 within 9 hours. Our findings suggest that scaling learning from experience, driven by high-quality formal feedback, holds immense potential for the future of formal mathematical reasoning.",
+        "subjects": "Computation and Language",
+        "date": "2025-12-19",
+        "category": "cs.CL",
+        "crawl_time": "2025-12-23T11:00:05.163121",
+        "filter_reason": "这篇论文完全符合筛选标准，应予以保留。判断依据如下： 1.  **核心贡献符合“自我演化”与“Agentic AI”方向**： 论文的核心贡献是提出了 **Seed-Prover 1.5**，这是一个通过 **\"agentic reinforcement learning\"（智能体强化学习）** 训练的模型。论文明确指出模型通过 **\"extensive interactions with Lean and other tools\"（与工具的广泛交互）** 来 **\"continuously accumulates experience\"（持续积累经验）**。这直接对应了筛选标准中的 **自我演化** 机制和 **Agentic AI** 的核心范式。 2.  **涉及智能体的关键能力**： 论文中提到的与 Lean（形式化证明工具）的交互属于 **Tool Use（工具使用）**；通过强化学习过程积累经验并提升能力，属于 **Self-Improvement（自我完善）** 和 **Iterative Improvement（迭代改进）**。这些都是筛选标准第二步中的核心正面指标。 3.  **符合“特殊和模糊情况”的处理规则**： 虽然论文的应用领域是数学定理证明（属于特定领域应用），但根据筛选标准第四步第2点：“如果论文的核心是提出一种新的‘自我演化’机制，即使它被应用在特定领域……也应该保留”。本文的核心在于提出了一种基于智能体强化学习和测试时扩展（TTS）的**新框架和方法论**，而不仅仅是应用现有模型解决数学问题。因此，它不属于“非演化型应用”的排除范畴。 4.  **排除标准检查**： 论文不涉及安全对齐、多模态视觉或图技术等排除项。 综上所述，该论文在构建具有自我演化能力的LLM智能体方面做出了实质性贡献，符合“LLM智能体及其演化”的研究课题。"
+    },
+    {
+        "index": "#59",
+        "title": "Dynamic Tool Dependency Retrieval for Efficient Function Calling",
+        "link": "/arxiv/2512.17052",
+        "arxiv_id": "2512.17052",
+        "authors": "Bhrij Patel, Davide Belli, Amir Jalalirad, Maximilian Arnold, Aleksandr Ermovol, Bence Major",
+        "summary": "Function calling agents powered by Large Language Models (LLMs) select external tools to automate complex tasks. On-device agents typically use a retrieval module to select relevant tools, improving performance and reducing context length. However, existing retrieval methods rely on static and limited inputs, failing to capture multi-step tool dependencies and evolving task context. This limitation often introduces irrelevant tools that mislead the agent, degrading efficiency and accuracy. We propose Dynamic Tool Dependency Retrieval (DTDR), a lightweight retrieval method that conditions on both the initial query and the evolving execution context. DTDR models tool dependencies from function calling demonstrations, enabling adaptive retrieval as plans unfold. We benchmark DTDR against state-of-the-art retrieval methods across multiple datasets and LLM backbones, evaluating retrieval precision, downstream task accuracy, and computational efficiency. Additionally, we explore strategies to integrate retrieved tools into prompts. Our results show that dynamic tool retrieval improves function calling success rates between $23\\%$ and $104\\%$ compared to state-of-the-art static retrievers.",
+        "subjects": "Machine Learning",
+        "date": "2025-12-18",
+        "category": "cs.LG",
+        "crawl_time": "2025-12-23T11:00:05.743103",
+        "filter_reason": "1.  **核心判断（符合）**：这篇论文的核心贡献是提出了一种名为“动态工具依赖检索（DTDR）”的方法，旨在改进LLM智能体在函数调用过程中的工具检索机制。这属于构建和改进LLM智能体的方法论，完全符合“单智能体”的研究范畴。 2.  **正面指标匹配**： *   **核心范式**：论文明确研究对象是“Function calling agents”（函数调用智能体），属于 `Agentic AI` 和 `LLM-based Agents`。 *   **智能体能力**：论文的核心焦点在于 `Tool Use / Tool Augmentation`（工具使用/工具增强）。它解决了智能体在多步任务中如何根据上下文动态选择相关工具的问题，这直接关联到智能体的 `Planning`（规划）能力，因为它涉及处理“多步工具依赖”和“随着计划的展开”进行自适应检索。 3.  **排除标准检查**： *   论文并非将智能体作为工具应用到特定垂直领域（如生物、医疗），而是改进智能体本身的基础组件（工具检索模块）。 *   论文不涉及安全、对齐、多模态核心研究或图技术。 *   虽然摘要中提到了“evolving task context”（演化的任务上下文），但这指的是任务执行过程中的状态变化，而非智能体模型本身的“自我演化”或“自我完善”，因此归类为单智能体的工具使用改进最为准确。 4.  **结论**：该论文通过改进工具检索机制，显著提升了LLM智能体在复杂任务中的执行效率和准确性，是对Agentic AI中工具使用能力的具体增强，完全符合筛选要求。"
+    },
+    {
+        "index": "#62",
+        "title": "Turn-PPO: Turn-Level Advantage Estimation with PPO for Improved Multi-Turn RL in Agentic LLMs",
+        "link": "/arxiv/2512.17008",
+        "arxiv_id": "2512.17008",
+        "authors": "Junbo Li, Peng Zhou, Rui Meng, Meet P. Vadera, Lihong Li, Yang Li",
+        "summary": "Reinforcement learning (RL) has re-emerged as a natural approach for training interactive LLM agents in real-world environments. However, directly applying the widely used Group Relative Policy Optimization (GRPO) algorithm to multi-turn tasks exposes notable limitations, particularly in scenarios requiring long-horizon reasoning. To address these challenges, we investigate more stable and effective advantage estimation strategies, especially for multi-turn settings. We first explore Proximal Policy Optimization (PPO) as an alternative and find it to be more robust than GRPO. To further enhance PPO in multi-turn scenarios, we introduce turn-PPO, a variant that operates on a turn-level MDP formulation, as opposed to the commonly used token-level MDP. Our results on the WebShop and Sokoban datasets demonstrate the effectiveness of turn-PPO, both with and without long reasoning components.",
+        "subjects": "Machine Learning",
+        "date": "2025-12-18",
+        "category": "cs.LG",
+        "crawl_time": "2025-12-23T11:00:05.743874",
+        "filter_reason": "这篇论文完全符合筛选标准，属于核心研究范围内的“单智能体”方向。 1.  **核心判断（符合）**：论文的核心贡献是提出了一种名为 \"Turn-PPO\" 的新算法，旨在改进 Agentic LLMs（智能体大模型）在多轮交互中的强化学习（RL）训练效果。这属于构建和改进 LLM 智能体方法论的研究，而非简单的应用或基础设施优化。 2.  **符合研究焦点（单智能体）**： *   论文明确针对 \"Agentic LLMs\"，关注智能体在多轮任务中的表现。 *   它解决了智能体在长视界推理中的局限性，涉及智能体的规划和多步推理能力，这正是筛选标准中“单智能体”方向的核心关注点。 3.  **排除标准检查（通过）**： *   **非应用型**：虽然论文在 WebShop 和 Sokoban 数据集上进行了验证，但其核心在于提出一种通用的训练算法（Turn-PPO），而非解决特定领域的业务问题。 *   **非基础设施**：研究重点在于算法逻辑和策略优化，而非硬件或部署。 *   **非排除领域**：不涉及安全、对齐、多模态视觉或图技术。 4.  **特殊情况处理**： *   论文讨论的是智能体级别的交互和决策，将 MDP（马尔可夫决策过程）从 Token 级别提升到 Turn 级别，这符合“智能体如何进行规划或在复杂任务中进行多步推理”的保留规则，而非单纯的基础 Token 预测能力提升。 综上所述，该论文通过改进强化学习算法来增强 LLM 智能体的多轮交互和规划能力，是构建高质量 Agentic AI 的关键研究，应予以保留。"
+    },
+    {
+        "index": "#13",
+        "title": "Reinforcement Learning for Self-Improving Agent with Skill Library",
+        "link": "/arxiv/2512.17102",
+        "arxiv_id": "2512.17102",
+        "authors": "Jiongxiao Wang, Qiaojing Yan, Yawei Wang, Yijun Tian, Soumya Smruti Mishra, Zhichao Xu, Megha Gandhi, Panpan Xu, Lin Lee Cheong",
+        "summary": "Large Language Model (LLM)-based agents have demonstrated remarkable capabilities in complex reasoning and multi-turn interactions but struggle to continuously improve and adapt when deployed in new environments. One promising approach is implementing skill libraries that allow agents to learn, validate, and apply new skills. However, current skill library approaches rely primarily on LLM prompting, making consistent skill library implementation challenging. To overcome these challenges, we propose a Reinforcement Learning (RL)-based approach to enhance agents' self-improvement capabilities with a skill library. Specifically, we introduce Skill Augmented GRPO for self-Evolution (SAGE), a novel RL framework that systematically incorporates skills into learning. The framework's key component, Sequential Rollout, iteratively deploys agents across a chain of similar tasks for each rollout. As agents navigate through the task chain, skills generated from previous tasks accumulate in the library and become available for subsequent tasks. Additionally, the framework enhances skill generation and utilization through a Skill-integrated Reward that complements the original outcome-based rewards. Experimental results on AppWorld demonstrate that SAGE, when applied to supervised-finetuned model with expert experience, achieves 8.9% higher Scenario Goal Completion while requiring 26% fewer interaction steps and generating 59% fewer tokens, substantially outperforming existing approaches in both accuracy and efficiency.",
+        "subjects": "Artificial Intelligence",
+        "date": "2025-12-18",
+        "category": "cs.AI",
+        "crawl_time": "2025-12-23T11:00:05.763422",
+        "filter_reason": "这篇论文完全符合我的研究范围，属于“自我演化”方向的核心文献。具体判断依据如下： 1.  **核心判断（第一步）**：论文的核心贡献是提出了一种名为 SAGE 的新框架，旨在通过强化学习（RL）和技能库来增强 LLM 智能体的自我改进和自我演化能力。这直接对应了我的核心目标中关于“构建、改进或演化 LLM智能体”的要求。它不是单纯的应用，也不是基础设施优化，而是提出了新的智能体演化方法论。 2.  **正面指标匹配（第二步）**： *   **核心范式**：论文明确涉及 `Self-Evolving`（自我演化）和 `LLM-based Agents`。 *   **演化机制**：论文详细描述了 `Self-Improvement`（自我改进）和 `Iterative Improvement`（迭代改进）机制，特别是通过“Sequential Rollout”在任务链中积累技能，体现了智能体通过经验进行迭代完善的过程。 *   **智能体能力**：引入“Skill Library”作为智能体获取和重用能力的机制，这与 `Tool Use` 和 `Memory` 的概念紧密相关，增强了智能体在新环境中的适应性。 3.  **排除标准检查（第三步）**：论文不涉及安全对齐、多模态视觉或图神经网络等排除领域，纯粹聚焦于智能体的算法架构和演化逻辑。 4.  **特殊情况处理（第四步）**：虽然论文在 AppWorld 数据集上进行了实验，但其核心在于提出一种通用的自我演化机制（SAGE），而非仅仅解决 AppWorld 领域的特定问题。根据规则，这种提出新“自我演化”机制的应用研究应当保留。 综上所述，该论文在“自我演化”这一核心研究焦点上做出了实质性贡献，符合筛选标准。"
+    }
+]

@@ -64,12 +64,12 @@ def retry_on_failure(max_retries: int = None, backoff_factor: float = None, appl
         max_retries = JINA_MAX_RETRIES
     if backoff_factor is None:
         backoff_factor = JINA_BACKOFF_FACTOR
-        
+
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
             last_exception = None
-            
+
             for attempt in range(max_retries):
                 try:
                     # 如果需要，在每次尝试前应用速率限制
@@ -87,11 +87,67 @@ def retry_on_failure(max_retries: int = None, backoff_factor: float = None, appl
                 except Exception as e:
                     # 对于其他非网络相关的异常，直接抛出
                     raise e
-            
+
             # 如果所有重试都失败了，抛出最后一个异常
             if last_exception:
                 raise last_exception
-        
+
+        return wrapper
+    return decorator
+
+
+def retry_on_openai_error(max_retries: int = 3, backoff_factor: float = 2.0):
+    """
+    OpenAI API 重试装饰器
+    专门处理 OpenAI API 调用中的网络错误、超时等异常
+
+    Args:
+        max_retries: 最大重试次数
+        backoff_factor: 退避因子（指数退避）
+    """
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            last_exception = None
+
+            for attempt in range(max_retries):
+                try:
+                    return func(*args, **kwargs)
+                except (OpenAIError, requests.exceptions.RequestException, ConnectionError, TimeoutError) as e:
+                    last_exception = e
+                    error_msg = str(e)
+
+                    # 判断是否是可重试的错误
+                    retryable_errors = [
+                        'Connection error',
+                        'timeout',
+                        'Too Many Requests',
+                        'Rate limit',
+                        'Service Unavailable',
+                        '503',
+                        '502',
+                        '500'
+                    ]
+
+                    is_retryable = any(err in error_msg for err in retryable_errors)
+
+                    if is_retryable and attempt < max_retries - 1:
+                        wait_time = backoff_factor ** attempt
+                        print(f"⚠️ OpenAI API调用失败 (尝试 {attempt + 1}/{max_retries}), {wait_time:.2f}秒后重试: {error_msg}")
+                        time.sleep(wait_time)
+                    else:
+                        if attempt == max_retries - 1:
+                            print(f"❌ OpenAI API调用失败，已达到最大重试次数: {error_msg}")
+                        raise e
+                except Exception as e:
+                    # 对于其他非网络相关的异常，直接抛出
+                    print(f"❌ 发生非网络错误: {e}")
+                    raise e
+
+            # 如果所有重试都失败了，抛出最后一个异常
+            if last_exception:
+                raise last_exception
+
         return wrapper
     return decorator
 
@@ -174,6 +230,7 @@ def extract_arxiv_id_from_link(link: str) -> Optional[str]:
     return None
 
 
+@retry_on_openai_error(max_retries=3, backoff_factor=2.0)
 def translate_summary(summary: str, client: OpenAI, model: str, temperature: float, paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
     """
     翻译英文摘要为中文
@@ -239,6 +296,7 @@ def translate_summary(summary: str, client: OpenAI, model: str, temperature: flo
         return "翻译失败"
 
 
+@retry_on_openai_error(max_retries=3, backoff_factor=2.0)
 def generate_summary(paper_content: str, client: OpenAI, model: str, temperature: float, paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
     """
     使用大模型生成论文总结，支持缓存
@@ -305,6 +363,7 @@ def generate_summary(paper_content: str, client: OpenAI, model: str, temperature
         return "总结生成失败"
 
 
+@retry_on_openai_error(max_retries=3, backoff_factor=2.0)
 def generate_inspiration_trace(paper_content: str, client: OpenAI, model: str, temperature: float, paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
     """
     生成论文的灵感溯源分析
@@ -366,6 +425,7 @@ def generate_inspiration_trace(paper_content: str, client: OpenAI, model: str, t
         return "生成灵感溯源时发生错误"
 
 
+@retry_on_openai_error(max_retries=3, backoff_factor=2.0)
 def generate_daily_overview(papers: List[Dict], client: OpenAI, model: str, temperature: float, date_str: str = "", cache_manager: Optional[CacheManager] = None) -> str:
     """
     生成"今日AI论文速览"
