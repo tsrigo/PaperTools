@@ -14,79 +14,48 @@ PaperTools 是一个完整的学术论文处理流水线，提供自动化的论
 - **本地部署**: 一键启动本地服务器，便于浏览和分享
 - **交互功能**: 支持论文收藏、已读状态跟踪和删除，状态持久化保存
 
-## 系统要求
-
-- Python 3.7+
-- 网络连接（用于API调用和内容获取）
-- 推荐：4GB+ RAM（处理大量论文时）
-
-## 安装使用
-
-### 环境设置
+## 快速开始
 
 ```bash
-# 1. 复制配置模板
+# 1. 安装依赖
+pip install -r requirements.txt
+
+# 2. 配置 API 密钥
 cp .env.example .env
+# 编辑 .env，填入你的 OPENAI_API_KEY、OPENAI_BASE_URL、MODEL
 
-# 2. 编辑 .env 文件，设置你的API密钥
-# OPENAI_API_KEY=your_actual_api_key_here
-# OPENAI_BASE_URL=https://open.bigmodel.cn/api/paas/v4
-# MODEL=glm-4.5-flash
-
-# 3. 检查并安装依赖
-python papertools.py check
+# 3. 运行
+python papertools.py run --mode quick   # 快速测试（10篇）
+python papertools.py run                # 完整运行（1000篇）
 ```
 
-### 快速开始
+## 常用命令
 
 ```bash
-python papertools.py run --mode quick
-# 获取帮助
-python papertools.py --help
+python papertools.py run [选项]         # 运行流水线
+  --mode {quick,full}                   #   处理模式
+  --date YYYY-MM-DD                     #   指定日期
+  --categories cs.AI cs.CL              #   指定类别
+  --max-papers-total N                  #   自定义数量
+
+python papertools.py serve              # 启动本地服务器
+python papertools.py check              # 检查环境依赖
+python papertools.py clean              # 清理缓存
+python papertools.py --help             # 查看帮助
 ```
 
-## 使用说明
-
-### 主要命令
-
-```bash
-# 运行论文处理流水线
-python papertools.py run [选项]
-  --mode {quick,full}     # 处理模式：quick(10篇) 或 full(1000篇，默认)
-  --date YYYY-MM-DD       # 处理指定日期的论文
-  --categories cs.AI cs.CL # 指定论文类别
-  --max-papers-total N    # 自定义论文数量
-
-# 启动网页服务器
-python papertools.py serve
-
-# 清理缓存文件
-python papertools.py clean
-
-# 检查环境和依赖
-python papertools.py check
-```
-
-### 高级用法：独立模块使用
-
-如需单独使用某个模块：
+<details>
+<summary>高级用法：独立模块</summary>
 
 ```bash
-# 1. 爬取论文
 python src/core/crawl_arxiv.py --categories cs.AI cs.CV --max-papers 100
-
-# 2. 筛选论文
 python src/core/select_.py --input-file arxiv_paper/papers.json
-
-# 3. 生成总结和灵感溯源
 python src/core/generate_summary.py --input-file domain_paper/filtered_papers.json
-
-# 4. 生成统一网页
 python src/core/generate_unified_index.py
-
-# 5. 启动服务器
 python src/core/serve_webpages.py --port 8080
 ```
+
+</details>
 
 ## 🚀 部署到 GitHub Pages
 
