@@ -28,13 +28,14 @@ class CacheManager:
         self.cache_dir = cache_dir
         self.enabled = ENABLE_CACHE
         self.expiry_days = CACHE_EXPIRY_DAYS
-        
+
         if self.enabled:
             os.makedirs(self.cache_dir, exist_ok=True)
             # 创建子目录
             os.makedirs(os.path.join(self.cache_dir, "papers"), exist_ok=True)
             os.makedirs(os.path.join(self.cache_dir, "summaries"), exist_ok=True)
             os.makedirs(os.path.join(self.cache_dir, "webpages"), exist_ok=True)
+            os.makedirs(os.path.join(self.cache_dir, "crawl"), exist_ok=True)
     
     def _generate_key(self, data: str) -> str:
         """生成缓存键"""
@@ -174,7 +175,62 @@ class CacheManager:
                 json.dump(cache_data, f, ensure_ascii=False, indent=2)
         except Exception as e:
             print(f"⚠️ 保存网页缓存失败: {e}")
-    
+
+    def get_crawl_cache(self, category: str, date: str) -> Optional[List[Dict[str, Any]]]:
+        """获取爬取缓存
+
+        Args:
+            category: 论文类别，如 'cs.AI'
+            date: 日期字符串，格式为 'YYYY-MM-DD'
+
+        Returns:
+            缓存的论文列表，如果没有缓存则返回 None
+        """
+        if not self.enabled:
+            return None
+
+        key = self._generate_key(f"crawl:{category}:{date}")
+        cache_file = self._get_cache_file("crawl", key)
+
+        if not self._is_cache_valid(cache_file):
+            return None
+
+        try:
+            with open(cache_file, 'r', encoding='utf-8') as f:
+                cache_data = json.load(f)
+                return cache_data.get("papers")
+        except Exception as e:
+            print(f"⚠️ 读取爬取缓存失败: {e}")
+            return None
+
+    def set_crawl_cache(self, category: str, date: str, papers: List[Dict[str, Any]]) -> None:
+        """设置爬取缓存
+
+        Args:
+            category: 论文类别
+            date: 日期字符串
+            papers: 论文列表
+        """
+        if not self.enabled:
+            return
+
+        key = self._generate_key(f"crawl:{category}:{date}")
+        cache_file = self._get_cache_file("crawl", key)
+
+        try:
+            cache_data = {
+                "category": category,
+                "date": date,
+                "papers": papers,
+                "paper_count": len(papers),
+                "cached_at": datetime.now().isoformat()
+            }
+
+            with open(cache_file, 'w', encoding='utf-8') as f:
+                json.dump(cache_data, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"⚠️ 保存爬取缓存失败: {e}")
+
     def clean_expired_cache(self) -> None:
         """清理过期缓存"""
         if not self.enabled:
@@ -183,11 +239,11 @@ class CacheManager:
         print("🧹 清理过期缓存...")
         cleaned_count = 0
         
-        for cache_type in ["papers", "summaries", "webpages"]:
+        for cache_type in ["papers", "summaries", "webpages", "crawl"]:
             cache_type_dir = os.path.join(self.cache_dir, cache_type)
             if not os.path.exists(cache_type_dir):
                 continue
-            
+
             for cache_file in os.listdir(cache_type_dir):
                 cache_path = os.path.join(cache_type_dir, cache_file)
                 if not self._is_cache_valid(cache_path):
@@ -205,12 +261,12 @@ class CacheManager:
     def get_cache_stats(self) -> Dict[str, int]:
         """获取缓存统计信息"""
         if not self.enabled:
-            return {"papers": 0, "summaries": 0, "webpages": 0, "total": 0}
-        
+            return {"papers": 0, "summaries": 0, "webpages": 0, "crawl": 0, "total": 0}
+
         stats = {}
         total = 0
-        
-        for cache_type in ["papers", "summaries", "webpages"]:
+
+        for cache_type in ["papers", "summaries", "webpages", "crawl"]:
             cache_type_dir = os.path.join(self.cache_dir, cache_type)
             if os.path.exists(cache_type_dir):
                 count = len([f for f in os.listdir(cache_type_dir) if f.endswith('.json')])

@@ -25,6 +25,7 @@ if project_root not in sys.path:
 # 导入配置
 try:
     from src.utils.config import ARXIV_PAPER_DIR, CRAWL_CATEGORIES, MAX_PAPERS_PER_CATEGORY, MAX_WORKERS, DATE_FORMAT
+    from src.utils.cache_manager import CacheManager
 except ImportError:
     # 如果没有config文件，使用默认配置
     ARXIV_PAPER_DIR = "arxiv_paper"
@@ -32,6 +33,17 @@ except ImportError:
     MAX_PAPERS_PER_CATEGORY = 1000
     MAX_WORKERS = 4
     DATE_FORMAT = "%Y-%m-%d"
+    CacheManager = None
+
+# 全局缓存管理器
+_cache_manager = None
+
+def get_cache_manager():
+    """获取缓存管理器单例"""
+    global _cache_manager
+    if _cache_manager is None and CacheManager is not None:
+        _cache_manager = CacheManager()
+    return _cache_manager
 
 # 基础URL模板
 base_url = "https://papers.cool/arxiv/{}?show={}"
@@ -95,68 +107,81 @@ def _extract_date_from_div(div) -> str:
     norm = _normalize_date_to_yyyy_mm_dd(block_text)
     return norm
 
-def scrape_papers_for_date_range(category: str, max_papers: int, delay: float, start_date: str, end_date: str) -> Tuple[List[Dict], Set[str]]:
+def scrape_papers_for_date_range(category: str, max_papers: int, delay: float, start_date: str, end_date: str, use_cache: bool = True) -> Tuple[List[Dict], Set[str]]:
     """
     爬取指定日期范围内的论文
-    
+
     Args:
         category: 论文类别
         max_papers: 最大爬取数量
         delay: 请求间隔时间
         start_date: 起始日期，格式为 'YYYY-MM-DD'
         end_date: 结束日期，格式为 'YYYY-MM-DD'
-    
+        use_cache: 是否使用缓存
+
     Returns:
         Tuple[List[Dict], Set[str]]: (论文列表, 论文ID集合)
     """
     from datetime import datetime, timedelta
-    
+
     all_papers = []
     all_paper_ids = set()
-    
+
     # 解析日期
     start_dt = datetime.strptime(start_date, '%Y-%m-%d')
     end_dt = datetime.strptime(end_date, '%Y-%m-%d')
-    
+
     print(f"🔍 正在爬取类别 {category}，日期范围: {start_date} 到 {end_date}")
-    
+
     # 遍历日期范围
     current_dt = start_dt
     while current_dt <= end_dt:
         current_date_str = current_dt.strftime('%Y-%m-%d')
         print(f"  📅 爬取日期: {current_date_str}")
-        
-        papers, paper_ids = scrape_papers(category, max_papers, delay, current_date_str)
-        
+
+        papers, paper_ids = scrape_papers(category, max_papers, delay, current_date_str, use_cache)
+
         # 合并结果，避免重复
         for paper in papers:
             paper_id = paper.get('arxiv_id', '') or paper['link'].split('/')[-1]
             if paper_id not in all_paper_ids:
                 all_papers.append(paper)
                 all_paper_ids.add(paper_id)
-        
+
         current_dt += timedelta(days=1)
-        
+
         # 添加额外延时避免请求过快
         time.sleep(delay)
-    
+
     print(f"✅ 日期范围爬取完成 {category}: {len(all_papers)} 篇去重论文")
     return all_papers, all_paper_ids
 
 
-def scrape_papers(category: str, max_papers: int = MAX_PAPERS_PER_CATEGORY, delay: float = 1.0, target_date: str = None) -> Tuple[List[Dict], Set[str]]:
+def scrape_papers(category: str, max_papers: int = MAX_PAPERS_PER_CATEGORY, delay: float = 1.0, target_date: str = None, use_cache: bool = True) -> Tuple[List[Dict], Set[str]]:
     """
     爬取指定类别的论文
-    
+
     Args:
         category: 论文类别，如 'cs.AI'
         max_papers: 最大爬取数量
         delay: 请求间隔时间
         target_date: 目标日期，格式为 'YYYY-MM-DD'，如果为None则爬取最新论文
-    
+        use_cache: 是否使用缓存
+
     Returns:
         Tuple[List[Dict], Set[str]]: (论文列表, 论文ID集合)
     """
+    # 尝试从缓存获取
+    cache_manager = get_cache_manager()
+    cache_date = target_date or datetime.now().strftime('%Y-%m-%d')
+
+    if use_cache and cache_manager:
+        cached_papers = cache_manager.get_crawl_cache(category, cache_date)
+        if cached_papers is not None:
+            print(f"📦 从缓存加载 {category} ({cache_date}): {len(cached_papers)} 篇论文")
+            paper_ids = set(p.get('arxiv_id', p['link'].split('/')[-1]) for p in cached_papers)
+            return cached_papers, paper_ids
+
     if target_date:
         url = date_url.format(category, target_date, max_papers)
         print(f"🔍 正在爬取类别 {category}，日期: {target_date}，最大数量: {max_papers}")
@@ -232,6 +257,12 @@ def scrape_papers(category: str, max_papers: int = MAX_PAPERS_PER_CATEGORY, dela
         paper_ids.add(paper_id)
 
     print(f"✅ 成功爬取 {len(papers)} 篇论文 ({category})")
+
+    # 保存到缓存
+    if use_cache and cache_manager and papers:
+        cache_manager.set_crawl_cache(category, cache_date, papers)
+        print(f"💾 已缓存 {category} ({cache_date}): {len(papers)} 篇论文")
+
     return papers, paper_ids
 
 def save_papers(all_papers: Dict, selected_categories: List[str], output_dir: str, current_date: str, target_date: str = None) -> str:
@@ -290,8 +321,25 @@ def main():
                        help='起始日期 (格式: YYYY-MM-DD)，与--end-date一起使用指定日期范围')
     parser.add_argument('--end-date', default=None,
                        help='结束日期 (格式: YYYY-MM-DD)，与--start-date一起使用指定日期范围')
-    
+    parser.add_argument('--no-cache', action='store_true',
+                       help='禁用缓存，强制重新爬取')
+    parser.add_argument('--clear-cache', action='store_true',
+                       help='清理过期缓存后退出')
+
     args = parser.parse_args()
+
+    # 处理清理缓存请求
+    if args.clear_cache:
+        cache_manager = get_cache_manager()
+        if cache_manager:
+            cache_manager.clean_expired_cache()
+            stats = cache_manager.get_cache_stats()
+            print("📊 缓存统计:")
+            for cache_type, count in stats.items():
+                print(f"  {cache_type}: {count}")
+        else:
+            print("⚠️ 缓存管理器不可用")
+        return
     
     # 创建输出目录
     os.makedirs(args.output_dir, exist_ok=True)
@@ -320,6 +368,7 @@ def main():
     print(f"📋 选择的类别: {valid_categories}")
     print(f"📊 每类最大数量: {args.max_papers}")
     print(f"📁 输出目录: {args.output_dir}")
+    print(f"💾 缓存: {'禁用' if args.no_cache else '启用'}")
     
     if use_date_range:
         print(f"📅 日期范围: {args.start_date} 到 {args.end_date}")
@@ -334,13 +383,15 @@ def main():
     global_paper_ids = set()
     
     # 多线程爬取各类别论文
+    use_cache = not args.no_cache
+
     def scrape_category_wrapper(category):
         """包装函数，用于多线程执行"""
         try:
             if use_date_range:
-                return scrape_papers_for_date_range(category, args.max_papers, args.delay, args.start_date, args.end_date)
+                return scrape_papers_for_date_range(category, args.max_papers, args.delay, args.start_date, args.end_date, use_cache)
             else:
-                return scrape_papers(category, args.max_papers, args.delay, args.date)
+                return scrape_papers(category, args.max_papers, args.delay, args.date, use_cache)
         except Exception as e:
             print(f"❌ 爬取类别 {category} 时出错: {e}")
             return [], set()

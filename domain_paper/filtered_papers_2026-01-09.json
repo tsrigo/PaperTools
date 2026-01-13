@@ -1,0 +1,15 @@
+[
+    {
+        "index": "#33",
+        "title": "Orchestrating Intelligence: Confidence-Aware Routing for Efficient Multi-Agent Collaboration across Multi-Scale Models",
+        "link": "/arxiv/2601.04861",
+        "arxiv_id": "2601.04861",
+        "authors": "Jingbo Wang, Sendong Zhao, Jiatong Liu, Haochun Wang, Wanting Li, Bing Qin, Ting Liu",
+        "summary": "While multi-agent systems (MAS) have demonstrated superior performance over single-agent approaches in complex reasoning tasks, they often suffer from significant computational inefficiencies. Existing frameworks typically deploy large language models (LLMs) uniformly across all agent roles, failing to account for the varying cognitive demands of different reasoning stages. We address this inefficiency by proposing OI-MAS framework, a novel multi-agent framework that implements an adaptive model-selection policy across a heterogeneous pool of multi-scale LLMs. Specifically, OI-MAS introduces a state-dependent routing mechanism that dynamically selects agent roles and model scales throughout the reasoning process. In addition, we introduce a confidence-aware mechanism that selects appropriate model scales conditioned on task complexity, thus reducing unnecessary reliance on large-scale models. Experimental results show that OI-MAS consistently outperforms baseline multi-agent systems, improving accuracy by up to 12.88\\% while reducing cost by up to 79.78\\%.",
+        "subjects": "Artificial Intelligence",
+        "date": "2026-01-08",
+        "category": "cs.AI",
+        "crawl_time": "2026-01-13T10:37:17.428099",
+        "filter_reason": "这篇论文完全符合我的研究范围，属于“多智能体”方向的核心研究。 1.  **核心判断（第一步）**：论文的核心贡献是构建了一个名为 OI-MAS 的新型多智能体框架。它不是将现有的智能体简单应用到某个垂直领域，而是针对多智能体系统（MAS）中存在的计算效率低下问题，提出了改进的架构和方法论。这符合“构建、改进或演化 LLM智能体”的核心目标。 2.  **正面指标匹配（第二步）**： *   **核心范式**：论文明确属于 `Multi-Agent Systems (MAS)`，关注多智能体协作。 *   **多智能体能力**：论文重点研究了智能体间的 `Collaboration`（协作），并提出了动态选择智能体角色和模型尺度的机制，这是对多智能体协作机制的直接改进。 3.  **排除标准检查（第三步）**： *   论文不涉及安全、对齐、多模态或图技术等排除项。 *   虽然论文提到了“计算效率”和“成本降低”，但这属于智能体框架的优化和改进，而非底层的基础设施（如硬件加速）或单纯的部署优化，因此不应被排除。 综上所述，该论文通过引入置信度感知路由和自适应模型选择策略，实质性地改进了多智能体协作的效率和性能，是关于 LLM 智能体架构优化的高质量研究。"
+    }
+]
