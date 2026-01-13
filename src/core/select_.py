@@ -61,8 +61,10 @@ def query_llm(title: str, summary: str, client: OpenAI, model: str, temperature:
         # 收集流式响应
         response_text = ""
         for chunk in response:
-            if chunk.choices[0].delta.content:
-                response_text += chunk.choices[0].delta.content
+            if chunk.choices and len(chunk.choices) > 0:
+                delta = chunk.choices[0].delta
+                if delta and delta.content:
+                    response_text += delta.content
         response_text = response_text.strip()
 
         print("[DEBUG: select_.py] response_text: ", response_text)

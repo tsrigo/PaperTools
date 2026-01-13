@@ -286,8 +286,10 @@ def translate_summary(summary: str, client: OpenAI, model: str, temperature: flo
         # 收集流式响应
         translation = ""
         for chunk in response:
-            if chunk.choices[0].delta.content:
-                translation += chunk.choices[0].delta.content
+            if chunk.choices and len(chunk.choices) > 0:
+                delta = chunk.choices[0].delta
+                if delta and delta.content:
+                    translation += delta.content
         
         # 保存到缓存
         if cache_manager and ENABLE_CACHE:
@@ -358,8 +360,10 @@ def generate_summary(paper_content: str, client: OpenAI, model: str, temperature
         # 收集流式响应
         summary = ""
         for chunk in response:
-            if chunk.choices[0].delta.content:
-                summary += chunk.choices[0].delta.content
+            if chunk.choices and len(chunk.choices) > 0:
+                delta = chunk.choices[0].delta
+                if delta and delta.content:
+                    summary += delta.content
         
         # 保存到缓存
         if cache_manager and ENABLE_CACHE:
@@ -424,8 +428,10 @@ def generate_inspiration_trace(paper_content: str, client: OpenAI, model: str, t
         # 收集流式响应
         inspiration_trace = ""
         for chunk in response:
-            if chunk.choices[0].delta.content:
-                inspiration_trace += chunk.choices[0].delta.content
+            if chunk.choices and len(chunk.choices) > 0:
+                delta = chunk.choices[0].delta
+                if delta and delta.content:
+                    inspiration_trace += delta.content
         
         # 保存到缓存
         if cache_manager and ENABLE_CACHE:
@@ -484,8 +490,10 @@ def generate_research_insights(paper_content: str, client: OpenAI, model: str, t
         # 收集流式响应
         result = ""
         for chunk in response:
-            if chunk.choices[0].delta.content:
-                result += chunk.choices[0].delta.content
+            if chunk.choices and len(chunk.choices) > 0:
+                delta = chunk.choices[0].delta
+                if delta and delta.content:
+                    result += delta.content
 
         if cache_manager and ENABLE_CACHE:
             cache_manager.set_summary_cache(cache_key, paper_content, result)
@@ -540,8 +548,10 @@ def generate_critical_evaluation(paper_content: str, client: OpenAI, model: str,
         # 收集流式响应
         result = ""
         for chunk in response:
-            if chunk.choices[0].delta.content:
-                result += chunk.choices[0].delta.content
+            if chunk.choices and len(chunk.choices) > 0:
+                delta = chunk.choices[0].delta
+                if delta and delta.content:
+                    result += delta.content
 
         if cache_manager and ENABLE_CACHE:
             cache_manager.set_summary_cache(cache_key, paper_content, result)
@@ -665,8 +675,10 @@ ArXiv ID: {paper.get('arxiv_id', 'Unknown')}
         # 收集流式响应
         daily_overview = ""
         for chunk in response:
-            if chunk.choices[0].delta.content:
-                daily_overview += chunk.choices[0].delta.content
+            if chunk.choices and len(chunk.choices) > 0:
+                delta = chunk.choices[0].delta
+                if delta and delta.content:
+                    daily_overview += delta.content
         
         # 保存到缓存
         if cache_manager and ENABLE_CACHE:
