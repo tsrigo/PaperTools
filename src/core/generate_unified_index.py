@@ -18,6 +18,10 @@ except ImportError:
     SUMMARY_DIR = "summary"
     WEBPAGES_DIR = "webpages"
 
+# 分页配置
+INITIAL_DAYS = 14  # 初始加载的天数
+LOAD_MORE_DAYS = 7  # 每次"加载更多"加载的天数
+
 def load_paper_data() -> Dict[str, List[Dict[str, Any]]]:
     """加载论文数据"""
     papers_by_date = {}
@@ -71,23 +75,86 @@ def escape_js_string(text: str) -> str:
         return ""
     return text.replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n').replace('\r', '\\r').replace('\t', '\\t')
 
+
+def organize_papers_by_category(papers: List[Dict], category_names: Dict[str, str]) -> List[Dict]:
+    """将论文按分类组织"""
+    categories = {}
+    for paper in papers:
+        category = paper.get('category', 'Unknown')
+        if category not in categories:
+            categories[category] = []
+        categories[category].append(paper)
+
+    result = []
+    for category, category_papers in sorted(categories.items()):
+        category_name = category_names.get(category) or category or 'Unknown'
+        result.append({
+            "name": category_name,
+            "count": len(category_papers),
+            "papers": category_papers
+        })
+    return result
+
+
+def save_date_data_files(papers_by_date: Dict, daily_overviews: Dict, category_names: Dict) -> List[str]:
+    """将每个日期的数据保存为独立的 JSON 文件"""
+    data_dir = Path(WEBPAGES_DIR) / "data"
+    data_dir.mkdir(parents=True, exist_ok=True)
+
+    all_dates = sorted(papers_by_date.keys(), reverse=True)
+
+    for date in all_dates:
+        papers = papers_by_date[date]
+        organized = organize_papers_by_category(papers, category_names)
+
+        date_data = {
+            "date": date,
+            "categories": organized,
+            "overview": daily_overviews.get(date, "")
+        }
+
+        date_file = data_dir / f"{date}.json"
+        with open(date_file, 'w', encoding='utf-8') as f:
+            json.dump(date_data, f, ensure_ascii=False)
+        print(f"保存数据文件: {date_file}")
+
+    # 生成日期索引文件
+    index_data = {
+        "dates": all_dates,
+        "initial_days": INITIAL_DAYS,
+        "load_more_days": LOAD_MORE_DAYS
+    }
+    index_file = data_dir / "index.json"
+    with open(index_file, 'w', encoding='utf-8') as f:
+        json.dump(index_data, f, ensure_ascii=False, indent=2)
+    print(f"保存索引文件: {index_file}")
+
+    return all_dates
+
 def generate_complete_html() -> str:
     """生成完整的HTML页面"""
     papers_by_date = load_paper_data()
     daily_overviews = load_daily_overviews()
-    
+
     # 按分类组织论文数据
     category_names = {
         'cs.AI': 'Artificial Intelligence',
-        'cs.CL': 'Computation and Language', 
+        'cs.CL': 'Computation and Language',
         'cs.LG': 'Machine Learning',
         'cs.CV': 'Computer Vision and Pattern Recognition',
         'cs.MA': 'Multiagent Systems'
     }
-    
-    # 生成JavaScript数据
+
+    # 保存所有日期的数据到独立文件
+    all_dates = save_date_data_files(papers_by_date, daily_overviews, category_names)
+
+    # 只取最近 INITIAL_DAYS 天的数据嵌入 HTML
+    initial_dates = all_dates[:INITIAL_DAYS]
+
+    # 生成JavaScript数据 - 只包含初始数据
     js_data = "const allPapers = {\n"
-    for date, papers in sorted(papers_by_date.items(), reverse=True):
+    for date in initial_dates:
+        papers = papers_by_date.get(date, [])
         # 按分类组织论文
         categories = {}
         for paper in papers:
@@ -95,7 +162,7 @@ def generate_complete_html() -> str:
             if category not in categories:
                 categories[category] = []
             categories[category].append(paper)
-        
+
         js_data += f'    "{date}": [\n'
         for category, category_papers in sorted(categories.items()):
             category_name = category_names.get(category) or category or 'Unknown'
@@ -103,7 +170,7 @@ def generate_complete_html() -> str:
             js_data += f'            "name": "{escape_js_string(category_name)}",\n'
             js_data += f'            "count": {len(category_papers)},\n'
             js_data += '            "papers": [\n'
-            
+
             for paper in category_papers:
                 js_data += "                {\n"
                 js_data += f'                    "title": "{escape_js_string(paper.get("title", ""))}",\n'
@@ -116,17 +183,23 @@ def generate_complete_html() -> str:
                 js_data += f'                    "summary_translation": "{escape_js_string(paper.get("summary_translation", ""))}",\n'
                 js_data += f'                    "inspiration_trace": "{escape_js_string(paper.get("inspiration_trace", ""))}"\n'
                 js_data += "                },\n"
-            
+
             js_data += "            ]\n"
             js_data += "        },\n"
         js_data += "    ],\n"
     js_data += "};\n\n"
-    
-    # 添加每日速览数据
-    # 使用 json.dumps 将字符串完全转义，避免手动处理特殊字符（如 ` 和 \）时出错
+
+    # 添加所有可用日期列表（用于按需加载）
+    js_data += f"const availableDates = {json.dumps(all_dates)};\n"
+    js_data += f"const loadedDates = new Set({json.dumps(initial_dates)});\n"
+    js_data += f"const LOAD_MORE_DAYS = {LOAD_MORE_DAYS};\n\n"
+
+    # 添加每日速览数据 - 只包含初始数据
     js_data += "const dailyOverviewsRaw = {\n"
-    for date, overview in sorted(daily_overviews.items(), reverse=True):
-        js_data += f'    "{date}": {json.dumps(overview)},\n'
+    for date in initial_dates:
+        overview = daily_overviews.get(date, "")
+        if overview:
+            js_data += f'    "{date}": {json.dumps(overview)},\n'
     js_data += "};\n"
     # 在客户端，我们再将解析后的字符串赋值给 dailyOverviews
     js_data += "const dailyOverviews = {};\n"
@@ -436,6 +509,80 @@ def generate_complete_html() -> str:
         let pendingDeletes = new Map();
         let showChineseSummary = true; // 默认显示中文摘要
         let showOnlyStarred = false; // 筛选状态：是否只显示收藏的论文
+        let isLoadingMore = false; // 是否正在加载更多
+
+        // 获取未加载的日期
+        function getUnloadedDates() {{
+            return availableDates.filter(date => !loadedDates.has(date));
+        }}
+
+        // 加载更多日期的数据
+        async function loadMoreDates() {{
+            if (isLoadingMore) return;
+
+            const unloadedDates = getUnloadedDates();
+            if (unloadedDates.length === 0) {{
+                showSimpleToast('已加载全部数据');
+                return;
+            }}
+
+            isLoadingMore = true;
+            const loadBtn = document.getElementById('load-more-btn');
+            if (loadBtn) {{
+                loadBtn.disabled = true;
+                loadBtn.innerHTML = '<span class="animate-spin inline-block mr-2">⏳</span>加载中...';
+            }}
+
+            const datesToLoad = unloadedDates.slice(0, LOAD_MORE_DAYS);
+            let loadedCount = 0;
+
+            for (const date of datesToLoad) {{
+                try {{
+                    const response = await fetch(`data/${{date}}.json`);
+                    if (!response.ok) continue;
+
+                    const dateData = await response.json();
+
+                    // 将数据添加到 allPapers
+                    allPapers[date] = dateData.categories;
+
+                    // 添加每日速览
+                    if (dateData.overview) {{
+                        dailyOverviews[date] = dateData.overview;
+                    }}
+
+                    loadedDates.add(date);
+                    loadedCount++;
+                }} catch (e) {{
+                    console.error(`加载 ${{date}} 数据失败:`, e);
+                }}
+            }}
+
+            isLoadingMore = false;
+
+            if (loadedCount > 0) {{
+                renderPapers();
+                showSimpleToast(`已加载 ${{loadedCount}} 天的数据`);
+            }}
+
+            updateLoadMoreButton();
+        }}
+
+        // 更新"加载更多"按钮状态
+        function updateLoadMoreButton() {{
+            const loadBtn = document.getElementById('load-more-btn');
+            const unloadedCount = getUnloadedDates().length;
+
+            if (loadBtn) {{
+                if (unloadedCount === 0) {{
+                    loadBtn.style.display = 'none';
+                }} else {{
+                    loadBtn.style.display = 'inline-flex';
+                    loadBtn.disabled = false;
+                    loadBtn.innerHTML = `📥 加载更多 (还有 ${{unloadedCount}} 天)`;
+                }}
+            }}
+        }}
 
         // 从localStorage加载状态
         function loadState() {{
@@ -995,7 +1142,20 @@ def generate_complete_html() -> str:
                     </section>
                 `;
             }}
-            
+
+            // 添加"加载更多"按钮
+            const unloadedCount = getUnloadedDates().length;
+            if (unloadedCount > 0) {{
+                html += `
+                    <div class="text-center py-6">
+                        <button id="load-more-btn" onclick="loadMoreDates()"
+                            class="inline-flex items-center px-6 py-3 text-base font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg">
+                            📥 加载更多 (还有 ${{unloadedCount}} 天)
+                        </button>
+                    </div>
+                `;
+            }}
+
             mainContent.innerHTML = html;
             updateStats();
             
