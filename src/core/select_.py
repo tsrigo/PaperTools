@@ -55,10 +55,17 @@ def query_llm(title: str, summary: str, client: OpenAI, model: str, temperature:
         response = client.chat.completions.create(
             model=model,
             messages=messages,
-            # 不设置max_tokens，让模型自由生成
-            temperature=temperature
+            temperature=temperature,
+            stream=True  # 使用流式响应避免524超时
         )
-        response_text = response.choices[0].message.content.strip()
+        # 收集流式响应
+        response_text = ""
+        for chunk in response:
+            if chunk.choices[0].delta.content:
+                response_text += chunk.choices[0].delta.content
+        response_text = response_text.strip()
+
+        print("[DEBUG: select_.py] response_text: ", response_text)
         
         # 解析结果和理由
         result = False
@@ -140,7 +147,8 @@ def main():
     # 初始化OpenAI客户端
     client = OpenAI(
         api_key=args.api_key,
-        base_url=args.base_url
+        base_url=args.base_url,
+        timeout=180.0,  # 增加超时时间，避免524错误
     )
     
     print(f"🔍 开始论文筛选")
