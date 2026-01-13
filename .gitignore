@@ -47,6 +47,9 @@ tmp/
 temp/
 *.tmp
 
+# 根目录下的临时测试文件
+/test_*.py
+
 # 操作系统
 .DS_Store
 Thumbs.db
