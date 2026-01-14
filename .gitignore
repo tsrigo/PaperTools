@@ -1,5 +1,3 @@
-update_webpage.sh
-cron.log
 # Python
 __pycache__/
 *.py[cod]
@@ -30,6 +28,7 @@ wheels/
 # 缓存文件
 cache/
 *.cache
+.pytest_cache/
 
 # 日志文件
 *.log
@@ -54,9 +53,22 @@ temp/
 .DS_Store
 Thumbs.db
 
-# 但保留生成的网页文件用于部署
-!webpages/
+# Claude Code 临时文件
+claude/
+.claude/
 
-.github
+# 中间过程数据（每日生成，不需要版本控制）
+arxiv_paper/
+domain_paper/
+summary/
 
-cron.log
+# 网页数据目录（由 GitHub Actions 生成）
+webpages/data/
+webpages/index.html
+
+# 保留网页静态资源
+!webpages/css/
+!webpages/js/
+
+# GitHub Actions 相关
+.github/
