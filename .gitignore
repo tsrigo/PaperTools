@@ -62,13 +62,4 @@ arxiv_paper/
 domain_paper/
 summary/
 
-# 网页数据目录（由 GitHub Actions 生成）
-webpages/data/
-webpages/index.html
-
-# 保留网页静态资源
-!webpages/css/
-!webpages/js/
-
-# GitHub Actions 相关
-.github/
+# webpages/ 目录需要保留用于 GitHub Pages 部署
