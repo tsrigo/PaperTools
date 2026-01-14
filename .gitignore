@@ -63,3 +63,17 @@ domain_paper/
 summary/
 
 # webpages/ 目录需要保留用于 GitHub Pages 部署
+
+# 开发用文件（不上传）
+scripts/
+tests/
+templates/
+*.sh
+ARCHITECTURE.md
+CONTRIBUTING.md
+README_FIX.md
+README_EN.md
+CLAUDE.md
+.pre-commit-config.yaml
+pyproject.toml
+pytest.ini
