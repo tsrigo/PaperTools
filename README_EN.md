@@ -76,7 +76,7 @@ To use a module individually:
 python src/core/crawl_arxiv.py --categories cs.AI cs.CV --max-papers 100
 
 # 2. Filter papers
-python src/core/select_.py --input-file arxiv_paper/papers.json
+python src/core/paper_filter.py --input-file arxiv_paper/papers.json
 
 # 3. Generate summaries and inspiration traces
 python src/core/generate_summary.py --input-file domain_paper/filtered_papers.json
@@ -254,7 +254,7 @@ PaperTools/
 │   ├── core/                 # Core functionality modules
 │   │   ├── pipeline.py       # Main pipeline script
 │   │   ├── crawl_arxiv.py    # Paper crawling
-│   │   ├── select_.py        # Paper filtering
+│   │   ├── paper_filter.py   # Paper filtering
 │   │   ├── generate_summary.py # Summary and inspiration tracing generation
 │   │   ├── generate_unified_index.py # Unified web page generation
 │   │   └── serve_webpages.py # Local server

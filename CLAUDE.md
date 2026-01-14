@@ -35,7 +35,7 @@ python papertools.py clean
 python src/core/crawl_arxiv.py --categories cs.AI cs.CV --max-papers 100
 
 # Filter papers
-python src/core/select_.py --input-file arxiv_paper/papers.json
+python src/core/paper_filter.py --input-file arxiv_paper/papers.json
 
 # Generate summaries
 python src/core/generate_summary.py --input-file domain_paper/filtered_papers.json

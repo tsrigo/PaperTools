@@ -54,7 +54,7 @@ for date in "${DATES[@]}"; do
     echo "🔄 开始重新筛选..."
 
     # 重新运行筛选步骤
-    /home/xuanli/miniconda3/bin/python3 src/core/select_.py \
+    /home/xuanli/miniconda3/bin/python3 src/core/paper_filter.py \
         --input-file "$arxiv_file" \
         --output-dir domain_paper \
         --max-workers 10

@@ -9,7 +9,7 @@ import os
 import sys
 import argparse
 from datetime import datetime
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
 from tqdm import tqdm
 from openai import OpenAI, OpenAIError
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -26,7 +26,7 @@ try:
 except ImportError:
     raise ImportError("⚠️ 错误: 未找到config.py")
 
-def query_llm(title: str, summary: str, client: OpenAI, model: str, temperature: float = TEMPERATURE) -> tuple[bool, str]:
+def query_llm(title: str, summary: str, client: OpenAI, model: str, temperature: float = TEMPERATURE) -> Tuple[bool, str]:
     """
     使用大模型判断论文是否符合筛选条件
     
@@ -67,8 +67,6 @@ def query_llm(title: str, summary: str, client: OpenAI, model: str, temperature:
                     response_text += delta.content
         response_text = response_text.strip()
 
-        print("[DEBUG: select_.py] response_text: ", response_text)
-        
         # 解析结果和理由
         result = False
         reason = "解析失败"

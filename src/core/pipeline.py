@@ -329,7 +329,7 @@ def main():
     if not args.skip_filter:
         progress.start_step("筛选相关论文")
         cmd = [
-            sys.executable, "src/core/select_.py",
+            sys.executable, "src/core/paper_filter.py",
             "--input-file", crawl_output_file,
             "--output-dir", DOMAIN_PAPER_DIR,
             "--api-key", args.api_key,

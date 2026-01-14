@@ -49,7 +49,7 @@ python papertools.py --help             # 查看帮助
 
 ```bash
 python src/core/crawl_arxiv.py --categories cs.AI cs.CV --max-papers 100
-python src/core/select_.py --input-file arxiv_paper/papers.json
+python src/core/paper_filter.py --input-file arxiv_paper/papers.json
 python src/core/generate_summary.py --input-file domain_paper/filtered_papers.json
 python src/core/generate_unified_index.py
 python src/core/serve_webpages.py --port 8080
@@ -150,7 +150,7 @@ PaperTools/
 │   ├── core/                 # 核心功能模块
 │   │   ├── pipeline.py       # 主流水线脚本
 │   │   ├── crawl_arxiv.py    # 论文爬取
-│   │   ├── select_.py        # 论文筛选
+│   │   ├── paper_filter.py   # 论文筛选
 │   │   ├── generate_summary.py # 总结和灵感溯源生成
 │   │   ├── generate_unified_index.py # 统一网页生成
 │   │   └── serve_webpages.py # 本地服务器

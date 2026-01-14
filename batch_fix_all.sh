@@ -40,7 +40,7 @@ for date in "${DATES[@]}"; do
 
     # 重新筛选
     echo "正在筛选论文..."
-    python3 src/core/select_.py \
+    python3 src/core/paper_filter.py \
         --input-file arxiv_paper/cs.AI_cs.CL_cs.LG_cs.MA_paper_${date}.json \
         --output-dir domain_paper \
         --max-workers 10

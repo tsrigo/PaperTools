@@ -1,0 +1,26 @@
+{#
+基础 HTML 模板 - 用于未来迁移
+此模板为 PaperTools 网页生成提供基础结构
+#}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title | default('PaperTools - 学术论文集合') }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    {% block extra_head %}{% endblock %}
+    <style>
+        body {
+            font-family: "Microsoft YaHei", "微软雅黑", sans-serif;
+        }
+        {% block extra_styles %}{% endblock %}
+    </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+    {% block content %}{% endblock %}
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -25,7 +25,7 @@ rm -f domain_paper/excluded_papers_${DATE}.json
 
 # 重新筛选
 echo "🔄 开始筛选..."
-/home/xuanli/miniconda3/bin/python3 src/core/select_.py \
+/home/xuanli/miniconda3/bin/python3 src/core/paper_filter.py \
     --input-file arxiv_paper/cs.AI_cs.CL_cs.LG_cs.MA_paper_${DATE}.json \
     --output-dir domain_paper \
     --max-workers 10
