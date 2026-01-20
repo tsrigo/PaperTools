@@ -10,21 +10,18 @@ import http.server
 import socketserver
 import webbrowser
 import argparse
-from pathlib import Path
 import json
 import urllib.parse
 import shutil
 import re
 
 # 导入配置
-import sys
-import os
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-from src.utils.config import WEBPAGES_DIR, ENABLE_TIME_BASED_STRUCTURE, DATE_FORMAT
-from src.utils.cache_manager import get_available_dates
+from src.utils.config import WEBPAGES_DIR, ENABLE_TIME_BASED_STRUCTURE, DATE_FORMAT  # noqa: E402
+from src.utils.cache_manager import get_available_dates  # noqa: E402
 
 
 class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
@@ -320,10 +317,10 @@ def main():
         # 创建HTTP服务器
         httpd = socketserver.TCPServer(("", port), CustomHTTPRequestHandler)
         
-        print(f"🚀 正在启动本地服务器...")
+        print("🚀 正在启动本地服务器...")
         print(f"📍 服务器地址: http://localhost:{port}")
         print(f"📂 服务目录: {os.path.abspath('.')}")
-        print(f"🛑 按 Ctrl+C 停止服务器")
+        print("🛑 按 Ctrl+C 停止服务器")
         print("=" * 50)
         
         # 自动打开浏览器

@@ -10,7 +10,6 @@ import re
 import requests
 import time
 import argparse
-from pathlib import Path
 from typing import Optional, Dict, List
 from tqdm import tqdm
 from openai import OpenAI, OpenAIError
@@ -20,16 +19,15 @@ from functools import wraps
 
 # 导入配置
 import sys
-import os
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-from src.utils.config import (
+from src.utils.config import (  # noqa: E402
     API_KEY, BASE_URL, MODEL, SUMMARY_DIR, TEMPERATURE, REQUEST_DELAY, REQUEST_TIMEOUT, MAX_WORKERS,
-    ENABLE_CACHE, JINA_MAX_REQUESTS_PER_MINUTE, JINA_MAX_RETRIES, JINA_BACKOFF_FACTOR, JINA_API_TOKEN
+    ENABLE_CACHE, JINA_MAX_REQUESTS_PER_MINUTE, JINA_MAX_RETRIES, JINA_BACKOFF_FACTOR
 )
-from src.utils.cache_manager import CacheManager
+from src.utils.cache_manager import CacheManager  # noqa: E402
 
 
 class JinaRateLimiter:
@@ -739,7 +737,7 @@ def main():
         timeout=180.0,  # 增加超时时间到180秒，避免524错误
     )
     
-    print(f"📝 开始生成论文总结")
+    print("📝 开始生成论文总结")
     print(f"📁 输入文件: {args.input_file}")
     print(f"📂 输出目录: {args.output_dir}")
     print(f"🤖 使用模型: {args.model}")
@@ -933,7 +931,7 @@ def main():
         print(f"\n💾 已保存更新后的JSON文件: {output_path}")
         
         # 生成"今日AI论文速览"
-        print(f"\n📰 正在生成今日AI论文速览...")
+        print("\n📰 正在生成今日AI论文速览...")
         try:
             # 从文件名中提取日期
             date_match = re.search(r'(\d{4}-\d{2}-\d{2})', input_filename)
@@ -960,7 +958,7 @@ def main():
             print(f"⚠️ 生成每日速览时出错: {e}")
     
     # 打印统计信息
-    print(f"\n📊 总结生成完成！")
+    print("\n📊 总结生成完成！")
     print(f"✅ 已处理: {processed} 篇论文")
     print(f"⏭️ 已跳过: {skipped} 篇论文")
     print(f"❌ 失败: {failed} 篇论文")

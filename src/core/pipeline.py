@@ -11,9 +11,7 @@ import argparse
 import subprocess
 import time
 from datetime import datetime
-from pathlib import Path
 from typing import List, Optional
-from tqdm import tqdm
 
 # 添加项目根目录到Python路径
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -101,7 +99,7 @@ def run_command(cmd: List[str], description: str, progress_tracker: ProgressTrac
     
     try:
         # 使用实时输出而不是捕获输出，这样可以看到进度条
-        result = subprocess.run(cmd, text=True, check=True)
+        subprocess.run(cmd, text=True, check=True)
         duration = time.time() - start_time
         
         if progress_tracker:
@@ -271,7 +269,7 @@ def main():
     elif args.date:
         progress.log_with_timestamp(f"📅 指定日期: {args.date}")
     else:
-        progress.log_with_timestamp(f"📅 爬取模式: 最新论文")
+        progress.log_with_timestamp("📅 爬取模式: 最新论文")
     print("=" * 60)
     
     # 创建必要的目录
@@ -477,7 +475,7 @@ def main():
         
         # 检查是否有网页文件
         if os.path.exists(WEBPAGES_DIR) and os.listdir(WEBPAGES_DIR):
-            progress.log_with_timestamp(f"🚀 启动本地服务器，访问网页...")
+            progress.log_with_timestamp("🚀 启动本地服务器，访问网页...")
             progress.log_with_timestamp(f"📂 网页目录: {WEBPAGES_DIR}")
             progress.log_with_timestamp("💡 按 Ctrl+C 停止服务器")
             
@@ -505,7 +503,7 @@ def main():
             with open(crawl_output_file, 'r', encoding='utf-8') as f:
                 crawl_papers = json.load(f)
             progress.log_with_timestamp(f"  📥 爬取论文: {len(crawl_papers)} 篇")
-        except:
+        except Exception:
             progress.log_with_timestamp(f"  📥 爬取文件: {crawl_output_file}")
     
     if filter_output_file and os.path.exists(filter_output_file):
@@ -513,7 +511,7 @@ def main():
             with open(filter_output_file, 'r', encoding='utf-8') as f:
                 filter_papers = json.load(f)
             progress.log_with_timestamp(f"  🔍 筛选论文: {len(filter_papers)} 篇")
-        except:
+        except Exception:
             progress.log_with_timestamp(f"  🔍 筛选文件: {filter_output_file}")
     
     if os.path.exists(SUMMARY_DIR):

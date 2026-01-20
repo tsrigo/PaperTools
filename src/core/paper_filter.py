@@ -9,7 +9,7 @@ import os
 import sys
 import argparse
 from datetime import datetime
-from typing import List, Dict, Optional, Tuple
+from typing import Tuple
 from tqdm import tqdm
 from openai import OpenAI, OpenAIError
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -72,16 +72,14 @@ def query_llm(title: str, summary: str, client: OpenAI, model: str, temperature:
         reason = "解析失败"
         
         # 寻找结果和理由的位置
-        result_index = -1
         reason_index = -1
-        
+
         lines = response_text.split('\n')
         for i, line in enumerate(lines):
             line = line.strip()
             if line.startswith('结果:') or line.startswith('结果：'):
                 result_part = line.split(':', 1)[1].strip().lower()
                 result = result_part == 'true'
-                result_index = i
             elif line.startswith('理由:') or line.startswith('理由：'):
                 reason_index = i
                 break
@@ -151,7 +149,7 @@ def main():
         timeout=180.0,  # 增加超时时间，避免524错误
     )
     
-    print(f"🔍 开始论文筛选")
+    print("🔍 开始论文筛选")
     print(f"📁 输入文件: {args.input_file}")
     print(f"🤖 使用模型: {args.model}")
     print("=" * 50)
@@ -291,14 +289,14 @@ def main():
                 continue
     
     # 打印筛选结果
-    print(f"\n📊 筛选完成！")
+    print("\n📊 筛选完成！")
     print(f"📈 总论文数: {len(papers)}")
     print(f"🎯 筛选后论文数: {len(filtered_papers)}")
     print(f"🚫 被排除论文数: {len(excluded_papers)}")
     print(f"📊 筛选率: {len(filtered_papers)/len(papers)*100:.1f}%")
     
     if filtered_papers:
-        print(f"\n📋 筛选出的论文:")
+        print("\n📋 筛选出的论文:")
         for i, paper in enumerate(filtered_papers[:10], 1):  # 只显示前10篇
             print(f"{i:2d}. {paper['title']}")
         if len(filtered_papers) > 10:

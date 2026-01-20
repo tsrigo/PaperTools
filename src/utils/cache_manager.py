@@ -7,9 +7,7 @@ Cache management module for academic paper processing
 import os
 import json
 import hashlib
-import time
 from datetime import datetime, timedelta
-from pathlib import Path
 from typing import Optional, Dict, Any, List
 
 # 导入配置

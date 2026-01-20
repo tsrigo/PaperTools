@@ -5,7 +5,7 @@ IO utilities module for common file operations
 
 import json
 import os
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 from src.utils.logger import get_logger
 
