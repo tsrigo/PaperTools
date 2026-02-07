@@ -290,81 +290,85 @@
     </div>
 
     <script>
-        const allPapers = {
-    "2026-02-05": [
-        {
-            "name": "Artificial Intelligence",
-            "count": 2,
-            "papers": [
-                {
-                    "title": "DyTopo: Dynamic Topology Routing for Multi-Agent Reasoning via Semantic Matching",
-                    "arxiv_id": "2602.06039",
-                    "authors": "Yuxing Lu, Yucheng Hu, Xukai Zhao, Jiuxin Cao",
-                    "summary": "Multi-agent systems built from prompted large language models can improve multi-round reasoning, yet most existing pipelines rely on fixed, trajectory-wide communication patterns that are poorly matched to the stage-dependent needs of iterative problem solving. We introduce DyTopo, a manager-guided multi-agent framework that reconstructs a sparse directed communication graph at each round. Conditioned on the manager's round goal, each agent outputs lightweight natural-language query (need) and \\key (offer) descriptors; DyTopo embeds these descriptors and performs semantic matching, routing private messages only along the induced edges. Across code generation and mathematical reasoning benchmarks and four LLM backbones, DyTopo consistently outperforms over the strongest baseline (avg. +6.2). Beyond accuracy, DyTopo yields an interpretable coordination trace via the evolving graphs, enabling qualitative inspection of how communication pathways reconfigure across rounds.",
-                    "category": "cs.AI",
-                    "filter_reason": "该论文提出了一个由管理者引导的多智能体框架，专注于解决多智能体系统中的动态通信拓扑和消息路由问题，属于多智能体协作与通信的研究范围。",
-                    "summary2": "本文旨在解决现有多智能体系统依赖固定通信模式、难以适应迭代推理阶段需求的问题。针对多轮代码生成与数学推理任务，我们提出了一种名为DyTopo的动态拓扑路由框架，通过语义匹配智能体的自然语言Query与Key描述，每轮重构稀疏有向通信图以实现精准消息路由。在HumanEval、APPS-Competition、MATH-500及Omni-MATH等基准上，通过准确率指标验证了其有效性。",
-                    "summary_translation": "由基于提示词的大语言模型构建的 Multi-agent systems (多智能体系统) 能够提升 multi-round reasoning (多轮推理) 能力，然而大多数现有的 pipelines (流程) 依赖于固定的、trajectory-wide (全轨迹) 通信模式，这与 iterative problem solving (迭代式问题求解) 的 stage-dependent (阶段依赖) 需求难以匹配。我们提出了 DyTopo，这是一个 manager-guided (管理者引导) 的 multi-agent framework (多智能体框架)，能够在每一轮重构一个 sparse directed communication graph (稀疏有向通信图)。基于 manager's round goal (管理者的本轮目标)，每个 agent (智能体) 输出 lightweight natural-language query (need) (轻量级自然语言查询/需求) 和 key (offer) (关键/供给) descriptors (描述符)；DyTopo 对这些 descriptors (描述符) 进行 embed (嵌入) 并执行 semantic matching (语义匹配)，仅沿着 induced edges (诱导边) 路由 private messages (私有消息)。在 code generation (代码生成) 和 mathematical reasoning (数学推理) benchmarks (基准测试) 以及四种 LLM backbones (大语言模型骨干网络) 上，DyTopo 的表现始终优于 strongest baseline (最强基线)（平均提升 +6.2）。除了 accuracy (准确性) 之外，DyTopo 还通过 evolving graphs (演化图) 生成了 interpretable coordination trace (可解释的协调轨迹)，从而能够对 communication pathways (通信路径) 如何在各轮之间 reconfigure (重新配置) 进行 qualitative inspection (定性分析)。",
-                    "inspiration_trace": "基于论文《DyTopo: Dynamic Topology Routing for Multi-Agent Reasoning via Semantic Matching》的内容，以下是对作者产出该核心方法的逻辑链推演，旨在还原其从观察到方法论的思考演进过程：\n\n### 第一阶段：宏观观察与问题定位\n**（从“多智能体协作”到“静态结构的局限性”）**\n\n1.  **观察现象**：作者首先观察到，基于大语言模型（LLM）的多智能体系统在复杂推理任务中表现优异，通过角色分工和多轮交互能够提升解题质量。\n2.  **发现痛点**：然而，作者注意到现有的主流框架（如CAMEL, AutoGen等）大多依赖于**固定的通信拓扑**（例如：全广播、固定的对话轮次或预设的流水线）。这种“一刀切”的结构在整个推理过程中保持不变。\n3.  **提出质疑**：作者意识到，复杂问题的求解过程是**分阶段**的（例如：初期需要发散探索，后期需要聚焦验证）。用一个静态的通信结构去适配动态变化的推理需求，必然会导致效率低下（早期信息不足）或噪声干扰（后期无关信息过多）。\n\n### 第二阶段：核心假设与逻辑重构\n**（从“结构决定流向”到“需求决定结构”）**\n\n1.  **形成假设**：作者提出假设——通信拓扑不应是预设的静态超参数，而应是**随推理阶段动态演化的状态变量**。系统应具备在每一轮根据当前目标自适应重连智能体的能力。\n2.  **逻辑转换**：传统的多智能体逻辑是“谁连谁，谁就说话”。作者试图将其反转为“谁需要什么，谁就连接谁”。即，**信息流的需求应当决定连接结构**，而不是结构限制信息流。\n\n### 第三阶段：机制设计的灵感与抽象\n**（从“显式路由”到“语义匹配”）**\n\n1.  **寻找机制**：如何在不进行昂贵训练的情况下，让智能体在推理时动态决定连接对象？作者借鉴了信息检索和注意力机制中的思想。\n2.  **抽象概念**：作者将智能体的交互意图抽象为两个轻量级的自然语言描述符：\n    *   **Query（Need）**：我当前需要什么信息？\n    *   **Key（Offer）**：我当前能提供什么信息？\n3.  **引入语义匹配**：利用预训练的语义编码器，计算“需求”与“供给”之间的相似度。如果Agent A的Offer与Agent B的Need在语义上高度匹配，就在它们之间建立一条有向边。这实现了**基于内容的路由**。\n\n### 第四阶段：系统架构的闭环构建\n**（从“单点连接”到“全局动态图”）**\n\n1.  **引入管理者**：为了防止智能体无序发散，作者引入了一个**Manager（管理者）**智能体。它的作用是定义每一轮的“全局目标”，从而引导所有Worker Agent生成符合当前阶段的Need/Offer描述。\n2.  **构建动态计算图（DCG）**：\n    *   **每轮重构**：在每个Round $t$，系统根据Manager的目标和Agent生成的描述符，重新计算相似度矩阵，通过阈值化生成一个稀疏有向图 $G(t)$。\n    *   **消息路由**：私有消息不再广播，而是严格沿着 $G(t)$ 的边进行传输。\n3.  **实现自适应演化**：随着Manager更新目标（从“探索方案”变为“验证代码”），Agent的Need/Offer随之改变，导致图结构自动从“密集网状”（探索期）演变为“稀疏链状”（验证期）。\n\n### 第五阶段：价值验证与反思\n**（从“性能提升”到“可解释性”）**\n\n1.  **预期收益**：作者预期这种机制能带来两个核心价值：\n    *   **准确性**：通过过滤无关信息，减少上下文噪声，让智能体专注于当前最需要的知识。\n    *   **效率**：稀疏图减少了不必要的Token消耗和计算量。\n2.  **独特视角**：作者进一步意识到，这种显式的图结构变化提供了一种**可解释的轨迹**。研究者可以直接观察图是如何从混乱走向有序的，从而理解系统是如何协作解决问题的，这是黑盒模型所不具备的。\n\n---\n\n**总结：**\n作者的思考路径是从**批判现有系统的静态僵化**出发，洞察到**推理过程的阶段性需求**，进而创造性地引入**基于语义供需的动态路由机制**，最终通过**管理者引导下的图重构**，实现了一个既能自适应提升性能，又具备高度可解释性的多智能体框架。"
-                },
-                {
-                    "title": "AgenticPay: A Multi-Agent LLM Negotiation System for Buyer-Seller Transactions",
-                    "arxiv_id": "2602.06008",
-                    "authors": "Xianyang Liu, Shangding Gu, Dawn Song",
-                    "summary": "Large language model (LLM)-based agents are increasingly expected to negotiate, coordinate, and transact autonomously, yet existing benchmarks lack principled settings for evaluating language-mediated economic interaction among multiple agents. We introduce AgenticPay, a benchmark and simulation framework for multi-agent buyer-seller negotiation driven by natural language. AgenticPay models markets in which buyers and sellers possess private constraints and product-dependent valuations, and must reach agreements through multi-round linguistic negotiation rather than numeric bidding alone. The framework supports a diverse suite of over 110 tasks ranging from bilateral bargaining to many-to-many markets, with structured action extraction and metrics for feasibility, efficiency, and welfare. Benchmarking state-of-the-art proprietary and open-weight LLMs reveals substantial gaps in negotiation performance and highlights challenges in long-horizon strategic reasoning, establishing AgenticPay as a foundation for studying agentic commerce and language-based market interaction. Code and dataset are available at the link: https://github.com/SafeRL-Lab/AgenticPay.",
-                    "category": "cs.AI",
-                    "filter_reason": "该论文提出了AgenticPay，这是一个基于LLM的多智能体谈判框架，重点研究多个智能体（买方和卖方）之间的语言交互、协作与博弈，属于多智能体研究范畴。",
-                    "summary2": "本文旨在填补评估多智能体LLM自然语言经济交互的基准空白。针对买卖双方具有私人约束和多轮语言谈判的场景，我们提出了AgenticPay框架，支持从双边到多对多市场的模拟。我们在包含110多个任务的AgenticPay benchmark上，通过GlobalScore、BuyerScore和SellerScore等指标验证了其有效性，揭示了当前LLM在长周期战略推理上的显著差距。",
-                    "summary_translation": "基于 Large Language Model (LLM) (大语言模型) 的 agents (智能体) 日益被寄予自主谈判、协调和交易的期望，然而现有的 benchmarks (基准) 缺乏用于评估多 agents (智能体) 间以语言为媒介的经济互动的严谨设置。我们提出了 AgenticPay，这是一个由自然语言驱动的多 agents (智能体) 买卖双方谈判 benchmark (基准) 及 simulation framework (仿真框架)。AgenticPay 对市场进行建模，其中买卖双方拥有 private constraints (私有约束) 和 product-dependent valuations (基于产品的估值)，且必须通过 multi-round linguistic negotiation (多轮语言谈判) 而非单纯的 numeric bidding (数值出价) 来达成协议。该框架支持包含110多项任务的多样化套件，涵盖从 bilateral bargaining (双边议价) 到 many-to-many markets (多对多市场) 的场景，并具备 structured action extraction (结构化动作提取) 功能以及针对 feasibility (可行性)、efficiency (效率) 和 welfare (福利) 的评估指标。对 state-of-the-art (最先进的) proprietary (专有) 及 open-weight (开放权重) LLMs 进行的 benchmarking (基准测试) 揭示了其在谈判性能上存在显著差距，并凸显了在 long-horizon strategic reasoning (长周期战略推理) 方面面临的挑战，从而确立了 AgenticPay 作为研究 agentic commerce (智能体商务) 和基于语言的市场互动的基础。代码和数据集可在以下链接获取：https://github.com/SafeRL-Lab/AgenticPay。",
-                    "inspiration_trace": "基于论文《AgenticPay: A Multi-Agent LLM Negotiation System for Buyer-Seller Transactions》的内容，以下是对作者构建该核心方法逻辑链的系统性推演：\n\n### 第一阶段：宏观观察与范式转移\n**思考起点：从“对话者”到“经济代理人”的角色演变**\n作者首先观察到一个宏观趋势：大语言模型（LLM）的应用场景正从单一的问答或内容生成，转向作为自主代理人在现实经济活动中执行任务（如电商、采购、服务签约）。\n*   **核心问题**：现有的LLM评估体系主要集中在单智能体的推理能力或工具使用上，缺乏一个能够评估多智能体在**经济互动**中表现的基准。\n*   **初步假设**：如果LLM要成为真正的经济代理人，它们必须具备通过自然语言进行谈判、协调和交易的能力，而不仅仅是生成通顺的文本。\n\n### 第二阶段：痛点识别与现有方法的局限\n**深入分析：现有评估基准的“抽象化”缺陷**\n作者回顾了现有的博弈论和NLP谈判研究，发现它们存在严重的“现实脱节”：\n1.  **交互方式简化**：传统博弈论模型通常假设代理通过数字出价或效用函数交互，忽略了自然语言在表达偏好、约束和策略中的核心作用。\n2.  **场景过于单一**：现有的NLP谈判数据集多局限于双边议价（1对1），且缺乏私有信息（如底价）和复杂的市场结构（如多买家多卖家的竞争）。\n*   **逻辑推演**：要真实评估LLM的经济智能，必须构建一个**语言介导的**、包含**私有信息**的、且能扩展到**复杂市场结构**的测试环境。\n\n### 第三阶段：核心概念的形式化\n**理论构建：将谈判定义为“语言博弈”**\n为了解决上述痛点，作者提出了核心假设：谈判本质上是一个有限视界的、多轮次的语言游戏。\n*   **关键抽象**：\n    *   **私有状态**：每个智能体（买方/卖方）拥有不可观测的内部状态（如最高预算、最低售价），这是谈判策略的基石。\n    *   **对话到行动的映射**：自然语言对话必须被解析为结构化的经济行动（如价格提议、接受交易）。\n*   **设计目标**：建立一个框架，既能保留语言的丰富性，又能通过结构化的指标（可行性、效率、福利）来量化评估结果。\n\n### 第四阶段：方法论构建与维度扩展\n**系统设计：构建可扩展的复杂性阶梯**\n基于形式化定义，作者开始设计具体的评估框架，其逻辑遵循“控制变量”与“压力测试”的原则：\n\n1.  **环境维度的真实性**：\n    *   为了避免模型在单一领域过拟合，作者设计了10个涵盖日常生活、专业服务、商业采购和金融资产的真实商业场景。这确保了评估的**泛化性**。\n\n2.  **任务维度的复杂性阶梯**：\n    *   作者意识到单一任务无法全面衡量能力，因此设计了从简单到复杂的任务谱系：\n        *   **基础层**：双边议价（1买1卖）。\n        *   **竞争层**：引入竞争（1买多卖 或 多买1卖），测试代理在有机会成本时的决策能力。\n        *   **市场层**：多对多市场（N买N卖），测试匹配和资源分配能力。\n    *   **逻辑意图**：通过这种维度扩展，可以剥离出模型在处理“竞争”、“并发”和“多产品”时的具体短板。\n\n3.  **评估维度的福利导向**：\n    *   仅仅衡量“是否达成交易”是不够的。作者引入了基于博弈论的评分机制，不仅奖励成交，还奖励**效率**（速度）和**公平性**（剩余分配），以此引导模型追求高质量的经济结果。\n\n### 第五阶段：实验验证与假设修正\n**实证分析：揭示“语言能力”与“经济理性”的鸿沟**\n最后，作者利用该框架对SOTA模型进行基准测试，以验证其假设并发现新问题：\n*   **预期发现**：闭源模型（如GPT-5.2, Claude）在整体表现上优于开源模型，且随着市场流动性增加（买卖双方增多），谈判效率反而提升（验证了竞争促进成交的经济学直觉）。\n*   **深层洞察**：作者发现了模型在“最后一公里”的收敛缺陷（Near-miss failures）以及买卖双方角色的系统性不对称。这证明了**强大的语言生成能力并不等同于有效的经济战略推理**，从而确立了AgenticPay作为未来研究基础平台的地位。\n\n---\n\n**总结**：\n作者的思考路径是从**应用趋势**（LLM作为经济代理）出发，识别出**评估空白**（缺乏语言介导的市场互动测试），进而通过**理论抽象**（语言博弈与私有信息）构建框架，最后通过**多维度的任务设计**（从双边到多边市场）和**福利导向的指标**，完成了一套既能反映现实复杂性又能进行科学量化的基准系统。"
-                },
-            ]
-        },
-        {
-            "name": "Computation and Language",
-            "count": 2,
-            "papers": [
-                {
-                    "title": "Learning Query-Aware Budget-Tier Routing for Runtime Agent Memory",
-                    "arxiv_id": "2602.06025",
-                    "authors": "Haozhen Zhang, Haodong Yue, Tao Feng, Quanyu Long, Jianzhu Bao, Bowen Jin, Weizhi Zhang, Xiao Li, Jiaxuan You, Chengwei Qin, Wenya Wang",
-                    "summary": "Memory is increasingly central to Large Language Model (LLM) agents operating beyond a single context window, yet most existing systems rely on offline, query-agnostic memory construction that can be inefficient and may discard query-critical information. Although runtime memory utilization is a natural alternative, prior work often incurs substantial overhead and offers limited explicit control over the performance-cost trade-off. In this work, we present \\textbf{BudgetMem}, a runtime agent memory framework for explicit, query-aware performance-cost control. BudgetMem structures memory processing as a set of memory modules, each offered in three budget tiers (i.e., \\textsc{Low}/\\textsc{Mid}/\\textsc{High}). A lightweight router performs budget-tier routing across modules to balance task performance and memory construction cost, which is implemented as a compact neural policy trained with reinforcement learning. Using BudgetMem as a unified testbed, we study three complementary strategies for realizing budget tiers: implementation (method complexity), reasoning (inference behavior), and capacity (module model size). Across LoCoMo, LongMemEval, and HotpotQA, BudgetMem surpasses strong baselines when performance is prioritized (i.e., high-budget setting), and delivers better accuracy-cost frontiers under tighter budgets. Moreover, our analysis disentangles the strengths and weaknesses of different tiering strategies, clarifying when each axis delivers the most favorable trade-offs under varying budget regimes.",
-                    "category": "cs.CL",
-                    "filter_reason": "该论文专注于LLM智能体的“记忆”机制，属于单智能体研究范围中的核心组件（规划、记忆、工具使用、自我反思）。它提出了一个运行时记忆框架来平衡性能和成本，不属于纯应用、纯推理或基础设施优化等排除类别。",
-                    "summary2": "本文旨在解决LLM Agent运行时内存提取中缺乏显式性能-成本控制的问题。针对运行时内存提取场景，我们提出了一种BudgetMem框架，通过模块化预算分层和强化学习路由策略动态分配计算资源。我们在LoCoMo、LongMemEval和HotpotQA数据集上通过F1-score、LLM-as-a-judge和Cost指标验证了其有效性。",
-                    "summary_translation": "对于在超越单个上下文窗口的场景下操作的大语言模型（Large Language Model, LLM）智能体而言，记忆变得越来越重要，然而大多数现有系统依赖于离线的、与查询无关的记忆构建，这可能导致效率低下，并可能丢弃对查询至关重要的信息。尽管运行时记忆利用是一个自然的替代方案，但先前的工作往往产生巨大的开销，并且对性能-成本权衡的显式控制有限。在这项工作中，我们提出了 \\textbf{BudgetMem}，一个用于显式、感知查询的性能-成本控制的运行时智能体记忆框架。BudgetMem 将记忆处理构建为一组记忆模块，每个模块提供三个预算层级（即 \\textsc{Low}/\\textsc{Mid}/\\textsc{High}）。一个轻量级路由器在模块之间执行预算层级路由，以平衡任务性能和记忆构建成本，该路由器被实现为一个使用强化学习训练的紧凑神经策略。利用 BudgetMem 作为统一测试平台，我们研究了三种实现预算层级的互补策略：实现（方法复杂度）、推理（推理行为）和容量（模块模型大小）。在 LoCoMo、LongMemEval 和 HotpotQA 数据集上，当优先考虑性能时（即高预算设置），BudgetMem 超过了强基线，并在更严格的预算下提供了更好的精度-成本前沿。此外，我们的分析厘清了不同分层策略的优缺点，阐明了在不同预算机制下，每个维度在何时能提供最有利的权衡。",
-                    "inspiration_trace": "基于论文《Learning Query-Aware Budget-Tier Routing for Runtime Agent Memory》，以下是对作者产出该核心方法的逻辑链推演，还原了从宏观观察到具体方法论的思考过程：\n\n---\n\n### 第一阶段：宏观观察与核心矛盾\n**1. 现状观察：记忆是LLM Agent的核心，但现有范式存在缺陷。**\n*   **观察：** 现有的Agent记忆系统大多采用“离线、查询无关”的构建方式（即“一次构建，永久使用”）。\n*   **批判：** 这种方式既浪费（无论查询什么，都预先处理所有历史），又脆弱（可能会丢失针对特定查询的关键信息）。\n\n**2. 替代方案与新的痛点：从“离线”转向“运行时”。**\n*   **直觉：** 既然离线处理不灵活，那么自然的替代方案是“按需记忆提取”，即在查询到达时才根据需求处理历史记录。\n*   **新矛盾：** 这种灵活性带来了巨大的代价——运行时计算开销大、延迟高。在实际工业部署中，成本和延迟是必须被控制的一等公民。\n\n**3. 行业趋势与核心问题：引入“预算控制”的必要性。**\n*   **趋势：** 现代LLM系统（如OpenAI的推理等级、Anthropic的模型选项）已经开始提供显式的“计算档位”来平衡质量和成本。\n*   **核心问题：** 如何在**运行时**的Agent记忆提取中，实现这种显式的、可控的性能-成本权衡？\n\n---\n\n### 第二阶段：问题拆解与假设提出\n**1. 拆解问题一：预算应该应用在哪里？**\n*   **思考：** 如果把记忆系统看作一个黑盒，很难进行精细化的成本控制。\n*   **假设：** 必须将记忆提取过程**模块化**。只有将流程拆解为独立的阶段（如过滤、提取、总结），才能针对每个阶段分配不同的计算预算。\n\n**2. 拆解问题二：预算应该如何具体实现？**\n*   **思考：** 仅仅说“高预算”或“低预算”是不够的，我们需要具体的“计算旋钮”来调节质量和成本。\n*   **假设：** 存在多种正交的维度来实现这种“分级”：\n    *   **实现维度：** 用简单的规则（低成本）还是复杂的LLM（高质量）？\n    *   **推理维度：** 直接生成（低成本）还是思维链/反思（高质量）？\n    *   **容量维度：** 用小模型（低成本）还是大模型（高质量）？\n\n---\n\n### 第三阶段：方法论构建\n**1. 架构设计：模块化流水线与统一接口。**\n*   **决策：** 设计一个固定的模块化流水线（例如：过滤 -> 并行提取[实体/时间/主题] -> 总结）。\n*   **标准化：** 为每个模块定义统一的接口，使得每个模块都能在“低/中/高”三个预算档位下运行，且保持输入输出格式一致。这为后续的动态调度奠定了基础。\n\n**2. 动态调度机制：从静态规则到智能路由。**\n*   **思考：** 不同的查询对计算的需求不同。简单查询不需要高预算，复杂查询才需要。静态的规则无法适应这种变化。\n*   **决策：** 引入一个**轻量级路由器**。它根据当前的查询和中间状态，动态决定每个模块应该使用哪个预算档位。\n\n**3. 优化目标：强化学习的引入。**\n*   **思考：** 路由器的决策是一个序列决策问题（先过滤，再提取，最后总结），且涉及非可微组件（如API调用），传统的监督学习难以直接优化“成本-性能”的权衡。\n*   **决策：** 使用强化学习（RL）来训练路由器。\n*   **奖励函数设计：** 构建一个包含“任务奖励”（答案质量）和“成本奖励”（计算开销）的复合目标。通过调整权重系数，可以显式地控制系统倾向于省钱还是追求高质量。\n\n---\n\n### 第四阶段：逻辑闭环与最终产出\n**1. 综合集成：BudgetMem 的诞生。**\n*   将上述思考整合：一个模块化的运行时记忆框架 + 三种正交的预算实现策略（实现/推理/容量） + 一个基于RL训练的共享路由器。\n\n**2. 预期效果验证：**\n*   **逻辑自洽：** 这种设计不仅解决了“运行时成本高”的问题（通过按需分配），还解决了“如何控制”的问题（通过分级和路由）。\n*   **统一视角：** 通过将不同的预算策略纳入同一框架，作者还能进一步分析哪种策略在什么预算范围内性价比最高（例如：实现策略适合宽预算范围，推理策略适合微调质量）。\n\n---\n\n**总结：**\n作者的思考路径是从**“离线记忆的僵化”**出发，意识到**“运行时记忆的昂贵”**，进而借鉴**“分级计算”**的工业趋势，通过**“模块化”**拆解控制粒度，利用**“强化学习”**实现动态的查询感知调度，最终构建出一个既能保证质量又能精准控制成本的智能记忆系统。"
-                },
-                {
-                    "title": "Codified Finite-state Machines for Role-playing",
-                    "arxiv_id": "2602.05905",
-                    "authors": "Letian Peng, Yupeng Hou, Kun Zhou, Jingbo Shang",
-                    "summary": "Modeling latent character states is crucial for consistent and engaging role-playing (RP) with large language models (LLMs). Yet, existing prompting-based approaches mainly capture surface actions, often failing to track the latent states that drive interaction. We revisit finite-state machines (FSMs), long used in game design to model state transitions. While effective in small, well-specified state spaces, traditional hand-crafted, rule-based FSMs struggle to adapt to the open-ended semantic space of RP. To address this, we introduce Codified Finite-State Machines (CFSMs), a framework that automatically codifies textual character profiles into FSMs using LLM-based coding. CFSMs extract key states and transitions directly from the profile, producing interpretable structures that enforce character consistency. To further capture uncertainty and variability, we extend CFSMs into Codified Probabilistic Finite-State Machines (CPFSMs), where transitions are modeled as probability distributions over states. Through both synthetic evaluations and real-world RP scenarios in established artifacts, we demonstrate that CFSM and CPFSM outperform generally applied baselines, verifying effectiveness not only in structured tasks but also in open-ended stochastic state exploration.",
-                    "category": "cs.CL",
-                    "filter_reason": "该论文提出了Codified Finite-State Machines (CFSMs)框架，利用LLM将角色档案转化为有限状态机以管理潜在角色状态。这属于单智能体研究中的“记忆”和“状态管理”范畴，旨在提升智能体在交互过程中的一致性和行为逻辑，符合LLM智能体的定义。",
-                    "summary2": "总结生成失败",
-                    "summary_translation": "对潜在角色状态进行建模，对于利用大语言模型实现一致且引人入胜的角色扮演至关重要。然而，现有的基于提示的方法主要捕捉表面动作，往往无法追踪驱动交互的潜在状态。我们重新审视了有限状态机，这是一种长期以来在游戏设计中用于对状态转换进行建模的工具。尽管在规模较小且定义明确的状态空间中行之有效，但传统的手工构建、基于规则的有限状态机难以适应角色扮演的开放式语义空间。为解决这一问题，我们引入了编码有限状态机，这是一个利用基于大语言模型的编码技术，自动将文本角色档案转化为有限状态机的框架。编码有限状态机直接从档案中提取关键状态和转换，生成可解释的结构以强制执行角色一致性。为了进一步捕捉不确定性和变异性，我们将编码有限状态机扩展为编码概率有限状态机，其中状态转换被建模为状态上的概率分布。通过合成评估以及既定人工制品中的真实角色扮演场景，我们证明了编码有限状态机和编码概率有限状态机优于通用的基线模型，验证了它们不仅在结构化任务中有效，而且在开放式随机状态探索中同样有效。",
-                    "inspiration_trace": "基于论文《Codified Finite-state Machines for Role-playing》，以下是对作者核心方法论逻辑链的系统性推演，旨在还原其从发现问题到提出解决方案的完整思考过程：\n\n### 第一阶段：问题锚定——从“表面对话”到“隐性状态”的缺失\n**（观察与痛点分析）**\n\n1.  **宏观观察**：作者首先审视了当前基于大语言模型（LLM）的角色扮演（RP）现状。虽然LLM能生成流畅的对话，但在长程叙事中，角色往往会出现“人格解体”或行为不一致。\n2.  **核心痛点识别**：作者意识到，问题的根源在于**隐性状态**的缺失。\n    *   现有的Prompting方法主要关注“表面动作”（如说什么、做什么），却忽略了驱动这些动作的内部状态（如马里奥是“小马里奥”还是“超级马里奥”）。\n    *   LLM的上下文窗口有限，无法在长对话中始终维持对复杂状态的隐性记忆，导致状态遗忘或逻辑断裂。\n3.  **初步假设**：要实现高质量的角色扮演，必须显式地建模和追踪角色的内部状态，而不仅仅是生成文本。\n\n### 第二阶段：跨界借鉴——引入有限状态机（FSM）的利与弊\n**（工具引入与局限性分析）**\n\n1.  **寻找工具**：作者将目光投向了游戏设计领域。在游戏中，角色的行为逻辑通常由**有限状态机（FSM）**控制。\n2.  **FSM的优势**：FSM能提供显式的状态定义和可解释的转换规则，保证了逻辑的确定性和一致性，完美解决了LLM“状态不稳定”的问题。\n3.  **遭遇瓶颈**：然而，传统的FSM是**硬编码**的。\n    *   在开放式的文本RP中，语义空间无限大，无法像游戏代码那样预先穷举所有状态和规则。\n    *   手动编写规则成本过高，且缺乏灵活性，无法适应文本的模糊性。\n4.  **思考转折**：如何保留FSM的结构化优势，同时消除其刚性？需要一种能自动适应文本语义的FSM构建方式。\n\n### 第三阶段：核心突破——“编码化”思想的诞生\n**（方法论创新：从规则到代码）**\n\n1.  **利用LLM的新能力**：作者注意到LLM不仅会写文章，还具备强大的**代码生成**能力。\n2.  **核心假设**：既然LLM理解自然语言，也理解代码逻辑，那么能否让LLM充当“编译器”，将文本形式的人物设定**自动翻译**成可执行的FSM代码？\n3.  **提出CFSM（Codified FSM）**：\n    *   **状态提取**：利用LLM从人物Profile中提取关键状态（如“未激活”、“SOS团员”等）。\n    *   **逻辑编码**：利用LLM编写状态转换函数（`get_next_state`）。\n    *   **语义桥接**：为了解决代码处理文本的困难，作者设计了一个关键的中间层——**二元问题函数**（`binary_question`）。代码不直接处理复杂文本，而是调用该函数询问LLM“是否发生了某事”，从而将语义判断转化为布尔逻辑。\n4.  **逻辑闭环**：通过这种方式，作者将模糊的文本约束转化为了严谨的、可执行的代码逻辑，实现了“结构化的状态”与“开放式的语义”的结合。\n\n### 第四阶段：精细化处理——从确定性到概率性\n**（应对现实世界的复杂性）**\n\n1.  **进一步观察**：在真实的RP场景中，角色的状态转换往往不是非黑即白的。例如，一个角色可能“有点生气”但“还在克制”，存在多种可能性的分支。\n2.  **提出CPFSM（Codified Probabilistic FSM）**：\n    *   为了捕捉这种不确定性，作者将确定性的状态转换扩展为**概率分布**。\n    *   利用`binary_question`函数输出的Logits（置信度），构建状态转移概率矩阵。\n    *   这使得模型不仅能判断“发生了什么”，还能量化“发生的可能性”，从而支持更细腻、更多样化的角色反应。\n\n### 第五阶段：验证与反思——结构优于纯推理\n**（逻辑验证与价值确认）**\n\n1.  **合成验证（思想实验）**：作者设计了马里奥、使命召唤等经典状态机场景进行测试。\n    *   **发现**：直接使用Prompt让LLM推理状态，随着步数增加，准确率急剧下降；而使用CFSM，因为逻辑被“固化”在代码中，准确率保持100%且效率极高。\n    *   **结论**：LLM本身并不擅长长程的状态追踪，必须依靠外部的显式结构（FSM）来辅助。\n2.  **真实场景验证**：在Fandom Benchmark上的实验表明，引入CFSM/CPFSM后，角色行为的一致性和与设定的符合度显著优于纯Prompt方法。\n3.  **最终思考**：作者确认了“神经符号结合”在RP中的价值——用LLM生成逻辑（符号），用代码执行逻辑（结构），从而实现了既灵活又可控的角色扮演系统。\n\n---\n\n**总结：**\n作者的思考路径遵循了 **“发现隐性状态缺失 -> 借鉴游戏FSM结构 -> 利用LLM编码能力解决刚性瓶颈 -> 引入概率模型处理模糊性 -> 实验验证结构化必要性”** 的完整逻辑链条。其核心创新在于将“文本规则”通过LLM转化为“可执行代码”，从而在开放域中实现了严谨的状态管理。"
-                },
-            ]
-        },
-    ],
-};
+        const allPapers = {};
+        let availableDates = [];
+        const loadedDates = new Set();
+        let initialLoadDays = 14;
+        let LOAD_MORE_DAYS = 7;
+        const dailyOverviews = {};
 
-const availableDates = ["2026-02-05"];
-const loadedDates = new Set(["2026-02-05"]);
-const LOAD_MORE_DAYS = 7;
+        async function fetchIndexData() {
+            const response = await fetch('data/index.json');
+            if (!response.ok) {
+                throw new Error(`无法加载 data/index.json: ${response.status}`);
+            }
+            return response.json();
+        }
 
-const dailyOverviewsRaw = {
-    "2026-02-05": "### \u4eca\u65e5AI\u8bba\u6587\u901f\u89c8 (2026-02-05)\n\n\u4eca\u65e5\u7684\u7814\u7a76\u91cd\u70b9\u5728\u4e8e\u901a\u8fc7\u7ed3\u6784\u5316\u6846\u67b6\u63d0\u5347 AI Agent \u7684\u590d\u6742\u4ea4\u4e92\u4e0e\u5185\u90e8\u7ba1\u7406\u80fd\u529b\u3002\u6211\u4eec\u770b\u5230\u591a\u667a\u80fd\u4f53\u7cfb\u7edf\u6b63\u4ece\u56fa\u5b9a\u6a21\u5f0f\u8f6c\u5411\u52a8\u6001\u62d3\u6251\u4e0e\u7ecf\u6d4e\u535a\u5f08\uff0c\u540c\u65f6 Agent \u7684\u5185\u90e8\u673a\u5236\u4e5f\u5728\u901a\u8fc7\u9884\u7b97\u5206\u5c42\u8bb0\u5fc6\u548c\u6709\u9650\u72b6\u6001\u673a\u5b9e\u73b0\u66f4\u7cbe\u7ec6\u7684\u63a7\u5236\u3002\u8fd9\u4e9b\u5de5\u4f5c\u5171\u540c\u6307\u5411\u4e86\u66f4\u9ad8\u6548\u3001\u66f4\u5177\u7b56\u7565\u6027\u548c\u4e00\u81f4\u6027\u7684\u4e0b\u4e00\u4ee3\u667a\u80fd\u4f53\u67b6\u6784\u3002\n\n---\n\n### \u591a\u667a\u80fd\u4f53\u534f\u4f5c\uff1a\u4ece\u52a8\u6001\u901a\u4fe1\u5230\u7ecf\u6d4e\u535a\u5f08\n\n*   **DyTopo: Dynamic Topology Routing for Multi-Agent Reasoning via Semantic Matching**\n    \u8be5\u7814\u7a76\u63d0\u51fa\u4e86 **DyTopo** \u6846\u67b6\uff0c\u901a\u8fc7\u7ba1\u7406\u8005\u5f15\u5bfc\u548c\u8bed\u4e49\u5339\u914d\uff0c\u5728\u6bcf\u4e00\u8f6e\u63a8\u7406\u4e2d\u52a8\u6001\u91cd\u6784\u7a00\u758f\u6709\u5411\u901a\u4fe1\u56fe\uff0c\u6253\u7834\u4e86\u4f20\u7edf\u56fa\u5b9a\u901a\u4fe1\u6a21\u5f0f\u7684\u5c40\u9650\u3002\u8be5\u65b9\u6cd5\u5728\u4ee3\u7801\u751f\u6210\u548c\u6570\u5b66\u63a8\u7406\u4efb\u52a1\u4e0a\u663e\u8457\u4f18\u4e8e\u57fa\u7ebf\uff0c\u5e76\u63d0\u4f9b\u4e86\u53ef\u89e3\u91ca\u7684\u534f\u8c03\u8f68\u8ff9\uff0c\u5c55\u793a\u4e86\u901a\u4fe1\u8def\u5f84\u5982\u4f55\u968f\u63a8\u7406\u9636\u6bb5\u81ea\u9002\u5e94\u91cd\u914d\u7f6e\u3002(ArXiv ID 2602.06039 [cs.AI])\n\n*   **AgenticPay: A Multi-Agent LLM Negotiation System for Buyer-Seller Transactions**\n    \u5f15\u5165\u4e86 **AgenticPay**\uff0c\u4e00\u4e2a\u4e13\u6ce8\u4e8e\u4e70\u5356\u53cc\u65b9\u81ea\u7136\u8bed\u8a00\u8c08\u5224\u7684\u591a\u667a\u80fd\u4f53\u57fa\u51c6\u6846\u67b6\uff0c\u6db5\u76d6\u4e86\u4ece\u53cc\u8fb9\u5230\u591a\u5bf9\u591a\u7684110\u591a\u79cd\u5e02\u573a\u4efb\u52a1\u3002\u7814\u7a76\u53d1\u73b0\u73b0\u6709SOTA\u6a21\u578b\u5728\u957f\u671f\u6218\u7565\u63a8\u7406\u548c\u8bed\u8a00\u4e2d\u4ecb\u7684\u7ecf\u6d4e\u4ea4\u4e92\u65b9\u9762\u4ecd\u5b58\u5728\u663e\u8457\u6027\u80fd\u5dee\u8ddd\uff0c\u4e3a\u7814\u7a76 Agent \u5546\u4e1a\u4ea4\u4e92\u5960\u5b9a\u4e86\u57fa\u7840\u3002(ArXiv ID 2602.06008 [cs.AI])\n\n---\n\n### Agent\u67b6\u6784\u8fdb\u5316\uff1a\u7cbe\u7ec6\u5316\u8bb0\u5fc6\u4e0e\u72b6\u6001\u7ba1\u7406\n\n*   **Learning Query-Aware Budget-Tier Routing for Runtime Agent Memory**\n    \u63d0\u51fa\u4e86 **BudgetMem**\uff0c\u4e00\u79cd\u8fd0\u884c\u65f6 Agent \u8bb0\u5fc6\u6846\u67b6\uff0c\u5229\u7528\u5f3a\u5316\u5b66\u4e60\u8bad\u7ec3\u7684\u8def\u7531\u5668\u5728\u4f4e/\u4e2d/\u9ad8\u9884\u7b97\u5c42\u7ea7\u95f4\u8fdb\u884c\u67e5\u8be2\u611f\u77e5\u7684\u52a8\u6001\u5206\u914d\u3002\u8be5\u7814\u7a76\u901a\u8fc7\u5b9e\u73b0\u3001\u63a8\u7406\u548c\u5bb9\u91cf\u4e09\u79cd\u7b56\u7565\uff0c\u5728\u4fdd\u8bc1\u4efb\u52a1\u6027\u80fd\u7684\u540c\u65f6\uff0c\u6709\u6548\u5e73\u8861\u4e86\u8bb0\u5fc6\u6784\u5efa\u7684\u6210\u672c\u4e0e\u7cbe\u5ea6\uff0c\u4f18\u4e8e\u4f20\u7edf\u7684\u79bb\u7ebf\u8bb0\u5fc6\u6784\u5efa\u65b9\u5f0f\u3002(ArXiv ID 2602.06025 [cs.CL])\n\n*   **Codified Finite-state Machines for Role-playing**\n    \u63d0\u51fa\u4e86 **Codified Finite-State Machines (CFSMs)**\uff0c\u5229\u7528 LLM \u81ea\u52a8\u5c06\u6587\u672c\u89d2\u8272\u6863\u6848\u7f16\u7801\u4e3a\u6709\u9650\u72b6\u6001\u673a\uff0c\u4ee5\u89e3\u51b3\u89d2\u8272\u626e\u6f14\u4e2d\u6f5c\u5728\u72b6\u6001\u8ddf\u8e2a\u7684\u96be\u9898\u3002\u6269\u5c55\u7684 **CPFSMs** \u8fdb\u4e00\u6b65\u5f15\u5165\u6982\u7387\u5206\u5e03\uff0c\u5728\u5f00\u653e\u5f0f\u7684\u8bed\u4e49\u7a7a\u95f4\u4e2d\u5b9e\u73b0\u4e86\u66f4\u4e00\u81f4\u4e14\u5177\u968f\u673a\u6027\u7684\u89d2\u8272\u4ea4\u4e92\uff0c\u8d85\u8d8a\u4e86\u4f20\u7edf\u7684\u63d0\u793a\u8bcd\u65b9\u6cd5\u3002(ArXiv ID 2602.05905 [cs.CL])\n\n---\n\n### \u4eca\u65e5\u770b\u70b9\n\n*   **\u7ed3\u6784\u5316 Agent \u7684\u5d1b\u8d77**\uff1a\u4eca\u65e5\u7684\u8bba\u6587\u6e05\u6670\u5730\u8868\u660e\uff0c\u793e\u533a\u6b63\u4ece\u5355\u7eaf\u7684\u201c\u63d0\u793a\u5de5\u7a0b\u201d\u8f6c\u5411\u4e3a Agent \u8bbe\u8ba1\u7279\u5b9a\u7684\u7ed3\u6784\uff08\u5982 FSM\u3001\u9884\u7b97\u5c42\u7ea7\u3001\u52a8\u6001\u56fe\uff09\u3002\u8fd9\u79cd\u201c\u7ed3\u6784\u5316\u5148\u9a8c\u201d\u7684\u5f15\u5165\uff0c\u6b63\u5728\u6210\u4e3a\u89e3\u51b3 Agent \u4e00\u81f4\u6027\u3001\u6210\u672c\u63a7\u5236\u548c\u590d\u6742\u534f\u4f5c\u95ee\u9898\u7684\u5173\u952e\u8def\u5f84\u3002\n*   **\u52a8\u6001\u4f18\u4e8e\u9759\u6001**\uff1a\u65e0\u8bba\u662f DyTopo \u4e2d\u7684\u901a\u4fe1\u62d3\u6251\u8fd8\u662f BudgetMem \u4e2d\u7684\u8bb0\u5fc6\u5206\u914d\uff0c\u7814\u7a76\u90fd\u5f3a\u8c03\u201c\u4e00\u5200\u5207\u201d\u7684\u9759\u6001\u67b6\u6784\u5df2\u6b7b\uff1b\u4e0a\u4e0b\u6587\u611f\u77e5\u7684**\u52a8\u6001\u8def\u7531**\u624d\u662f\u672a\u6765\uff0c\u5b83\u80fd\u6839\u636e\u5b9e\u65f6\u9700\u6c42\u5728\u6027\u80fd\u4e0e\u6210\u672c\u4e4b\u95f4\u627e\u5230\u6700\u4f18\u89e3\u3002\n*   **Agent \u7ecf\u6d4e\u5b66\u521d\u73b0\u7aef\u502a**\uff1aAgenticPay \u7a81\u663e\u4e86 Agent \u4ea4\u4e92\u7684\u4e00\u4e2a\u65b0\u524d\u6cbf\uff1a\u4e0d\u4ec5\u4ec5\u662f\u89e3\u51b3\u903b\u8f91\u8c1c\u9898\uff0c\u800c\u662f\u53c2\u4e0e\u5177\u6709\u79c1\u6709\u7ea6\u675f\u548c\u4f30\u503c\u7684\u7ecf\u6d4e\u8c08\u5224\u3002\u8fd9\u6807\u5fd7\u7740 AI \u7814\u7a76\u5f00\u59cb\u4ece\u5355\u7eaf\u7684\u667a\u80fd\u4f53\u80fd\u529b\u5411\u667a\u80fd\u4f53\u793e\u4f1a\u4e0e\u5e02\u573a\u673a\u5236\u5ef6\u4f38\u3002\n*   **\u7ecf\u5178\u7406\u8bba\u7684\u56de\u5f52\u4e0e\u65b0\u751f**\uff1aCFSM \u8bba\u6587\u5c55\u793a\u4e86\u7ecf\u5178\u7684**\u6709\u9650\u72b6\u6001\u673a (FSM)** \u7406\u8bba\u5728 LLM \u65f6\u4ee3\u7684\u590d\u5174\u3002\u901a\u8fc7\u5c06\u73b0\u4ee3\u5927\u6a21\u578b\u7684\u751f\u6210\u80fd\u529b\u4e0e\u4f20\u7edf\u7b26\u53f7\u7cfb\u7edf\u7684\u4e25\u8c28\u6027\u7ed3\u5408\uff0c\u6211\u4eec\u770b\u5230\u4e86\u795e\u7ecf\u7b26\u53f7\u65b9\u6cd5\u5728\u89d2\u8272\u626e\u6f14\u7b49\u5177\u4f53\u573a\u666f\u4e2d\u7684\u5de8\u5927\u6f5c\u529b\u3002",
-};
-const dailyOverviews = {};
-for (const date in dailyOverviewsRaw) {
-    dailyOverviews[date] = dailyOverviewsRaw[date];
-}
+        async function loadDates(dates) {
+            let loadedCount = 0;
 
+            for (const date of dates) {
+                if (!date || loadedDates.has(date)) continue;
 
-        // 全局状态管理
+                try {
+                    const response = await fetch(`data/${date}.json`);
+                    if (!response.ok) {
+                        console.warn(`无法加载 ${date} 的数据: ${response.status}`);
+                        continue;
+                    }
+
+                    const dateData = await response.json();
+                    allPapers[date] = Array.isArray(dateData.categories) ? dateData.categories : [];
+
+                    if (dateData.overview) {
+                        dailyOverviews[date] = dateData.overview;
+                    }
+
+                    loadedDates.add(date);
+                    loadedCount++;
+                } catch (error) {
+                    console.error(`加载 ${date} 数据失败:`, error);
+                }
+            }
+
+            return loadedCount;
+        }
+
+        async function initializeData() {
+            try {
+                const indexData = await fetchIndexData();
+                availableDates = Array.isArray(indexData.dates) ? indexData.dates : [];
+
+                if (typeof indexData.initial_days === 'number') {
+                    initialLoadDays = indexData.initial_days;
+                }
+                if (typeof indexData.load_more_days === 'number') {
+                    LOAD_MORE_DAYS = indexData.load_more_days;
+                }
+
+                if (availableDates.length === 0) {
+                    renderPapers();
+                    return;
+                }
+
+                const initialDates = availableDates.slice(0, initialLoadDays);
+                const loadedCount = await loadDates(initialDates);
+                renderPapers();
+
+                if (loadedCount > 0) {
+                    showSimpleToast(`已加载 ${loadedCount} 天的数据`);
+                }
+            } catch (error) {
+                console.error('初始化数据失败:', error);
+                showSimpleToast('初始数据加载失败，请检查 data/index.json');
+                renderPapers();
+            } finally {
+                updateLoadMoreButton();
+            }
+        }
+
+// 全局状态管理
         let starredPapers = new Set();
         let readPapers = new Set();
         let deletedPapers = new Set();
@@ -396,34 +400,13 @@ for (const date in dailyOverviewsRaw) {
             }
 
             const datesToLoad = unloadedDates.slice(0, LOAD_MORE_DAYS);
-            let loadedCount = 0;
-
-            for (const date of datesToLoad) {
-                try {
-                    const response = await fetch(`data/${date}.json`);
-                    if (!response.ok) continue;
-
-                    const dateData = await response.json();
-
-                    // 将数据添加到 allPapers
-                    allPapers[date] = dateData.categories;
-
-                    // 添加每日速览
-                    if (dateData.overview) {
-                        dailyOverviews[date] = dateData.overview;
-                    }
-
-                    loadedDates.add(date);
-                    loadedCount++;
-                } catch (e) {
-                    console.error(`加载 ${date} 数据失败:`, e);
-                }
-            }
+            const loadedCount = await loadDates(datesToLoad);
 
             isLoadingMore = false;
 
+            renderPapers();
+
             if (loadedCount > 0) {
-                renderPapers();
                 showSimpleToast(`已加载 ${loadedCount} 天的数据`);
             }
 
@@ -706,10 +689,10 @@ for (const date in dailyOverviewsRaw) {
                 });
                 
                 // 遍历所有灵感溯源的容器并渲染 Markdown
-                for (const date in allPapers) {
-                    const categories = allPapers[date];
+                Object.values(allPapers).forEach(categories => {
+                    if (!Array.isArray(categories)) return;
                     categories.forEach(category => {
-                        if (category.papers) {
+                        if (Array.isArray(category.papers)) {
                             category.papers.forEach(paper => {
                                 if (paper.inspiration_trace) {
                                     const elementId = `inspiration-${paper.arxiv_id}`;
@@ -727,7 +710,7 @@ for (const date in dailyOverviewsRaw) {
                             });
                         }
                     });
-                }
+                });
             }
         }
 
@@ -937,8 +920,10 @@ for (const date in dailyOverviewsRaw) {
             let html = '';
             let totalPapers = 0;
             
-            for (const date in allPapers) {
-                const categories = allPapers[date];
+            for (const date of availableDates) {
+                if (!loadedDates.has(date)) continue;
+
+                const categories = Array.isArray(allPapers[date]) ? allPapers[date] : [];
                 if (categories.length === 0) continue;
                 
                 // 计算实际可见的论文数量
@@ -949,7 +934,7 @@ for (const date in dailyOverviewsRaw) {
                     const categoryHTML = createCategoryHTML(category, date);
                     categoryHTMLs.push(categoryHTML);
                     // 计算该分类下可见的论文数
-                    if (category.papers) {
+                    if (Array.isArray(category.papers)) {
                         category.papers.forEach(paper => {
                             if (!deletedPapers.has(paper.arxiv_id) && 
                                 (!showOnlyStarred || starredPapers.has(paper.arxiv_id))) {
@@ -1140,12 +1125,12 @@ for (const date in dailyOverviewsRaw) {
         }
 
         // 初始化应用
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             loadState();
             setupThemeToggle();
             setupSummaryToggle();
             setupFilter();
-            renderPapers();
+            await initializeData();
         });
     </script>
 </body>
