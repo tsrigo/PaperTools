@@ -26,7 +26,7 @@ cp .env.example .env
 
 # 3. 运行
 python papertools.py run --mode quick   # 快速测试（10篇）
-python papertools.py run                # 完整运行（1000篇）
+python papertools.py run                # 完整运行
 ```
 
 ## 常用命令
