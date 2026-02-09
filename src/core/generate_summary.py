@@ -403,6 +403,7 @@ def generate_inspiration_trace(paper_content: str, client: OpenAI, model: str, t
 {paper_content}
 
 要求：从一个宏观问题出发，逐步聚焦，展现从观察、假设到形成最终方法论的思考过程。
+特别的，关于问题，完整提取出introduction中“讲故事”（引入problem）的逻辑（不涉及具体的方法等）。并从中显式总结"研究问题"（一个问句）
 语言简洁明了，突出逻辑链条。
 请聚焦于思想的演进脉络，而不是方法的具体实现细节。
 """

@@ -42,7 +42,7 @@ MAX_PAPERS_TOTAL_FULL = 10000
 MAX_PAPERS_TOTAL_DEFAULT = 100
 
 # 多线程配置
-MAX_WORKERS = 2  # 降低线程数，避免并发过多导致524错误
+MAX_WORKERS = 1  # 降低线程数，避免并发过多导致524错误
 
 # 论文筛选Prompt模板
 PAPER_FILTER_PROMPT = """你是一位顶尖的人工智能研究员，正在为一项关于 "LLM智能体及其演化"（LLM-based Agents and their Evolution） 的研究课题筛选前沿论文。请你严格、精准地判断这篇论文是否符合我的研究范围。
