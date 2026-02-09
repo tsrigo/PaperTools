@@ -57,6 +57,57 @@ python src/core/serve_webpages.py --port 8080
 
 </details>
 
+
+## 配置说明
+项目的核心配置集中在两个文件：`.env` 用于存放敏感信息和环境特定变量，`src/utils/config.py` 用于定义程序的默认行为和参数。
+
+### 环境变量 (`.env`)
+
+在项目根目录创建一个 `.env` 文件（可从 `.env.example` 复制）来配置以下内容：
+
+```bash
+# API配置 (必需)
+OPENAI_API_KEY=your_api_key_here         # 你的大模型API密钥
+OPENAI_BASE_URL=https://api.example.com/v1 # API的访问地址
+MODEL=your_model_name                    # 使用的模型名称
+
+# Jina API配置 (可选，用于全文阅读)
+JINA_API_TOKEN=your_jina_token_here      # Jina Reader API的令牌
+```
+
+### 核心配置文件 (`src/utils/config.py`)
+
+此文件定义了流水线的各种默认行为。你可以根据自己的需求进行定制。
+
+#### 重点：定制你的论文筛选标准 (`PAPER_FILTER_PROMPT`)
+
+`PAPER_FILTER_PROMPT` 是一个Prompt模板，用于指导大语言模型判断一篇论文是否符合你的研究兴趣。
+
+#### 主要配置参数
+
+-   **API与请求相关**
+    -   `TEMPERATURE`: 模型生成内容的温度，越低结果越稳定。
+    -   `REQUEST_TIMEOUT`: API请求超时时间（秒）。
+    -   `REQUEST_DELAY`: 两次请求之间的延迟（秒），用于避免速率限制。
+
+-   **目录配置**
+    -   `ARXIV_PAPER_DIR`, `DOMAIN_PAPER_DIR`, `SUMMARY_DIR`, `WEBPAGES_DIR`: 定义了流水线各个阶段产出文件的存储目录。
+
+-   **缓存配置**
+    -   `ENABLE_CACHE`: 是否启用缓存，建议保持 `True` 以节省时间和API调用成本。
+    -   `CACHE_EXPIRY_DAYS`: 缓存的有效天数。
+
+-   **爬取与处理数量**
+    -   `CRAWL_CATEGORIES`: 默认爬取的arXiv类别。
+    -   `MAX_PAPERS_PER_CATEGORY`: 每个类别最多爬取的论文数。
+    -   `MAX_PAPERS_TOTAL_QUICK`: `quick` 模式下处理的总论文数。
+    -   `MAX_PAPERS_TOTAL_FULL`: `full` 模式下处理的总论文数。
+    -   `MAX_PAPERS_TOTAL_DEFAULT`: 直接运行 `pipeline.py` 时的默认处理数量。
+
+-   **并发控制**
+    -   `MAX_WORKERS`: 全局最大并发线程数，适用于爬取、筛选和总结等多个步骤。
+
+
 ## 🚀 部署到 GitHub Pages
 
 您可以将生成的论文网站免费发布到 GitHub Pages，方便公开访问和分享。推荐使用 Fork + GitHub Actions 的方式实现全自动部署。
@@ -88,54 +139,6 @@ python src/core/serve_webpages.py --port 8080
 ### 备选方案：手动部署
 如果您不想使用 Actions，也可以在本地生成网站后，将 `webpages` 目录的内容手动上传到任何静态网站托管服务。
 
-## 配置说明
-项目的核心配置集中在两个文件：`.env` 用于存放敏感信息和环境特定变量，`src/utils/config.py` 用于定义程序的默认行为和参数。
-
-### 环境变量 (`.env`)
-
-在项目根目录创建一个 `.env` 文件（可从 `.env.example` 复制）来配置以下内容：
-
-```bash
-# API配置 (必需)
-OPENAI_API_KEY=your_api_key_here         # 你的大模型API密钥
-OPENAI_BASE_URL=https://api.example.com/v1 # API的访问地址
-MODEL=your_model_name                    # 使用的模型名称
-
-# Jina API配置 (可选，用于全文阅读)
-JINA_API_TOKEN=your_jina_token_here      # Jina Reader API的令牌
-```
-
-### 核心配置文件 (`src/utils/config.py`)
-
-此文件定义了流水线的各种默认行为。你可以根据自己的需求进行定制。
-
-#### 主要配置参数
-
--   **API与请求相关**
-    -   `TEMPERATURE`: 模型生成内容的温度，越低结果越稳定。
-    -   `REQUEST_TIMEOUT`: API请求超时时间（秒）。
-    -   `REQUEST_DELAY`: 两次请求之间的延迟（秒），用于避免速率限制。
-
--   **目录配置**
-    -   `ARXIV_PAPER_DIR`, `DOMAIN_PAPER_DIR`, `SUMMARY_DIR`, `WEBPAGES_DIR`: 定义了流水线各个阶段产出文件的存储目录。
-
--   **缓存配置**
-    -   `ENABLE_CACHE`: 是否启用缓存，建议保持 `True` 以节省时间和API调用成本。
-    -   `CACHE_EXPIRY_DAYS`: 缓存的有效天数。
-
--   **爬取与处理数量**
-    -   `CRAWL_CATEGORIES`: 默认爬取的arXiv类别。
-    -   `MAX_PAPERS_PER_CATEGORY`: 每个类别最多爬取的论文数。
-    -   `MAX_PAPERS_TOTAL_QUICK`: `quick` 模式下处理的总论文数。
-    -   `MAX_PAPERS_TOTAL_FULL`: `full` 模式下处理的总论文数。
-    -   `MAX_PAPERS_TOTAL_DEFAULT`: 直接运行 `pipeline.py` 时的默认处理数量。
-
--   **并发控制**
-    -   `MAX_WORKERS`: 全局最大并发线程数，适用于爬取、筛选和总结等多个步骤。
-
-#### 重点：定制你的论文筛选标准 (`PAPER_FILTER_PROMPT`)
-
-`PAPER_FILTER_PROMPT` 是一个Prompt模板，用于指导大语言模型判断一篇论文是否符合你的研究兴趣。
 
 ## 项目结构
 
