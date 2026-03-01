@@ -78,8 +78,12 @@ def query_llm(title: str, summary: str, client: OpenAI, model: str, temperature:
         for i, line in enumerate(lines):
             line = line.strip()
             if line.startswith('结果:') or line.startswith('结果：'):
-                result_part = line.split(':', 1)[1].strip().lower()
-                result = result_part == 'true'
+                # 处理可能存在的全角和半角冒号
+                sep = ':' if ':' in line else '：'
+                parts = line.split(sep, 1)
+                if len(parts) > 1:
+                    result_part = parts[1].strip().lower()
+                    result = result_part == 'true'
             elif line.startswith('理由:') or line.startswith('理由：'):
                 reason_index = i
                 break
@@ -87,10 +91,15 @@ def query_llm(title: str, summary: str, client: OpenAI, model: str, temperature:
         # 如果找到理由标识，获取后面的所有内容作为理由
         if reason_index >= 0:
             reason_lines = []
-            # 先获取理由行冒号后面的内容
-            first_line = lines[reason_index].split(':', 1)[1].strip()
-            if first_line:
-                reason_lines.append(first_line)
+            # 处理可能存在的全角和半角冒号
+            current_line = lines[reason_index]
+            sep = ':' if ':' in current_line else '：'
+            parts = current_line.split(sep, 1)
+            
+            if len(parts) > 1:
+                first_line = parts[1].strip()
+                if first_line:
+                    reason_lines.append(first_line)
             
             # 获取后续所有行作为理由的一部分
             for i in range(reason_index + 1, len(lines)):

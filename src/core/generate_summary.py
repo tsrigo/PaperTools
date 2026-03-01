@@ -229,85 +229,13 @@ def extract_arxiv_id_from_link(link: str) -> Optional[str]:
 
 
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
-def translate_summary(summary: str, client: OpenAI, model: str, temperature: float, paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
+def generate_combined_summary(paper_content: str, original_summary: str, client: OpenAI, model: str, temperature: float, paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> Tuple[str, str]:
     """
-    翻译英文摘要为中文
-    
-    Args:
-        summary: 英文摘要
-        client: OpenAI客户端
-        model: 使用的模型
-        temperature: 生成温度
-        paper_title: 论文标题（用于缓存）
-        cache_manager: 缓存管理器
-    
-    Returns:
-        中文翻译
-    """
-    # 尝试从缓存获取
-    if cache_manager and ENABLE_CACHE:
-        cache_key = f"translation_{paper_title}_{summary[:100]}"
-        cached_translation = cache_manager.get_summary_cache(cache_key, summary)
-        if cached_translation:
-            # print(f"📋 使用缓存的翻译: {paper_title[:50]}...")
-            return cached_translation
-
-    # 构建翻译prompt
-    prompt = f"""请将以下英文学术论文摘要翻译成中文，要求：
-
-1. 保持学术性和准确性
-2. 专业术语保持英文原文，用括号标注中文解释
-3. 语言流畅自然，符合中文学术表达习惯
-4. 保持原文的逻辑结构和重点
-
-英文摘要：
-{summary}
-
-请提供中文翻译："""
-
-    try:
-        response = client.chat.completions.create(
-            model=model,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "你是一个专业的学术论文翻译助手，擅长将英文学术论文摘要准确翻译成中文。"
-                },
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
-            temperature=temperature,
-            stream=True  # 使用流式响应避免524超时
-        )
-        # 收集流式响应
-        translation = ""
-        for chunk in response:
-            if chunk.choices and len(chunk.choices) > 0:
-                delta = chunk.choices[0].delta
-                if delta and delta.content:
-                    translation += delta.content
-        
-        # 保存到缓存
-        if cache_manager and ENABLE_CACHE:
-            cache_key = f"translation_{paper_title}_{summary[:100]}"
-            cache_manager.set_summary_cache(cache_key, summary, translation)
-        
-        return translation
-        
-    except Exception as e:
-        print(f"❌ 翻译摘要时出错: {e}")
-        return "翻译失败"
-
-
-@retry_on_openai_error(max_retries=6, backoff_factor=2.0)
-def generate_summary(paper_content: str, client: OpenAI, model: str, temperature: float, paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
-    """
-    使用大模型生成论文总结，支持缓存
+    使用大模型同时生成论文总结和摘要翻译
     
     Args:
         paper_content: 论文完整内容
+        original_summary: 原始英文摘要
         client: OpenAI客户端
         model: 使用的模型
         temperature: 生成温度
@@ -315,63 +243,75 @@ def generate_summary(paper_content: str, client: OpenAI, model: str, temperature
         cache_manager: 缓存管理器
     
     Returns:
-        生成的总结
+        tuple: (生成的总结, 摘要翻译)
     """
     # 尝试从缓存获取
     if cache_manager and ENABLE_CACHE:
-        cached_summary = cache_manager.get_summary_cache(paper_title, paper_content)
-        if cached_summary:
-            # print(f"📋 使用缓存的总结: {paper_title[:50]}...")
-            return cached_summary
-    # 构建prompt
-    prompt = f"""请根据以下论文内容，生成一个专业的学术总结。
+        cache_key = f"combined_summary_{paper_title}"
+        cached_data = cache_manager.get_summary_cache(cache_key, paper_content + original_summary)
+        if cached_data and "|||" in cached_data:
+            summary, translation = cached_data.split("|||", 1)
+            return summary.strip(), translation.strip()
+
+    prompt = f"""请根据以下论文内容和原始摘要，完成两个任务：
+1. 生成一个专业的中文学术总结。
+2. 将原始英文摘要翻译成高质量的中文。
 
 论文内容:
-{paper_content}
+{paper_content[:50000]} 
 
-请按照以下格式生成总结，使用中文回复：
+原始摘要:
+{original_summary}
 
-本文旨在 [解决什么问题或实现什么目标]。针对 [特定的输入、数据或场景]，我们提出了一种 [描述核心方法]，并在 [某数据集、benchmark、实验环境] 上通过 [具体评估指标] 验证了其有效性。
+请按照以下格式返回，中间用 "|||" 分隔：
+[总结内容]
+|||
+[翻译内容]
 
-要求：
-1. 总结应当简洁明了，突出核心贡献
-2. 使用中文表述，专业术语保持英文
-3. 重点关注方法创新和实验验证
-4. 控制在200字以内"""
+总结要求：
+1. 突出核心贡献、方法创新和实验验证。
+2. 控制在200字以内。
+3. 专业术语保持英文。
+
+翻译要求：
+1. 保持学术性和准确性，语言流畅自然。
+2. 专业术语保持英文原文，用括号标注中文解释。"""
 
     try:
         response = client.chat.completions.create(
             model=model,
             messages=[
-                {
-                    "role": "system", 
-                    "content": "你是一个专业的学术论文总结助手，能够准确理解论文内容并生成高质量的中文总结。"
-                },
-                {
-                    "role": "user", 
-                    "content": prompt
-                }
+                {"role": "system", "content": "你是一个专业的学术论文助手，擅长总结和翻译科研论文。"},
+                {"role": "user", "content": prompt}
             ],
             temperature=temperature,
-            stream=True  # 使用流式响应避免524超时
+            stream=True
         )
-        # 收集流式响应
-        summary = ""
+        result = ""
         for chunk in response:
             if chunk.choices and len(chunk.choices) > 0:
                 delta = chunk.choices[0].delta
                 if delta and delta.content:
-                    summary += delta.content
+                    result += delta.content
         
+        if "|||" in result:
+            summary, translation = result.split("|||", 1)
+            summary = summary.strip()
+            translation = translation.strip()
+        else:
+            summary = result.strip()
+            translation = "翻译失败"
+
         # 保存到缓存
         if cache_manager and ENABLE_CACHE:
-            cache_manager.set_summary_cache(paper_title, paper_content, summary)
+            cache_key = f"combined_summary_{paper_title}"
+            cache_manager.set_summary_cache(cache_key, paper_content + original_summary, f"{summary}|||{translation}")
         
-        return summary
+        return summary, translation
         
     except Exception as e:
-        print(f"❌ 生成总结时出错: {e}")
-        return "总结生成失败"
+        print(f"❌ 生成总结和翻译时出错: {e}")
+        return "总结生成失败", "翻译失败"
 
 
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
@@ -398,12 +338,13 @@ def generate_inspiration_trace(paper_content: str, client: OpenAI, model: str, t
             return cached_trace
     
     # 构建prompt
-    prompt = f"""请基于以下学术论文内容，系统性地推演作者提出其核心方法的逻辑链，目标就是还原作者产出这篇文章的思考过程。
+    prompt = f"""请基于以下学术论文内容，系统性地推演作者提出其核心方法的逻辑链，目标就是还原作者产出这篇文章的思考过程（重思路，轻方法）。
 
 {paper_content}
 
-要求：从一个宏观问题出发，逐步聚焦，展现从观察、假设到形成最终方法论的思考过程。
-特别的，关于问题，完整提取出introduction中“讲故事”（引入problem）的逻辑（不涉及具体的方法等）。并从中显式总结"研究问题"（一个问句）
+要求：首先完整提取出introduction中“讲故事”（引入problem）的逻辑（不涉及具体的方法等）然后，压缩成一个有序列表。最后一点需要是"研究问题"（一个问句）。
+从这个研究问题出发，逐步聚焦，展现从观察、假设到形成最终方法论的思考过程。
+
 语言简洁明了，突出逻辑链条。
 请聚焦于思想的演进脉络，而不是方法的具体实现细节。
 """
@@ -442,123 +383,6 @@ def generate_inspiration_trace(paper_content: str, client: OpenAI, model: str, t
     except Exception as e:
         print(f"❌ 生成灵感溯源失败: {e}")
         return "生成灵感溯源时发生错误"
-
-
-@retry_on_openai_error(max_retries=6, backoff_factor=2.0)
-def generate_research_insights(paper_content: str, client: OpenAI, model: str, temperature: float, paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
-    """
-    生成研究洞察：核心贡献 + 研究动机 + 设计亮点（合并为1次API调用）
-    """
-    if cache_manager and ENABLE_CACHE:
-        cache_key = f"research_insights_{paper_title}"
-        cached = cache_manager.get_summary_cache(cache_key, paper_content)
-        if cached:
-            return cached
-
-    prompt = f"""请基于以下学术论文内容，进行深度分析。
-
-{paper_content}
-
-请按以下格式输出：
-
-## 一、核心贡献
-1. [第一个核心贡献，突出技术创新点]
-2. [第二个核心贡献，如有]
-3. [第三个核心贡献，如有]
-
-## 二、研究动机
-**问题背景：** [研究的出发点是什么，要解决什么问题]
-**关键洞察：** [是什么观察或发现引导作者想出了核心设计]
-
-## 三、设计亮点
-**技术亮点：** [2-3个值得借鉴的技术设计]
-**可迁移设计：** [哪些设计可以迁移到其他问题]
-
-要求：语言精炼，使用中文，专业术语保持英文"""
-
-    try:
-        response = client.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": "你是一个学术论文分析专家，擅长提炼论文的核心贡献、研究动机和设计亮点。"},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=temperature,
-            stream=True  # 使用流式响应避免524超时
-        )
-        # 收集流式响应
-        result = ""
-        for chunk in response:
-            if chunk.choices and len(chunk.choices) > 0:
-                delta = chunk.choices[0].delta
-                if delta and delta.content:
-                    result += delta.content
-
-        if cache_manager and ENABLE_CACHE:
-            cache_manager.set_summary_cache(cache_key, paper_content, result)
-
-        return result
-    except Exception as e:
-        print(f"❌ 生成研究洞察失败: {e}")
-        return "研究洞察分析生成失败"
-
-
-@retry_on_openai_error(max_retries=6, backoff_factor=2.0)
-def generate_critical_evaluation(paper_content: str, client: OpenAI, model: str, temperature: float, paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
-    """
-    生成批判性评估：批判性分析 + 潜力评估（合并为1次API调用）
-    """
-    if cache_manager and ENABLE_CACHE:
-        cache_key = f"critical_evaluation_{paper_title}"
-        cached = cache_manager.get_summary_cache(cache_key, paper_content)
-        if cached:
-            return cached
-
-    prompt = f"""请基于以下学术论文内容，进行批判性评估。
-
-{paper_content}
-
-请按以下格式输出：
-
-## 一、批判性分析
-**假设合理性：** [核心假设是否合理，有无隐含假设]
-**实验充分性：** [实验设计、数据集、baseline对比是否充分]
-**方法局限性：** [局限性和适用场景限制]
-**改进方向：** [可能的改进思路]
-
-## 二、潜力评估
-**研究前景：** ⭐⭐⭐⭐⭐ (1-5星) [简要说明]
-**应用价值：** ⭐⭐⭐⭐⭐ (1-5星) [简要说明]
-**可拓展性：** ⭐⭐⭐⭐⭐ (1-5星) [简要说明]
-**综合评价：** [2-3句话总结]
-
-要求：保持客观建设性，使用中文，专业术语保持英文"""
-
-    try:
-        response = client.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": "你是一个资深学术审稿人，擅长对论文进行客观、建设性的批判性分析和潜力评估。"},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=temperature,
-            stream=True  # 使用流式响应避免524超时
-        )
-        # 收集流式响应
-        result = ""
-        for chunk in response:
-            if chunk.choices and len(chunk.choices) > 0:
-                delta = chunk.choices[0].delta
-                if delta and delta.content:
-                    result += delta.content
-
-        if cache_manager and ENABLE_CACHE:
-            cache_manager.set_summary_cache(cache_key, paper_content, result)
-
-        return result
-    except Exception as e:
-        print(f"❌ 生成批判性评估失败: {e}")
-        return "批判性评估生成失败"
 
 
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
@@ -777,37 +601,29 @@ def main():
             cached_summary = None
             cached_translation = None
             cached_inspiration = None
-            cached_research_insights = None
-            cached_critical_evaluation = None
 
             if cache_manager and ENABLE_CACHE:
                 # 先用论文链接作为键检查是否有缓存的内容
                 paper_content_cache = cache_manager.get_paper_cache(paper_link)
                 if paper_content_cache and paper_content_cache.get('data', {}).get('content'):
                     cached_paper_content = paper_content_cache['data']['content']
-                    # 检查是否有对应的总结缓存
-                    cached_summary = cache_manager.get_summary_cache(paper_title, cached_paper_content)
+                    # 检查是否有对应的联合总结缓存
+                    cache_key = f"combined_summary_{paper_title}"
+                    cached_combined = cache_manager.get_summary_cache(cache_key, cached_paper_content + original_summary)
+                    if cached_combined and "|||" in cached_combined:
+                        cached_summary, cached_translation = cached_combined.split("|||", 1)
+                        cached_summary = cached_summary.strip()
+                        cached_translation = cached_translation.strip()
+                    
                     # 检查灵感溯源缓存
                     inspiration_cache_key = f"inspiration_{paper_title}"
                     cached_inspiration = cache_manager.get_summary_cache(inspiration_cache_key, cached_paper_content)
-                    # 检查研究洞察缓存
-                    research_insights_key = f"research_insights_{paper_title}"
-                    cached_research_insights = cache_manager.get_summary_cache(research_insights_key, cached_paper_content)
-                    # 检查批判性评估缓存
-                    critical_evaluation_key = f"critical_evaluation_{paper_title}"
-                    cached_critical_evaluation = cache_manager.get_summary_cache(critical_evaluation_key, cached_paper_content)
-
-                    if original_summary:
-                        cache_key = f"translation_{paper_title}_{original_summary[:100]}"
-                        cached_translation = cache_manager.get_summary_cache(cache_key, original_summary)
 
                     # 如果都有缓存，直接返回
-                    if cached_summary and cached_inspiration and cached_research_insights and cached_critical_evaluation and (not original_summary or cached_translation):
+                    if cached_summary and cached_inspiration:
                         paper_copy = paper.copy()
                         paper_copy['summary2'] = cached_summary
                         paper_copy['inspiration_trace'] = cached_inspiration
-                        paper_copy['research_insights'] = cached_research_insights
-                        paper_copy['critical_evaluation'] = cached_critical_evaluation
                         paper_copy['summary_translation'] = cached_translation or "无需翻译"
                         paper_copy['summary_generated_time'] = time.strftime('%Y-%m-%d %H:%M:%S')
                         paper_copy['summary_model'] = args.model
@@ -821,7 +637,6 @@ def main():
                 paper_cache = cache_manager.get_paper_cache(paper_link)
                 if paper_cache and paper_cache.get('data', {}).get('content'):
                     paper_content = paper_cache['data']['content']
-                    # print(f"📋 使用缓存的论文内容: {paper_title[:50]}...")
             
             # 如果缓存中没有内容，才从jina.ai获取
             if not paper_content:
@@ -830,11 +645,11 @@ def main():
                     return 'failed', index, paper, f"❌ 无法获取论文内容: {paper_title}"
             
             # 检查内容长度并截断
-            if len(paper_content) > 200000:
-                paper_content = paper_content[:200000] + "\n\n[内容已截断...]"
+            if len(paper_content) > 100000:
+                paper_content = paper_content[:100000] + "\n\n[内容已截断...]"
             
-            # 生成总结（这里会再次检查缓存）
-            summary = generate_summary(paper_content, client, args.model, args.temperature, paper.get('title', ''), cache_manager)
+            # 生成联合总结和翻译
+            summary, summary_translation = generate_combined_summary(paper_content, original_summary, client, args.model, args.temperature, paper.get('title', ''), cache_manager)
             
             # 生成灵感溯源分析
             inspiration_trace = ""
@@ -843,38 +658,11 @@ def main():
             except Exception as e:
                 print(f"⚠️ 生成灵感溯源失败 {paper_title[:30]}: {e}")
                 inspiration_trace = "灵感溯源分析生成失败"
-
-            # 生成研究洞察（核心贡献+动机+设计亮点）
-            research_insights = ""
-            try:
-                research_insights = generate_research_insights(paper_content, client, args.model, args.temperature, paper.get('title', ''), cache_manager)
-            except Exception as e:
-                print(f"⚠️ 生成研究洞察失败 {paper_title[:30]}: {e}")
-                research_insights = "研究洞察分析生成失败"
-
-            # 生成批判性评估（批判性分析+潜力评估）
-            critical_evaluation = ""
-            try:
-                critical_evaluation = generate_critical_evaluation(paper_content, client, args.model, args.temperature, paper.get('title', ''), cache_manager)
-            except Exception as e:
-                print(f"⚠️ 生成批判性评估失败 {paper_title[:30]}: {e}")
-                critical_evaluation = "批判性评估生成失败"
-            
-            # 翻译原始摘要（这里也会检查缓存）
-            summary_translation = ""
-            if original_summary:
-                try:
-                    summary_translation = translate_summary(original_summary, client, args.model, args.temperature, paper.get('title', ''), cache_manager)
-                except Exception as e:
-                    print(f"⚠️ 翻译摘要失败 {paper_title[:30]}: {e}")
-                    summary_translation = "翻译失败"
             
             # 添加总结到论文数据中
             paper_copy = paper.copy()
             paper_copy['summary2'] = summary
             paper_copy['inspiration_trace'] = inspiration_trace
-            paper_copy['research_insights'] = research_insights
-            paper_copy['critical_evaluation'] = critical_evaluation
             paper_copy['summary_translation'] = summary_translation
             paper_copy['summary_generated_time'] = time.strftime('%Y-%m-%d %H:%M:%S')
             paper_copy['summary_model'] = args.model
@@ -1147,31 +935,13 @@ def generate_papers_list_html(filtered_papers, output_dir):
         }}
         
         /* 灵感溯源的特殊样式 */
-        .inspiration-trace {{
+        .inspiration-trace {
             background-color: #f8d7da;
             border-left: 4px solid #dc3545;
             padding: 10px;
             margin: 15px 0;
             font-size: 0.9em;
-        }}
-
-        /* 研究洞察样式 */
-        .research-insights {{
-            background-color: #e7f3ff;
-            border-left: 4px solid #0066cc;
-            padding: 10px;
-            margin: 15px 0;
-            font-size: 0.9em;
-        }}
-
-        /* 批判性评估样式 */
-        .critical-evaluation {{
-            background-color: #fff3e0;
-            border-left: 4px solid #ff9800;
-            padding: 10px;
-            margin: 15px 0;
-            font-size: 0.9em;
-        }}
+        }
     </style>
     <script>
     // 页面所属日期（由生成器注入）
@@ -1422,26 +1192,6 @@ def generate_papers_list_html(filtered_papers, output_dir):
                 <div class="inner">
                     <div class="inspiration-trace">
                         {paper.get('inspiration_trace', '暂无灵感溯源分析')}
-                    </div>
-                </div>
-            </div>
-
-            <!-- 研究洞察 (默认折叠) -->
-            <div class="collapsible-header">研究洞察（核心贡献·动机·设计亮点）</div>
-            <div class="collapsible-content">
-                <div class="inner">
-                    <div class="research-insights">
-                        {paper.get('research_insights', '暂无研究洞察分析')}
-                    </div>
-                </div>
-            </div>
-
-            <!-- 批判性评估 (默认折叠) -->
-            <div class="collapsible-header">批判性评估（局限性·潜力）</div>
-            <div class="collapsible-content">
-                <div class="inner">
-                    <div class="critical-evaluation">
-                        {paper.get('critical_evaluation', '暂无批判性评估')}
                     </div>
                 </div>
             </div>
