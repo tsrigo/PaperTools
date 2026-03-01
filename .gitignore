@@ -77,3 +77,9 @@ CLAUDE.md
 .pre-commit-config.yaml
 pyproject.toml
 pytest.ini
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
