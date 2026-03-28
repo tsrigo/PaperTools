@@ -14,6 +14,9 @@ API_KEY = os.getenv("OPENAI_API_KEY")
 BASE_URL = os.getenv("OPENAI_BASE_URL")
 MODEL = os.getenv("MODEL")
 
+# Webhook notification (optional)
+WEBHOOK_URL = os.getenv("WEBHOOK_URL", "")
+
 # 处理参数
 TEMPERATURE = 0.1
 REQUEST_TIMEOUT = 300  # 增加到5分钟
