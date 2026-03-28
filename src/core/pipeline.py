@@ -28,16 +28,19 @@ try:
 except ImportError:
     raise ImportError("⚠️ 错误: 未找到config.py")
 
+from src.utils.notify import notify_failures, notify_pipeline_complete
+
 
 class ProgressTracker:
     """进度跟踪器"""
     
-    def __init__(self, total_steps: int = 5):
+    def __init__(self, total_steps: int = 6):
         self.total_steps = total_steps
         self.current_step = 0
         self.step_names = [
             "爬取arXiv论文",
-            "筛选相关论文", 
+            "筛选相关论文",
+            "论文聚类",
             "生成论文总结",
             "生成统一页面",
             "启动本地服务器"
@@ -204,8 +207,9 @@ def main():
     parser.add_argument('--skip-filter', action='store_true', help='跳过筛选步骤')
     parser.add_argument('--skip-summary', action='store_true', help='跳过总结步骤')
     parser.add_argument('--skip-unified', action='store_true', help='跳过统一页面生成步骤')
+    parser.add_argument('--skip-cluster', action='store_true', help='跳过聚类步骤')
     parser.add_argument('--skip-serve', action='store_true', help='跳过启动服务器步骤')
-    parser.add_argument('--start-from', choices=['crawl', 'filter', 'summary', 'unified', 'serve'], default=None,
+    parser.add_argument('--start-from', choices=['crawl', 'filter', 'cluster', 'summary', 'unified', 'serve'], default=None,
                        help='从指定阶段开始执行，自动跳过之前的阶段')
     
     # 参数配置
@@ -231,20 +235,20 @@ def main():
     args = parser.parse_args()
 
     # 根据 --start-from 自动设置跳过标志
-    stage_order = ['crawl', 'filter', 'summary', 'unified', 'serve']
+    stage_order = ['crawl', 'filter', 'cluster', 'summary', 'unified', 'serve']
     if args.start_from:
         try:
             start_idx = stage_order.index(args.start_from)
-            # 0:crawl,1:filter,2:summary,3:unified,4:serve
             if start_idx > 0:
                 args.skip_crawl = True
             if start_idx > 1:
                 args.skip_filter = True
             if start_idx > 2:
-                args.skip_summary = True
+                args.skip_cluster = True
             if start_idx > 3:
+                args.skip_summary = True
+            if start_idx > 4:
                 args.skip_unified = True
-            # start_idx > 4 无意义
         except ValueError:
             pass
     
@@ -279,6 +283,7 @@ def main():
     # 记录处理的文件路径
     crawl_output_file = None
     filter_output_file = None
+    cluster_output_file = None
     
 
     # ============ 步骤1: 爬取论文 ============
@@ -377,15 +382,68 @@ def main():
         progress.log_with_timestamp(f"❌ 读取筛选文件失败: {e}")
         return
     
-    # ============ 步骤3: 生成论文总结 ============
-    summary_output_file = filter_output_file  # 默认使用筛选后的文件
-    
+    # ============ 步骤3: 论文聚类 ============
+    cluster_output_file = filter_output_file  # default fallback
+
+    if not args.skip_cluster:
+        progress.start_step("论文聚类")
+        cmd = [
+            sys.executable, "src/core/cluster_papers.py",
+            "--input-file", filter_output_file,
+            "--output-dir", DOMAIN_PAPER_DIR,
+            "--api-key", args.api_key,
+            "--base-url", args.base_url,
+            "--model", args.model,
+            "--temperature", str(args.temperature),
+        ]
+        if run_command(cmd, "论文聚类", progress):
+            # Find the cluster output file
+            from glob import glob
+            cluster_files = glob(os.path.join(DOMAIN_PAPER_DIR, "clustered_*.json"))
+            if args.date:
+                date_cluster_files = [f for f in cluster_files if args.date in f]
+                if date_cluster_files:
+                    cluster_output_file = max(date_cluster_files, key=os.path.getmtime)
+                elif cluster_files:
+                    cluster_output_file = max(cluster_files, key=os.path.getmtime)
+            elif cluster_files:
+                cluster_output_file = max(cluster_files, key=os.path.getmtime)
+
+            if cluster_output_file and os.path.exists(cluster_output_file):
+                progress.log_with_timestamp(f"📄 聚类输出文件: {cluster_output_file}")
+            else:
+                cluster_output_file = filter_output_file
+                progress.log_with_timestamp("⚠️ 未找到聚类输出文件，使用筛选文件继续")
+            progress.complete_step("论文聚类", True)
+        else:
+            progress.complete_step("论文聚类", False)
+            progress.log_with_timestamp("⚠️ 聚类失败，使用筛选文件继续")
+            cluster_output_file = filter_output_file
+            notify_failures("cluster", ["Clustering stage failed, falling back to filtered papers"])
+    else:
+        progress.skip_step("论文聚类")
+        from glob import glob
+        cluster_files = glob(os.path.join(DOMAIN_PAPER_DIR, "clustered_*.json"))
+        if args.date:
+            date_cluster_files = [f for f in cluster_files if args.date in f]
+            if date_cluster_files:
+                cluster_output_file = max(date_cluster_files, key=os.path.getmtime)
+                progress.log_with_timestamp(f"📄 使用已有的聚类文件: {cluster_output_file}")
+        elif cluster_files:
+            cluster_output_file = max(cluster_files, key=os.path.getmtime)
+            progress.log_with_timestamp(f"📄 使用已有的聚类文件: {cluster_output_file}")
+
+    progress.log_with_timestamp(f"📄 使用聚类文件: {cluster_output_file}")
+
+    # ============ 步骤4: 生成论文总结 ============
+    summary_output_file = cluster_output_file  # 默认使用聚类后的文件
+
     if not args.skip_summary:
         progress.start_step("生成论文总结")
-        
+
         cmd = [
             sys.executable, "src/core/generate_summary.py",
-            "--input-file", filter_output_file,
+            "--input-file", cluster_output_file,
             "--output-dir", SUMMARY_DIR,
             "--api-key", args.api_key,
             "--base-url", args.base_url,
@@ -397,16 +455,16 @@ def main():
         
         if run_command(cmd, "生成论文总结", progress):
             # 查找生成的带有summary2的JSON文件
-            filter_filename = os.path.basename(filter_output_file)
-            name_without_ext = os.path.splitext(filter_filename)[0]
+            cluster_filename = os.path.basename(cluster_output_file)
+            name_without_ext = os.path.splitext(cluster_filename)[0]
             summary_output_filename = f"{name_without_ext}_with_summary2.json"
             summary_output_file = os.path.join(SUMMARY_DIR, summary_output_filename)
-            
+
             if os.path.exists(summary_output_file):
                 progress.log_with_timestamp(f"📄 使用带总结的文件: {summary_output_file}")
             else:
-                progress.log_with_timestamp("⚠️ 未找到带总结的JSON文件，使用原始筛选文件")
-                summary_output_file = filter_output_file
+                progress.log_with_timestamp("⚠️ 未找到带总结的JSON文件，使用原始聚类文件")
+                summary_output_file = cluster_output_file
             progress.complete_step("生成论文总结", True)
         else:
             progress.complete_step("生成论文总结", False)
@@ -415,9 +473,9 @@ def main():
         progress.skip_step("生成论文总结")
         # 如果跳过总结，尝试使用已存在的带summary2文件
         try:
-            if filter_output_file:
-                filter_filename = os.path.basename(filter_output_file)
-                name_without_ext = os.path.splitext(filter_filename)[0]
+            if cluster_output_file:
+                cluster_filename = os.path.basename(cluster_output_file)
+                name_without_ext = os.path.splitext(cluster_filename)[0]
                 candidate = os.path.join(SUMMARY_DIR, f"{name_without_ext}_with_summary2.json")
                 if os.path.exists(candidate):
                     summary_output_file = candidate
@@ -437,7 +495,7 @@ def main():
         except Exception as e:
             progress.log_with_timestamp(f"⚠️ 检查已有总结文件时出错: {e}")
     
-    # ============ 步骤4: 生成统一页面 ============
+    # ============ 步骤5: 生成统一页面 ============
     if not args.skip_unified:
         progress.start_step("生成统一页面")
         
@@ -469,7 +527,7 @@ def main():
     else:
         progress.skip_step("生成统一页面")
     
-    # ============ 步骤5: 启动本地服务器 ============
+    # ============ 步骤6: 启动本地服务器 ============
     if not args.skip_serve:
         progress.start_step("启动本地服务器")
         
@@ -535,6 +593,22 @@ def main():
     print("\n🌐 手动启动服务器:")
     progress.log_with_timestamp(f"  python src/core/serve_webpages.py --webpages-dir {WEBPAGES_DIR}")
     
+    # Send pipeline completion notification
+    try:
+        stats = {}
+        if crawl_output_file and os.path.exists(crawl_output_file):
+            with open(crawl_output_file, 'r', encoding='utf-8') as f:
+                stats['crawled'] = len(json.load(f))
+        if filter_output_file and os.path.exists(filter_output_file):
+            with open(filter_output_file, 'r', encoding='utf-8') as f:
+                stats['filtered'] = len(json.load(f))
+        if cluster_output_file and os.path.exists(cluster_output_file):
+            with open(cluster_output_file, 'r', encoding='utf-8') as f:
+                stats['clustered'] = len(json.load(f))
+        notify_pipeline_complete(stats)
+    except Exception:
+        pass  # notification is best-effort
+
     print("\n✨ 流水线执行完成！")
 
 

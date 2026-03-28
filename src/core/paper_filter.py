@@ -26,6 +26,9 @@ try:
 except ImportError:
     raise ImportError("⚠️ 错误: 未找到config.py")
 
+from src.utils.retry import retry_with_backoff
+
+@retry_with_backoff(max_retries=3, initial_delay=2.0)
 def query_llm(title: str, summary: str, client: OpenAI, model: str, temperature: float = TEMPERATURE) -> Tuple[bool, str]:
     """
     使用大模型判断论文是否符合筛选条件
