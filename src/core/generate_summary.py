@@ -339,7 +339,7 @@ def _llm_generate(client, model: str, temperature: float, system: str, prompt: s
 
 
 # ---------------------------------------------------------------------------
-# Prompt 1: Introduction Logic (English)
+# Prompt 1: Introduction Logic (Chinese)
 # ---------------------------------------------------------------------------
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
 def generate_intro_logic(paper_content: str, client: OpenAI, model: str, temperature: float,
@@ -347,11 +347,11 @@ def generate_intro_logic(paper_content: str, client: OpenAI, model: str, tempera
     prompt = f"""{paper_content}
 
 ---
-Completely extract the logic of "telling stories" (introducing problems) in the introduction (not involving specific methods, etc.) and then compress it into an ordered list. The final point required is the "research question" (a question). Use plain text for your answers, do not use any bold or italics."""
+请完整提取 Introduction 部分"讲故事"（引出问题）的逻辑链条（不涉及具体方法等），然后压缩成一个有序列表。最后一点要求是"研究问题"（一个问句）。用纯文本回答，不要使用任何加粗或斜体。专业术语保持英文。"""
 
     return _llm_generate(client, model, temperature,
-                         "You are a precise academic reading assistant. Answer in English only.",
-                         prompt, f"intro_logic_{paper_title}", paper_content, cache_manager)
+                         "你是一个精确的学术阅读助手。用中文回复，专业术语保持英文。",
+                         prompt, f"intro_logic_zh_{paper_title}", paper_content, cache_manager)
 
 
 # ---------------------------------------------------------------------------
@@ -363,15 +363,21 @@ def generate_core_insight(paper_content: str, client: OpenAI, model: str, temper
     prompt = f"""{paper_content}
 
 ---
-针对 Introduction 中提出的问题，这篇论文找到了什么痛点或"切入角度"？这个切入点最终如何塑造了论文的方法论？我想理解这颗"种子"——最初的出发点。请用论文原文（英文）的直接引用作为证据来支撑你的回答。
+每篇论文的诞生都有一个关键的"灵光一闪"——不是它要解决什么问题（那只是背景），而是作者想到了一个独特的切入角度或洞察，这个洞察直接催生了整篇论文的方法论。
 
-我还想了解论文解决问题的历程——具体来说，作者在尝试实现最初想法时是否遇到了挑战？他们如何克服了这些挑战？在解决过程中是否又产生了新问题，形成了一个试错循环？
+请回答以下问题：
 
-请用中文回复，专业术语保持英文。论文原文引用保持英文原文。"""
+1. **关键洞察（The Seed Insight）**：作者意识到了什么别人没意识到的东西？这个认知上的突破是什么？用一句话概括，然后展开解释。请引用论文原文（英文）作为证据。
+
+2. **从洞察到方法的桥梁**：这个洞察是如何直接导向论文提出的具体方法的？中间的推理链条是什么？
+
+3. **试错历程**：作者在实现这个想法的过程中，是否遇到了意料之外的困难？他们如何调整了最初的方案？是否产生了新的子问题需要解决？
+
+用中文回复，专业术语保持英文，引用论文原文时保持英文。"""
 
     return _llm_generate(client, model, temperature,
-                         "你是一位资深研究分析师。用中文回复，专业术语保持英文，引用论文原文时保持英文。",
-                         prompt, f"core_insight_zh_{paper_title}", paper_content, cache_manager)
+                         "你是一位善于发现研究灵感源头的学术分析师。你的任务是找到论文背后那个关键的intellectual insight——不是问题本身，而是解决问题的那个独特视角。",
+                         prompt, f"core_insight_v2_{paper_title}", paper_content, cache_manager)
 
 
 # ---------------------------------------------------------------------------
@@ -983,8 +989,8 @@ def main():
                 if paper_content_cache and paper_content_cache.get('data', {}).get('content'):
                     cached_paper_content = paper_content_cache['data']['content']
                     # 检查prompt的缓存
-                    cached_intro_logic = cache_manager.get_summary_cache(f"intro_logic_{paper_title}", cached_paper_content)
-                    cached_core_insight = cache_manager.get_summary_cache(f"core_insight_zh_{paper_title}", cached_paper_content)
+                    cached_intro_logic = cache_manager.get_summary_cache(f"intro_logic_zh_{paper_title}", cached_paper_content)
+                    cached_core_insight = cache_manager.get_summary_cache(f"core_insight_v2_{paper_title}", cached_paper_content)
                     cached_methodology = cache_manager.get_summary_cache(f"methodology_v2_{paper_title}", cached_paper_content)
                     cached_additional_insights = cache_manager.get_summary_cache(f"additional_insights_{paper_title}", cached_paper_content)
 
