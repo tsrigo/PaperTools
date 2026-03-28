@@ -28,6 +28,7 @@ from src.utils.config import (  # noqa: E402
     ENABLE_CACHE, JINA_MAX_REQUESTS_PER_MINUTE, JINA_MAX_RETRIES, JINA_BACKOFF_FACTOR
 )
 from src.utils.cache_manager import CacheManager  # noqa: E402
+from src.utils.notify import notify_failures  # noqa: E402
 
 
 class JinaRateLimiter:
@@ -917,6 +918,11 @@ def main():
                 failed += 1
                 continue
     
+    # Notify about failures
+    if failed > 0:
+        failure_msgs = [f"{failed} papers failed during summary generation"]
+        notify_failures("summarize", failure_msgs)
+
     # 保存更新后的JSON文件
     if processed > 0:
         # 生成输出文件名

@@ -26,6 +26,7 @@ if project_root not in sys.path:
 try:
     from src.utils.config import ARXIV_PAPER_DIR, CRAWL_CATEGORIES, MAX_PAPERS_PER_CATEGORY, MAX_WORKERS, DATE_FORMAT
     from src.utils.cache_manager import CacheManager
+    from src.utils.retry import retry_with_backoff
 except ImportError:
     # 如果没有config文件，使用默认配置
     ARXIV_PAPER_DIR = "arxiv_paper"
@@ -157,6 +158,14 @@ def scrape_papers_for_date_range(category: str, max_papers: int, delay: float, s
     return all_papers, all_paper_ids
 
 
+@retry_with_backoff(max_retries=3, initial_delay=2.0)
+def _fetch_url(url: str) -> requests.Response:
+    """Fetch URL with retry."""
+    response = requests.get(url, timeout=30)
+    response.raise_for_status()
+    return response
+
+
 def scrape_papers(category: str, max_papers: int = MAX_PAPERS_PER_CATEGORY, delay: float = 1.0, target_date: str = None, use_cache: bool = True) -> Tuple[List[Dict], Set[str]]:
     """
     爬取指定类别的论文
@@ -193,13 +202,9 @@ def scrape_papers(category: str, max_papers: int = MAX_PAPERS_PER_CATEGORY, dela
     paper_ids = set()
     
     try:
-        response = requests.get(url, timeout=30)
-        response.raise_for_status()
-        
-        # 添加延时避免请求过快
+        response = _fetch_url(url)
         time.sleep(delay)
-        
-    except requests.RequestException as e:
+    except Exception as e:
         print(f"❌ 获取 {category} 失败: {e}")
         return papers, paper_ids
 
