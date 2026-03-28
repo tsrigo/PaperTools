@@ -17,7 +17,7 @@ except ImportError:
     WEBPAGES_DIR = "webpages"
 
 # 分页配置
-INITIAL_DAYS = 14  # 初始加载的天数
+INITIAL_DAYS = 3  # 初始加载的天数（其余通过"加载更多"按需加载）
 LOAD_MORE_DAYS = 7  # 每次"加载更多"加载的天数
 
 def load_paper_data() -> Dict[str, List[Dict[str, Any]]]:
@@ -93,16 +93,22 @@ def organize_papers_by_cluster(papers: List[Dict]) -> List[Dict]:
 
 
 def collect_all_tags(papers: List[Dict]) -> List[Dict]:
-    """Collect all unique tags with counts for the tag filter bar."""
-    tag_counts = {}
+    """Collect all unique tags with counts for the tag filter bar.
+    arXiv category tags (cs.XX) are listed first, then cluster tags."""
+    arxiv_counts = {}
+    cluster_counts = {}
     for paper in papers:
-        tags = paper.get('tags', [])
+        tags = paper.get('tags', []) or []
         cluster = paper.get('cluster', 'Other')
-        tag_counts[cluster] = tag_counts.get(cluster, 0) + 1
+        cluster_counts[cluster] = cluster_counts.get(cluster, 0) + 1
         for tag in tags:
-            tag_counts[tag] = tag_counts.get(tag, 0) + 1
+            arxiv_counts[tag] = arxiv_counts.get(tag, 0) + 1
     result = []
-    for tag, count in sorted(tag_counts.items(), key=lambda x: (-x[1], x[0])):
+    # arXiv categories first (e.g. cs.AI, cs.LG)
+    for tag, count in sorted(arxiv_counts.items(), key=lambda x: (-x[1], x[0])):
+        result.append({"name": tag, "count": count})
+    # Then cluster names
+    for tag, count in sorted(cluster_counts.items(), key=lambda x: (-x[1], x[0])):
         result.append({"name": tag, "count": count})
     return result
 
@@ -179,9 +185,11 @@ def generate_complete_html() -> str:
                 js_data += f'                    "cluster": "{escape_js_string(paper.get("cluster", "Other"))}",\n'
                 js_data += f'                    "tags": {tags_json},\n'
                 js_data += f'                    "filter_reason": "{escape_js_string(paper.get("filter_reason", ""))}",\n'
-                js_data += f'                    "summary2": "{escape_js_string(paper.get("summary2", ""))}",\n'
-                js_data += f'                    "summary_translation": "{escape_js_string(paper.get("summary_translation", ""))}",\n'
-                js_data += f'                    "inspiration_trace": "{escape_js_string(paper.get("inspiration_trace", ""))}"\n'
+                js_data += f'                    "intro_logic": "{escape_js_string(paper.get("intro_logic", ""))}",\n'
+                js_data += f'                    "core_insight": "{escape_js_string(paper.get("core_insight", ""))}",\n'
+                js_data += f'                    "methodology": "{escape_js_string(paper.get("methodology", ""))}",\n'
+                js_data += f'                    "additional_insights": "{escape_js_string(paper.get("additional_insights", ""))}",\n'
+                js_data += f'                    "summary_translation": "{escape_js_string(paper.get("summary_translation", ""))}"\n'
                 js_data += "                },\n"
 
             js_data += "            ]\n"
@@ -318,12 +326,10 @@ def generate_complete_html() -> str:
             transform: rotate(90deg);
         }}
         .collapsible-content {{
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
+            display: none;
         }}
         .collapsible-content.open {{
-            max-height: none;
+            display: block;
         }}
         .collapsible-content .inner {{
             padding-top: 8px;
@@ -433,8 +439,8 @@ def generate_complete_html() -> str:
 
         /* Tag filter button styles */
         .tag-btn {{
-            padding: 2px 10px;
-            font-size: 0.75rem;
+            padding: 4px 14px;
+            font-size: 0.875rem;
             border-radius: 9999px;
             border: 1px solid #cbd5e1;
             background: transparent;
@@ -747,7 +753,6 @@ def generate_complete_html() -> str:
             const paperEl = document.querySelector(`[data-arxiv-id="${{arxivId}}"]`);
             if (!paperEl) return;
             const listItem = paperEl.closest('li');
-            const clusterContent = paperEl.closest('.cluster-content');
             const sectionEl = paperEl.closest('section[data-date-section]');
 
             // 添加删除动画效果
@@ -767,7 +772,6 @@ def generate_complete_html() -> str:
                     paperEl.remove();
                 }}
 
-                updateClusterView(clusterContent);
                 updateDateSection(sectionEl);
                 updateStats();
 
@@ -843,34 +847,6 @@ def generate_complete_html() -> str:
             document.getElementById('total-papers').textContent = visiblePapers;
         }}
 
-        function updateClusterView(clusterContent) {{
-            if (!clusterContent) return;
-            const listEl = clusterContent.querySelector('ul');
-            if (!listEl) return;
-
-            const paperItems = listEl.querySelectorAll('.paper-item').length;
-            let placeholder = listEl.querySelector('.empty-cluster-placeholder');
-
-            if (paperItems === 0) {{
-                if (!placeholder) {{
-                    placeholder = document.createElement('li');
-                    placeholder.className = 'empty-cluster-placeholder pl-7 text-sm text-slate-500 dark:text-slate-400';
-                    placeholder.textContent = '此分类下暂无论文。';
-                    listEl.appendChild(placeholder);
-                }}
-            }} else if (placeholder) {{
-                placeholder.remove();
-            }}
-
-            const toggle = document.querySelector(`.cluster-toggle[data-target="${{clusterContent.id}}"]`);
-            if (toggle) {{
-                const countBadge = toggle.querySelector('.cluster-count');
-                if (countBadge) {{
-                    countBadge.textContent = paperItems;
-                }}
-            }}
-        }}
-
         function updateDateSection(sectionEl) {{
             if (!sectionEl) return;
             const totalPapers = sectionEl.querySelectorAll('.paper-item').length;
@@ -897,44 +873,51 @@ def generate_complete_html() -> str:
             }} else {{
                 header.classList.add('open');
                 content.classList.add('open');
+                // Lazy render: parse markdown only when first opened
+                lazyRenderMarkdown(content);
             }}
         }}
 
-        // 渲染所有 Markdown 内容
-        function renderAllMarkdown() {{
-            // 配置 marked 选项
-            if (typeof marked !== 'undefined') {{
-                marked.setOptions({{
-                    breaks: true,
-                    gfm: true,
-                    headerIds: false,
-                    mangle: false
-                }});
+        // Map of element ID -> raw markdown content for lazy rendering
+        const mdRawContent = {{}};
 
-                // 遍历所有灵感溯源的容器并渲染 Markdown
-                for (const date in allPapers) {{
-                    const clusters = allPapers[date];
-                    clusters.forEach(cluster => {{
-                        if (cluster.papers) {{
-                            cluster.papers.forEach(paper => {{
-                                if (paper.inspiration_trace) {{
-                                    const elementId = `inspiration-${{paper.arxiv_id}}`;
-                                    const element = document.getElementById(elementId);
-                                    if (element) {{
-                                        try {{
-                                            element.innerHTML = marked.parse(paper.inspiration_trace);
-                                        }} catch (e) {{
-                                            console.error('Markdown 渲染失败:', e);
-                                            // 如果渲染失败，使用纯文本显示
-                                            element.textContent = paper.inspiration_trace;
-                                        }}
-                                    }}
-                                }}
-                            }});
-                        }}
-                    }});
+        // Register raw markdown content for lazy rendering
+        function registerMarkdown(id, content) {{
+            if (id && content) mdRawContent[id] = content;
+        }}
+
+        // Parse markdown for all unrendered .markdown-content elements inside a container
+        function lazyRenderMarkdown(container) {{
+            if (typeof marked === 'undefined') return;
+            container.querySelectorAll('.markdown-content:not([data-rendered])').forEach(el => {{
+                const raw = mdRawContent[el.id];
+                if (raw) {{
+                    try {{
+                        el.innerHTML = marked.parse(raw);
+                    }} catch (e) {{
+                        el.textContent = raw;
+                    }}
+                    el.setAttribute('data-rendered', '1');
                 }}
-            }}
+            }});
+        }}
+
+        // Render markdown only for currently visible (open) sections
+        function renderVisibleMarkdown() {{
+            if (typeof marked === 'undefined') return;
+            marked.setOptions({{ breaks: true, gfm: true, headerIds: false, mangle: false }});
+            // Render open collapsible sections
+            document.querySelectorAll('.collapsible-content.open').forEach(c => lazyRenderMarkdown(c));
+            // Render overview sections (top-level, not inside collapsible)
+            document.querySelectorAll('.markdown-content:not([data-rendered])').forEach(el => {{
+                if (!el.closest('.collapsible-content')) {{
+                    const raw = mdRawContent[el.id];
+                    if (raw) {{
+                        try {{ el.innerHTML = marked.parse(raw); }} catch (e) {{ el.textContent = raw; }}
+                        el.setAttribute('data-rendered', '1');
+                    }}
+                }}
+            }});
         }}
 
         // 创建论文HTML
@@ -957,6 +940,16 @@ def generate_complete_html() -> str:
             if (!paperMatchesFilters(paper, date)) {{
                 return '';
             }}
+
+            // Register raw markdown content for lazy rendering
+            const aid = paper.arxiv_id;
+            registerMarkdown(`filter-reason-${{aid}}`, paper.filter_reason);
+            registerMarkdown(`intro-logic-${{aid}}`, paper.intro_logic);
+            registerMarkdown(`core-insight-${{aid}}`, paper.core_insight);
+            registerMarkdown(`methodology-${{aid}}`, paper.methodology);
+            registerMarkdown(`additional-insights-${{aid}}`, paper.additional_insights);
+            // summary_translation and summary are plain text, rendered directly (no markdown)
+
 
             // Build tag badges HTML
             const clusterBadge = paper.cluster ? `<span class="tag-badge">${{paper.cluster}}</span>` : '';
@@ -990,9 +983,6 @@ def generate_complete_html() -> str:
                             <span class="break-all"><strong>ArXiv ID:</strong> ${{paper.arxiv_id}}</span>
                             ${{clusterBadge}}
                             ${{tagBadges}}
-                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300 whitespace-nowrap">
-                                ${{paper.category}}
-                            </span>
                             <span class="whitespace-nowrap">${{date}}</span>
                         </div>
                         <div class="text-xs sm:text-sm text-black dark:text-white break-words">
@@ -1015,8 +1005,7 @@ def generate_complete_html() -> str:
                         <div class="collapsible-content">
                             <div class="inner">
                                 <div class="bg-blue-50/70 dark:bg-blue-950/20 border-l-3 border-blue-300 p-3 sm:p-4 rounded-r-lg">
-                                    <div class="text-xs sm:text-sm text-black dark:text-white leading-relaxed break-words">
-                                        ${{paper.filter_reason}}
+                                    <div class="text-xs sm:text-sm text-black dark:text-white leading-relaxed markdown-content break-words" id="filter-reason-${{paper.arxiv_id}}">
                                     </div>
                                 </div>
                             </div>
@@ -1024,15 +1013,59 @@ def generate_complete_html() -> str:
                     </div>
                     ` : ''}}
 
-                    ${{paper.summary2 ? `
-                    <!-- AI总结 (默认展开) -->
+                    ${{paper.intro_logic ? `
+                    <!-- Introduction逻辑 (默认展开) -->
                     <div class="mb-3 sm:mb-4">
-                        <div class="collapsible-header open text-sm sm:text-base" onclick="toggleCollapsible(this)">AI总结</div>
+                        <div class="collapsible-header open text-sm sm:text-base" onclick="toggleCollapsible(this)">Introduction 逻辑链</div>
                         <div class="collapsible-content open">
                             <div class="inner">
                                 <div class="bg-yellow-50/70 dark:bg-yellow-950/20 border-l-3 border-yellow-300 p-3 sm:p-4 rounded-r-lg">
-                                    <div class="text-xs sm:text-sm text-black dark:text-white leading-relaxed break-words">
-                                        ${{paper.summary2}}
+                                    <div class="text-xs sm:text-sm text-black dark:text-white leading-relaxed markdown-content break-words" id="intro-logic-${{paper.arxiv_id}}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    ` : ''}}
+
+                    ${{paper.core_insight ? `
+                    <!-- 核心洞察 (默认折叠) -->
+                    <div class="mb-3 sm:mb-4">
+                        <div class="collapsible-header text-sm sm:text-base" onclick="toggleCollapsible(this)">核心切入点 / Pain Point</div>
+                        <div class="collapsible-content">
+                            <div class="inner">
+                                <div class="bg-orange-50/70 dark:bg-orange-950/20 border-l-3 border-orange-300 p-3 sm:p-4 rounded-r-lg">
+                                    <div class="text-xs sm:text-sm text-black dark:text-white leading-relaxed markdown-content break-words" id="core-insight-${{paper.arxiv_id}}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    ` : ''}}
+
+                    ${{paper.methodology ? `
+                    <!-- 方法论解读 (默认折叠) -->
+                    <div class="mb-3 sm:mb-4">
+                        <div class="collapsible-header text-sm sm:text-base" onclick="toggleCollapsible(this)">方法论解读</div>
+                        <div class="collapsible-content">
+                            <div class="inner">
+                                <div class="bg-purple-50/70 dark:bg-purple-950/20 border-l-3 border-purple-300 p-3 sm:p-4 rounded-r-lg">
+                                    <div class="text-xs sm:text-sm text-black dark:text-white leading-relaxed markdown-content break-words" id="methodology-${{paper.arxiv_id}}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    ` : ''}}
+
+                    ${{paper.additional_insights ? `
+                    <!-- 额外洞察 (默认折叠) -->
+                    <div class="mb-3 sm:mb-4">
+                        <div class="collapsible-header text-sm sm:text-base" onclick="toggleCollapsible(this)">沙里淘金</div>
+                        <div class="collapsible-content">
+                            <div class="inner">
+                                <div class="bg-red-50/70 dark:bg-red-950/20 border-l-3 border-red-300 p-3 sm:p-4 rounded-r-lg">
+                                    <div class="text-xs sm:text-sm text-black dark:text-white leading-relaxed markdown-content break-words" id="additional-insights-${{paper.arxiv_id}}">
                                     </div>
                                 </div>
                             </div>
@@ -1041,37 +1074,22 @@ def generate_complete_html() -> str:
                     ` : ''}}
 
                     ${{paper.summary || paper.summary_translation ? `
-                    <!-- 原始摘要 (默认展开) -->
+                    <!-- 原始摘要 (默认折叠) -->
                     <div class="mb-3 sm:mb-4">
-                        <div class="collapsible-header open text-sm sm:text-base" onclick="toggleCollapsible(this)">原始摘要</div>
-                        <div class="collapsible-content open">
+                        <div class="collapsible-header text-sm sm:text-base" onclick="toggleCollapsible(this)">原始摘要</div>
+                        <div class="collapsible-content">
                             <div class="inner">
                                 <div class="summary-section bg-green-50/70 dark:bg-green-950/20 border-l-3 border-green-300 p-3 sm:p-4 rounded-r-lg">
                                     ${{paper.summary_translation ? `
-                                    <div class="chinese-summary text-xs sm:text-sm text-black dark:text-white leading-relaxed break-words" style="display: block;">
+                                    <div class="chinese-summary text-xs sm:text-sm text-black dark:text-white leading-relaxed break-words" style="display: block; white-space: pre-line;">
                                         ${{paper.summary_translation}}
                                     </div>
                                     ` : ''}}
                                     ${{paper.summary ? `
-                                    <div class="english-summary text-xs sm:text-sm text-black dark:text-white leading-relaxed break-words" style="display: none;">
+                                    <div class="english-summary text-xs sm:text-sm text-black dark:text-white leading-relaxed break-words" style="display: none; white-space: pre-line;">
                                         ${{paper.summary}}
                                     </div>
                                     ` : ''}}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    ` : ''}}
-
-                    ${{paper.inspiration_trace ? `
-                    <!-- 灵感溯源 (默认折叠) -->
-                    <div class="mb-3 sm:mb-4">
-                        <div class="collapsible-header text-sm sm:text-base" onclick="toggleCollapsible(this)">灵感溯源</div>
-                        <div class="collapsible-content">
-                            <div class="inner">
-                                <div class="bg-red-50/70 dark:bg-red-950/20 border-l-3 border-red-300 p-3 sm:p-4 rounded-r-lg">
-                                    <div class="text-xs sm:text-sm text-black dark:text-white leading-relaxed markdown-content break-words" id="inspiration-${{paper.arxiv_id}}">
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1098,48 +1116,22 @@ def generate_complete_html() -> str:
         }}
 
         // 创建聚类HTML
-        function createClusterHTML(cluster, date) {{
-            const clusterId = `cluster-${{date}}-${{cluster.name.replace(/\\s+/g, '-')}}`;
-            let papersHTML = '';
-            let visiblePaperCount = 0;
-
-            if (cluster.papers && cluster.papers.length > 0) {{
-                cluster.papers.forEach(paper => {{
-                    const paperHTML = createPaperHTML(paper, date);
-                    if (paperHTML) {{ // 只添加非空的论文HTML
-                        papersHTML += `
-                            <li>
-                                ${{paperHTML}}
-                            </li>
-                        `;
-                        visiblePaperCount++;
-                    }}
-                }});
-            }}
-
-            // 如果没有可见的论文，显示提示信息
-            if (visiblePaperCount === 0) {{
-                papersHTML = '<li class="empty-cluster-placeholder pl-7 text-sm text-slate-500 dark:text-slate-400">此分类下暂无论文。</li>';
-            }}
-
-            return `
-                <li class="mb-4">
-                    <div class="cluster-toggle flex items-center justify-between cursor-pointer p-2 sm:p-3 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" data-target="${{clusterId}}">
-                        <div class="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
-                            <svg class="h-4 w-4 text-slate-500 rotate-90-transition transform transition-transform flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                            </svg>
-                            <span class="font-medium text-sky-700 dark:text-sky-400 text-sm sm:text-base truncate">${{cluster.name}}</span>
-                        </div>
-                        <span class="cluster-count text-xs font-mono bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full px-2 py-0.5 ml-2 flex-shrink-0">${{visiblePaperCount}}</span>
-                    </div>
-                    <div id="${{clusterId}}" class="cluster-content hidden pl-1 pt-2 border-l border-slate-200 dark:border-slate-700 ml-2 sm:ml-4">
-                        <ul class="space-y-3 sm:space-y-4">
-                            ${{papersHTML}}
-                        </ul>
-                    </div>
-                </li>
-            `;
+        // Collect all papers from all clusters for a date into a flat list
+        function collectPapersForDate(clusters, date) {{
+            let html = '';
+            let count = 0;
+            clusters.forEach(cluster => {{
+                if (cluster.papers) {{
+                    cluster.papers.forEach(paper => {{
+                        const paperHTML = createPaperHTML(paper, date);
+                        if (paperHTML) {{
+                            html += `<li>${{paperHTML}}</li>`;
+                            count++;
+                        }}
+                    }});
+                }}
+            }});
+            return {{ html, count }};
         }}
 
         // Build tag filter bar HTML for a given date
@@ -1174,24 +1166,7 @@ def generate_complete_html() -> str:
                 const clusters = allPapers[date];
                 if (clusters.length === 0) continue;
 
-                // 计算实际可见的论文数量
-                let dateVisibleTotal = 0;
-                const clusterHTMLs = [];
-
-                clusters.forEach(cluster => {{
-                    const clusterHTML = createClusterHTML(cluster, date);
-                    clusterHTMLs.push(clusterHTML);
-                    // 计算该聚类下可见的论文数
-                    if (cluster.papers) {{
-                        cluster.papers.forEach(paper => {{
-                            if (!deletedPapers.has(paper.arxiv_id) &&
-                                (!showOnlyStarred || starredPapers.has(paper.arxiv_id)) &&
-                                paperMatchesFilters(paper, date)) {{
-                                dateVisibleTotal++;
-                            }}
-                        }});
-                    }}
-                }});
+                const {{ html: papersHTML, count: dateVisibleTotal }} = collectPapersForDate(clusters, date);
 
                 totalPapers += dateVisibleTotal;
 
@@ -1228,14 +1203,8 @@ def generate_complete_html() -> str:
 
                 html += `
                         <div class="bg-white dark:bg-slate-800/50 rounded-lg shadow-sm p-3 sm:p-4 lg:p-6">
-                            <ul class="space-y-2">
-                `;
-
-                clusterHTMLs.forEach(clusterHTML => {{
-                    html += clusterHTML;
-                }});
-
-                html += `
+                            <ul class="space-y-3 sm:space-y-4">
+                                ${{papersHTML}}
                             </ul>
                         </div>
                     </section>
@@ -1258,27 +1227,11 @@ def generate_complete_html() -> str:
             mainContent.innerHTML = html;
             updateStats();
 
-            // 渲染所有日期的 Markdown 速览内容
+            // Register overview markdown and render visible content
             for (const date in dailyOverviews) {{
-                const overview = dailyOverviews[date];
-                const elementId = `overview-${{date}}`;
-                const element = document.getElementById(elementId);
-                if (element && overview) {{
-                    try {{
-                        if (typeof marked !== 'undefined') {{
-                            element.innerHTML = marked.parse(overview);
-                        }} else {{
-                            element.textContent = overview;
-                        }}
-                    }} catch (e) {{
-                        console.error('Markdown 渲染失败:', e);
-                        element.textContent = overview;
-                    }}
-                }}
+                registerMarkdown(`overview-${{date}}`, dailyOverviews[date]);
             }}
-
-            // 渲染所有论文的 Markdown 内容
-            renderAllMarkdown();
+            renderVisibleMarkdown();
 
             // 应用当前摘要语言设置
             document.querySelectorAll('.summary-section').forEach(section => {{
@@ -1294,17 +1247,6 @@ def generate_complete_html() -> str:
                 }}
             }});
 
-            // 添加聚类展开/折叠功能
-            document.querySelectorAll('.cluster-toggle').forEach(button => {{
-                button.addEventListener('click', () => {{
-                    const targetId = button.getAttribute('data-target');
-                    const content = document.getElementById(targetId);
-                    const icon = button.querySelector('svg');
-
-                    content.classList.toggle('hidden');
-                    icon.classList.toggle('rotate-90');
-                }});
-            }});
         }}
 
         // 主题切换功能

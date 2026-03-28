@@ -6,6 +6,7 @@ Enhanced paper filtering script with improved functionality
 
 import json
 import os
+import re
 import sys
 import argparse
 from datetime import datetime
@@ -68,7 +69,7 @@ def query_llm(title: str, summary: str, client: OpenAI, model: str, temperature:
                 delta = chunk.choices[0].delta
                 if delta and delta.content:
                     response_text += delta.content
-        response_text = response_text.strip()
+        response_text = re.sub(r'<think>[\s\S]*?</think>\s*', '', response_text).strip()
 
         # 解析结果和理由
         result = False
@@ -286,7 +287,19 @@ def main():
                 
                 # 添加小延时避免API请求过快
                 time.sleep(REQUEST_DELAY / args.max_workers)  # 根据线程数调整延时
-                
+
+                # 每50篇增量保存一次，防止中断丢失数据
+                if processed_count % 50 == 0:
+                    try:
+                        _all_f = existing_filtered + filtered_papers
+                        _all_e = existing_excluded + excluded_papers
+                        with open(output_filepath, 'w', encoding='utf-8') as f:
+                            json.dump(_all_f, f, ensure_ascii=False, indent=4)
+                        with open(excluded_filepath, 'w', encoding='utf-8') as f:
+                            json.dump(_all_e, f, ensure_ascii=False, indent=4)
+                    except Exception:
+                        pass
+
             except Exception as e:
                 print(f"❌ 获取筛选结果时出错: {e}")
                 continue

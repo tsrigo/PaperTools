@@ -19,8 +19,8 @@ WEBHOOK_URL = os.getenv("WEBHOOK_URL", "")
 
 # 处理参数
 TEMPERATURE = 0.1
-REQUEST_TIMEOUT = 300  # 增加到5分钟
-REQUEST_DELAY = 5  # 增加请求间隔，避免524错误
+REQUEST_TIMEOUT = 300  # 5分钟超时
+REQUEST_DELAY = 0.8  # 请求间隔（秒），100 RPM ≈ 0.6s/req，留余量
 
 # 目录配置
 ARXIV_PAPER_DIR = "arxiv_paper"
@@ -45,7 +45,7 @@ MAX_PAPERS_TOTAL_FULL = 10000
 MAX_PAPERS_TOTAL_DEFAULT = 100
 
 # 多线程配置
-MAX_WORKERS = 1  # 降低线程数，避免并发过多导致524错误
+MAX_WORKERS = 20  # 并发线程数，100 RPM 限额下安全运行
 
 # 论文筛选Prompt模板
 PAPER_FILTER_PROMPT = """你是一位顶尖的人工智能研究员，正在为一项关于 "LLM智能体及其演化"（LLM-based Agents and their Evolution） 的研究课题筛选前沿论文。请你严格、精准地判断这篇论文是否符合我的研究范围。

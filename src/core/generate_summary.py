@@ -31,6 +31,11 @@ from src.utils.cache_manager import CacheManager  # noqa: E402
 from src.utils.notify import notify_failures  # noqa: E402
 
 
+def strip_think_tags(text: str) -> str:
+    """Remove <think>...</think> blocks from model output (reasoning tokens)."""
+    return re.sub(r'<think>[\s\S]*?</think>\s*', '', text).strip()
+
+
 class JinaRateLimiter:
     """Jina API速率限制器 - 20 RPM"""
     
@@ -290,11 +295,13 @@ def translate_summary(summary: str, client: OpenAI, model: str, temperature: flo
                 if delta and delta.content:
                     translation += delta.content
         
+        translation = strip_think_tags(translation)
+
         # 保存到缓存
         if cache_manager and ENABLE_CACHE:
             cache_key = f"translation_{paper_title}_{summary[:100]}"
             cache_manager.set_summary_cache(cache_key, summary, translation)
-        
+
         return translation
         
     except Exception as e:
@@ -303,78 +310,128 @@ def translate_summary(summary: str, client: OpenAI, model: str, temperature: flo
 
 
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
-def generate_summary(paper_content: str, client: OpenAI, model: str, temperature: float, paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
-    """
-    使用大模型生成论文总结，支持缓存
-    
-    Args:
-        paper_content: 论文完整内容
-        client: OpenAI客户端
-        model: 使用的模型
-        temperature: 生成温度
-        paper_title: 论文标题（用于缓存）
-        cache_manager: 缓存管理器
-    
-    Returns:
-        生成的总结
-    """
-    # 尝试从缓存获取
+def _llm_generate(client, model: str, temperature: float, system: str, prompt: str,
+                   cache_key: str, paper_content: str, cache_manager) -> str:
+    """Shared helper: cache lookup → LLM streaming call → strip think tags → cache save."""
     if cache_manager and ENABLE_CACHE:
-        cached_summary = cache_manager.get_summary_cache(paper_title, paper_content)
-        if cached_summary:
-            # print(f"📋 使用缓存的总结: {paper_title[:50]}...")
-            return cached_summary
-    # 构建prompt
-    prompt = f"""请根据以下论文内容，生成一个专业的学术总结。
+        cached = cache_manager.get_summary_cache(cache_key, paper_content)
+        if cached:
+            return cached
 
-论文内容:
-{paper_content}
+    response = client.chat.completions.create(
+        model=model,
+        messages=[{"role": "system", "content": system}, {"role": "user", "content": prompt}],
+        temperature=temperature,
+        stream=True,
+    )
+    result = ""
+    for chunk in response:
+        if chunk.choices and len(chunk.choices) > 0:
+            delta = chunk.choices[0].delta
+            if delta and delta.content:
+                result += delta.content
 
-请按照以下格式生成总结，使用中文回复：
+    result = strip_think_tags(result)
 
-本文旨在 [解决什么问题或实现什么目标]。针对 [特定的输入、数据或场景]，我们提出了一种 [描述核心方法]，并在 [某数据集、benchmark、实验环境] 上通过 [具体评估指标] 验证了其有效性。
-
-要求：
-1. 总结应当简洁明了，突出核心贡献
-2. 使用中文表述，专业术语保持英文
-3. 重点关注方法创新和实验验证
-4. 控制在200字以内"""
-
-    try:
-        response = client.chat.completions.create(
-            model=model,
-            messages=[
-                {
-                    "role": "system", 
-                    "content": "你是一个专业的学术论文总结助手，能够准确理解论文内容并生成高质量的中文总结。"
-                },
-                {
-                    "role": "user", 
-                    "content": prompt
-                }
-            ],
-            temperature=temperature,
-            stream=True  # 使用流式响应避免524超时
-        )
-        # 收集流式响应
-        summary = ""
-        for chunk in response:
-            if chunk.choices and len(chunk.choices) > 0:
-                delta = chunk.choices[0].delta
-                if delta and delta.content:
-                    summary += delta.content
-        
-        # 保存到缓存
-        if cache_manager and ENABLE_CACHE:
-            cache_manager.set_summary_cache(paper_title, paper_content, summary)
-        
-        return summary
-        
-    except Exception as e:
-        print(f"❌ 生成总结时出错: {e}")
-        return "总结生成失败"
+    if cache_manager and ENABLE_CACHE:
+        cache_manager.set_summary_cache(cache_key, paper_content, result)
+    return result
 
 
+# ---------------------------------------------------------------------------
+# Prompt 1: Introduction Logic (English)
+# ---------------------------------------------------------------------------
+@retry_on_openai_error(max_retries=6, backoff_factor=2.0)
+def generate_intro_logic(paper_content: str, client: OpenAI, model: str, temperature: float,
+                         paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
+    prompt = f"""{paper_content}
+
+---
+Completely extract the logic of "telling stories" (introducing problems) in the introduction (not involving specific methods, etc.) and then compress it into an ordered list. The final point required is the "research question" (a question). Use plain text for your answers, do not use any bold or italics."""
+
+    return _llm_generate(client, model, temperature,
+                         "You are a precise academic reading assistant. Answer in English only.",
+                         prompt, f"intro_logic_{paper_title}", paper_content, cache_manager)
+
+
+# ---------------------------------------------------------------------------
+# Prompt 2: Core Insight (English)
+# ---------------------------------------------------------------------------
+@retry_on_openai_error(max_retries=6, backoff_factor=2.0)
+def generate_core_insight(paper_content: str, client: OpenAI, model: str, temperature: float,
+                          paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
+    prompt = f"""{paper_content}
+
+---
+In addressing the problem outlined in the Introduction, what pain point—or "lens," if you will—did the paper identify, or from what angle did it approach the issue? This ultimately shaped the paper's methodology. I'm interested in understanding the seed or starting point. Please support your answer with direct quotes from the original paper (in English) as evidence. I'd also like to understand the paper's journey in solving the problem—specifically, whether the authors encountered any challenges while trying to implement their initial idea, how they resolved those challenges, and whether new problems arose as they worked through them, creating a cycle of trial and error."""
+
+    return _llm_generate(client, model, temperature,
+                         "You are a senior research analyst. Answer in English only.",
+                         prompt, f"core_insight_{paper_title}", paper_content, cache_manager)
+
+
+# ---------------------------------------------------------------------------
+# Prompt 3: Methodology Breakdown (Chinese)
+# ---------------------------------------------------------------------------
+@retry_on_openai_error(max_retries=6, backoff_factor=2.0)
+def generate_methodology(paper_content: str, client: OpenAI, model: str, temperature: float,
+                         paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
+    prompt = f"""{paper_content}
+
+---
+你是一个资深的学术论文解读助手。我的目标是快速、清晰且无痛地理解这篇论文的 Method（方法论）部分。
+
+请仔细阅读我提供的论文文本，并严格按照以下要求为我讲解这套方法是如何运作的：
+
+**1. 返璞归真，平铺直叙** 绝对不要使用任何比喻、拟人或类比。剥离掉所有复杂的学术术语和为了发 paper 而包装的华丽词汇。用最直白的大白话，直接说明系统或算法在宏观上到底干了什么。
+
+**2. 按照执行的逻辑顺序拆解** 按照算法或系统实际运行的先后顺序，把复杂的方法论拆解成几个清晰的阶段或步骤。请使用有序列表（第一步、第二步...）进行梳理。
+
+**3. 讲透输入、操作与输出** 在讲解每个核心步骤时，必须清晰地交代：
+
+- **输入**：系统在这一步拿到了什么数据或信息？
+- **操作**：系统对这些数据进行了什么最核心的处理？（想象你在描述一段代码的执行流程，多用动词，少用抽象名词）
+- **输出**：这一步最终得到了什么结果？
+- **目的**：做这一步的最直接原因是什么？最重要的一个因素，这些步骤的动机是什么，是为了解决introduction中提到的什么问题，或者更具体的某个痛点，亦或者是随着算法/系统的执行而出现的新问题？
+
+**4. 术语处理原则** 如果某个专有名词或缩写（RLHF、PPO 等常用词汇我是知道的）绝对绕不开，请在第一次提到它时，紧跟着用半个句子、用大白话解释清楚它在这里具体指代什么。"""
+
+    return _llm_generate(client, model, temperature,
+                         "你是一个资深的学术论文解读助手，用大白话讲解方法论。",
+                         prompt, f"methodology_{paper_title}", paper_content, cache_manager)
+
+
+# ---------------------------------------------------------------------------
+# Prompt 4: Additional Insights (Chinese)
+# ---------------------------------------------------------------------------
+@retry_on_openai_error(max_retries=6, backoff_factor=2.0)
+def generate_additional_insights(paper_content: str, client: OpenAI, model: str, temperature: float,
+                                 paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
+    prompt = f"""{paper_content}
+
+---
+请从这篇论文中提取出除核心方法之外，所有能提高我们认知的有价值内容。具体包括：
+
+1. **实验中的反直觉发现**：实验结果中有哪些出乎意料的发现？哪些看似合理的baseline反而表现不好？哪些简单的方法出奇地有效？
+
+2. **有启发性的分析或 ablation**：作者做了哪些消融实验或分析，揭示了什么之前不明显的规律？
+
+3. **对领域的新认知**：论文是否改变、修正或深化了我们对某个概念/现象的理解？
+
+4. **实用的经验性结论**：有哪些实践中可以直接拿来用的 tricks、超参数建议、或工程经验？
+
+5. **局限性中的机会**：作者承认的局限性中，哪些暗示了有价值的未来研究方向？
+
+请只输出有实质内容的条目，没有就不写。每条用1-2句话概括，附上论文中的依据。用中文回复，专业术语保持英文。"""
+
+    return _llm_generate(client, model, temperature,
+                         "你是一个善于从论文中榨取最大价值的研究助手。",
+                         prompt, f"additional_insights_{paper_title}", paper_content, cache_manager)
+
+
+# ---------------------------------------------------------------------------
+# Legacy functions kept for backward compatibility (not called by pipeline)
+# ---------------------------------------------------------------------------
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
 def generate_inspiration_trace(paper_content: str, client: OpenAI, model: str, temperature: float, paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
     """
@@ -433,11 +490,13 @@ def generate_inspiration_trace(paper_content: str, client: OpenAI, model: str, t
                 if delta and delta.content:
                     inspiration_trace += delta.content
         
+        inspiration_trace = strip_think_tags(inspiration_trace)
+
         # 保存到缓存
         if cache_manager and ENABLE_CACHE:
             cache_key = f"inspiration_{paper_title}"
             cache_manager.set_summary_cache(cache_key, paper_content, inspiration_trace)
-        
+
         return inspiration_trace
 
     except Exception as e:
@@ -494,6 +553,8 @@ def generate_research_insights(paper_content: str, client: OpenAI, model: str, t
                 delta = chunk.choices[0].delta
                 if delta and delta.content:
                     result += delta.content
+
+        result = strip_think_tags(result)
 
         if cache_manager and ENABLE_CACHE:
             cache_manager.set_summary_cache(cache_key, paper_content, result)
@@ -552,6 +613,8 @@ def generate_critical_evaluation(paper_content: str, client: OpenAI, model: str,
                 delta = chunk.choices[0].delta
                 if delta and delta.content:
                     result += delta.content
+
+        result = strip_think_tags(result)
 
         if cache_manager and ENABLE_CACHE:
             cache_manager.set_summary_cache(cache_key, paper_content, result)
@@ -766,8 +829,8 @@ def main():
         paper_title = paper.get('title', 'Untitled Paper')
         paper_link = paper.get('link', '')
         
-        # 检查是否已有summary2字段且不为空
-        if args.skip_existing and paper.get('summary2'):
+        # 检查是否已有intro_logic字段且不为空（新prompt系统的标志字段）
+        if args.skip_existing and paper.get('intro_logic'):
             return 'skipped', index, paper, f"⏭️ 跳过已有总结的论文: {paper_title[:50]}..."
         
         try:
@@ -775,40 +838,34 @@ def main():
             original_summary = paper.get('summary', '')
             
             # 检查总结缓存（使用虚拟内容先检查）
-            cached_summary = None
+            cached_intro_logic = None
+            cached_core_insight = None
+            cached_methodology = None
+            cached_additional_insights = None
             cached_translation = None
-            cached_inspiration = None
-            cached_research_insights = None
-            cached_critical_evaluation = None
 
             if cache_manager and ENABLE_CACHE:
                 # 先用论文链接作为键检查是否有缓存的内容
                 paper_content_cache = cache_manager.get_paper_cache(paper_link)
                 if paper_content_cache and paper_content_cache.get('data', {}).get('content'):
                     cached_paper_content = paper_content_cache['data']['content']
-                    # 检查是否有对应的总结缓存
-                    cached_summary = cache_manager.get_summary_cache(paper_title, cached_paper_content)
-                    # 检查灵感溯源缓存
-                    inspiration_cache_key = f"inspiration_{paper_title}"
-                    cached_inspiration = cache_manager.get_summary_cache(inspiration_cache_key, cached_paper_content)
-                    # 检查研究洞察缓存
-                    research_insights_key = f"research_insights_{paper_title}"
-                    cached_research_insights = cache_manager.get_summary_cache(research_insights_key, cached_paper_content)
-                    # 检查批判性评估缓存
-                    critical_evaluation_key = f"critical_evaluation_{paper_title}"
-                    cached_critical_evaluation = cache_manager.get_summary_cache(critical_evaluation_key, cached_paper_content)
+                    # 检查4个新prompt的缓存
+                    cached_intro_logic = cache_manager.get_summary_cache(f"intro_logic_{paper_title}", cached_paper_content)
+                    cached_core_insight = cache_manager.get_summary_cache(f"core_insight_{paper_title}", cached_paper_content)
+                    cached_methodology = cache_manager.get_summary_cache(f"methodology_{paper_title}", cached_paper_content)
+                    cached_additional_insights = cache_manager.get_summary_cache(f"additional_insights_{paper_title}", cached_paper_content)
 
                     if original_summary:
                         cache_key = f"translation_{paper_title}_{original_summary[:100]}"
                         cached_translation = cache_manager.get_summary_cache(cache_key, original_summary)
 
                     # 如果都有缓存，直接返回
-                    if cached_summary and cached_inspiration and cached_research_insights and cached_critical_evaluation and (not original_summary or cached_translation):
+                    if cached_intro_logic and cached_core_insight and cached_methodology and cached_additional_insights and (not original_summary or cached_translation):
                         paper_copy = paper.copy()
-                        paper_copy['summary2'] = cached_summary
-                        paper_copy['inspiration_trace'] = cached_inspiration
-                        paper_copy['research_insights'] = cached_research_insights
-                        paper_copy['critical_evaluation'] = cached_critical_evaluation
+                        paper_copy['intro_logic'] = cached_intro_logic
+                        paper_copy['core_insight'] = cached_core_insight
+                        paper_copy['methodology'] = cached_methodology
+                        paper_copy['additional_insights'] = cached_additional_insights
                         paper_copy['summary_translation'] = cached_translation or "无需翻译"
                         paper_copy['summary_generated_time'] = time.strftime('%Y-%m-%d %H:%M:%S')
                         paper_copy['summary_model'] = args.model
@@ -834,33 +891,35 @@ def main():
             if len(paper_content) > 200000:
                 paper_content = paper_content[:200000] + "\n\n[内容已截断...]"
             
-            # 生成总结（这里会再次检查缓存）
-            summary = generate_summary(paper_content, client, args.model, args.temperature, paper.get('title', ''), cache_manager)
-            
-            # 生成灵感溯源分析
-            inspiration_trace = ""
+            # 生成4个新prompt的内容
+            intro_logic = ""
             try:
-                inspiration_trace = generate_inspiration_trace(paper_content, client, args.model, args.temperature, paper.get('title', ''), cache_manager)
+                intro_logic = generate_intro_logic(paper_content, client, args.model, args.temperature, paper.get('title', ''), cache_manager)
             except Exception as e:
-                print(f"⚠️ 生成灵感溯源失败 {paper_title[:30]}: {e}")
-                inspiration_trace = "灵感溯源分析生成失败"
+                print(f"⚠️ 生成intro_logic失败 {paper_title[:30]}: {e}")
+                intro_logic = "Introduction logic extraction failed"
 
-            # 生成研究洞察（核心贡献+动机+设计亮点）
-            research_insights = ""
+            core_insight = ""
             try:
-                research_insights = generate_research_insights(paper_content, client, args.model, args.temperature, paper.get('title', ''), cache_manager)
+                core_insight = generate_core_insight(paper_content, client, args.model, args.temperature, paper.get('title', ''), cache_manager)
             except Exception as e:
-                print(f"⚠️ 生成研究洞察失败 {paper_title[:30]}: {e}")
-                research_insights = "研究洞察分析生成失败"
+                print(f"⚠️ 生成core_insight失败 {paper_title[:30]}: {e}")
+                core_insight = "Core insight extraction failed"
 
-            # 生成批判性评估（批判性分析+潜力评估）
-            critical_evaluation = ""
+            methodology = ""
             try:
-                critical_evaluation = generate_critical_evaluation(paper_content, client, args.model, args.temperature, paper.get('title', ''), cache_manager)
+                methodology = generate_methodology(paper_content, client, args.model, args.temperature, paper.get('title', ''), cache_manager)
             except Exception as e:
-                print(f"⚠️ 生成批判性评估失败 {paper_title[:30]}: {e}")
-                critical_evaluation = "批判性评估生成失败"
-            
+                print(f"⚠️ 生成methodology失败 {paper_title[:30]}: {e}")
+                methodology = "方法论解读生成失败"
+
+            additional_insights = ""
+            try:
+                additional_insights = generate_additional_insights(paper_content, client, args.model, args.temperature, paper.get('title', ''), cache_manager)
+            except Exception as e:
+                print(f"⚠️ 生成additional_insights失败 {paper_title[:30]}: {e}")
+                additional_insights = "额外洞察提取失败"
+
             # 翻译原始摘要（这里也会检查缓存）
             summary_translation = ""
             if original_summary:
@@ -869,13 +928,13 @@ def main():
                 except Exception as e:
                     print(f"⚠️ 翻译摘要失败 {paper_title[:30]}: {e}")
                     summary_translation = "翻译失败"
-            
+
             # 添加总结到论文数据中
             paper_copy = paper.copy()
-            paper_copy['summary2'] = summary
-            paper_copy['inspiration_trace'] = inspiration_trace
-            paper_copy['research_insights'] = research_insights
-            paper_copy['critical_evaluation'] = critical_evaluation
+            paper_copy['intro_logic'] = intro_logic
+            paper_copy['core_insight'] = core_insight
+            paper_copy['methodology'] = methodology
+            paper_copy['additional_insights'] = additional_insights
             paper_copy['summary_translation'] = summary_translation
             paper_copy['summary_generated_time'] = time.strftime('%Y-%m-%d %H:%M:%S')
             paper_copy['summary_model'] = args.model
