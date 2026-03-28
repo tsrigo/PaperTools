@@ -355,7 +355,7 @@ Completely extract the logic of "telling stories" (introducing problems) in the 
 
 
 # ---------------------------------------------------------------------------
-# Prompt 2: Core Insight (English)
+# Prompt 2: Core Insight (Chinese)
 # ---------------------------------------------------------------------------
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
 def generate_core_insight(paper_content: str, client: OpenAI, model: str, temperature: float,
@@ -363,11 +363,15 @@ def generate_core_insight(paper_content: str, client: OpenAI, model: str, temper
     prompt = f"""{paper_content}
 
 ---
-In addressing the problem outlined in the Introduction, what pain point—or "lens," if you will—did the paper identify, or from what angle did it approach the issue? This ultimately shaped the paper's methodology. I'm interested in understanding the seed or starting point. Please support your answer with direct quotes from the original paper (in English) as evidence. I'd also like to understand the paper's journey in solving the problem—specifically, whether the authors encountered any challenges while trying to implement their initial idea, how they resolved those challenges, and whether new problems arose as they worked through them, creating a cycle of trial and error."""
+针对 Introduction 中提出的问题，这篇论文找到了什么痛点或"切入角度"？这个切入点最终如何塑造了论文的方法论？我想理解这颗"种子"——最初的出发点。请用论文原文（英文）的直接引用作为证据来支撑你的回答。
+
+我还想了解论文解决问题的历程——具体来说，作者在尝试实现最初想法时是否遇到了挑战？他们如何克服了这些挑战？在解决过程中是否又产生了新问题，形成了一个试错循环？
+
+请用中文回复，专业术语保持英文。论文原文引用保持英文原文。"""
 
     return _llm_generate(client, model, temperature,
-                         "You are a senior research analyst. Answer in English only.",
-                         prompt, f"core_insight_{paper_title}", paper_content, cache_manager)
+                         "你是一位资深研究分析师。用中文回复，专业术语保持英文，引用论文原文时保持英文。",
+                         prompt, f"core_insight_zh_{paper_title}", paper_content, cache_manager)
 
 
 # ---------------------------------------------------------------------------
@@ -447,6 +451,110 @@ def generate_additional_insights(paper_content: str, client: OpenAI, model: str,
     return _llm_generate(client, model, temperature,
                          "你是一个善于从论文中榨取最大价值的研究助手。",
                          prompt, f"additional_insights_{paper_title}", paper_content, cache_manager)
+
+
+# ---------------------------------------------------------------------------
+# Prompt 5: Research Value Evaluation (Chinese)
+# ---------------------------------------------------------------------------
+@retry_on_openai_error(max_retries=6, backoff_factor=2.0)
+def generate_research_value(client: OpenAI, model: str, temperature: float,
+                            paper_title: str, arxiv_id: str, date: str,
+                            intro_logic: str, methodology: str,
+                            additional_insights: str, original_summary: str,
+                            cache_manager: Optional[CacheManager] = None) -> str:
+    """根据已有分析结果拼接输入，评估研究价值。"""
+    assembled_input = f"""## 论文基本信息
+标题：{paper_title}
+ArXiv ID：{arxiv_id}
+日期：{date}
+
+## 问题与现状
+{intro_logic}
+
+## 核心做法
+{methodology}
+
+## 主要结果与消融
+{methodology}
+
+{additional_insights}
+
+## 作者声称的贡献
+{original_summary}
+
+## 已知局限
+{additional_insights}
+
+{methodology}"""
+
+    prompt = f"""{assembled_input}
+
+---
+你是一位经验丰富的研究评审者。你的任务是客观地评估一个研究问题的价值——既不刻意吹捧，也不刻意贬低。
+
+## 校准指令（务必遵守）
+
+### 核心原则：举证责任在"好"这一边
+- 任何正面判断（"中等"或"强"）都必须附带来自输入材料的具体证据。如果你找不到具体证据，就给"弱"——不是因为它一定不好，而是因为证据不足以支撑更高的判断。
+- 反过来，负面判断（"弱"）也需要说清楚理由。不能仅仅因为"没看到证据"就判弱——要指出具体缺了什么。
+
+### 避免两种偏差
+- **好好先生偏差**：不要用"具有一定的创新性""有一定价值"之类的模糊肯定。如果你说不出具体好在哪里，那就不要给正面评价。
+- **刻意严苛偏差**：不要为了显得有判断力而强行挑刺。如果证据确实支持正面评价，就给正面评价，不需要刻意平衡。
+
+### 锚定标准
+- **强**：在这个维度上，这篇论文属于你近一年读过的同领域论文中的前 10%。你能说出一个具体的理由，让一个持怀疑态度的同行也会点头。
+- **中等**：在这个维度上，这篇论文不算突出，但也没有明显问题。它做到了"合格"，但你不会特地向别人提起它。
+- **弱**：在这个维度上，这篇论文有明显的不足，或者你根本找不到足够的证据来支撑更高的判断。
+
+### 输入材料的使用
+- 输入材料中可能包含对论文的正面解读或负面批评。将它们视为需要你独立验证的"证人证词"，而非你的结论。
+- 如果输入材料中的正面评价有具体数据或实验支撑，可以采信。如果只是定性描述（"具有重要意义"），忽略它。
+
+## 请依次从以下 7 个维度分析
+
+对每个维度，严格按以下结构输出：
+
+**正面证据**：输入材料中有哪些具体事实支持在这个维度上给出正面评价？（如果找不到，明确写"无具体证据"）
+**负面证据或缺失**：有哪些具体事实指向负面，或者缺了哪些你期望看到的信息？
+**判断**：强 / 中等 / 弱
+**理由**：2-3 句话，必须引用上面列出的具体证据。
+
+### 1. 影响力潜力（Impact）
+这个问题解决后，谁会因此改变自己的研究方式或实践方式？如果答案是"几乎没有人"，就是弱。不要被大词迷惑——问题领域重要不等于这篇论文的具体贡献重要。
+
+### 2. 不可替代性（Uniqueness）
+如果这篇论文不存在，同样的结果大概多久后会被别人独立发现？如果答案是"几个月内"，那它的增量贡献很小。
+
+### 3. 时机判断（Timing）
+这个问题现在做是不是恰到好处？太早和太晚都是问题。这个子领域是在上升期、成熟期还是衰退期？
+
+### 4. 对现有范式的审视（Challenging Conventions）
+这个研究是否在质疑领域中某个被盲目沿用的做法？还是它只是在现有框架内做增量改进？
+
+### 5. 核心洞见的清晰度（Core Insight）
+能否用一句不超过 30 字的话说清楚这个研究的核心洞见？注意区分"洞见"和"做法"。
+
+### 6. 风险与可行性（Risk vs. Feasibility）
+这个问题的技术风险在哪里？如果结果几乎是确定性的，说明缺乏真正的科学发现。
+
+### 7. 比较优势（Comparative Advantage）
+做这个研究的团队是否在这个特定交叉点上有独特优势？
+
+---
+
+## 输出格式
+
+最后给出：
+- **综合评价**：一句话判定——"值得深入关注" / "有潜力但有明显短板" / "平庸" / "不建议投入"。然后用 3-4 句话解释。
+- **最致命的弱点**：如果只能指出一个最大的问题，是什么？
+- **如果要做得更好**：最值得调整的 1-2 个方面。
+- **与 Carlini 原则的对照**：这篇论文最符合和最不符合 Carlini 哪条研究原则？各一句话。"""
+
+    # Cache key uses paper_title as proxy; the assembled_input serves as content hash
+    return _llm_generate(client, model, temperature,
+                         "你是一位经验丰富的研究评审者，客观评估研究问题的价值。",
+                         prompt, f"research_value_{paper_title}", assembled_input, cache_manager)
 
 
 # ---------------------------------------------------------------------------
@@ -862,6 +970,7 @@ def main():
             cached_core_insight = None
             cached_methodology = None
             cached_additional_insights = None
+            cached_research_value = None
             cached_translation = None
 
             if cache_manager and ENABLE_CACHE:
@@ -869,23 +978,30 @@ def main():
                 paper_content_cache = cache_manager.get_paper_cache(paper_link)
                 if paper_content_cache and paper_content_cache.get('data', {}).get('content'):
                     cached_paper_content = paper_content_cache['data']['content']
-                    # 检查4个新prompt的缓存
+                    # 检查prompt的缓存
                     cached_intro_logic = cache_manager.get_summary_cache(f"intro_logic_{paper_title}", cached_paper_content)
-                    cached_core_insight = cache_manager.get_summary_cache(f"core_insight_{paper_title}", cached_paper_content)
-                    cached_methodology = cache_manager.get_summary_cache(f"methodology_{paper_title}", cached_paper_content)
+                    cached_core_insight = cache_manager.get_summary_cache(f"core_insight_zh_{paper_title}", cached_paper_content)
+                    cached_methodology = cache_manager.get_summary_cache(f"methodology_v2_{paper_title}", cached_paper_content)
                     cached_additional_insights = cache_manager.get_summary_cache(f"additional_insights_{paper_title}", cached_paper_content)
 
                     if original_summary:
                         cache_key = f"translation_{paper_title}_{original_summary[:100]}"
                         cached_translation = cache_manager.get_summary_cache(cache_key, original_summary)
 
+                    # research_value 的缓存依赖其他字段，只有全部都有缓存时才检查
+                    if cached_intro_logic and cached_methodology and cached_additional_insights:
+                        # 拼接作为 content hash
+                        rv_content = cached_intro_logic + cached_methodology + cached_additional_insights + original_summary
+                        cached_research_value = cache_manager.get_summary_cache(f"research_value_{paper_title}", rv_content)
+
                     # 如果都有缓存，直接返回
-                    if cached_intro_logic and cached_core_insight and cached_methodology and cached_additional_insights and (not original_summary or cached_translation):
+                    if cached_intro_logic and cached_core_insight and cached_methodology and cached_additional_insights and cached_research_value and (not original_summary or cached_translation):
                         paper_copy = paper.copy()
                         paper_copy['intro_logic'] = cached_intro_logic
                         paper_copy['core_insight'] = cached_core_insight
                         paper_copy['methodology'] = cached_methodology
                         paper_copy['additional_insights'] = cached_additional_insights
+                        paper_copy['research_value'] = cached_research_value
                         paper_copy['summary_translation'] = cached_translation or "无需翻译"
                         paper_copy['summary_generated_time'] = time.strftime('%Y-%m-%d %H:%M:%S')
                         paper_copy['summary_model'] = args.model
@@ -949,12 +1065,25 @@ def main():
                     print(f"⚠️ 翻译摘要失败 {paper_title[:30]}: {e}")
                     summary_translation = "翻译失败"
 
+            # 生成研究价值评估（基于已有分析结果拼接）
+            research_value = ""
+            try:
+                research_value = generate_research_value(
+                    client, args.model, args.temperature,
+                    paper_title, paper.get('arxiv_id', ''), paper.get('date', ''),
+                    intro_logic, methodology, additional_insights, original_summary,
+                    cache_manager)
+            except Exception as e:
+                print(f"⚠️ 生成research_value失败 {paper_title[:30]}: {e}")
+                research_value = "研究价值评估生成失败"
+
             # 添加总结到论文数据中
             paper_copy = paper.copy()
             paper_copy['intro_logic'] = intro_logic
             paper_copy['core_insight'] = core_insight
             paper_copy['methodology'] = methodology
             paper_copy['additional_insights'] = additional_insights
+            paper_copy['research_value'] = research_value
             paper_copy['summary_translation'] = summary_translation
             paper_copy['summary_generated_time'] = time.strftime('%Y-%m-%d %H:%M:%S')
             paper_copy['summary_model'] = args.model

@@ -189,6 +189,7 @@ def generate_complete_html() -> str:
                 js_data += f'                    "core_insight": "{escape_js_string(paper.get("core_insight", ""))}",\n'
                 js_data += f'                    "methodology": "{escape_js_string(paper.get("methodology", ""))}",\n'
                 js_data += f'                    "additional_insights": "{escape_js_string(paper.get("additional_insights", ""))}",\n'
+                js_data += f'                    "research_value": "{escape_js_string(paper.get("research_value", ""))}",\n'
                 js_data += f'                    "summary_translation": "{escape_js_string(paper.get("summary_translation", ""))}"\n'
                 js_data += "                },\n"
 
@@ -948,6 +949,7 @@ def generate_complete_html() -> str:
             registerMarkdown(`core-insight-${{aid}}`, paper.core_insight);
             registerMarkdown(`methodology-${{aid}}`, paper.methodology);
             registerMarkdown(`additional-insights-${{aid}}`, paper.additional_insights);
+            registerMarkdown(`research-value-${{aid}}`, paper.research_value);
             // summary_translation and summary are plain text, rendered directly (no markdown)
 
 
@@ -1059,13 +1061,28 @@ def generate_complete_html() -> str:
                     ` : ''}}
 
                     ${{paper.additional_insights ? `
-                    <!-- 额外洞察 (默认折叠) -->
+                    <!-- 延伸洞察 (默认折叠) -->
                     <div class="mb-3 sm:mb-4">
-                        <div class="collapsible-header text-sm sm:text-base" onclick="toggleCollapsible(this)">沙里淘金</div>
+                        <div class="collapsible-header text-sm sm:text-base" onclick="toggleCollapsible(this)">延伸洞察</div>
                         <div class="collapsible-content">
                             <div class="inner">
                                 <div class="bg-red-50/70 dark:bg-red-950/20 border-l-3 border-red-300 p-3 sm:p-4 rounded-r-lg">
                                     <div class="text-xs sm:text-sm text-black dark:text-white leading-relaxed markdown-content break-words" id="additional-insights-${{paper.arxiv_id}}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    ` : ''}}
+
+                    ${{paper.research_value ? `
+                    <!-- 研究价值评估 (默认折叠) -->
+                    <div class="mb-3 sm:mb-4">
+                        <div class="collapsible-header text-sm sm:text-base" onclick="toggleCollapsible(this)">研究价值</div>
+                        <div class="collapsible-content">
+                            <div class="inner">
+                                <div class="bg-teal-50/70 dark:bg-teal-950/20 border-l-3 border-teal-300 p-3 sm:p-4 rounded-r-lg">
+                                    <div class="text-xs sm:text-sm text-black dark:text-white leading-relaxed markdown-content break-words" id="research-value-${{paper.arxiv_id}}">
                                     </div>
                                 </div>
                             </div>
