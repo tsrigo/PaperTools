@@ -24,23 +24,23 @@ def load_paper_data() -> Dict[str, List[Dict[str, Any]]]:
     """加载论文数据"""
     papers_by_date = {}
     summary_dir = Path(SUMMARY_DIR)
-    
-    # 查找所有的论文JSON文件
-    for json_file in summary_dir.glob("filtered_papers_*_with_summary2.json"):
+
+    for json_file in summary_dir.glob("*_with_summary2.json"):
         try:
             with open(json_file, 'r', encoding='utf-8') as f:
                 papers = json.load(f)
-            
-            # 从文件名提取日期
+
             filename = json_file.stem
             date_match = re.search(r'(\d{4}-\d{2}-\d{2})', filename)
             if date_match:
                 date = date_match.group(1)
+                if date in papers_by_date and len(papers_by_date[date]) >= len(papers):
+                    continue
                 papers_by_date[date] = papers
                 print(f"加载了 {len(papers)} 篇论文，日期: {date}")
         except Exception as e:
             print(f"加载文件 {json_file} 时出错: {e}")
-    
+
     return papers_by_date
 
 
@@ -48,13 +48,13 @@ def load_daily_overviews() -> Dict[str, str]:
     """加载每日AI论文速览"""
     overviews = {}
     summary_dir = Path(SUMMARY_DIR)
-    
+
     # 查找所有的每日速览Markdown文件
     for md_file in summary_dir.glob("daily_overview_*.md"):
         try:
             with open(md_file, 'r', encoding='utf-8') as f:
                 content = f.read()
-            
+
             # 从文件名提取日期
             filename = md_file.stem
             date_match = re.search(r'(\d{4}-\d{2}-\d{2})', filename)
@@ -64,7 +64,7 @@ def load_daily_overviews() -> Dict[str, str]:
                 print(f"加载了每日速览，日期: {date}")
         except Exception as e:
             print(f"加载每日速览文件 {md_file} 时出错: {e}")
-    
+
     return overviews
 
 def escape_js_string(text: str) -> str:
@@ -74,27 +74,40 @@ def escape_js_string(text: str) -> str:
     return text.replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n').replace('\r', '\\r').replace('\t', '\\t')
 
 
-def organize_papers_by_category(papers: List[Dict], category_names: Dict[str, str]) -> List[Dict]:
-    """将论文按分类组织"""
-    categories = {}
+def organize_papers_by_cluster(papers: List[Dict]) -> List[Dict]:
+    """将论文按聚类组织，按论文数量降序排列"""
+    clusters = {}
     for paper in papers:
-        category = paper.get('category', 'Unknown')
-        if category not in categories:
-            categories[category] = []
-        categories[category].append(paper)
-
+        cluster = paper.get('cluster', 'Other')
+        if cluster not in clusters:
+            clusters[cluster] = []
+        clusters[cluster].append(paper)
     result = []
-    for category, category_papers in sorted(categories.items()):
-        category_name = category_names.get(category) or category or 'Unknown'
+    for cluster_name, cluster_papers in sorted(clusters.items(), key=lambda x: (-len(x[1]), x[0])):
         result.append({
-            "name": category_name,
-            "count": len(category_papers),
-            "papers": category_papers
+            "name": cluster_name,
+            "count": len(cluster_papers),
+            "papers": cluster_papers
         })
     return result
 
 
-def save_date_data_files(papers_by_date: Dict, daily_overviews: Dict, category_names: Dict) -> List[str]:
+def collect_all_tags(papers: List[Dict]) -> List[Dict]:
+    """Collect all unique tags with counts for the tag filter bar."""
+    tag_counts = {}
+    for paper in papers:
+        tags = paper.get('tags', [])
+        cluster = paper.get('cluster', 'Other')
+        tag_counts[cluster] = tag_counts.get(cluster, 0) + 1
+        for tag in tags:
+            tag_counts[tag] = tag_counts.get(tag, 0) + 1
+    result = []
+    for tag, count in sorted(tag_counts.items(), key=lambda x: (-x[1], x[0])):
+        result.append({"name": tag, "count": count})
+    return result
+
+
+def save_date_data_files(papers_by_date: Dict, daily_overviews: Dict) -> List[str]:
     """将每个日期的数据保存为独立的 JSON 文件"""
     data_dir = Path(WEBPAGES_DIR) / "data"
     data_dir.mkdir(parents=True, exist_ok=True)
@@ -103,11 +116,13 @@ def save_date_data_files(papers_by_date: Dict, daily_overviews: Dict, category_n
 
     for date in all_dates:
         papers = papers_by_date[date]
-        organized = organize_papers_by_category(papers, category_names)
+        organized = organize_papers_by_cluster(papers)
+        tags = collect_all_tags(papers)
 
         date_data = {
             "date": date,
-            "categories": organized,
+            "clusters": organized,
+            "tags": tags,
             "overview": daily_overviews.get(date, "")
         }
 
@@ -134,17 +149,8 @@ def generate_complete_html() -> str:
     papers_by_date = load_paper_data()
     daily_overviews = load_daily_overviews()
 
-    # 按分类组织论文数据
-    category_names = {
-        'cs.AI': 'Artificial Intelligence',
-        'cs.CL': 'Computation and Language',
-        'cs.LG': 'Machine Learning',
-        'cs.CV': 'Computer Vision and Pattern Recognition',
-        'cs.MA': 'Multiagent Systems'
-    }
-
     # 保存所有日期的数据到独立文件
-    all_dates = save_date_data_files(papers_by_date, daily_overviews, category_names)
+    all_dates = save_date_data_files(papers_by_date, daily_overviews)
 
     # 只取最近 INITIAL_DAYS 天的数据嵌入 HTML
     initial_dates = all_dates[:INITIAL_DAYS]
@@ -153,29 +159,25 @@ def generate_complete_html() -> str:
     js_data = "const allPapers = {\n"
     for date in initial_dates:
         papers = papers_by_date.get(date, [])
-        # 按分类组织论文
-        categories = {}
-        for paper in papers:
-            category = paper.get('category', 'Unknown')
-            if category not in categories:
-                categories[category] = []
-            categories[category].append(paper)
+        organized = organize_papers_by_cluster(papers)
 
         js_data += f'    "{date}": [\n'
-        for category, category_papers in sorted(categories.items()):
-            category_name = category_names.get(category) or category or 'Unknown'
+        for cluster_info in organized:
             js_data += "        {\n"
-            js_data += f'            "name": "{escape_js_string(category_name)}",\n'
-            js_data += f'            "count": {len(category_papers)},\n'
+            js_data += f'            "name": "{escape_js_string(cluster_info["name"])}",\n'
+            js_data += f'            "count": {cluster_info["count"]},\n'
             js_data += '            "papers": [\n'
 
-            for paper in category_papers:
+            for paper in cluster_info["papers"]:
+                tags_json = json.dumps(paper.get("tags", []), ensure_ascii=False)
                 js_data += "                {\n"
                 js_data += f'                    "title": "{escape_js_string(paper.get("title", ""))}",\n'
                 js_data += f'                    "arxiv_id": "{escape_js_string(paper.get("arxiv_id", ""))}",\n'
                 js_data += f'                    "authors": "{escape_js_string(paper.get("authors", ""))}",\n'
                 js_data += f'                    "summary": "{escape_js_string(paper.get("summary", ""))}",\n'
                 js_data += f'                    "category": "{escape_js_string(paper.get("category", ""))}",\n'
+                js_data += f'                    "cluster": "{escape_js_string(paper.get("cluster", "Other"))}",\n'
+                js_data += f'                    "tags": {tags_json},\n'
                 js_data += f'                    "filter_reason": "{escape_js_string(paper.get("filter_reason", ""))}",\n'
                 js_data += f'                    "summary2": "{escape_js_string(paper.get("summary2", ""))}",\n'
                 js_data += f'                    "summary_translation": "{escape_js_string(paper.get("summary_translation", ""))}",\n'
@@ -185,6 +187,15 @@ def generate_complete_html() -> str:
             js_data += "            ]\n"
             js_data += "        },\n"
         js_data += "    ],\n"
+    js_data += "};\n\n"
+
+    # 生成 allPaperTags 数据
+    js_data += "const allPaperTags = {\n"
+    for date in initial_dates:
+        papers = papers_by_date.get(date, [])
+        tags = collect_all_tags(papers)
+        tags_json = json.dumps(tags, ensure_ascii=False)
+        js_data += f'    "{date}": {tags_json},\n'
     js_data += "};\n\n"
 
     # 添加所有可用日期列表（用于按需加载）
@@ -204,7 +215,7 @@ def generate_complete_html() -> str:
     js_data += "for (const date in dailyOverviewsRaw) {\n"
     js_data += "    dailyOverviews[date] = dailyOverviewsRaw[date];\n"
     js_data += "}\n"
-    
+
     # 完整的HTML模板
     html_template = f'''<!DOCTYPE html>
 <html lang="zh-CN">
@@ -226,26 +237,26 @@ def generate_complete_html() -> str:
         body::-webkit-scrollbar {{
             display: none;
         }}
-        
+
         /* 移动端优化 */
         @media (max-width: 640px) {{
             body {{
                 font-size: 14px;
             }}
-            
+
             /* 改善可点击区域 */
             button, a {{
                 min-height: 44px;
                 min-width: 44px;
             }}
-            
+
             /* 优化间距 */
             .container {{
                 padding-left: 12px !important;
                 padding-right: 12px !important;
             }}
         }}
-        
+
         /* 星标样式 */
         .star-button {{
             transition: color 0.2s ease-in-out;
@@ -279,7 +290,7 @@ def generate_complete_html() -> str:
         .rotate-90-transition {{
             transition: transform 0.2s ease-in-out;
         }}
-        
+
         /* 可折叠部分样式 */
         .collapsible-header {{
             cursor: pointer;
@@ -317,7 +328,7 @@ def generate_complete_html() -> str:
         .collapsible-content .inner {{
             padding-top: 8px;
         }}
-        
+
         /* Markdown 内容样式 */
         .markdown-content {{
             line-height: 1.6;
@@ -419,6 +430,41 @@ def generate_complete_html() -> str:
         .markdown-content em {{
             font-style: italic;
         }}
+
+        /* Tag filter button styles */
+        .tag-btn {{
+            padding: 2px 10px;
+            font-size: 0.75rem;
+            border-radius: 9999px;
+            border: 1px solid #cbd5e1;
+            background: transparent;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }}
+        .tag-btn:hover {{ border-color: #3b82f6; color: #3b82f6; }}
+        .tag-btn.active {{ background: #3b82f6; color: white; border-color: #3b82f6; }}
+        .dark .tag-btn {{ border-color: #475569; color: #94a3b8; }}
+        .dark .tag-btn:hover {{ border-color: #60a5fa; color: #60a5fa; }}
+        .dark .tag-btn.active {{ background: #2563eb; color: white; border-color: #2563eb; }}
+
+        /* Tag badge styles */
+        .tag-badge {{
+            display: inline-block;
+            padding: 1px 6px;
+            font-size: 0.7rem;
+            border-radius: 9999px;
+            background: #dbeafe;
+            color: #1e40af;
+            margin-right: 4px;
+        }}
+        .tag-badge.tag-arxiv {{
+            background: #e0f2fe;
+            color: #0369a1;
+        }}
+        .dark .tag-badge {{ background: #1e3a5f; color: #7dd3fc; }}
+        .dark .tag-badge.tag-arxiv {{ background: #164e63; color: #67e8f9; }}
     </style>
     <script>
         // Tailwind CSS 暗色模式配置
@@ -508,10 +554,33 @@ def generate_complete_html() -> str:
         let showChineseSummary = true; // 默认显示中文摘要
         let showOnlyStarred = false; // 筛选状态：是否只显示收藏的论文
         let isLoadingMore = false; // 是否正在加载更多
+        let activeTagFilters = {{}}; // {{date: Set of active tag names}}
 
         // 获取未加载的日期
         function getUnloadedDates() {{
             return availableDates.filter(date => !loadedDates.has(date));
+        }}
+
+        // Tag filter toggle
+        function toggleTagFilter(date, tagName) {{
+            if (!activeTagFilters[date]) activeTagFilters[date] = new Set();
+            const filters = activeTagFilters[date];
+            if (tagName === 'All') {{
+                filters.clear();
+            }} else if (filters.has(tagName)) {{
+                filters.delete(tagName);
+            }} else {{
+                filters.add(tagName);
+            }}
+            renderPapers();
+        }}
+
+        // Check if paper matches active tag filters for its date
+        function paperMatchesFilters(paper, date) {{
+            const filters = activeTagFilters[date];
+            if (!filters || filters.size === 0) return true;
+            if (filters.has(paper.cluster)) return true;
+            return (paper.tags || []).some(tag => filters.has(tag));
         }}
 
         // 加载更多日期的数据
@@ -542,7 +611,8 @@ def generate_complete_html() -> str:
                     const dateData = await response.json();
 
                     // 将数据添加到 allPapers
-                    allPapers[date] = dateData.categories;
+                    allPapers[date] = dateData.clusters;
+                    allPaperTags[date] = dateData.tags;
 
                     // 添加每日速览
                     if (dateData.overview) {{
@@ -588,7 +658,7 @@ def generate_complete_html() -> str:
             const read = localStorage.getItem('read_papers');
             const deleted = localStorage.getItem('deleted_papers');
             const summaryLang = localStorage.getItem('summary_language');
-            
+
             if (starred) starredPapers = new Set(JSON.parse(starred));
             if (read) readPapers = new Set(JSON.parse(read));
             if (deleted) deletedPapers = new Set(JSON.parse(deleted));
@@ -609,7 +679,7 @@ def generate_complete_html() -> str:
             const msgEl = document.getElementById('toast-message');
             const cdEl = document.getElementById('countdown');
             const undoBtn = document.getElementById('undo-btn');
-            
+
             msgEl.textContent = message;
             let remaining = seconds;
             cdEl.textContent = `(${{remaining}}s)`;
@@ -641,7 +711,7 @@ def generate_complete_html() -> str:
                 cleanup();
                 try {{ onUndo && onUndo(); }} catch (e) {{}}
             }};
-            
+
             undoBtn.removeEventListener('click', onUndoClick);
             undoBtn.addEventListener('click', onUndoClick);
         }}
@@ -652,9 +722,9 @@ def generate_complete_html() -> str:
             const toast = document.createElement('div');
             toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-all duration-300';
             toast.textContent = message;
-            
+
             document.body.appendChild(toast);
-            
+
             // 3秒后自动消失
             setTimeout(() => {{
                 toast.style.opacity = '0';
@@ -677,19 +747,19 @@ def generate_complete_html() -> str:
             const paperEl = document.querySelector(`[data-arxiv-id="${{arxivId}}"]`);
             if (!paperEl) return;
             const listItem = paperEl.closest('li');
-            const categoryContent = paperEl.closest('.category-content');
+            const clusterContent = paperEl.closest('.cluster-content');
             const sectionEl = paperEl.closest('section[data-date-section]');
-            
+
             // 添加删除动画效果
             paperEl.style.transition = 'all 0.3s ease-out';
             paperEl.style.transform = 'scale(0.95)';
             paperEl.style.opacity = '0.5';
-            
+
             setTimeout(() => {{
                 // 立即删除并保存状态
                 deletedPapers.add(arxivId);
                 saveState();
-                
+
                 // 移除DOM元素
                 if (listItem) {{
                     listItem.remove();
@@ -697,10 +767,10 @@ def generate_complete_html() -> str:
                     paperEl.remove();
                 }}
 
-                updateCategoryView(categoryContent);
+                updateClusterView(clusterContent);
                 updateDateSection(sectionEl);
                 updateStats();
-                
+
                 // 显示简单的删除提示
                 showSimpleToast(`已删除: ${{title}}`);
             }}, 300);
@@ -714,7 +784,7 @@ def generate_complete_html() -> str:
                 starredPapers.add(arxivId);
             }}
             saveState();
-            
+
             // 如果当前是只看收藏模式，需要重新渲染
             if (showOnlyStarred) {{
                 renderPapers();
@@ -735,7 +805,7 @@ def generate_complete_html() -> str:
         function toggleRead(arxivId) {{
             const checkbox = document.querySelector(`[data-arxiv-id="${{arxivId}}"] input[type="checkbox"]`);
             if (!checkbox) return;
-            
+
             if (checkbox.checked) {{
                 readPapers.add(arxivId);
             }} else {{
@@ -749,12 +819,12 @@ def generate_complete_html() -> str:
             showChineseSummary = !showChineseSummary;
             const toggleBtn = document.getElementById('summary-toggle');
             toggleBtn.textContent = showChineseSummary ? '中文摘要' : 'English Summary';
-            
+
             // 更新所有摘要显示
             document.querySelectorAll('.summary-section').forEach(section => {{
                 const chineseContent = section.querySelector('.chinese-summary');
                 const englishContent = section.querySelector('.english-summary');
-                
+
                 if (showChineseSummary) {{
                     if (chineseContent) chineseContent.style.display = 'block';
                     if (englishContent) englishContent.style.display = 'none';
@@ -763,7 +833,7 @@ def generate_complete_html() -> str:
                     if (englishContent) englishContent.style.display = 'block';
                 }}
             }});
-            
+
             saveState();
         }}
 
@@ -773,18 +843,18 @@ def generate_complete_html() -> str:
             document.getElementById('total-papers').textContent = visiblePapers;
         }}
 
-        function updateCategoryView(categoryContent) {{
-            if (!categoryContent) return;
-            const listEl = categoryContent.querySelector('ul');
+        function updateClusterView(clusterContent) {{
+            if (!clusterContent) return;
+            const listEl = clusterContent.querySelector('ul');
             if (!listEl) return;
 
             const paperItems = listEl.querySelectorAll('.paper-item').length;
-            let placeholder = listEl.querySelector('.empty-category-placeholder');
+            let placeholder = listEl.querySelector('.empty-cluster-placeholder');
 
             if (paperItems === 0) {{
                 if (!placeholder) {{
                     placeholder = document.createElement('li');
-                    placeholder.className = 'empty-category-placeholder pl-7 text-sm text-slate-500 dark:text-slate-400';
+                    placeholder.className = 'empty-cluster-placeholder pl-7 text-sm text-slate-500 dark:text-slate-400';
                     placeholder.textContent = '此分类下暂无论文。';
                     listEl.appendChild(placeholder);
                 }}
@@ -792,9 +862,9 @@ def generate_complete_html() -> str:
                 placeholder.remove();
             }}
 
-            const toggle = document.querySelector(`.category-toggle[data-target="${{categoryContent.id}}"]`);
+            const toggle = document.querySelector(`.cluster-toggle[data-target="${{clusterContent.id}}"]`);
             if (toggle) {{
-                const countBadge = toggle.querySelector('.category-count');
+                const countBadge = toggle.querySelector('.cluster-count');
                 if (countBadge) {{
                     countBadge.textContent = paperItems;
                 }}
@@ -820,7 +890,7 @@ def generate_complete_html() -> str:
         function toggleCollapsible(header) {{
             const content = header.nextElementSibling;
             const isOpen = header.classList.contains('open');
-            
+
             if (isOpen) {{
                 header.classList.remove('open');
                 content.classList.remove('open');
@@ -840,13 +910,13 @@ def generate_complete_html() -> str:
                     headerIds: false,
                     mangle: false
                 }});
-                
+
                 // 遍历所有灵感溯源的容器并渲染 Markdown
                 for (const date in allPapers) {{
-                    const categories = allPapers[date];
-                    categories.forEach(category => {{
-                        if (category.papers) {{
-                            category.papers.forEach(paper => {{
+                    const clusters = allPapers[date];
+                    clusters.forEach(cluster => {{
+                        if (cluster.papers) {{
+                            cluster.papers.forEach(paper => {{
                                 if (paper.inspiration_trace) {{
                                     const elementId = `inspiration-${{paper.arxiv_id}}`;
                                     const element = document.getElementById(elementId);
@@ -872,17 +942,26 @@ def generate_complete_html() -> str:
             const isStarred = starredPapers.has(paper.arxiv_id);
             const isRead = readPapers.has(paper.arxiv_id);
             const isDeleted = deletedPapers.has(paper.arxiv_id);
-            
+
             // 如果论文已被删除，直接返回空字符串，不渲染
             if (isDeleted) {{
                 return '';
             }}
-            
+
             // 如果启用了只看收藏筛选，且论文未被收藏，则不渲染
             if (showOnlyStarred && !isStarred) {{
                 return '';
             }}
-            
+
+            // Check tag filters
+            if (!paperMatchesFilters(paper, date)) {{
+                return '';
+            }}
+
+            // Build tag badges HTML
+            const clusterBadge = paper.cluster ? `<span class="tag-badge">${{paper.cluster}}</span>` : '';
+            const tagBadges = (paper.tags || []).map(tag => `<span class="tag-badge tag-arxiv">${{tag}}</span>`).join('');
+
             return `
                 <div class="paper-item bg-white dark:bg-slate-800/50 rounded-lg shadow-sm p-4 sm:p-6" data-arxiv-id="${{paper.arxiv_id}}">
                     <!-- 论文标题和操作按钮 -->
@@ -909,6 +988,8 @@ def generate_complete_html() -> str:
                     <div class="space-y-2 mb-3 sm:mb-4">
                         <div class="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
                             <span class="break-all"><strong>ArXiv ID:</strong> ${{paper.arxiv_id}}</span>
+                            ${{clusterBadge}}
+                            ${{tagBadges}}
                             <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300 whitespace-nowrap">
                                 ${{paper.category}}
                             </span>
@@ -999,15 +1080,15 @@ def generate_complete_html() -> str:
 
                     <!-- 论文链接 -->
                     <div class="flex flex-wrap gap-2">
-                        <a href="https://arxiv.org/abs/${{paper.arxiv_id}}" target="_blank" 
+                        <a href="https://arxiv.org/abs/${{paper.arxiv_id}}" target="_blank"
                            class="inline-flex items-center px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors whitespace-nowrap">
                             📄 arXiv 原文
                         </a>
-                        <a href="https://arxiv.org/pdf/${{paper.arxiv_id}}.pdf" target="_blank" 
+                        <a href="https://arxiv.org/pdf/${{paper.arxiv_id}}.pdf" target="_blank"
                            class="inline-flex items-center px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md transition-colors whitespace-nowrap">
                             📋 PDF 下载
                         </a>
-                        <a href="https://papers.cool/arxiv/${{paper.arxiv_id}}" target="_blank" 
+                        <a href="https://papers.cool/arxiv/${{paper.arxiv_id}}" target="_blank"
                            class="inline-flex items-center px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors whitespace-nowrap">
                             🔥 Cool Paper
                         </a>
@@ -1016,14 +1097,14 @@ def generate_complete_html() -> str:
             `;
         }}
 
-        // 创建分类HTML
-        function createCategoryHTML(category, date) {{
-            const categoryId = `category-${{date}}-${{category.name.replace(/\\s+/g, '-')}}`;
+        // 创建聚类HTML
+        function createClusterHTML(cluster, date) {{
+            const clusterId = `cluster-${{date}}-${{cluster.name.replace(/\\s+/g, '-')}}`;
             let papersHTML = '';
             let visiblePaperCount = 0;
-            
-            if (category.papers && category.papers.length > 0) {{
-                category.papers.forEach(paper => {{
+
+            if (cluster.papers && cluster.papers.length > 0) {{
+                cluster.papers.forEach(paper => {{
                     const paperHTML = createPaperHTML(paper, date);
                     if (paperHTML) {{ // 只添加非空的论文HTML
                         papersHTML += `
@@ -1035,24 +1116,24 @@ def generate_complete_html() -> str:
                     }}
                 }});
             }}
-            
+
             // 如果没有可见的论文，显示提示信息
             if (visiblePaperCount === 0) {{
-                papersHTML = '<li class="empty-category-placeholder pl-7 text-sm text-slate-500 dark:text-slate-400">此分类下暂无论文。</li>';
+                papersHTML = '<li class="empty-cluster-placeholder pl-7 text-sm text-slate-500 dark:text-slate-400">此分类下暂无论文。</li>';
             }}
-            
+
             return `
                 <li class="mb-4">
-                    <div class="category-toggle flex items-center justify-between cursor-pointer p-2 sm:p-3 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" data-target="${{categoryId}}">
+                    <div class="cluster-toggle flex items-center justify-between cursor-pointer p-2 sm:p-3 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" data-target="${{clusterId}}">
                         <div class="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
                             <svg class="h-4 w-4 text-slate-500 rotate-90-transition transform transition-transform flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                             </svg>
-                            <span class="font-medium text-sky-700 dark:text-sky-400 text-sm sm:text-base truncate">${{category.name}}</span>
+                            <span class="font-medium text-sky-700 dark:text-sky-400 text-sm sm:text-base truncate">${{cluster.name}}</span>
                         </div>
-                        <span class="category-count text-xs font-mono bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full px-2 py-0.5 ml-2 flex-shrink-0">${{visiblePaperCount}}</span>
+                        <span class="cluster-count text-xs font-mono bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full px-2 py-0.5 ml-2 flex-shrink-0">${{visiblePaperCount}}</span>
                     </div>
-                    <div id="${{categoryId}}" class="category-content hidden pl-1 pt-2 border-l border-slate-200 dark:border-slate-700 ml-2 sm:ml-4">
+                    <div id="${{clusterId}}" class="cluster-content hidden pl-1 pt-2 border-l border-slate-200 dark:border-slate-700 ml-2 sm:ml-4">
                         <ul class="space-y-3 sm:space-y-4">
                             ${{papersHTML}}
                         </ul>
@@ -1061,50 +1142,67 @@ def generate_complete_html() -> str:
             `;
         }}
 
+        // Build tag filter bar HTML for a given date
+        function buildTagFilterBar(date) {{
+            const tags = allPaperTags[date];
+            if (!tags || tags.length === 0) return '';
+            const filters = activeTagFilters[date] || new Set();
+            const allActive = filters.size === 0;
+            let html = '<div class="flex flex-wrap gap-1.5 mb-3">';
+            html += `<button class="tag-btn ${{allActive ? 'active' : ''}}" onclick="toggleTagFilter('${{date}}','All')">All</button>`;
+            tags.forEach(tag => {{
+                const isActive = filters.has(tag.name);
+                html += `<button class="tag-btn ${{isActive ? 'active' : ''}}" onclick="toggleTagFilter('${{date}}','${{tag.name.replace(/'/g, "\\\\'")}}')">${{tag.name}} &times;${{tag.count}}</button>`;
+            }});
+            html += '</div>';
+            return html;
+        }}
+
         // 渲染论文列表
         function renderPapers() {{
             const mainContent = document.getElementById('main-content');
             const loading = document.getElementById('loading');
-            
+
             if (loading) {{
                 loading.classList.add('hidden');
             }}
-            
+
             let html = '';
             let totalPapers = 0;
-            
+
             for (const date in allPapers) {{
-                const categories = allPapers[date];
-                if (categories.length === 0) continue;
-                
+                const clusters = allPapers[date];
+                if (clusters.length === 0) continue;
+
                 // 计算实际可见的论文数量
                 let dateVisibleTotal = 0;
-                const categoryHTMLs = [];
-                
-                categories.forEach(category => {{
-                    const categoryHTML = createCategoryHTML(category, date);
-                    categoryHTMLs.push(categoryHTML);
-                    // 计算该分类下可见的论文数
-                    if (category.papers) {{
-                        category.papers.forEach(paper => {{
-                            if (!deletedPapers.has(paper.arxiv_id) && 
-                                (!showOnlyStarred || starredPapers.has(paper.arxiv_id))) {{
+                const clusterHTMLs = [];
+
+                clusters.forEach(cluster => {{
+                    const clusterHTML = createClusterHTML(cluster, date);
+                    clusterHTMLs.push(clusterHTML);
+                    // 计算该聚类下可见的论文数
+                    if (cluster.papers) {{
+                        cluster.papers.forEach(paper => {{
+                            if (!deletedPapers.has(paper.arxiv_id) &&
+                                (!showOnlyStarred || starredPapers.has(paper.arxiv_id)) &&
+                                paperMatchesFilters(paper, date)) {{
                                 dateVisibleTotal++;
                             }}
                         }});
                     }}
                 }});
-                
+
                 totalPapers += dateVisibleTotal;
-                
+
                 // 如果该日期下没有可见论文，跳过
                 if (dateVisibleTotal === 0) continue;
-                
+
                 html += `
                     <section class="mb-6 sm:mb-8" data-date-section="${{date}}">
                         <h2 class="text-base sm:text-lg font-medium text-slate-500 dark:text-slate-400 mb-3 sm:mb-4" data-date-heading="${{date}}">${{date}} (${{dateVisibleTotal}} 篇论文)</h2>
                 `;
-                
+
                 // 添加该日期的AI论文速览（如果存在）
                 if (dailyOverviews[date]) {{
                     html += `
@@ -1124,16 +1222,19 @@ def generate_complete_html() -> str:
                         </div>
                     `;
                 }}
-                
+
+                // Add tag filter bar
+                html += buildTagFilterBar(date);
+
                 html += `
                         <div class="bg-white dark:bg-slate-800/50 rounded-lg shadow-sm p-3 sm:p-4 lg:p-6">
                             <ul class="space-y-2">
                 `;
-                
-                categoryHTMLs.forEach(categoryHTML => {{
-                    html += categoryHTML;
+
+                clusterHTMLs.forEach(clusterHTML => {{
+                    html += clusterHTML;
                 }});
-                
+
                 html += `
                             </ul>
                         </div>
@@ -1156,7 +1257,7 @@ def generate_complete_html() -> str:
 
             mainContent.innerHTML = html;
             updateStats();
-            
+
             // 渲染所有日期的 Markdown 速览内容
             for (const date in dailyOverviews) {{
                 const overview = dailyOverviews[date];
@@ -1175,15 +1276,15 @@ def generate_complete_html() -> str:
                     }}
                 }}
             }}
-            
+
             // 渲染所有论文的 Markdown 内容
             renderAllMarkdown();
-            
+
             // 应用当前摘要语言设置
             document.querySelectorAll('.summary-section').forEach(section => {{
                 const chineseContent = section.querySelector('.chinese-summary');
                 const englishContent = section.querySelector('.english-summary');
-                
+
                 if (showChineseSummary) {{
                     if (chineseContent) chineseContent.style.display = 'block';
                     if (englishContent) englishContent.style.display = 'none';
@@ -1192,14 +1293,14 @@ def generate_complete_html() -> str:
                     if (englishContent) englishContent.style.display = 'block';
                 }}
             }});
-            
-            // 添加分类展开/折叠功能
-            document.querySelectorAll('.category-toggle').forEach(button => {{
+
+            // 添加聚类展开/折叠功能
+            document.querySelectorAll('.cluster-toggle').forEach(button => {{
                 button.addEventListener('click', () => {{
                     const targetId = button.getAttribute('data-target');
                     const content = document.getElementById(targetId);
                     const icon = button.querySelector('svg');
-                    
+
                     content.classList.toggle('hidden');
                     icon.classList.toggle('rotate-90');
                 }});
@@ -1234,10 +1335,10 @@ def generate_complete_html() -> str:
         // 设置摘要语言切换功能
         function setupSummaryToggle() {{
             const summaryToggleBtn = document.getElementById('summary-toggle');
-            
+
             // 初始化按钮文本
             summaryToggleBtn.textContent = showChineseSummary ? '中文摘要' : 'English Summary';
-            
+
             summaryToggleBtn.addEventListener('click', toggleSummaryLanguage);
         }}
 
@@ -1245,19 +1346,19 @@ def generate_complete_html() -> str:
         function setupFilter() {{
             const filterStarredBtn = document.getElementById('filter-starred');
             const filterAllBtn = document.getElementById('filter-all');
-            
+
             filterStarredBtn.addEventListener('click', () => {{
                 showOnlyStarred = true;
                 updateFilterButtons();
                 renderPapers();
             }});
-            
+
             filterAllBtn.addEventListener('click', () => {{
                 showOnlyStarred = false;
                 updateFilterButtons();
                 renderPapers();
             }});
-            
+
             updateFilterButtons();
         }}
 
@@ -1265,7 +1366,7 @@ def generate_complete_html() -> str:
         function updateFilterButtons() {{
             const filterStarredBtn = document.getElementById('filter-starred');
             const filterAllBtn = document.getElementById('filter-all');
-            
+
             if (showOnlyStarred) {{
                 filterStarredBtn.className = 'px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors';
                 filterAllBtn.className = 'px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 rounded-md hover:bg-slate-200 dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition-colors';
@@ -1286,29 +1387,29 @@ def generate_complete_html() -> str:
     </script>
 </body>
 </html>'''
-    
+
     return html_template
 
 def main():
     """主函数"""
     try:
         html_content = generate_complete_html()
-        
+
         # 确保webpages目录存在
         webpages_dir = Path(WEBPAGES_DIR)
         webpages_dir.mkdir(exist_ok=True)
-        
+
         # 写入输出文件到webpages目录
         output_path = webpages_dir / "index.html"
         with open(output_path, 'w', encoding='utf-8') as f:
             f.write(html_content)
-        
+
         print(f"成功生成统一HTML页面: {output_path}")
-        
+
     except Exception as e:
         print(f"生成HTML页面时出错: {e}")
         return 1
-    
+
     return 0
 
 if __name__ == "__main__":
