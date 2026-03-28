@@ -1000,15 +1000,23 @@ def generate_complete_html() -> str:
                         </label>
                     </div>
 
-                    ${{paper.filter_reason ? `
-                    <!-- 筛选原因 (默认折叠) -->
+                    ${{paper.summary || paper.summary_translation ? `
+                    <!-- 原始摘要 (默认展开，英文优先) -->
                     <div class="mb-3 sm:mb-4">
-                        <div class="collapsible-header text-sm sm:text-base" onclick="toggleCollapsible(this)">筛选原因</div>
-                        <div class="collapsible-content">
+                        <div class="collapsible-header open text-sm sm:text-base" onclick="toggleCollapsible(this)">原始摘要</div>
+                        <div class="collapsible-content open">
                             <div class="inner">
-                                <div class="bg-blue-50/70 dark:bg-blue-950/20 border-l-3 border-blue-300 p-3 sm:p-4 rounded-r-lg">
-                                    <div class="text-xs sm:text-sm text-black dark:text-white leading-relaxed markdown-content break-words" id="filter-reason-${{paper.arxiv_id}}">
+                                <div class="summary-section bg-green-50/70 dark:bg-green-950/20 border-l-3 border-green-300 p-3 sm:p-4 rounded-r-lg">
+                                    ${{paper.summary ? `
+                                    <div class="english-summary text-xs sm:text-sm text-black dark:text-white leading-relaxed break-words" style="display: block; white-space: pre-line;">
+                                        ${{paper.summary}}
                                     </div>
+                                    ` : ''}}
+                                    ${{paper.summary_translation ? `
+                                    <div class="chinese-summary text-xs sm:text-sm text-black dark:text-white leading-relaxed break-words" style="display: none; white-space: pre-line;">
+                                        ${{paper.summary_translation}}
+                                    </div>
+                                    ` : ''}}
                                 </div>
                             </div>
                         </div>
@@ -1016,10 +1024,10 @@ def generate_complete_html() -> str:
                     ` : ''}}
 
                     ${{paper.intro_logic ? `
-                    <!-- Introduction逻辑 (默认展开) -->
+                    <!-- Introduction逻辑 (默认折叠) -->
                     <div class="mb-3 sm:mb-4">
-                        <div class="collapsible-header open text-sm sm:text-base" onclick="toggleCollapsible(this)">Introduction 逻辑链</div>
-                        <div class="collapsible-content open">
+                        <div class="collapsible-header text-sm sm:text-base" onclick="toggleCollapsible(this)">Introduction 逻辑链</div>
+                        <div class="collapsible-content">
                             <div class="inner">
                                 <div class="bg-yellow-50/70 dark:bg-yellow-950/20 border-l-3 border-yellow-300 p-3 sm:p-4 rounded-r-lg">
                                     <div class="text-xs sm:text-sm text-black dark:text-white leading-relaxed markdown-content break-words" id="intro-logic-${{paper.arxiv_id}}">
@@ -1090,23 +1098,15 @@ def generate_complete_html() -> str:
                     </div>
                     ` : ''}}
 
-                    ${{paper.summary || paper.summary_translation ? `
-                    <!-- 原始摘要 (默认折叠) -->
+                    ${{paper.filter_reason ? `
+                    <!-- 筛选原因 (默认折叠，放最后) -->
                     <div class="mb-3 sm:mb-4">
-                        <div class="collapsible-header text-sm sm:text-base" onclick="toggleCollapsible(this)">原始摘要</div>
+                        <div class="collapsible-header text-sm sm:text-base" onclick="toggleCollapsible(this)">筛选原因</div>
                         <div class="collapsible-content">
                             <div class="inner">
-                                <div class="summary-section bg-green-50/70 dark:bg-green-950/20 border-l-3 border-green-300 p-3 sm:p-4 rounded-r-lg">
-                                    ${{paper.summary_translation ? `
-                                    <div class="chinese-summary text-xs sm:text-sm text-black dark:text-white leading-relaxed break-words" style="display: block; white-space: pre-line;">
-                                        ${{paper.summary_translation}}
+                                <div class="bg-blue-50/70 dark:bg-blue-950/20 border-l-3 border-blue-300 p-3 sm:p-4 rounded-r-lg">
+                                    <div class="text-xs sm:text-sm text-black dark:text-white leading-relaxed markdown-content break-words" id="filter-reason-${{paper.arxiv_id}}">
                                     </div>
-                                    ` : ''}}
-                                    ${{paper.summary ? `
-                                    <div class="english-summary text-xs sm:text-sm text-black dark:text-white leading-relaxed break-words" style="display: none; white-space: pre-line;">
-                                        ${{paper.summary}}
-                                    </div>
-                                    ` : ''}}
                                 </div>
                             </div>
                         </div>

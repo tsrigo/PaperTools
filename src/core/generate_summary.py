@@ -771,7 +771,7 @@ def generate_daily_overview(papers: List[Dict], client: OpenAI, model: str, temp
     """
     # 尝试从缓存获取
     if cache_manager and ENABLE_CACHE:
-        cache_key = f"daily_overview_{date_str}"
+        cache_key = f"daily_overview_v2_{date_str}"
         # 使用所有论文标题的组合作为内容指纹
         content_fingerprint = "_".join([p.get('title', '')[:30] for p in papers[:10]])
         cached_overview = cache_manager.get_summary_cache(cache_key, content_fingerprint)
@@ -779,12 +779,14 @@ def generate_daily_overview(papers: List[Dict], client: OpenAI, model: str, temp
             print(f"📋 使用缓存的每日速览: {date_str}")
             return cached_overview
     
-    # 构建论文信息列表
+    # 构建论文信息列表（包含聚类信息）
     papers_info = []
     for paper in papers:
+        cluster = paper.get('cluster', 'Other')
         paper_info = f"""[{paper.get('title', 'Unknown Title')}]
 ArXiv ID: {paper.get('arxiv_id', 'Unknown')}
 [类别: {paper.get('category', 'Unknown')}]
+[聚类主题: {cluster}]
 [发布日期: {date_str}]
 {paper.get('summary', 'No summary available')}
 ---"""
@@ -814,8 +816,8 @@ ArXiv ID: {paper.get('arxiv_id', 'Unknown')}
 - 写一个简短（3-5句话）的引言段落，高度概括当天所有论文的核心研究方向和主要趋势。
 
 #### 三、 主题分类与论文速览
-- 识别主题：通读所有论文后，请识别出2-5个主要的研究主题。如果论文主题非常分散，可以创建一个名为"其他前沿研究"的类别。
-- 创建主题板块：为每个主题创建一个板块，并起一个客观，具备概括性的标题。
+- 使用聚类主题：每篇论文已标注了"聚类主题"字段，请直接使用这些主题作为分类依据，将同一聚类主题的论文归入同一板块。
+- 创建主题板块：为每个聚类主题创建一个板块。你可以在聚类主题名称基础上适当润色，使其更具可读性，但不要偏离原始主题含义。
     - 标题风格建议: 可以是"问题式"（如"LLM的记忆力能否被'外挂'增强？"）、"趋势式"（如"效率为王：推理加速新方法涌现"）、或"概念式"（如"解码黑箱：深入探究模型内部机理"）。
 - 撰写论文要点:
     - 在每个主题板块下，用**项目符号 (bullet points)** 列出相关的论文。
@@ -871,12 +873,14 @@ ArXiv ID: {paper.get('arxiv_id', 'Unknown')}
                 if delta and delta.content:
                     daily_overview += delta.content
         
+        daily_overview = strip_think_tags(daily_overview)
+
         # 保存到缓存
         if cache_manager and ENABLE_CACHE:
-            cache_key = f"daily_overview_{date_str}"
+            cache_key = f"daily_overview_v2_{date_str}"
             content_fingerprint = "_".join([p.get('title', '')[:30] for p in papers[:10]])
             cache_manager.set_summary_cache(cache_key, content_fingerprint, daily_overview)
-        
+
         return daily_overview
 
     except Exception as e:
