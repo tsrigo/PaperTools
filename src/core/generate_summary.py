@@ -783,7 +783,19 @@ def extract_affiliations(paper_content: str, authors: str, client: OpenAI, model
 ```
 
 要求：
-1. 机构名称使用英文简称（如 "MIT", "Stanford", "Google DeepMind", "THU", "PKU", "SJTU"）
+1. 机构名称**必须使用最短常见缩写**，不要写全称。例如：
+   - Massachusetts Institute of Technology → "MIT"
+   - Stanford University → "Stanford"
+   - Google DeepMind → "DeepMind"
+   - Tsinghua University → "THU"
+   - Peking University → "PKU"
+   - Shanghai Jiao Tong University → "SJTU"
+   - University of Illinois Urbana-Champaign → "UIUC"
+   - Carnegie Mellon University → "CMU"
+   - Microsoft Research → "MSR"
+   - University of Chinese Academy of Sciences → "UCAS"
+   - Chinese Academy of Sciences → "CAS"
+   - 公司名保留简短形式（如 "Amazon", "Meta", "Google"）
 2. 如果一位作者有多个机构，只写主要机构
 3. 如果某位作者的机构在论文中找不到，affiliation 写 ""
 4. 保持作者顺序与输入一致"""
