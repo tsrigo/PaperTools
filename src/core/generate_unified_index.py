@@ -1545,43 +1545,80 @@ def generate_complete_html() -> str:
             if (!tocList) return;
 
             let html = '';
-            for (const date in allPapers) {{
-                const clusters = allPapers[date];
-                if (!clusters || clusters.length === 0) continue;
-
-                // 收集该日期下的所有可见论文
+            // 遍历所有可用日期，不仅仅是已加载的
+            for (const date of availableDates) {{
+                const isLoaded = loadedDates.has(date);
                 let papers = [];
-                clusters.forEach(cluster => {{
-                    if (cluster.papers) {{
-                        cluster.papers.forEach(paper => {{
-                            if (!deletedPapers.has(paper.arxiv_id) && (!showOnlyStarred || starredPapers.has(paper.arxiv_id))) {{
-                                if (paperMatchesFilters(paper, date)) {{
-                                    papers.push(paper);
-                                }}
-                            }}
-                        }});
-                    }}
-                }});
 
-                if (papers.length === 0) continue;
+                if (isLoaded && allPapers[date]) {{
+                    const clusters = allPapers[date];
+                    clusters.forEach(cluster => {{
+                        if (cluster.papers) {{
+                            cluster.papers.forEach(paper => {{
+                                if (!deletedPapers.has(paper.arxiv_id) && (!showOnlyStarred || starredPapers.has(paper.arxiv_id))) {{
+                                    if (paperMatchesFilters(paper, date)) {{
+                                        papers.push(paper);
+                                    }}
+                                }}
+                            }});
+                        }}
+                    }});
+                }}
+
+                const countLabel = isLoaded ? papers.length : '...';
+                const dimClass = isLoaded ? '' : ' opacity-50';
 
                 html += `<div class="mb-1" data-toc-date="${{date}}">`;
-                html += `<div class="toc-date" onclick="tocToggleDate(this, '${{date}}')" data-toc-date-btn="${{date}}">`;
+                html += `<div class="toc-date${{dimClass}}" onclick="tocToggleDate(this, '${{date}}')" data-toc-date-btn="${{date}}">`;
                 html += `<span class="toc-date-arrow">▶</span>`;
                 html += `<span>${{date}}</span>`;
-                html += `<span class="text-xs text-slate-400 ml-auto">${{papers.length}}</span>`;
+                html += `<span class="text-xs text-slate-400 ml-auto">${{countLabel}}</span>`;
                 html += `</div>`;
                 html += `<div class="toc-papers" data-toc-papers="${{date}}">`;
-                papers.forEach(paper => {{
-                    const title = paper.title.length > 50 ? paper.title.substring(0, 47) + '...' : paper.title;
-                    html += `<div class="toc-paper" onclick="tocScrollToPaper('${{paper.arxiv_id}}')" data-toc-paper="${{paper.arxiv_id}}" title="${{paper.title.replace(/"/g, '&quot;')}}">${{title}}</div>`;
-                }});
+                if (isLoaded) {{
+                    papers.forEach(paper => {{
+                        const title = paper.title.length > 50 ? paper.title.substring(0, 47) + '...' : paper.title;
+                        html += `<div class="toc-paper" onclick="tocScrollToPaper('${{paper.arxiv_id}}')" data-toc-paper="${{paper.arxiv_id}}" title="${{paper.title.replace(/"/g, '&quot;')}}">${{title}}</div>`;
+                    }});
+                }} else {{
+                    html += `<div class="toc-paper opacity-50" onclick="tocLoadAndScrollToDate('${{date}}')">点击加载...</div>`;
+                }}
                 html += `</div></div>`;
             }}
             tocList.innerHTML = html;
         }}
 
+        async function tocLoadAndScrollToDate(date) {{
+            // 加载该日期之前的所有未加载日期
+            const unloaded = getUnloadedDates();
+            const idx = unloaded.indexOf(date);
+            if (idx < 0) return;
+            const datesToLoad = unloaded.slice(0, idx + 1);
+            for (const d of datesToLoad) {{
+                try {{
+                    const response = await fetch(`data/${{d}}.json`);
+                    if (response.ok) {{
+                        const dateData = await response.json();
+                        allPapers[d] = dateData.clusters || [];
+                        allPaperTags[d] = dateData.tags || [];
+                        if (dateData.overview) dailyOverviews[d] = dateData.overview;
+                        loadedDates.add(d);
+                    }}
+                }} catch (e) {{
+                    console.error(`加载 ${{d}} 失败:`, e);
+                }}
+            }}
+            renderPapers();
+            // 等待 DOM 更新后滚动
+            setTimeout(() => tocScrollToDate(date), 100);
+        }}
+
         function tocToggleDate(el, date) {{
+            const isLoaded = loadedDates.has(date);
+            if (!isLoaded) {{
+                tocLoadAndScrollToDate(date);
+                return;
+            }}
             const arrow = el.querySelector('.toc-date-arrow');
             const papers = document.querySelector(`[data-toc-papers="${{date}}"]`);
             if (papers) {{
