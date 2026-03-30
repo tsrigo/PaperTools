@@ -190,6 +190,7 @@ def generate_complete_html() -> str:
                 js_data += f'                    "methodology": "{escape_js_string(paper.get("methodology", ""))}",\n'
                 js_data += f'                    "additional_insights": "{escape_js_string(paper.get("additional_insights", ""))}",\n'
                 js_data += f'                    "research_value": "{escape_js_string(paper.get("research_value", ""))}",\n'
+                js_data += f'                    "affiliations": "{escape_js_string(paper.get("affiliations", ""))}",\n'
                 js_data += f'                    "summary_translation": "{escape_js_string(paper.get("summary_translation", ""))}"\n'
                 js_data += "                },\n"
 
@@ -472,6 +473,17 @@ def generate_complete_html() -> str:
         }}
         .dark .tag-badge {{ background: #1e3a5f; color: #7dd3fc; }}
         .dark .tag-badge.tag-arxiv {{ background: #164e63; color: #67e8f9; }}
+
+        /* 作者机构上标样式 */
+        .author-aff {{
+            vertical-align: super;
+            font-size: 0.65em;
+            color: #3b82f6;
+            margin-left: 1px;
+        }}
+        .dark .author-aff {{
+            color: #60a5fa;
+        }}
 
         /* TOC 侧边栏样式 - 固定在左侧 */
         #toc-sidebar {{
@@ -1105,6 +1117,52 @@ def generate_complete_html() -> str:
         }}
 
         // 创建论文HTML
+        function formatAuthorsWithAffiliations(authorsStr, affiliationsStr) {{
+            if (!affiliationsStr) return authorsStr;
+            try {{
+                // 解析 affiliations JSON（可能被包在 ```json ... ``` 中）
+                let jsonStr = affiliationsStr;
+                const match = jsonStr.match(/```json\s*([\s\S]*?)\s*```/);
+                if (match) jsonStr = match[1];
+                // 也尝试直接匹配 [ ... ]
+                const arrMatch = jsonStr.match(/\[[\s\S]*\]/);
+                if (arrMatch) jsonStr = arrMatch[0];
+                const affiliations = JSON.parse(jsonStr);
+                if (!Array.isArray(affiliations)) return authorsStr;
+
+                // 建立 name -> affiliation 映射
+                const affMap = {{}};
+                affiliations.forEach(a => {{
+                    if (a.name && a.affiliation) {{
+                        affMap[a.name.trim().toLowerCase()] = a.affiliation;
+                    }}
+                }});
+
+                // 拆分作者列表并添加上标
+                const authors = authorsStr.split(/,\s*/);
+                return authors.map(author => {{
+                    const key = author.trim().toLowerCase();
+                    // 尝试匹配：完全匹配或姓氏匹配
+                    let aff = affMap[key];
+                    if (!aff) {{
+                        // 尝试部分匹配
+                        for (const [name, a] of Object.entries(affMap)) {{
+                            if (key.includes(name.split(' ').pop()) && name.split(' ').pop().length > 2) {{
+                                aff = a;
+                                break;
+                            }}
+                        }}
+                    }}
+                    if (aff) {{
+                        return `${{author.trim()}}<sup class="ml-0.5 text-blue-500 dark:text-blue-400 text-xs font-normal" title="${{aff}}">${{aff}}</sup>`;
+                    }}
+                    return author.trim();
+                }}).join(', ');
+            }} catch (e) {{
+                return authorsStr;
+            }}
+        }}
+
         function createPaperHTML(paper, date) {{
             const isStarred = starredPapers.has(paper.arxiv_id);
             const isRead = readPapers.has(paper.arxiv_id);
@@ -1171,7 +1229,7 @@ def generate_complete_html() -> str:
                             <span class="whitespace-nowrap">${{date}}</span>
                         </div>
                         <div class="text-xs sm:text-sm text-black dark:text-white break-words">
-                            <strong>作者:</strong> ${{paper.authors}}
+                            <strong>作者:</strong> ${{formatAuthorsWithAffiliations(paper.authors, paper.affiliations)}}
                         </div>
                     </div>
 

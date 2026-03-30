@@ -759,6 +759,40 @@ def generate_critical_evaluation(paper_content: str, client: OpenAI, model: str,
         return "批判性评估生成失败"
 
 
+# ---------------------------------------------------------------------------
+# Affiliation Extraction
+# ---------------------------------------------------------------------------
+@retry_on_openai_error(max_retries=6, backoff_factor=2.0)
+def extract_affiliations(paper_content: str, authors: str, client: OpenAI, model: str, temperature: float,
+                         paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
+    """从论文内容中提取作者机构信息，返回 JSON 字符串。"""
+    prompt = f"""{paper_content}
+
+---
+
+上面是一篇学术论文的内容。论文作者列表为：{authors}
+
+请从论文中提取每位作者的机构（affiliation）。通常在论文的第一页或标题下方会标注每位作者所属的大学、研究机构或公司。
+
+请严格按以下 JSON 格式输出，不要输出其他内容：
+```json
+[
+  {{"name": "作者全名", "affiliation": "机构简称"}},
+  ...
+]
+```
+
+要求：
+1. 机构名称使用英文简称（如 "MIT", "Stanford", "Google DeepMind", "THU", "PKU", "SJTU"）
+2. 如果一位作者有多个机构，只写主要机构
+3. 如果某位作者的机构在论文中找不到，affiliation 写 ""
+4. 保持作者顺序与输入一致"""
+
+    system = "你是一个学术信息提取助手。请精确提取作者机构信息，只输出 JSON，不要输出其他内容。"
+    return _llm_generate(client, model, temperature, system,
+                         prompt, f"affiliations_{paper_title}", paper_content, cache_manager)
+
+
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
 def generate_daily_overview(papers: List[Dict], client: OpenAI, model: str, temperature: float, date_str: str = "", cache_manager: Optional[CacheManager] = None) -> str:
     """
@@ -1004,6 +1038,9 @@ def main():
                         rv_content = cached_intro_logic + cached_methodology + cached_additional_insights + original_summary
                         cached_research_value = cache_manager.get_summary_cache(f"research_value_{paper_title}", rv_content)
 
+                    # affiliations 缓存
+                    cached_affiliations = cache_manager.get_summary_cache(f"affiliations_{paper_title}", cached_paper_content)
+
                     # 如果都有缓存，直接返回
                     if cached_intro_logic and cached_core_insight and cached_methodology and cached_additional_insights and cached_research_value and (not original_summary or cached_translation):
                         paper_copy = paper.copy()
@@ -1012,6 +1049,7 @@ def main():
                         paper_copy['methodology'] = cached_methodology
                         paper_copy['additional_insights'] = cached_additional_insights
                         paper_copy['research_value'] = cached_research_value
+                        paper_copy['affiliations'] = cached_affiliations or ""
                         paper_copy['summary_translation'] = cached_translation or "无需翻译"
                         paper_copy['summary_generated_time'] = time.strftime('%Y-%m-%d %H:%M:%S')
                         paper_copy['summary_model'] = args.model
@@ -1087,6 +1125,13 @@ def main():
                 print(f"⚠️ 生成research_value失败 {paper_title[:30]}: {e}")
                 research_value = "研究价值评估生成失败"
 
+            # 提取作者机构信息
+            affiliations = ""
+            try:
+                affiliations = extract_affiliations(paper_content, paper.get('authors', ''), client, args.model, args.temperature, paper.get('title', ''), cache_manager)
+            except Exception as e:
+                print(f"⚠️ 提取机构信息失败 {paper_title[:30]}: {e}")
+
             # 添加总结到论文数据中
             paper_copy = paper.copy()
             paper_copy['intro_logic'] = intro_logic
@@ -1094,6 +1139,7 @@ def main():
             paper_copy['methodology'] = methodology
             paper_copy['additional_insights'] = additional_insights
             paper_copy['research_value'] = research_value
+            paper_copy['affiliations'] = affiliations
             paper_copy['summary_translation'] = summary_translation
             paper_copy['summary_generated_time'] = time.strftime('%Y-%m-%d %H:%M:%S')
             paper_copy['summary_model'] = args.model
