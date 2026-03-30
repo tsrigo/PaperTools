@@ -472,6 +472,168 @@ def generate_complete_html() -> str:
         }}
         .dark .tag-badge {{ background: #1e3a5f; color: #7dd3fc; }}
         .dark .tag-badge.tag-arxiv {{ background: #164e63; color: #67e8f9; }}
+
+        /* TOC 侧边栏样式 - 固定在左侧 */
+        #toc-sidebar {{
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 220px;
+            height: 100vh;
+            z-index: 35;
+            background: white;
+            border-right: 1px solid #e2e8f0;
+            transition: transform 0.3s ease;
+            overflow: hidden;
+        }}
+        .dark #toc-sidebar {{
+            background: #1e293b;
+            border-right-color: #334155;
+        }}
+        #toc-sidebar.collapsed {{
+            transform: translateX(-100%);
+        }}
+        #toc-inner {{
+            padding: 1rem 0.5rem;
+            height: 100%;
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }}
+        #toc-inner::-webkit-scrollbar {{
+            width: 4px;
+        }}
+        #toc-inner::-webkit-scrollbar-thumb {{
+            background: #cbd5e1;
+            border-radius: 2px;
+        }}
+        .dark #toc-inner::-webkit-scrollbar-thumb {{
+            background: #475569;
+        }}
+        .toc-date {{
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: background 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }}
+        .toc-date:hover {{
+            background: #e2e8f0;
+        }}
+        .dark .toc-date:hover {{
+            background: #334155;
+        }}
+        .toc-date.active {{
+            background: #dbeafe;
+            color: #1e40af;
+        }}
+        .dark .toc-date.active {{
+            background: #1e3a5f;
+            color: #93c5fd;
+        }}
+        .toc-date-arrow {{
+            transition: transform 0.2s;
+            font-size: 0.65rem;
+        }}
+        .toc-date-arrow.open {{
+            transform: rotate(90deg);
+        }}
+        .toc-papers {{
+            display: none;
+            padding-left: 1.2rem;
+        }}
+        .toc-papers.open {{
+            display: block;
+        }}
+        .toc-paper {{
+            cursor: pointer;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            line-height: 1.4;
+            color: #64748b;
+            transition: background 0.15s, color 0.15s;
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 100%;
+        }}
+        .toc-paper:hover {{
+            background: #f1f5f9;
+            color: #1e40af;
+        }}
+        .dark .toc-paper {{
+            color: #94a3b8;
+        }}
+        .dark .toc-paper:hover {{
+            background: #1e293b;
+            color: #93c5fd;
+        }}
+        .toc-paper.active {{
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-weight: 500;
+        }}
+        .dark .toc-paper.active {{
+            background: #1e3a5f;
+            color: #93c5fd;
+        }}
+        /* TOC 切换按钮 - 左侧 */
+        #toc-toggle {{
+            position: fixed;
+            left: 220px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 40;
+            width: 28px;
+            height: 56px;
+            border-radius: 0 6px 6px 0;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+            transition: left 0.3s ease, background 0.2s;
+        }}
+        #toc-toggle:hover {{
+            background: #2563eb;
+        }}
+        #toc-toggle svg {{
+            transition: transform 0.3s;
+        }}
+        #toc-toggle:not(.sidebar-open) {{
+            left: 0;
+        }}
+        @media (max-width: 1023px) {{
+            #toc-sidebar {{
+                width: 240px;
+            }}
+            #toc-toggle {{
+                left: 240px;
+            }}
+            #toc-toggle:not(.sidebar-open) {{
+                left: 0;
+            }}
+        }}
+        @media (max-width: 767px) {{
+            #toc-sidebar {{
+                width: 260px;
+                box-shadow: 4px 0 16px rgba(0,0,0,0.1);
+            }}
+            #toc-toggle {{
+                left: 260px;
+            }}
+            #toc-toggle:not(.sidebar-open) {{
+                left: 0;
+            }}
+        }}
     </style>
     <script>
         // Tailwind CSS 暗色模式配置
@@ -493,7 +655,16 @@ def generate_complete_html() -> str:
         </div>
     </div>
 
-    <div class="container mx-auto w-full lg:w-3/5 max-w-none p-3 sm:p-4 lg:p-6">
+    <!-- TOC 切换按钮 -->
+    <button id="toc-toggle" class="hidden lg:flex sidebar-open" onclick="toggleTocSidebar()" title="切换目录">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+    </button>
+
+    <div class="flex mx-auto max-w-none">
+    <!-- 主内容区域 -->
+    <div class="w-full lg:w-3/5 mx-auto p-3 sm:p-4 lg:p-6">
         <!-- 头部导航栏 -->
         <header class="mb-4 sm:mb-6">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
@@ -549,6 +720,17 @@ def generate_complete_html() -> str:
             </div>
         </main>
     </div>
+    </div>
+
+    <!-- 左侧 TOC 侧边栏（固定定位） -->
+    <aside id="toc-sidebar" class="hidden lg:block">
+        <div id="toc-inner">
+            <div class="flex items-center justify-between mb-2 px-2">
+                <span class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">目录</span>
+            </div>
+            <nav id="toc-list"></nav>
+        </div>
+    </aside>
 
     <script>
         {js_data}
@@ -775,6 +957,7 @@ def generate_complete_html() -> str:
 
                 updateDateSection(sectionEl);
                 updateStats();
+                buildToc();
 
                 // 显示简单的删除提示
                 showSimpleToast(`已删除: ${{title}}`);
@@ -1264,6 +1447,9 @@ def generate_complete_html() -> str:
                 }}
             }});
 
+            // 更新 TOC
+            buildToc();
+
         }}
 
         // 主题切换功能
@@ -1335,6 +1521,135 @@ def generate_complete_html() -> str:
             }}
         }}
 
+        // ========== TOC 侧边栏功能 ==========
+        let tocSidebarOpen = true;
+
+        function toggleTocSidebar() {{
+            const sidebar = document.getElementById('toc-sidebar');
+            const toggle = document.getElementById('toc-toggle');
+            tocSidebarOpen = !tocSidebarOpen;
+            if (tocSidebarOpen) {{
+                sidebar.classList.remove('collapsed');
+                toggle.classList.add('sidebar-open');
+                toggle.querySelector('svg').style.transform = 'rotate(180deg)';
+            }} else {{
+                sidebar.classList.add('collapsed');
+                toggle.classList.remove('sidebar-open');
+                toggle.querySelector('svg').style.transform = 'rotate(0deg)';
+            }}
+            localStorage.setItem('tocSidebarOpen', tocSidebarOpen);
+        }}
+
+        function buildToc() {{
+            const tocList = document.getElementById('toc-list');
+            if (!tocList) return;
+
+            let html = '';
+            for (const date in allPapers) {{
+                const clusters = allPapers[date];
+                if (!clusters || clusters.length === 0) continue;
+
+                // 收集该日期下的所有可见论文
+                let papers = [];
+                clusters.forEach(cluster => {{
+                    if (cluster.papers) {{
+                        cluster.papers.forEach(paper => {{
+                            if (!deletedPapers.has(paper.arxiv_id) && (!showOnlyStarred || starredPapers.has(paper.arxiv_id))) {{
+                                if (paperMatchesFilters(paper, date)) {{
+                                    papers.push(paper);
+                                }}
+                            }}
+                        }});
+                    }}
+                }});
+
+                if (papers.length === 0) continue;
+
+                html += `<div class="mb-1" data-toc-date="${{date}}">`;
+                html += `<div class="toc-date" onclick="tocToggleDate(this, '${{date}}')" data-toc-date-btn="${{date}}">`;
+                html += `<span class="toc-date-arrow">▶</span>`;
+                html += `<span>${{date}}</span>`;
+                html += `<span class="text-xs text-slate-400 ml-auto">${{papers.length}}</span>`;
+                html += `</div>`;
+                html += `<div class="toc-papers" data-toc-papers="${{date}}">`;
+                papers.forEach(paper => {{
+                    const title = paper.title.length > 50 ? paper.title.substring(0, 47) + '...' : paper.title;
+                    html += `<div class="toc-paper" onclick="tocScrollToPaper('${{paper.arxiv_id}}')" data-toc-paper="${{paper.arxiv_id}}" title="${{paper.title.replace(/"/g, '&quot;')}}">${{title}}</div>`;
+                }});
+                html += `</div></div>`;
+            }}
+            tocList.innerHTML = html;
+        }}
+
+        function tocToggleDate(el, date) {{
+            const arrow = el.querySelector('.toc-date-arrow');
+            const papers = document.querySelector(`[data-toc-papers="${{date}}"]`);
+            if (papers) {{
+                papers.classList.toggle('open');
+                arrow.classList.toggle('open');
+            }}
+            // 同时滚动到对应日期
+            tocScrollToDate(date);
+        }}
+
+        function tocScrollToPaper(arxivId) {{
+            const el = document.querySelector(`[data-arxiv-id="${{arxivId}}"]`);
+            if (el) {{
+                el.scrollIntoView({{ behavior: 'smooth', block: 'center' }});
+                // 短暂高亮
+                el.style.outline = '2px solid #3b82f6';
+                el.style.outlineOffset = '2px';
+                setTimeout(() => {{
+                    el.style.outline = '';
+                    el.style.outlineOffset = '';
+                }}, 2000);
+            }}
+        }}
+
+        function tocScrollToDate(date) {{
+            const section = document.querySelector(`[data-date-section="${{date}}"]`);
+            if (section) {{
+                section.scrollIntoView({{ behavior: 'smooth', block: 'start' }});
+            }}
+        }}
+
+        // 滚动时高亮当前可见的日期
+        let tocScrollTimer = null;
+        function setupTocScrollSpy() {{
+            window.addEventListener('scroll', () => {{
+                if (tocScrollTimer) clearTimeout(tocScrollTimer);
+                tocScrollTimer = setTimeout(() => {{
+                    const sections = document.querySelectorAll('[data-date-section]');
+                    let currentDate = null;
+                    const scrollTop = window.scrollY + 100;
+
+                    sections.forEach(section => {{
+                        if (section.offsetTop <= scrollTop) {{
+                            currentDate = section.getAttribute('data-date-section');
+                        }}
+                    }});
+
+                    // 更新 TOC 高亮
+                    document.querySelectorAll('.toc-date').forEach(el => el.classList.remove('active'));
+                    if (currentDate) {{
+                        const activeBtn = document.querySelector(`[data-toc-date-btn="${{currentDate}}"]`);
+                        if (activeBtn) {{
+                            activeBtn.classList.add('active');
+                            // 确保活跃日期在 TOC 可视区域内
+                            const tocInner = document.getElementById('toc-inner');
+                            if (tocInner) {{
+                                const btnRect = activeBtn.getBoundingClientRect();
+                                const tocRect = tocInner.getBoundingClientRect();
+                                if (btnRect.top < tocRect.top || btnRect.bottom > tocRect.bottom) {{
+                                    activeBtn.scrollIntoView({{ behavior: 'smooth', block: 'nearest' }});
+                                }}
+                            }}
+                        }}
+                    }}
+                }}, 100);
+            }});
+        }}
+
         // 初始化应用
         document.addEventListener('DOMContentLoaded', function() {{
             loadState();
@@ -1342,6 +1657,15 @@ def generate_complete_html() -> str:
             setupSummaryToggle();
             setupFilter();
             renderPapers();
+            buildToc();
+            setupTocScrollSpy();
+
+            // 恢复 TOC 侧边栏状态
+            const savedTocState = localStorage.getItem('tocSidebarOpen');
+            if (savedTocState === 'false') {{
+                tocSidebarOpen = true; // will be toggled to false
+                toggleTocSidebar();
+            }}
         }});
     </script>
 </body>
