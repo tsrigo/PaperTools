@@ -1120,44 +1120,65 @@ def generate_complete_html() -> str:
         function formatAuthorsWithAffiliations(authorsStr, affiliationsStr) {{
             if (!affiliationsStr) return authorsStr;
             try {{
-                // 解析 affiliations JSON（可能被包在 ```json ... ``` 中）
+                // 解析 JSON（可能被包在 ```json ... ``` 中）
                 let jsonStr = affiliationsStr;
                 const match = jsonStr.match(/```json\s*([\s\S]*?)\s*```/);
                 if (match) jsonStr = match[1];
-                // 也尝试直接匹配 [ ... ]
-                const arrMatch = jsonStr.match(/\[[\s\S]*\]/);
-                if (arrMatch) jsonStr = arrMatch[0];
-                const affiliations = JSON.parse(jsonStr);
-                if (!Array.isArray(affiliations)) return authorsStr;
+                const objMatch = jsonStr.match(/\{{[\s\S]*\}}/);
+                if (objMatch) jsonStr = objMatch[0];
+                const data = JSON.parse(jsonStr);
 
-                // 建立 name -> affiliation 映射
-                const affMap = {{}};
-                affiliations.forEach(a => {{
-                    if (a.name && a.affiliation) {{
-                        affMap[a.name.trim().toLowerCase()] = a.affiliation;
+                // 兼容旧格式（数组）
+                if (Array.isArray(data)) {{
+                    const authors = authorsStr.split(/,\s*/);
+                    const affMap = {{}};
+                    data.forEach(a => {{ if (a.name && a.affiliation) affMap[a.name.trim().toLowerCase()] = a.affiliation; }});
+                    return authors.map(a => {{
+                        const aff = affMap[a.trim().toLowerCase()];
+                        return aff ? `${{a.trim()}}<sup class="aff-sup" title="${{aff}}">${{aff}}</sup>` : a.trim();
+                    }}).join(', ');
+                }}
+
+                if (!data.authors || !data.institutions) return authorsStr;
+
+                // 新格式：论文式数字角标
+                const instMap = {{}};
+                data.institutions.forEach(inst => {{ instMap[inst.id] = inst.name; }});
+
+                // 渲染作者行
+                const authorParts = data.authors.map(a => {{
+                    let sups = [];
+                    if (a.affiliations && a.affiliations.length > 0) {{
+                        sups = sups.concat(a.affiliations.map(String));
                     }}
+                    if (a.markers && a.markers.length > 0) {{
+                        sups = sups.concat(a.markers);
+                    }}
+                    const supStr = sups.length > 0
+                        ? `<sup class="aff-sup">${{sups.join(',')}}</sup>`
+                        : '';
+                    return `${{a.name}}${{supStr}}`;
                 }});
 
-                // 拆分作者列表并添加上标
-                const authors = authorsStr.split(/,\s*/);
-                return authors.map(author => {{
-                    const key = author.trim().toLowerCase();
-                    // 尝试匹配：完全匹配或姓氏匹配
-                    let aff = affMap[key];
-                    if (!aff) {{
-                        // 尝试部分匹配
-                        for (const [name, a] of Object.entries(affMap)) {{
-                            if (key.includes(name.split(' ').pop()) && name.split(' ').pop().length > 2) {{
-                                aff = a;
-                                break;
-                            }}
-                        }}
-                    }}
-                    if (aff) {{
-                        return `${{author.trim()}}<sup class="ml-0.5 text-blue-500 dark:text-blue-400 text-xs font-normal" title="${{aff}}">${{aff}}</sup>`;
-                    }}
-                    return author.trim();
-                }}).join(', ');
+                // 渲染机构列表
+                const instLine = data.institutions.map(inst =>
+                    `<sup class="aff-sup">${{inst.id}}</sup>${{inst.name}}`
+                ).join('&ensp;');
+
+                // 渲染脚注
+                let footLine = '';
+                if (data.footnotes && data.footnotes.length > 0) {{
+                    footLine = data.footnotes.map(fn =>
+                        `<sup class="aff-sup">${{fn.marker}}</sup>${{fn.text}}`
+                    ).join('&ensp;');
+                }}
+
+                let html = authorParts.join(', ');
+                html += `<div class="text-xs text-slate-500 dark:text-slate-400 mt-1">${{instLine}}</div>`;
+                if (footLine) {{
+                    html += `<div class="text-xs text-slate-400 dark:text-slate-500 mt-0.5 italic">${{footLine}}</div>`;
+                }}
+                return html;
             }} catch (e) {{
                 return authorsStr;
             }}

@@ -765,25 +765,37 @@ def generate_critical_evaluation(paper_content: str, client: OpenAI, model: str,
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
 def extract_affiliations(paper_content: str, authors: str, client: OpenAI, model: str, temperature: float,
                          paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
-    """从论文内容中提取作者机构信息，返回 JSON 字符串。"""
+    """从论文内容中提取作者机构及角标信息，返回 JSON 字符串。"""
     prompt = f"""{paper_content}
 
 ---
 
 上面是一篇学术论文的内容。论文作者列表为：{authors}
 
-请从论文中提取每位作者的机构（affiliation）。通常在论文的第一页或标题下方会标注每位作者所属的大学、研究机构或公司。
+请从论文中提取完整的作者-机构对应关系和所有角标信息（equal contribution、corresponding author、脚注等）。通常在论文的第一页标题下方会标注这些信息。
 
 请严格按以下 JSON 格式输出，不要输出其他内容：
 ```json
-[
-  {{"name": "作者全名", "affiliation": "机构简称"}},
-  ...
-]
+{{
+  "authors": [
+    {{"name": "作者全名", "affiliations": [1], "markers": ["*"]}},
+    {{"name": "作者全名", "affiliations": [1, 2], "markers": []}}
+  ],
+  "institutions": [
+    {{"id": 1, "name": "机构简称"}},
+    {{"id": 2, "name": "机构简称"}}
+  ],
+  "footnotes": [
+    {{"marker": "*", "text": "Equal contribution"}},
+    {{"marker": "†", "text": "Corresponding author"}}
+  ]
+}}
 ```
 
 要求：
-1. 机构名称**必须使用最短常见缩写**，不要写全称。例如：
+1. `affiliations` 是机构编号数组，一个作者可能属于多个机构
+2. `markers` 是该作者拥有的特殊角标（如 *、†、‡），没有则为空数组
+3. `institutions` 按编号排列，机构名称**必须使用最短常见缩写**：
    - Massachusetts Institute of Technology → "MIT"
    - Stanford University → "Stanford"
    - Google DeepMind → "DeepMind"
@@ -793,12 +805,11 @@ def extract_affiliations(paper_content: str, authors: str, client: OpenAI, model
    - University of Illinois Urbana-Champaign → "UIUC"
    - Carnegie Mellon University → "CMU"
    - Microsoft Research → "MSR"
-   - University of Chinese Academy of Sciences → "UCAS"
-   - Chinese Academy of Sciences → "CAS"
    - 公司名保留简短形式（如 "Amazon", "Meta", "Google"）
-2. 如果一位作者有多个机构，只写主要机构
-3. 如果某位作者的机构在论文中找不到，affiliation 写 ""
-4. 保持作者顺序与输入一致"""
+4. `footnotes` 包含论文中的角标说明（equal contribution、corresponding author、访问学者等）
+5. 如果论文中没有角标信息，`markers` 和 `footnotes` 为空
+6. 如果找不到某作者的机构，`affiliations` 为空数组
+7. 保持作者顺序与论文一致"""
 
     system = "你是一个学术信息提取助手。请精确提取作者机构信息，只输出 JSON，不要输出其他内容。"
     return _llm_generate(client, model, temperature, system,
@@ -1054,7 +1065,7 @@ def main():
                     cached_affiliations = cache_manager.get_summary_cache(f"affiliations_{paper_title}", cached_paper_content)
 
                     # 如果都有缓存，直接返回
-                    if cached_intro_logic and cached_core_insight and cached_methodology and cached_additional_insights and cached_research_value and (not original_summary or cached_translation):
+                    if cached_intro_logic and cached_core_insight and cached_methodology and cached_additional_insights and cached_research_value and cached_affiliations and (not original_summary or cached_translation):
                         paper_copy = paper.copy()
                         paper_copy['intro_logic'] = cached_intro_logic
                         paper_copy['core_insight'] = cached_core_insight
