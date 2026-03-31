@@ -301,6 +301,37 @@ def generate_complete_html() -> str:
             transition: transform 0.2s ease-in-out;
         }}
 
+        /* 论文卡片展开/收起 */
+        .paper-expand-hint {{
+            padding: 4px 0;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }}
+        .paper-expand-hint:hover {{
+            color: #2563eb;
+        }}
+        .dark .paper-expand-hint:hover {{
+            color: #60a5fa;
+        }}
+        .paper-expand-hint .expand-arrow {{
+            display: inline-block;
+            transition: transform 0.2s;
+            font-size: 0.65rem;
+            margin-right: 4px;
+        }}
+        .paper-detail {{
+            border-top: 1px solid #e2e8f0;
+            margin-top: 8px;
+            padding-top: 8px;
+        }}
+        .dark .paper-detail {{
+            border-top-color: #334155;
+        }}
+        .paper-detail.hidden {{
+            display: none;
+        }}
+
         /* 可折叠部分样式 */
         .collapsible-header {{
             cursor: pointer;
@@ -1082,20 +1113,20 @@ def generate_complete_html() -> str:
             if (id && content) mdRawContent[id] = content;
         }}
 
+        // Parse markdown for a single element by id
+        function renderMarkdownEl(el) {{
+            if (!el || el.getAttribute('data-rendered')) return;
+            const raw = mdRawContent[el.id];
+            if (raw) {{
+                try {{ el.innerHTML = marked.parse(raw); }} catch (e) {{ el.textContent = raw; }}
+                el.setAttribute('data-rendered', '1');
+            }}
+        }}
+
         // Parse markdown for all unrendered .markdown-content elements inside a container
         function lazyRenderMarkdown(container) {{
             if (typeof marked === 'undefined') return;
-            container.querySelectorAll('.markdown-content:not([data-rendered])').forEach(el => {{
-                const raw = mdRawContent[el.id];
-                if (raw) {{
-                    try {{
-                        el.innerHTML = marked.parse(raw);
-                    }} catch (e) {{
-                        el.textContent = raw;
-                    }}
-                    el.setAttribute('data-rendered', '1');
-                }}
-            }});
+            container.querySelectorAll('.markdown-content:not([data-rendered])').forEach(renderMarkdownEl);
         }}
 
         // Render markdown only for currently visible (open) sections
@@ -1106,13 +1137,7 @@ def generate_complete_html() -> str:
             document.querySelectorAll('.collapsible-content.open').forEach(c => lazyRenderMarkdown(c));
             // Render overview sections (top-level, not inside collapsible)
             document.querySelectorAll('.markdown-content:not([data-rendered])').forEach(el => {{
-                if (!el.closest('.collapsible-content')) {{
-                    const raw = mdRawContent[el.id];
-                    if (raw) {{
-                        try {{ el.innerHTML = marked.parse(raw); }} catch (e) {{ el.textContent = raw; }}
-                        el.setAttribute('data-rendered', '1');
-                    }}
-                }}
+                if (!el.closest('.collapsible-content')) renderMarkdownEl(el);
             }});
         }}
 
@@ -1184,56 +1209,36 @@ def generate_complete_html() -> str:
             }}
         }}
 
+        // Store paper data by arxiv_id for lazy detail building
+        const paperDataMap = {{}};
+
         function createPaperHTML(paper, date) {{
             const isStarred = starredPapers.has(paper.arxiv_id);
             const isRead = readPapers.has(paper.arxiv_id);
             const isDeleted = deletedPapers.has(paper.arxiv_id);
 
-            // 如果论文已被删除，直接返回空字符串，不渲染
-            if (isDeleted) {{
-                return '';
-            }}
+            if (isDeleted) return '';
+            if (showOnlyStarred && !isStarred) return '';
+            if (!paperMatchesFilters(paper, date)) return '';
 
-            // 如果启用了只看收藏筛选，且论文未被收藏，则不渲染
-            if (showOnlyStarred && !isStarred) {{
-                return '';
-            }}
+            // Store paper data for lazy rendering
+            paperDataMap[paper.arxiv_id] = {{ paper, date }};
 
-            // Check tag filters
-            if (!paperMatchesFilters(paper, date)) {{
-                return '';
-            }}
-
-            // Register raw markdown content for lazy rendering
-            const aid = paper.arxiv_id;
-            registerMarkdown(`filter-reason-${{aid}}`, paper.filter_reason);
-            registerMarkdown(`intro-logic-${{aid}}`, paper.intro_logic);
-            registerMarkdown(`core-insight-${{aid}}`, paper.core_insight);
-            registerMarkdown(`methodology-${{aid}}`, paper.methodology);
-            registerMarkdown(`additional-insights-${{aid}}`, paper.additional_insights);
-            registerMarkdown(`research-value-${{aid}}`, paper.research_value);
-            // summary_translation and summary are plain text, rendered directly (no markdown)
-
-
-            // Build tag badges HTML
             const clusterBadge = paper.cluster ? `<span class="tag-badge">${{paper.cluster}}</span>` : '';
             const tagBadges = (paper.tags || []).map(tag => `<span class="tag-badge tag-arxiv">${{tag}}</span>`).join('');
 
             return `
                 <div class="paper-item bg-white dark:bg-slate-800/50 rounded-lg shadow-sm p-4 sm:p-6" data-arxiv-id="${{paper.arxiv_id}}">
                     <!-- 论文标题和操作按钮 -->
-                    <div class="flex items-start justify-between mb-3 sm:mb-4">
+                    <div class="flex items-start justify-between mb-1">
                         <div class="flex items-start space-x-2 sm:space-x-3 flex-1 min-w-0">
-                            <!-- 星标按钮 -->
                             <button class="star-button ${{isStarred ? 'starred' : ''}} mt-1 flex-shrink-0" onclick="toggleStar('${{paper.arxiv_id}}')" title="点击收藏">
                                 <svg class="h-5 w-5 sm:h-6 sm:w-6" viewBox="0 0 20 20" fill="currentColor">
                                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                 </svg>
                             </button>
-                            <!-- 论文标题 -->
-                            <h3 class="text-base sm:text-lg font-semibold text-black dark:text-white leading-tight break-words">${{paper.title}}</h3>
+                            <h3 class="text-base sm:text-lg font-semibold text-black dark:text-white leading-tight break-words cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors" onclick="togglePaperDetail('${{paper.arxiv_id}}')">${{paper.title}}</h3>
                         </div>
-                        <!-- 删除按钮 -->
                         <button class="delete-button text-slate-400 hover:text-red-500 ml-2 sm:ml-4 flex-shrink-0" onclick="deletePaperByButton(this)" data-arxiv-id="${{paper.arxiv_id}}" data-title="${{paper.title.replace(/"/g, '&quot;')}}" title="删除">
                             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -1241,8 +1246,8 @@ def generate_complete_html() -> str:
                         </button>
                     </div>
 
-                    <!-- 论文元信息 -->
-                    <div class="space-y-2 mb-3 sm:mb-4">
+                    <!-- 论文元信息（始终可见） -->
+                    <div class="space-y-1 mb-2">
                         <div class="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
                             <span class="break-all"><strong>ArXiv ID:</strong> ${{paper.arxiv_id}}</span>
                             ${{clusterBadge}}
@@ -1254,144 +1259,159 @@ def generate_complete_html() -> str:
                         </div>
                     </div>
 
-                    <!-- 已读复选框 -->
-                    <div class="mb-3 sm:mb-4">
-                        <label class="inline-flex items-center">
-                            <input type="checkbox" ${{isRead ? 'checked' : ''}} onchange="toggleRead('${{paper.arxiv_id}}')" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 w-4 h-4">
-                            <span class="ml-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400">已阅读</span>
-                        </label>
+                    <!-- 展开/收起指示器 -->
+                    <div class="paper-expand-hint text-xs text-slate-400 dark:text-slate-500 cursor-pointer select-none" onclick="togglePaperDetail('${{paper.arxiv_id}}')" id="expand-hint-${{paper.arxiv_id}}">
+                        <span class="expand-arrow">▶</span> 点击标题展开详情
                     </div>
 
-                    ${{paper.summary || paper.summary_translation ? `
-                    <!-- 原始摘要 (默认展开，英文优先) -->
+                    <!-- 懒加载的详情容器 -->
+                    <div class="paper-detail hidden" id="detail-${{paper.arxiv_id}}"></div>
+                </div>
+            `;
+        }}
+
+        // Build and inject paper detail DOM on first expand
+        function buildPaperDetail(arxivId) {{
+            const container = document.getElementById(`detail-${{arxivId}}`);
+            if (!container || container.getAttribute('data-built')) return;
+            container.setAttribute('data-built', '1');
+
+            const {{ paper, date }} = paperDataMap[arxivId];
+            if (!paper) return;
+
+            const aid = paper.arxiv_id;
+            const isRead = readPapers.has(aid);
+
+            // Register all markdown content
+            registerMarkdown(`filter-reason-${{aid}}`, paper.filter_reason);
+            registerMarkdown(`intro-logic-${{aid}}`, paper.intro_logic);
+            registerMarkdown(`core-insight-${{aid}}`, paper.core_insight);
+            registerMarkdown(`methodology-${{aid}}`, paper.methodology);
+            registerMarkdown(`additional-insights-${{aid}}`, paper.additional_insights);
+            registerMarkdown(`research-value-${{aid}}`, paper.research_value);
+            if (paper.summary) registerMarkdown(`summary-en-${{aid}}`, paper.summary);
+            if (paper.summary_translation) registerMarkdown(`summary-zh-${{aid}}`, paper.summary_translation);
+
+            let html = '';
+
+            // 已读复选框
+            html += `
+                <div class="mb-3 sm:mb-4 mt-3">
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" ${{isRead ? 'checked' : ''}} onchange="toggleRead('${{aid}}')" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 w-4 h-4">
+                        <span class="ml-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400">已阅读</span>
+                    </label>
+                </div>
+            `;
+
+            // 原始摘要
+            if (paper.summary || paper.summary_translation) {{
+                html += `
                     <div class="mb-3 sm:mb-4">
                         <div class="collapsible-header open text-sm sm:text-base" onclick="toggleCollapsible(this)">原始摘要</div>
                         <div class="collapsible-content open">
                             <div class="inner">
                                 <div class="summary-section bg-green-50/70 dark:bg-green-950/20 border-l-3 border-green-300 p-3 sm:p-4 rounded-r-lg">
                                     ${{paper.summary ? `
-                                    <div class="english-summary text-xs sm:text-sm text-black dark:text-white leading-relaxed break-words" style="display: block; white-space: pre-line;">
-                                        ${{paper.summary}}
-                                    </div>
-                                    ` : ''}}
+                                    <div class="english-summary text-xs sm:text-sm text-black dark:text-white leading-relaxed markdown-content break-words" id="summary-en-${{aid}}" style="display: block;">
+                                    </div>` : ''}}
                                     ${{paper.summary_translation ? `
-                                    <div class="chinese-summary text-xs sm:text-sm text-black dark:text-white leading-relaxed break-words" style="display: none; white-space: pre-line;">
-                                        ${{paper.summary_translation}}
-                                    </div>
-                                    ` : ''}}
+                                    <div class="chinese-summary text-xs sm:text-sm text-black dark:text-white leading-relaxed markdown-content break-words" id="summary-zh-${{aid}}" style="display: none;">
+                                    </div>` : ''}}
                                 </div>
                             </div>
                         </div>
                     </div>
-                    ` : ''}}
+                `;
+            }}
 
-                    ${{paper.intro_logic ? `
-                    <!-- Introduction逻辑 (默认折叠) -->
-                    <div class="mb-3 sm:mb-4">
-                        <div class="collapsible-header text-sm sm:text-base" onclick="toggleCollapsible(this)">Introduction 逻辑链</div>
-                        <div class="collapsible-content">
-                            <div class="inner">
-                                <div class="bg-yellow-50/70 dark:bg-yellow-950/20 border-l-3 border-yellow-300 p-3 sm:p-4 rounded-r-lg">
-                                    <div class="text-xs sm:text-sm text-black dark:text-white leading-relaxed markdown-content break-words" id="intro-logic-${{paper.arxiv_id}}">
+            // 各分析section的配置
+            const sections = [
+                {{ key: 'intro_logic', id: `intro-logic-${{aid}}`, title: 'Introduction 逻辑链', color: 'yellow' }},
+                {{ key: 'core_insight', id: `core-insight-${{aid}}`, title: '核心切入点 / Pain Point', color: 'orange' }},
+                {{ key: 'methodology', id: `methodology-${{aid}}`, title: '方法论解读', color: 'purple' }},
+                {{ key: 'additional_insights', id: `additional-insights-${{aid}}`, title: '延伸洞察', color: 'red' }},
+                {{ key: 'research_value', id: `research-value-${{aid}}`, title: '研究价值', color: 'teal' }},
+                {{ key: 'filter_reason', id: `filter-reason-${{aid}}`, title: '筛选原因', color: 'blue' }},
+            ];
+
+            sections.forEach(s => {{
+                if (paper[s.key]) {{
+                    html += `
+                        <div class="mb-3 sm:mb-4">
+                            <div class="collapsible-header text-sm sm:text-base" onclick="toggleCollapsible(this)">${{s.title}}</div>
+                            <div class="collapsible-content">
+                                <div class="inner">
+                                    <div class="bg-${{s.color}}-50/70 dark:bg-${{s.color}}-950/20 border-l-3 border-${{s.color}}-300 p-3 sm:p-4 rounded-r-lg">
+                                        <div class="text-xs sm:text-sm text-black dark:text-white leading-relaxed markdown-content break-words" id="${{s.id}}">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    ` : ''}}
+                    `;
+                }}
+            }});
 
-                    ${{paper.core_insight ? `
-                    <!-- 核心洞察 (默认折叠) -->
-                    <div class="mb-3 sm:mb-4">
-                        <div class="collapsible-header text-sm sm:text-base" onclick="toggleCollapsible(this)">核心切入点 / Pain Point</div>
-                        <div class="collapsible-content">
-                            <div class="inner">
-                                <div class="bg-orange-50/70 dark:bg-orange-950/20 border-l-3 border-orange-300 p-3 sm:p-4 rounded-r-lg">
-                                    <div class="text-xs sm:text-sm text-black dark:text-white leading-relaxed markdown-content break-words" id="core-insight-${{paper.arxiv_id}}">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    ` : ''}}
-
-                    ${{paper.methodology ? `
-                    <!-- 方法论解读 (默认折叠) -->
-                    <div class="mb-3 sm:mb-4">
-                        <div class="collapsible-header text-sm sm:text-base" onclick="toggleCollapsible(this)">方法论解读</div>
-                        <div class="collapsible-content">
-                            <div class="inner">
-                                <div class="bg-purple-50/70 dark:bg-purple-950/20 border-l-3 border-purple-300 p-3 sm:p-4 rounded-r-lg">
-                                    <div class="text-xs sm:text-sm text-black dark:text-white leading-relaxed markdown-content break-words" id="methodology-${{paper.arxiv_id}}">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    ` : ''}}
-
-                    ${{paper.additional_insights ? `
-                    <!-- 延伸洞察 (默认折叠) -->
-                    <div class="mb-3 sm:mb-4">
-                        <div class="collapsible-header text-sm sm:text-base" onclick="toggleCollapsible(this)">延伸洞察</div>
-                        <div class="collapsible-content">
-                            <div class="inner">
-                                <div class="bg-red-50/70 dark:bg-red-950/20 border-l-3 border-red-300 p-3 sm:p-4 rounded-r-lg">
-                                    <div class="text-xs sm:text-sm text-black dark:text-white leading-relaxed markdown-content break-words" id="additional-insights-${{paper.arxiv_id}}">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    ` : ''}}
-
-                    ${{paper.research_value ? `
-                    <!-- 研究价值评估 (默认折叠) -->
-                    <div class="mb-3 sm:mb-4">
-                        <div class="collapsible-header text-sm sm:text-base" onclick="toggleCollapsible(this)">研究价值</div>
-                        <div class="collapsible-content">
-                            <div class="inner">
-                                <div class="bg-teal-50/70 dark:bg-teal-950/20 border-l-3 border-teal-300 p-3 sm:p-4 rounded-r-lg">
-                                    <div class="text-xs sm:text-sm text-black dark:text-white leading-relaxed markdown-content break-words" id="research-value-${{paper.arxiv_id}}">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    ` : ''}}
-
-                    ${{paper.filter_reason ? `
-                    <!-- 筛选原因 (默认折叠，放最后) -->
-                    <div class="mb-3 sm:mb-4">
-                        <div class="collapsible-header text-sm sm:text-base" onclick="toggleCollapsible(this)">筛选原因</div>
-                        <div class="collapsible-content">
-                            <div class="inner">
-                                <div class="bg-blue-50/70 dark:bg-blue-950/20 border-l-3 border-blue-300 p-3 sm:p-4 rounded-r-lg">
-                                    <div class="text-xs sm:text-sm text-black dark:text-white leading-relaxed markdown-content break-words" id="filter-reason-${{paper.arxiv_id}}">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    ` : ''}}
-
-                    <!-- 论文链接 -->
-                    <div class="flex flex-wrap gap-2">
-                        <a href="https://arxiv.org/abs/${{paper.arxiv_id}}" target="_blank"
-                           class="inline-flex items-center px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors whitespace-nowrap">
-                            📄 arXiv 原文
-                        </a>
-                        <a href="https://arxiv.org/pdf/${{paper.arxiv_id}}.pdf" target="_blank"
-                           class="inline-flex items-center px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md transition-colors whitespace-nowrap">
-                            📋 PDF 下载
-                        </a>
-                        <a href="https://papers.cool/arxiv/${{paper.arxiv_id}}" target="_blank"
-                           class="inline-flex items-center px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors whitespace-nowrap">
-                            🔥 Cool Paper
-                        </a>
-                    </div>
+            // 论文链接
+            html += `
+                <div class="flex flex-wrap gap-2">
+                    <a href="https://arxiv.org/abs/${{aid}}" target="_blank"
+                       class="inline-flex items-center px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors whitespace-nowrap">
+                        arXiv 原文
+                    </a>
+                    <a href="https://arxiv.org/pdf/${{aid}}.pdf" target="_blank"
+                       class="inline-flex items-center px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md transition-colors whitespace-nowrap">
+                        PDF 下载
+                    </a>
+                    <a href="https://papers.cool/arxiv/${{aid}}" target="_blank"
+                       class="inline-flex items-center px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors whitespace-nowrap">
+                        Cool Paper
+                    </a>
                 </div>
             `;
+
+            container.innerHTML = html;
+
+            // Render the open summary section's markdown immediately
+            container.querySelectorAll('.collapsible-content.open').forEach(c => lazyRenderMarkdown(c));
+
+            // Apply summary language setting
+            if (showChineseSummary) {{
+                const ch = container.querySelector('.chinese-summary');
+                const en = container.querySelector('.english-summary');
+                if (ch) ch.style.display = 'block';
+                if (en) en.style.display = 'none';
+            }} else {{
+                const ch = container.querySelector('.chinese-summary');
+                const en = container.querySelector('.english-summary');
+                if (ch) ch.style.display = 'none';
+                if (en) en.style.display = 'block';
+            }}
+        }}
+
+        // Toggle paper detail expansion
+        function togglePaperDetail(arxivId) {{
+            const container = document.getElementById(`detail-${{arxivId}}`);
+            const hint = document.getElementById(`expand-hint-${{arxivId}}`);
+            if (!container) return;
+
+            const isHidden = container.classList.contains('hidden');
+            if (isHidden) {{
+                // First expand: build the DOM
+                buildPaperDetail(arxivId);
+                container.classList.remove('hidden');
+                if (hint) {{
+                    hint.querySelector('.expand-arrow').textContent = '▼';
+                    hint.childNodes[hint.childNodes.length - 1].textContent = ' 点击标题收起';
+                }}
+            }} else {{
+                container.classList.add('hidden');
+                if (hint) {{
+                    hint.querySelector('.expand-arrow').textContent = '▶';
+                    hint.childNodes[hint.childNodes.length - 1].textContent = ' 点击标题展开详情';
+                }}
+            }}
         }}
 
         // 创建聚类HTML
@@ -1437,6 +1457,9 @@ def generate_complete_html() -> str:
             if (loading) {{
                 loading.classList.add('hidden');
             }}
+
+            // Clear paper data map (rebuilt by createPaperHTML)
+            Object.keys(paperDataMap).forEach(k => delete paperDataMap[k]);
 
             let html = '';
             let totalPapers = 0;
@@ -1511,20 +1534,6 @@ def generate_complete_html() -> str:
                 registerMarkdown(`overview-${{date}}`, dailyOverviews[date]);
             }}
             renderVisibleMarkdown();
-
-            // 应用当前摘要语言设置
-            document.querySelectorAll('.summary-section').forEach(section => {{
-                const chineseContent = section.querySelector('.chinese-summary');
-                const englishContent = section.querySelector('.english-summary');
-
-                if (showChineseSummary) {{
-                    if (chineseContent) chineseContent.style.display = 'block';
-                    if (englishContent) englishContent.style.display = 'none';
-                }} else {{
-                    if (chineseContent) chineseContent.style.display = 'none';
-                    if (englishContent) englishContent.style.display = 'block';
-                }}
-            }});
 
             // 更新 TOC
             buildToc();
