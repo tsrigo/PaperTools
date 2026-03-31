@@ -231,15 +231,41 @@ def main():
         papers = papers[:args.max_papers]
         print(f"🔢 限制处理数量为: {args.max_papers}")
     
+    # ===== 关键词预筛选 =====
+    REQUIRED_KEYWORDS = ['llm', 'large language model', 'agent']
+    pre_filtered = []
+    keyword_excluded = []
+    for paper in papers:
+        text = (paper.get('title', '') + ' ' + (paper.get('summary', '') or paper.get('abstract', ''))).lower()
+        if any(kw in text for kw in REQUIRED_KEYWORDS):
+            pre_filtered.append(paper)
+        else:
+            p = paper.copy()
+            p['filter_reason'] = f'关键词预筛排除：标题和摘要中未包含 {REQUIRED_KEYWORDS} 中的任一关键词'
+            keyword_excluded.append(p)
+
+    print(f"🔑 关键词预筛: {len(pre_filtered)} 篇通过, {len(keyword_excluded)} 篇排除")
+    existing_excluded.extend(keyword_excluded)
+    papers = pre_filtered
+
+    if not papers:
+        print("✅ 关键词预筛后无论文需要LLM筛选")
+        # Save excluded results and return
+        with open(excluded_filepath, 'w', encoding='utf-8') as f:
+            json.dump(existing_excluded, f, ensure_ascii=False, indent=2)
+        with open(output_filepath, 'w', encoding='utf-8') as f:
+            json.dump(existing_filtered, f, ensure_ascii=False, indent=2)
+        return
+
     # 多线程筛选论文
     def filter_paper_wrapper(paper):
         """包装函数，用于多线程筛选"""
         title = paper.get('title', '').strip()
         summary = paper.get('summary', '') or paper.get('abstract', '')
-        
+
         if not title or not summary:
             return 'skip', paper, f"跳过论文 (缺少标题或摘要): {title[:50]}...", "缺少标题或摘要"
-        
+
         try:
             is_match, reason = query_llm(title, summary, client, args.model, args.temperature)
             # 添加筛选理由到论文数据中
