@@ -21,7 +21,7 @@ if project_root not in sys.path:
 # 导入配置
 try:
     from src.utils.config import (
-        API_KEY, BASE_URL, MODEL, TEMPERATURE,
+        API_KEY, BASE_URL, MODEL, FILTER_MODEL, TEMPERATURE,
         ARXIV_PAPER_DIR, DOMAIN_PAPER_DIR, SUMMARY_DIR, WEBPAGES_DIR,
         CRAWL_CATEGORIES, MAX_PAPERS_PER_CATEGORY, MAX_WORKERS, MAX_PAPERS_TOTAL_DEFAULT
     )
@@ -337,11 +337,12 @@ def main():
             "--output-dir", DOMAIN_PAPER_DIR,
             "--api-key", args.api_key,
             "--base-url", args.base_url,
-            "--model", args.model,
+            "--model", FILTER_MODEL,
             "--temperature", str(args.temperature),
             "--max-papers", str(args.max_papers_total),
             "--max-workers", str(args.max_workers)
         ]
+        progress.log_with_timestamp(f"🔍 筛选使用模型: {FILTER_MODEL}")
         if not run_command(cmd, "筛选论文", progress):
             progress.complete_step("筛选论文", False)
             progress.log_with_timestamp("❌ 筛选失败，流水线终止")
