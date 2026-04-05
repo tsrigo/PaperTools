@@ -32,12 +32,12 @@ fi
 
 echo "[$RUN_TS] ✅ Pipeline completed" | tee -a "$LOG_FILE"
 
-if ! git status --porcelain arxiv_paper domain_paper summary webpages | grep -q .; then
+if ! git status --porcelain webpages | grep -q .; then
     echo "[$RUN_TS] ℹ️ No new arXiv updates detected; nothing to commit" | tee -a "$LOG_FILE"
     exit 0
 fi
 
-git add arxiv_paper domain_paper summary webpages
+git add webpages/
 COMMIT_MSG="chore: arxiv daily update $(date '+%Y-%m-%d')"
 
 git commit -m "$COMMIT_MSG" | tee -a "$LOG_FILE"
