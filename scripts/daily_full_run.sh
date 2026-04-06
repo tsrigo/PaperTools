@@ -25,12 +25,16 @@ RUN_TS="$(date '+%Y-%m-%d %H:%M:%S')"
 
 echo "[$RUN_TS] 🚀 Starting daily full pipeline" | tee -a "$LOG_FILE"
 
-if ! "$PYTHON_BIN" papertools.py run --mode full >>"$LOG_FILE" 2>&1; then
-    echo "[$RUN_TS] ❌ Pipeline run failed, aborting commit" | tee -a "$LOG_FILE"
-    exit 1
+"$PYTHON_BIN" papertools.py run --mode full >>"$LOG_FILE" 2>&1
+PIPELINE_EXIT=$?
+
+if [ $PIPELINE_EXIT -ne 0 ]; then
+    echo "[$RUN_TS] ⚠️ Pipeline exited with code $PIPELINE_EXIT (partial failures possible)" | tee -a "$LOG_FILE"
+else
+    echo "[$RUN_TS] ✅ Pipeline completed" | tee -a "$LOG_FILE"
 fi
 
-echo "[$RUN_TS] ✅ Pipeline completed" | tee -a "$LOG_FILE"
+# Always try to commit/push whatever was generated, even if pipeline had partial failures
 
 if ! git status --porcelain webpages | grep -q .; then
     echo "[$RUN_TS] ℹ️ No new arXiv updates detected; nothing to commit" | tee -a "$LOG_FILE"
