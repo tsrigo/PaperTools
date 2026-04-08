@@ -23,10 +23,20 @@ LOG_FILE="$LOG_DIR/daily_pipeline.log"
 PYTHON_BIN="${PYTHON_BIN:-/opt/miniconda3/bin/python3}"
 RUN_TS="$(date '+%Y-%m-%d %H:%M:%S')"
 
+# Kill any leftover pipeline processes from previous runs
+pkill -f "papertools.py run" 2>/dev/null || true
+pkill -f "src/core/pipeline.py" 2>/dev/null || true
+sleep 2
+
 echo "[$RUN_TS] 🚀 Starting daily full pipeline" | tee -a "$LOG_FILE"
 
-"$PYTHON_BIN" papertools.py run --mode full >>"$LOG_FILE" 2>&1
+# Timeout after 3 hours to prevent zombie processes
+timeout 10800 "$PYTHON_BIN" papertools.py run --mode full >>"$LOG_FILE" 2>&1
 PIPELINE_EXIT=$?
+
+if [ $PIPELINE_EXIT -eq 124 ]; then
+    echo "[$RUN_TS] ❌ Pipeline timed out after 3 hours" | tee -a "$LOG_FILE"
+fi
 
 if [ $PIPELINE_EXIT -ne 0 ]; then
     echo "[$RUN_TS] ⚠️ Pipeline exited with code $PIPELINE_EXIT (partial failures possible)" | tee -a "$LOG_FILE"
