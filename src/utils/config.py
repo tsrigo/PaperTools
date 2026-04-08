@@ -13,7 +13,7 @@ load_dotenv()
 API_KEY = os.getenv("OPENAI_API_KEY")
 BASE_URL = os.getenv("OPENAI_BASE_URL")
 MODEL = os.getenv("MODEL")
-FILTER_MODEL = os.getenv("FILTER_MODEL", "deepseek-chat")  # 筛选用轻量模型
+FILTER_MODEL = os.getenv("FILTER_MODEL", "minimax-m2.5")  # 筛选用轻量模型
 
 # Webhook notification (optional)
 WEBHOOK_URL = os.getenv("WEBHOOK_URL", "")

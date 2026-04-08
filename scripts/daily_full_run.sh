@@ -30,13 +30,8 @@ sleep 2
 
 echo "[$RUN_TS] 🚀 Starting daily full pipeline" | tee -a "$LOG_FILE"
 
-# Timeout after 3 hours to prevent zombie processes
-timeout 10800 "$PYTHON_BIN" papertools.py run --mode full >>"$LOG_FILE" 2>&1
+"$PYTHON_BIN" papertools.py run --mode full >>"$LOG_FILE" 2>&1
 PIPELINE_EXIT=$?
-
-if [ $PIPELINE_EXIT -eq 124 ]; then
-    echo "[$RUN_TS] ❌ Pipeline timed out after 3 hours" | tee -a "$LOG_FILE"
-fi
 
 if [ $PIPELINE_EXIT -ne 0 ]; then
     echo "[$RUN_TS] ⚠️ Pipeline exited with code $PIPELINE_EXIT (partial failures possible)" | tee -a "$LOG_FILE"
