@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prestige Excluded Papers</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 24px; background: #f7f7f5; color: #1f2937; }
+    h1 { margin-bottom: 8px; }
+    .meta { color: #4b5563; margin-bottom: 16px; }
+    input { width: 100%; max-width: 640px; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; margin-bottom: 16px; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid #e5e7eb; text-align: left; vertical-align: top; }
+    th { background: #f3f4f6; position: sticky; top: 0; }
+    .reason { color: #374151; white-space: pre-wrap; }
+    .inst { color: #111827; }
+    .muted { color: #6b7280; }
+  </style>
+</head>
+<body>
+  <h1>Prestige Excluded Papers</h1>
+  <div class="meta">Total excluded by prestige: <span id="count">0</span></div>
+  <input id="q" type="search" placeholder="搜索标题 / 作者 / 机构" />
+  <table>
+    <thead>
+      <tr><th>Date</th><th>Title</th><th>Authors</th><th>Institutions</th><th>Source</th><th>Reason</th></tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+  <script>
+    const rowsEl = document.getElementById('rows');
+    const countEl = document.getElementById('count');
+    const qEl = document.getElementById('q');
+    let papers = [];
+    function esc(s) {
+      return String(s || '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+    }
+    function render(list) {
+      countEl.textContent = list.length;
+      rowsEl.innerHTML = list.map(p => `
+        <tr>
+          <td>${esc(p.date)}</td>
+          <td><div>${esc(p.title)}</div><div class="muted">${esc(p.arxiv_id || '')}</div></td>
+          <td>${esc(p.authors)}</td>
+          <td class="inst">${esc((p.institution_names || []).join(', ') || 'N/A')}</td>
+          <td>${esc(p.prestige_source || 'unknown')}</td>
+          <td class="reason">${esc(p.prestige_reason || p.filter_reason || '')}</td>
+        </tr>`).join('');
+    }
+    fetch('data/prestige_excluded_papers.json').then(r => r.json()).then(data => {
+      papers = data.papers || [];
+      render(papers);
+    });
+    qEl.addEventListener('input', () => {
+      const q = qEl.value.trim().toLowerCase();
+      if (!q) return render(papers);
+      render(papers.filter(p => [p.title, p.authors, (p.institution_names || []).join(' '), p.date, p.prestige_source || ''].join(' ').toLowerCase().includes(q)));
+    });
+  </script>
+</body>
+</html>
