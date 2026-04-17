@@ -31,9 +31,123 @@ from src.utils.cache_manager import CacheManager  # noqa: E402
 from src.utils.notify import notify_failures  # noqa: E402
 
 
+MIN_VALID_PAPER_CONTENT_CHARS = 2000
+MIN_VALID_PAPER_CONTENT_ALPHA_CHARS = 800
+INVALID_PAPER_CONTENT_PATTERNS = (
+    "upstream connect error",
+    "error code:",
+    "bad gateway",
+    "too many requests",
+    "rate limit exceeded",
+    "access denied",
+    "request failed",
+    "server error",
+    "captcha",
+)
+
+
 def strip_think_tags(text: str) -> str:
     """Remove <think>...</think> blocks from model output (reasoning tokens)."""
     return re.sub(r'<think>[\s\S]*?</think>\s*', '', text).strip()
+
+
+def normalize_whitespace(text: Optional[str]) -> str:
+    """Collapse repeated whitespace for lightweight content validation."""
+    return re.sub(r'\s+', ' ', text or '').strip()
+
+
+def get_paper_content_issue(content: Optional[str]) -> Optional[str]:
+    """Return a human-readable issue when fetched paper content looks invalid."""
+    normalized = normalize_whitespace(content)
+    if not normalized:
+        return "内容为空"
+
+    lowered = normalized.lower()
+    for pattern in INVALID_PAPER_CONTENT_PATTERNS:
+        if pattern in lowered:
+            return f"命中错误页特征: {pattern}"
+
+    if len(normalized) < MIN_VALID_PAPER_CONTENT_CHARS:
+        return f"内容过短 ({len(normalized)} chars)"
+
+    alpha_chars = sum(ch.isalpha() for ch in normalized)
+    if alpha_chars < MIN_VALID_PAPER_CONTENT_ALPHA_CHARS:
+        return f"有效字母过少 ({alpha_chars})"
+
+    return None
+
+
+def ensure_valid_paper_content(content: Optional[str], source: str) -> str:
+    """Validate fetched paper content and raise a retryable error when invalid."""
+    issue = get_paper_content_issue(content)
+    if issue:
+        raise ValueError(f"{source} 返回的论文内容无效: {issue}")
+    return content or ""
+
+
+def is_section_heading(line: str) -> bool:
+    """Heuristic section-heading detector used for abstract extraction."""
+    cleaned = re.sub(r'^[#>\-\s]+', '', line or '').strip()
+    cleaned = re.sub(r'\s+', ' ', cleaned)
+    lowered = cleaned.lower()
+    if not lowered:
+        return False
+    if lowered.startswith("keywords"):
+        return True
+    return bool(re.match(
+        r'^(?:\d+(?:\.\d+)*\.?|[ivxlcdm]+\.?)\s+'
+        r'(?:introduction|background|related work|preliminar(?:y|ies)|method|methods|approach|overview|experiment|experiments|results|conclusion|references)\b',
+        lowered,
+    )) or lowered in {
+        "introduction",
+        "background",
+        "related work",
+        "preliminaries",
+        "method",
+        "methods",
+        "approach",
+        "overview",
+        "experiments",
+        "results",
+        "conclusion",
+        "references",
+    }
+
+
+def extract_abstract_from_paper_content(paper_content: str) -> str:
+    """Try to recover the original abstract from fetched paper text."""
+    lines = paper_content.splitlines()
+    max_scan_lines = min(len(lines), 200)
+
+    for idx in range(max_scan_lines):
+        line = lines[idx].strip()
+        if not line:
+            continue
+
+        match = re.match(r'^(?:#+\s*)?abstract\b[\s:.\-–—]*?(.*)$', line, flags=re.IGNORECASE)
+        if not match:
+            continue
+
+        collected: List[str] = []
+        inline_abstract = normalize_whitespace(match.group(1))
+        if inline_abstract:
+            collected.append(inline_abstract)
+
+        for follow_line in lines[idx + 1: idx + 80]:
+            stripped = follow_line.strip()
+            if not stripped:
+                if collected:
+                    collected.append("")
+                continue
+            if collected and is_section_heading(stripped):
+                break
+            collected.append(stripped)
+
+        abstract = normalize_whitespace(" ".join(part for part in collected if part is not None))
+        if len(abstract) >= 200:
+            return abstract
+
+    return ""
 
 
 class JinaRateLimiter:
@@ -62,12 +176,15 @@ class JinaRateLimiter:
 jina_rate_limiter = JinaRateLimiter(max_requests_per_minute=JINA_MAX_REQUESTS_PER_MINUTE)
 
 
-def retry_on_failure(max_retries: int = None, backoff_factor: float = None, apply_rate_limit: bool = False):
+def retry_on_failure(max_retries: int = None, backoff_factor: float = None,
+                     apply_rate_limit: bool = False, retryable_exceptions=None):
     """重试装饰器，支持速率限制和指数退避"""
     if max_retries is None:
         max_retries = JINA_MAX_RETRIES
     if backoff_factor is None:
         backoff_factor = JINA_BACKOFF_FACTOR
+    if retryable_exceptions is None:
+        retryable_exceptions = (requests.exceptions.RequestException,)
 
     def decorator(func):
         @wraps(func)
@@ -80,7 +197,7 @@ def retry_on_failure(max_retries: int = None, backoff_factor: float = None, appl
                     if apply_rate_limit:
                         jina_rate_limiter.wait_if_needed()
                     return func(*args, **kwargs)
-                except requests.exceptions.RequestException as e:
+                except retryable_exceptions as e:
                     last_exception = e
                     if attempt < max_retries - 1:
                         wait_time = backoff_factor ** attempt
@@ -121,21 +238,18 @@ def retry_on_openai_error(max_retries: int = 6, backoff_factor: float = 2.0):
                     last_exception = e
                     error_msg = str(e)
 
-                    # 判断是否是可重试的错误
-                    retryable_errors = [
-                        'Connection error',
-                        'timeout',
-                        'Too Many Requests',
-                        'Rate limit',
-                        'Service Unavailable',
-                        '503',
-                        '502',
-                        '500'
+                    # 不可重试的错误：认证失败、参数错误等客户端问题
+                    non_retryable_errors = [
+                        '401',
+                        'Unauthorized',
+                        '403',
+                        'Forbidden',
+                        'invalid_api_key',
                     ]
 
-                    is_retryable = any(err in error_msg for err in retryable_errors)
+                    is_non_retryable = any(err in error_msg for err in non_retryable_errors)
 
-                    if is_retryable and attempt < max_retries - 1:
+                    if not is_non_retryable and attempt < max_retries - 1:
                         wait_time = backoff_factor ** attempt
                         print(f"⚠️ OpenAI API调用失败 (尝试 {attempt + 1}/{max_retries}), {wait_time:.2f}秒后重试: {error_msg}")
                         time.sleep(wait_time)
@@ -144,9 +258,15 @@ def retry_on_openai_error(max_retries: int = 6, backoff_factor: float = 2.0):
                             print(f"❌ OpenAI API调用失败，已达到最大重试次数: {error_msg}")
                         raise e
                 except Exception as e:
-                    # 对于其他非网络相关的异常，直接抛出
-                    print(f"❌ 发生非网络错误: {e}")
-                    raise e
+                    last_exception = e
+                    error_msg = str(e)
+                    if attempt < max_retries - 1:
+                        wait_time = backoff_factor ** attempt
+                        print(f"⚠️ 未知错误 (尝试 {attempt + 1}/{max_retries}), {wait_time:.2f}秒后重试: {error_msg}")
+                        time.sleep(wait_time)
+                    else:
+                        print(f"❌ 已达到最大重试次数: {error_msg}")
+                        raise e
 
             # 如果所有重试都失败了，抛出最后一个异常
             if last_exception:
@@ -156,7 +276,10 @@ def retry_on_openai_error(max_retries: int = 6, backoff_factor: float = 2.0):
     return decorator
 
 
-@retry_on_failure(apply_rate_limit=True)
+@retry_on_failure(
+    apply_rate_limit=True,
+    retryable_exceptions=(requests.exceptions.RequestException, ValueError),
+)
 def fetch_paper_content_from_jinja(arxiv_url: str, cache_manager: Optional[CacheManager] = None) -> Optional[str]:
     """
     使用jinja.ai获取论文完整内容，支持缓存
@@ -172,8 +295,11 @@ def fetch_paper_content_from_jinja(arxiv_url: str, cache_manager: Optional[Cache
     if cache_manager and ENABLE_CACHE:
         cached_paper = cache_manager.get_paper_cache(arxiv_url)
         if cached_paper and cached_paper.get('data', {}).get('content'):
-            # print(f"📋 使用缓存的论文内容: {arxiv_url}")
-            return cached_paper['data']['content']
+            cached_content = cached_paper['data']['content']
+            cached_issue = get_paper_content_issue(cached_content)
+            if not cached_issue:
+                return cached_content
+            print(f"⚠️ 缓存的论文内容无效，忽略缓存: {arxiv_url} ({cached_issue})")
     
     # 如果缓存中没有，才调用jina.ai API
     print(f"🌐 从jina.ai获取论文内容: {arxiv_url}")
@@ -206,7 +332,8 @@ def fetch_paper_content_from_jinja(arxiv_url: str, cache_manager: Optional[Cache
     response = requests.get(jinja_url, headers=headers or None, timeout=REQUEST_TIMEOUT)
     
     if response.status_code == 200:
-        content = response.content.decode('utf-8')
+        content = response.content.decode('utf-8', errors='replace')
+        content = ensure_valid_paper_content(content, f"jina.ai {arxiv_url}")
         
         # 🚀 优化：保存到缓存
         if cache_manager and ENABLE_CACHE:
@@ -238,7 +365,7 @@ def extract_arxiv_id_from_link(link: str) -> Optional[str]:
 def translate_summary(summary: str, client: OpenAI, model: str, temperature: float, paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
     """
     翻译英文摘要为中文
-    
+
     Args:
         summary: 英文摘要
         client: OpenAI客户端
@@ -246,7 +373,7 @@ def translate_summary(summary: str, client: OpenAI, model: str, temperature: flo
         temperature: 生成温度
         paper_title: 论文标题（用于缓存）
         cache_manager: 缓存管理器
-    
+
     Returns:
         中文翻译
     """
@@ -255,7 +382,6 @@ def translate_summary(summary: str, client: OpenAI, model: str, temperature: flo
         cache_key = f"translation_{paper_title}_{summary[:100]}"
         cached_translation = cache_manager.get_summary_cache(cache_key, summary)
         if cached_translation:
-            # print(f"📋 使用缓存的翻译: {paper_title[:50]}...")
             return cached_translation
 
     # 构建翻译prompt
@@ -271,42 +397,39 @@ def translate_summary(summary: str, client: OpenAI, model: str, temperature: flo
 
 请提供中文翻译："""
 
-    try:
-        response = client.chat.completions.create(
-            model=model,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "你是一个专业的学术论文翻译助手，擅长将英文学术论文摘要准确翻译成中文。"
-                },
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
-            temperature=temperature,
-            stream=True  # 使用流式响应避免524超时
-        )
-        # 收集流式响应
-        translation = ""
-        for chunk in response:
-            if chunk.choices and len(chunk.choices) > 0:
-                delta = chunk.choices[0].delta
-                if delta and delta.content:
-                    translation += delta.content
-        
-        translation = strip_think_tags(translation)
+    response = client.chat.completions.create(
+        model=model,
+        messages=[
+            {
+                "role": "system",
+                "content": "你是一个专业的学术论文翻译助手，擅长将英文学术论文摘要准确翻译成中文。"
+            },
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
+        temperature=temperature,
+        stream=True,
+    )
+    translation = ""
+    for chunk in response:
+        if chunk.choices and len(chunk.choices) > 0:
+            delta = chunk.choices[0].delta
+            if delta and delta.content:
+                translation += delta.content
 
-        # 保存到缓存
-        if cache_manager and ENABLE_CACHE:
-            cache_key = f"translation_{paper_title}_{summary[:100]}"
-            cache_manager.set_summary_cache(cache_key, summary, translation)
+    translation = strip_think_tags(translation)
 
-        return translation
-        
-    except Exception as e:
-        print(f"❌ 翻译摘要时出错: {e}")
-        return "翻译失败"
+    if not translation.strip():
+        raise ValueError(f"Translation returned empty for {paper_title[:50]}")
+
+    # 保存到缓存
+    if cache_manager and ENABLE_CACHE:
+        cache_key = f"translation_{paper_title}_{summary[:100]}"
+        cache_manager.set_summary_cache(cache_key, summary, translation)
+
+    return translation
 
 
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
@@ -332,6 +455,9 @@ def _llm_generate(client, model: str, temperature: float, system: str, prompt: s
                 result += delta.content
 
     result = strip_think_tags(result)
+
+    if not result.strip():
+        raise ValueError(f"LLM returned empty result for {cache_key}")
 
     if cache_manager and ENABLE_CACHE:
         cache_manager.set_summary_cache(cache_key, paper_content, result)
@@ -912,43 +1038,40 @@ ArXiv ID: {paper.get('arxiv_id', 'Unknown')}
 
 请现在生成"今日AI论文速览"报告："""
 
-    try:
-        response = client.chat.completions.create(
-            model=model,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "你是一位顶尖的AI研究分析师和科技媒体主编，擅长将复杂的学术论文信息提炼成结构清晰、重点突出的每日速览。"
-                },
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
-            temperature=temperature,
-            stream=True  # 使用流式响应避免524超时
-        )
-        # 收集流式响应
-        daily_overview = ""
-        for chunk in response:
-            if chunk.choices and len(chunk.choices) > 0:
-                delta = chunk.choices[0].delta
-                if delta and delta.content:
-                    daily_overview += delta.content
-        
-        daily_overview = strip_think_tags(daily_overview)
+    response = client.chat.completions.create(
+        model=model,
+        messages=[
+            {
+                "role": "system",
+                "content": "你是一位顶尖的AI研究分析师和科技媒体主编，擅长将复杂的学术论文信息提炼成结构清晰、重点突出的每日速览。"
+            },
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
+        temperature=temperature,
+        stream=True,
+    )
+    daily_overview = ""
+    for chunk in response:
+        if chunk.choices and len(chunk.choices) > 0:
+            delta = chunk.choices[0].delta
+            if delta and delta.content:
+                daily_overview += delta.content
 
-        # 保存到缓存
-        if cache_manager and ENABLE_CACHE:
-            cache_key = f"daily_overview_v2_{date_str}"
-            content_fingerprint = "_".join([p.get('title', '')[:30] for p in papers[:10]])
-            cache_manager.set_summary_cache(cache_key, content_fingerprint, daily_overview)
+    daily_overview = strip_think_tags(daily_overview)
 
-        return daily_overview
+    if not daily_overview.strip():
+        raise ValueError(f"Daily overview returned empty for {date_str}")
 
-    except Exception as e:
-        print(f"❌ 生成每日速览失败: {e}")
-        return f"# 今日AI论文速览 ({date_str})\n\n生成每日速览时发生错误: {e}"
+    # 保存到缓存
+    if cache_manager and ENABLE_CACHE:
+        cache_key = f"daily_overview_v2_{date_str}"
+        content_fingerprint = "_".join([p.get('title', '')[:30] for p in papers[:10]])
+        cache_manager.set_summary_cache(cache_key, content_fingerprint, daily_overview)
+
+    return daily_overview
 
 
 def main():
@@ -1045,11 +1168,20 @@ def main():
                 paper_content_cache = cache_manager.get_paper_cache(paper_link)
                 if paper_content_cache and paper_content_cache.get('data', {}).get('content'):
                     cached_paper_content = paper_content_cache['data']['content']
+                    cached_issue = get_paper_content_issue(cached_paper_content)
+                    if cached_issue:
+                        print(f"⚠️ 跳过无效缓存正文 {paper_title[:30]}: {cached_issue}")
+                        cached_paper_content = ""
+
+                    if cached_paper_content and not original_summary:
+                        original_summary = extract_abstract_from_paper_content(cached_paper_content)
+
                     # 检查prompt的缓存
-                    cached_intro_logic = cache_manager.get_summary_cache(f"intro_logic_zh_{paper_title}", cached_paper_content)
-                    cached_core_insight = cache_manager.get_summary_cache(f"core_insight_v2_{paper_title}", cached_paper_content)
-                    cached_methodology = cache_manager.get_summary_cache(f"methodology_v2_{paper_title}", cached_paper_content)
-                    cached_additional_insights = cache_manager.get_summary_cache(f"additional_insights_{paper_title}", cached_paper_content)
+                    if cached_paper_content:
+                        cached_intro_logic = cache_manager.get_summary_cache(f"intro_logic_zh_{paper_title}", cached_paper_content)
+                        cached_core_insight = cache_manager.get_summary_cache(f"core_insight_v2_{paper_title}", cached_paper_content)
+                        cached_methodology = cache_manager.get_summary_cache(f"methodology_v2_{paper_title}", cached_paper_content)
+                        cached_additional_insights = cache_manager.get_summary_cache(f"additional_insights_{paper_title}", cached_paper_content)
 
                     if original_summary:
                         cache_key = f"translation_{paper_title}_{original_summary[:100]}"
@@ -1062,11 +1194,13 @@ def main():
                         cached_research_value = cache_manager.get_summary_cache(f"research_value_{paper_title}", rv_content)
 
                     # affiliations 缓存
-                    cached_affiliations = cache_manager.get_summary_cache(f"affiliations_{paper_title}", cached_paper_content)
+                    cached_affiliations = cache_manager.get_summary_cache(f"affiliations_{paper_title}", cached_paper_content) if cached_paper_content else None
 
                     # 如果都有缓存，直接返回
                     if cached_intro_logic and cached_core_insight and cached_methodology and cached_additional_insights and cached_research_value and cached_affiliations and (not original_summary or cached_translation):
                         paper_copy = paper.copy()
+                        if original_summary:
+                            paper_copy['summary'] = original_summary
                         paper_copy['intro_logic'] = cached_intro_logic
                         paper_copy['core_insight'] = cached_core_insight
                         paper_copy['methodology'] = cached_methodology
@@ -1085,14 +1219,25 @@ def main():
             if cache_manager and ENABLE_CACHE:
                 paper_cache = cache_manager.get_paper_cache(paper_link)
                 if paper_cache and paper_cache.get('data', {}).get('content'):
-                    paper_content = paper_cache['data']['content']
-                    # print(f"📋 使用缓存的论文内容: {paper_title[:50]}...")
-            
+                    cached_content = paper_cache['data']['content']
+                    cached_issue = get_paper_content_issue(cached_content)
+                    if not cached_issue:
+                        paper_content = cached_content
+                    else:
+                        print(f"⚠️ 忽略无效缓存正文 {paper_title[:30]}: {cached_issue}")
+
             # 如果缓存中没有内容，才从jina.ai获取
             if not paper_content:
                 paper_content = fetch_paper_content_from_jinja(paper_link, cache_manager)
                 if not paper_content:
                     return 'failed', index, paper, f"❌ 无法获取论文内容: {paper_title}"
+            paper_content = ensure_valid_paper_content(paper_content, paper_title)
+
+            if not original_summary:
+                extracted_summary = extract_abstract_from_paper_content(paper_content)
+                if extracted_summary:
+                    original_summary = extracted_summary
+                    print(f"📝 从论文正文回填原始摘要: {paper_title[:50]}...")
             
             # 检查内容长度并截断
             if len(paper_content) > 200000:
@@ -1157,6 +1302,8 @@ def main():
 
             # 添加总结到论文数据中
             paper_copy = paper.copy()
+            if original_summary:
+                paper_copy['summary'] = original_summary
             paper_copy['intro_logic'] = intro_logic
             paper_copy['core_insight'] = core_insight
             paper_copy['methodology'] = methodology

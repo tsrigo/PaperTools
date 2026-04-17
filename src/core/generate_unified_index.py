@@ -20,10 +20,77 @@ except ImportError:
 INITIAL_DAYS = 3  # 初始加载的天数（其余通过"加载更多"按需加载）
 LOAD_MORE_DAYS = 7  # 每次"加载更多"加载的天数
 
+RICHNESS_FIELDS = (
+    "summary",
+    "summary_translation",
+    "intro_logic",
+    "core_insight",
+    "methodology",
+    "additional_insights",
+    "research_value",
+)
+
+
+def has_non_empty_text(value: Any) -> bool:
+    """Check whether a JSON field contains meaningful text."""
+    return isinstance(value, str) and bool(value.strip())
+
+
+def derive_arxiv_tags(paper: Dict[str, Any]) -> List[str]:
+    """Recover arXiv category tags even when the upstream file omitted `tags`."""
+    tags = set(paper.get("tags", []) or [])
+
+    category = (paper.get("category") or "").strip()
+    if category:
+        tags.add(category)
+
+    subjects = paper.get("subjects") or ""
+    for part in re.split(r"[,;]", subjects):
+        part = part.strip()
+        if re.match(r"^[a-z\-]+\.[A-Z]{2,}$", part):
+            tags.add(part)
+
+    return sorted(tags)
+
+
+def normalize_papers_for_display(papers: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Normalize optional metadata so display logic is robust to partial files."""
+    normalized = []
+    for paper in papers:
+        paper_copy = dict(paper)
+        paper_copy["cluster"] = paper_copy.get("cluster") or "Other"
+        paper_copy["tags"] = derive_arxiv_tags(paper_copy)
+        normalized.append(paper_copy)
+    return normalized
+
+
+def score_paper_file(json_file: Path, papers: List[Dict[str, Any]]) -> tuple:
+    """Prefer clustered and fully enriched daily files over partial fallbacks."""
+    normalized = normalize_papers_for_display(papers)
+    cluster_non_other = sum(1 for paper in normalized if paper.get("cluster") not in ("", "Other"))
+    tags_present = sum(1 for paper in normalized if paper.get("tags"))
+    rich_fields_present = sum(
+        1
+        for paper in normalized
+        for field in RICHNESS_FIELDS
+        if has_non_empty_text(paper.get(field))
+    )
+
+    return (
+        1 if json_file.stem.startswith("clustered_papers_") else 0,
+        cluster_non_other,
+        tags_present,
+        rich_fields_present,
+        len(normalized),
+        int(json_file.stat().st_mtime),
+    )
+
+
 def load_paper_data() -> Dict[str, List[Dict[str, Any]]]:
     """加载论文数据"""
     papers_by_date = {}
     summary_dir = Path(SUMMARY_DIR)
+    candidates_by_date: Dict[str, List[tuple]] = {}
 
     for json_file in summary_dir.glob("*_with_summary2.json"):
         try:
@@ -34,12 +101,17 @@ def load_paper_data() -> Dict[str, List[Dict[str, Any]]]:
             date_match = re.search(r'(\d{4}-\d{2}-\d{2})', filename)
             if date_match:
                 date = date_match.group(1)
-                if date in papers_by_date and len(papers_by_date[date]) >= len(papers):
-                    continue
-                papers_by_date[date] = papers
-                print(f"加载了 {len(papers)} 篇论文，日期: {date}")
+                normalized_papers = normalize_papers_for_display(papers)
+                candidates_by_date.setdefault(date, []).append(
+                    (score_paper_file(json_file, normalized_papers), json_file, normalized_papers)
+                )
         except Exception as e:
             print(f"加载文件 {json_file} 时出错: {e}")
+
+    for date, candidates in candidates_by_date.items():
+        _, chosen_file, chosen_papers = max(candidates, key=lambda item: item[0])
+        papers_by_date[date] = chosen_papers
+        print(f"加载了 {len(chosen_papers)} 篇论文，日期: {date}，来源: {chosen_file.name}")
 
     return papers_by_date
 
@@ -1129,6 +1201,10 @@ def generate_complete_html() -> str:
             container.querySelectorAll('.markdown-content:not([data-rendered])').forEach(renderMarkdownEl);
         }}
 
+        function hasMeaningfulText(value) {{
+            return typeof value === 'string' && value.trim().length > 0;
+        }}
+
         // Render markdown only for currently visible (open) sections
         function renderVisibleMarkdown() {{
             if (typeof marked === 'undefined') return;
@@ -1289,10 +1365,12 @@ def generate_complete_html() -> str:
             registerMarkdown(`methodology-${{aid}}`, paper.methodology);
             registerMarkdown(`additional-insights-${{aid}}`, paper.additional_insights);
             registerMarkdown(`research-value-${{aid}}`, paper.research_value);
-            if (paper.summary) registerMarkdown(`summary-en-${{aid}}`, paper.summary);
-            if (paper.summary_translation) registerMarkdown(`summary-zh-${{aid}}`, paper.summary_translation);
+            if (hasMeaningfulText(paper.summary)) registerMarkdown(`summary-en-${{aid}}`, paper.summary);
+            if (hasMeaningfulText(paper.summary_translation)) registerMarkdown(`summary-zh-${{aid}}`, paper.summary_translation);
 
             let html = '';
+            const hasSummaryEn = hasMeaningfulText(paper.summary);
+            const hasSummaryZh = hasMeaningfulText(paper.summary_translation);
 
             // 已读复选框
             html += `
@@ -1305,25 +1383,27 @@ def generate_complete_html() -> str:
             `;
 
             // 原始摘要
-            if (paper.summary || paper.summary_translation) {{
-                html += `
-                    <div class="mb-3 sm:mb-4">
-                        <div class="collapsible-header open text-sm sm:text-base" onclick="toggleCollapsible(this)">原始摘要</div>
-                        <div class="collapsible-content open">
-                            <div class="inner">
-                                <div class="summary-section bg-green-50/70 dark:bg-green-950/20 border-l-3 border-green-300 p-3 sm:p-4 rounded-r-lg">
-                                    ${{paper.summary ? `
-                                    <div class="english-summary text-xs sm:text-sm text-black dark:text-white leading-relaxed markdown-content break-words" id="summary-en-${{aid}}" style="display: block;">
-                                    </div>` : ''}}
-                                    ${{paper.summary_translation ? `
-                                    <div class="chinese-summary text-xs sm:text-sm text-black dark:text-white leading-relaxed markdown-content break-words" id="summary-zh-${{aid}}" style="display: none;">
-                                    </div>` : ''}}
-                                </div>
+            html += `
+                <div class="mb-3 sm:mb-4">
+                    <div class="collapsible-header open text-sm sm:text-base" onclick="toggleCollapsible(this)">原始摘要</div>
+                    <div class="collapsible-content open">
+                        <div class="inner">
+                            <div class="summary-section bg-green-50/70 dark:bg-green-950/20 border-l-3 border-green-300 p-3 sm:p-4 rounded-r-lg">
+                                ${{hasSummaryEn ? `
+                                <div class="english-summary text-xs sm:text-sm text-black dark:text-white leading-relaxed markdown-content break-words" id="summary-en-${{aid}}" style="display: block;">
+                                </div>` : ''}}
+                                ${{hasSummaryZh ? `
+                                <div class="chinese-summary text-xs sm:text-sm text-black dark:text-white leading-relaxed markdown-content break-words" id="summary-zh-${{aid}}" style="display: ${{hasSummaryEn ? 'none' : 'block'}};">
+                                </div>` : ''}}
+                                ${{!hasSummaryEn && !hasSummaryZh ? `
+                                <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                                    暂无原始摘要。上游抓取或解析可能失败。
+                                </div>` : ''}}
                             </div>
                         </div>
                     </div>
-                `;
-            }}
+                </div>
+            `;
 
             // 各分析section的配置
             const sections = [
@@ -1335,8 +1415,10 @@ def generate_complete_html() -> str:
                 {{ key: 'filter_reason', id: `filter-reason-${{aid}}`, title: '筛选原因', color: 'blue' }},
             ];
 
+            let renderedSections = 0;
             sections.forEach(s => {{
-                if (paper[s.key]) {{
+                if (hasMeaningfulText(paper[s.key])) {{
+                    renderedSections += 1;
                     html += `
                         <div class="mb-3 sm:mb-4">
                             <div class="collapsible-header text-sm sm:text-base" onclick="toggleCollapsible(this)">${{s.title}}</div>
@@ -1352,6 +1434,16 @@ def generate_complete_html() -> str:
                     `;
                 }}
             }});
+
+            if (renderedSections === 0) {{
+                html += `
+                    <div class="mb-3 sm:mb-4">
+                        <div class="bg-amber-50/80 dark:bg-amber-950/20 border-l-3 border-amber-300 p-3 sm:p-4 rounded-r-lg text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                            暂无扩展解析内容。通常是因为论文正文抓取失败、上游解析结果为空，或当天加载到了不完整的数据文件。
+                        </div>
+                    </div>
+                `;
+            }}
 
             // 论文链接
             html += `
