@@ -11,10 +11,11 @@ from typing import Dict, List, Any
 
 # 导入配置
 try:
-    from src.utils.config import SUMMARY_DIR, WEBPAGES_DIR
+    from src.utils.config import SUMMARY_DIR, WEBPAGES_DIR, DOMAIN_PAPER_DIR
 except ImportError:
     SUMMARY_DIR = "summary"
     WEBPAGES_DIR = "webpages"
+    DOMAIN_PAPER_DIR = "domain_paper"
 
 # 分页配置
 INITIAL_DAYS = 3  # 初始加载的天数（其余通过"加载更多"按需加载）
@@ -67,6 +68,9 @@ def normalize_papers_for_display(papers: List[Dict[str, Any]]) -> List[Dict[str,
 def score_paper_file(json_file: Path, papers: List[Dict[str, Any]]) -> tuple:
     """Prefer clustered and fully enriched daily files over partial fallbacks."""
     normalized = normalize_papers_for_display(papers)
+    in_summary_dir = json_file.parent.name == Path(SUMMARY_DIR).name
+    with_summary_suffix = json_file.name.endswith("_with_summary2.json")
+    is_clustered_file = json_file.stem.startswith("clustered_papers_")
     cluster_non_other = sum(1 for paper in normalized if paper.get("cluster") not in ("", "Other"))
     tags_present = sum(1 for paper in normalized if paper.get("tags"))
     rich_fields_present = sum(
@@ -77,7 +81,9 @@ def score_paper_file(json_file: Path, papers: List[Dict[str, Any]]) -> tuple:
     )
 
     return (
-        1 if json_file.stem.startswith("clustered_papers_") else 0,
+        1 if in_summary_dir else 0,
+        1 if with_summary_suffix else 0,
+        1 if is_clustered_file else 0,
         cluster_non_other,
         tags_present,
         rich_fields_present,
@@ -90,12 +96,20 @@ def load_paper_data() -> Dict[str, List[Dict[str, Any]]]:
     """加载论文数据"""
     papers_by_date = {}
     summary_dir = Path(SUMMARY_DIR)
+    domain_paper_dir = Path(DOMAIN_PAPER_DIR)
     candidates_by_date: Dict[str, List[tuple]] = {}
 
-    for json_file in summary_dir.glob("*_with_summary2.json"):
+    candidate_files = list(summary_dir.glob("*_with_summary2.json"))
+    candidate_files.extend(domain_paper_dir.glob("clustered_papers_*.json"))
+    candidate_files.extend(domain_paper_dir.glob("filtered_papers_*.json"))
+
+    for json_file in candidate_files:
         try:
             with open(json_file, 'r', encoding='utf-8') as f:
                 papers = json.load(f)
+
+            if not isinstance(papers, list):
+                continue
 
             filename = json_file.stem
             date_match = re.search(r'(\d{4}-\d{2}-\d{2})', filename)
@@ -111,7 +125,7 @@ def load_paper_data() -> Dict[str, List[Dict[str, Any]]]:
     for date, candidates in candidates_by_date.items():
         _, chosen_file, chosen_papers = max(candidates, key=lambda item: item[0])
         papers_by_date[date] = chosen_papers
-        print(f"加载了 {len(chosen_papers)} 篇论文，日期: {date}，来源: {chosen_file.name}")
+        print(f"加载了 {len(chosen_papers)} 篇论文，日期: {date}，来源: {chosen_file.parent.name}/{chosen_file.name}")
 
     return papers_by_date
 
@@ -1557,15 +1571,10 @@ def generate_complete_html() -> str:
             let totalPapers = 0;
 
             for (const date in allPapers) {{
-                const clusters = allPapers[date];
-                if (clusters.length === 0) continue;
-
+                const clusters = allPapers[date] || [];
                 const {{ html: papersHTML, count: dateVisibleTotal }} = collectPapersForDate(clusters, date);
 
                 totalPapers += dateVisibleTotal;
-
-                // 如果该日期下没有可见论文，跳过
-                if (dateVisibleTotal === 0) continue;
 
                 html += `
                     <section class="mb-6 sm:mb-8" data-date-section="${{date}}">
@@ -1595,14 +1604,25 @@ def generate_complete_html() -> str:
                 // Add tag filter bar
                 html += buildTagFilterBar(date);
 
-                html += `
+                if (dateVisibleTotal === 0) {{
+                    html += `
+                        <div class="bg-white dark:bg-slate-800/50 rounded-lg shadow-sm p-4 sm:p-5 lg:p-6">
+                            <div class="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
+                                今日数据已处理，但没有符合当前筛选条件的论文。
+                            </div>
+                        </div>
+                    </section>
+                    `;
+                }} else {{
+                    html += `
                         <div class="bg-white dark:bg-slate-800/50 rounded-lg shadow-sm p-3 sm:p-4 lg:p-6">
                             <ul class="space-y-3 sm:space-y-4">
                                 ${{papersHTML}}
                             </ul>
                         </div>
                     </section>
-                `;
+                    `;
+                }}
             }}
 
             // 添加"加载更多"按钮
