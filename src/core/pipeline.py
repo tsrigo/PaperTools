@@ -29,6 +29,12 @@ except ImportError:
     raise ImportError("⚠️ 错误: 未找到config.py")
 
 from src.utils.notify import notify_failures, notify_pipeline_complete
+from src.utils.exceptions import ValidationError
+from src.utils.validation import (
+    validate_date_inputs,
+    validate_non_negative_int,
+    validate_positive_int,
+)
 
 
 class ProgressTracker:
@@ -192,7 +198,7 @@ def check_file_exists(filepath: str, description: str) -> bool:
         return False
 
 
-def main():
+def main() -> int:
     """主函数"""
     parser = argparse.ArgumentParser(description='完整的学术论文处理流水线')
     
@@ -234,6 +240,20 @@ def main():
     
     args = parser.parse_args()
 
+    try:
+        validate_positive_int(args.max_papers_per_category, "--max-papers-per-category")
+        validate_non_negative_int(args.max_papers_total, "--max-papers-total")
+        validate_positive_int(args.max_workers, "--max-workers")
+        args.date, args.start_date, args.end_date = validate_date_inputs(
+            date=args.date,
+            start_date=args.start_date,
+            end_date=args.end_date,
+        )
+    except ValidationError as exc:
+        progress = ProgressTracker()
+        progress.log_with_timestamp(f"❌ 参数校验失败: {exc}")
+        return 2
+
     # 根据 --start-from 自动设置跳过标志
     stage_order = ['crawl', 'filter', 'cluster', 'summary', 'unified', 'serve']
     if args.start_from:
@@ -264,9 +284,6 @@ def main():
     
     # 处理日期参数
     use_date_range = args.start_date and args.end_date
-    if use_date_range and args.date:
-        progress.log_with_timestamp("❌ 不能同时指定单个日期和日期范围")
-        return
     
     if use_date_range:
         progress.log_with_timestamp(f"📅 日期范围: {args.start_date} 到 {args.end_date}")
@@ -304,7 +321,7 @@ def main():
         if not run_command(cmd, "爬取论文", progress):
             progress.complete_step("爬取论文", False)
             progress.log_with_timestamp("❌ 爬取失败，流水线终止")
-            return
+            return 1
         # 按日期查找爬取文件
         if args.date:
             crawl_output_file = find_file_by_date(ARXIV_PAPER_DIR, args.date, "*.json")
@@ -313,7 +330,7 @@ def main():
         if not crawl_output_file:
             progress.complete_step("爬取论文", False)
             progress.log_with_timestamp("❌ 未找到爬取输出文件")
-            return
+            return 1
         progress.complete_step("爬取论文", True)
     else:
         progress.skip_step("爬取arXiv论文")
@@ -325,7 +342,7 @@ def main():
                 crawl_output_file = find_latest_file(ARXIV_PAPER_DIR, "*.json")
             if not crawl_output_file:
                 progress.log_with_timestamp("❌ 未找到可用的爬取文件")
-                return
+                return 1
     progress.log_with_timestamp(f"📄 使用爬取文件: {crawl_output_file}")
     
     # ============ 步骤2: 筛选论文 ============
@@ -346,7 +363,7 @@ def main():
         if not run_command(cmd, "筛选论文", progress):
             progress.complete_step("筛选论文", False)
             progress.log_with_timestamp("❌ 筛选失败，流水线终止")
-            return
+            return 1
         # 按日期查找筛选文件
         if args.date:
             filter_output_file = find_file_by_date(DOMAIN_PAPER_DIR, args.date, "*.json")
@@ -355,7 +372,7 @@ def main():
         if not filter_output_file:
             progress.complete_step("筛选论文", False)
             progress.log_with_timestamp("❌ 未找到筛选输出文件")
-            return
+            return 1
         progress.complete_step("筛选论文", True)
     else:
         progress.skip_step("筛选相关论文")
@@ -367,26 +384,30 @@ def main():
                 filter_output_file = find_latest_file(DOMAIN_PAPER_DIR, "*.json")
             if not filter_output_file:
                 progress.log_with_timestamp("❌ 未找到可用的筛选文件")
-                return
+                return 1
     progress.log_with_timestamp(f"📄 使用筛选文件: {filter_output_file}")
     
     # 检查筛选结果
+    zero_filtered_papers = False
     try:
         with open(filter_output_file, 'r', encoding='utf-8') as f:
             filtered_papers = json.load(f)
         progress.log_with_timestamp(f"📊 筛选后论文数量: {len(filtered_papers)}")
-        
+
         if len(filtered_papers) == 0:
-            progress.log_with_timestamp("⚠️ 筛选后没有论文，流水线终止")
-            return
+            zero_filtered_papers = True
+            progress.log_with_timestamp("⚠️ 筛选后没有论文，跳过聚类和总结，继续生成页面与通知")
     except Exception as e:
         progress.log_with_timestamp(f"❌ 读取筛选文件失败: {e}")
-        return
-    
+        return 1
+
     # ============ 步骤3: 论文聚类 ============
     cluster_output_file = filter_output_file  # default fallback
 
-    if not args.skip_cluster:
+    if zero_filtered_papers:
+        progress.skip_step("论文聚类")
+        progress.log_with_timestamp("📄 当前日期无筛选结果，直接使用筛选文件生成零结果页面")
+    elif not args.skip_cluster:
         progress.start_step("论文聚类")
         cmd = [
             sys.executable, "src/core/cluster_papers.py",
@@ -439,7 +460,9 @@ def main():
     # ============ 步骤4: 生成论文总结 ============
     summary_output_file = cluster_output_file  # 默认使用聚类后的文件
 
-    if not args.skip_summary:
+    if zero_filtered_papers:
+        progress.skip_step("生成论文总结")
+    elif not args.skip_summary:
         progress.start_step("生成论文总结")
 
         cmd = [
@@ -611,7 +634,8 @@ def main():
         pass  # notification is best-effort
 
     print("\n✨ 流水线执行完成！")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
