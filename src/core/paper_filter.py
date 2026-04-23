@@ -12,7 +12,7 @@ import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from openai import OpenAI, OpenAIError
 from tqdm import tqdm
@@ -50,11 +50,67 @@ try:
 except ImportError as exc:
     raise ImportError(f"⚠️ 错误: 未找到依赖模块: {exc}") from exc
 
+from src.document_extraction import ExtractionManager  # noqa: E402
 from src.utils.exceptions import ValidationError  # noqa: E402
 from src.utils.io import save_json  # noqa: E402
-from src.utils.jina_reader import fetch_paper_content_from_jina  # noqa: E402
 from src.utils.retry import retry_with_backoff  # noqa: E402
 from src.utils.validation import validate_non_negative_int, validate_positive_int  # noqa: E402
+
+
+SOURCE_METADATA_FIELDS = (
+    'index',
+    'title',
+    'link',
+    'arxiv_id',
+    'authors',
+    'summary',
+    'abstract',
+    'subjects',
+    'date',
+    'category',
+    'crawl_time',
+)
+
+
+def has_non_empty_text(value: Any) -> bool:
+    """Return True when a value is meaningful display text."""
+    return isinstance(value, str) and bool(value.strip())
+
+
+def build_source_paper_index(papers: List[dict]) -> Dict[str, dict]:
+    """Index freshly crawled papers by arXiv id for repairing resumed results."""
+    source_by_id: Dict[str, dict] = {}
+    for paper in papers:
+        arxiv_id = (paper.get('arxiv_id') or '').strip()
+        if arxiv_id:
+            source_by_id[arxiv_id] = paper
+    return source_by_id
+
+
+def repair_paper_metadata_from_source(paper: dict, source_paper: Optional[dict]) -> Tuple[dict, bool]:
+    """Backfill metadata that older filter outputs may have dropped."""
+    if not source_paper:
+        return paper, False
+
+    repaired = paper.copy()
+    changed = False
+
+    for field in SOURCE_METADATA_FIELDS:
+        source_value = source_paper.get(field)
+        if source_value is None:
+            continue
+
+        current_value = repaired.get(field)
+        if field in {'summary', 'abstract'}:
+            should_repair = has_non_empty_text(source_value) and not has_non_empty_text(current_value)
+        else:
+            should_repair = current_value in (None, '') and source_value not in (None, '')
+
+        if should_repair:
+            repaired[field] = source_value
+            changed = True
+
+    return repaired, changed
 
 
 def parse_llm_response(response_text: str) -> Tuple[bool, str]:
@@ -251,7 +307,8 @@ def get_affiliation_context(paper_content: str) -> str:
 
 
 def fetch_affiliations_for_prestige(paper: dict, client: OpenAI, model: str, temperature: float,
-                                    cache_manager: Optional[CacheManager] = None) -> Tuple[Optional[str], str]:
+                                    cache_manager: Optional[CacheManager] = None,
+                                    document_extractor: Optional[ExtractionManager] = None) -> Tuple[Optional[str], str]:
     """为 prestige 筛选提取机构信息。"""
     paper_link = paper.get('link') or paper.get('arxiv_id', '')
     paper_title = paper.get('title', '')
@@ -260,7 +317,11 @@ def fetch_affiliations_for_prestige(paper: dict, client: OpenAI, model: str, tem
     if not paper_link:
         return None, "缺少论文链接，无法获取机构信息"
 
-    paper_content = fetch_paper_content_from_jina(paper_link, cache_manager)
+    extractor = document_extractor or ExtractionManager(cache_manager=cache_manager)
+    try:
+        paper_content = extractor.extract(paper_link).content
+    except Exception as exc:
+        return None, f"无法获取论文前置内容，待后续重试机构提取: {exc}"
     if not paper_content:
         return None, "无法获取论文前置内容，待后续重试机构提取"
 
@@ -362,6 +423,7 @@ def main() -> int:
         timeout=180.0,
     )
     cache_manager = CacheManager() if ENABLE_CACHE else None
+    document_extractor = ExtractionManager(cache_manager=cache_manager)
 
     print("🔍 开始论文筛选")
     print(f"📁 输入文件: {args.input_file}")
@@ -379,6 +441,8 @@ def main() -> int:
         print(f"❌ 读取文件时出错: {e}")
         return 1
 
+    source_papers_by_id = build_source_paper_index(papers)
+
     current_date = datetime.now().strftime('%Y%m%d')
     input_filename = os.path.basename(args.input_file)
     date_part = input_filename.split('_')[-1].split('.json')[0] if '_' in input_filename else current_date
@@ -393,12 +457,19 @@ def main() -> int:
     processed_arxiv_ids = set()
     stale_filtered_count = 0
     stale_excluded_count = 0
+    repaired_filtered_count = 0
 
     if os.path.exists(output_filepath):
         try:
             with open(output_filepath, 'r', encoding='utf-8') as f:
                 loaded_filtered = json.load(f)
             for paper in loaded_filtered:
+                paper, repaired = repair_paper_metadata_from_source(
+                    paper,
+                    source_papers_by_id.get(paper.get('arxiv_id', '')),
+                )
+                if repaired:
+                    repaired_filtered_count += 1
                 if is_current_filtered_schema(paper):
                     existing_filtered.append(paper)
                     processed_arxiv_ids.add(paper.get('arxiv_id', ''))
@@ -427,6 +498,8 @@ def main() -> int:
             f"♻️ 忽略旧版筛选结果: 保留集 {stale_filtered_count} 篇, "
             f"排除集 {stale_excluded_count} 篇，将按当前规则重新处理"
         )
+    if repaired_filtered_count:
+        print(f"🧩 已从爬取源文件回填旧筛选结果元数据: {repaired_filtered_count} 篇")
 
     unprocessed_papers = []
     for paper in papers:
@@ -440,6 +513,16 @@ def main() -> int:
 
     if not papers:
         print("✅ 所有论文都已处理完成！")
+        if repaired_filtered_count:
+            try:
+                if not save_json(output_filepath, existing_filtered, indent=4, ensure_ascii=False):
+                    raise IOError(output_filepath)
+                if existing_excluded and not save_json(excluded_filepath, existing_excluded, indent=4, ensure_ascii=False):
+                    raise IOError(excluded_filepath)
+                print(f"💾 已保存回填后的筛选结果: {output_filepath}")
+            except Exception as e:
+                print(f"❌ 保存回填结果时出错: {e}")
+                return 1
         return 0
 
     if args.max_papers > 0:
@@ -498,6 +581,7 @@ def main() -> int:
                     args.model,
                     args.temperature,
                     cache_manager,
+                    document_extractor,
                 )
             except Exception as exc:
                 affiliations = None

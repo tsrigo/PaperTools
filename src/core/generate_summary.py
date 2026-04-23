@@ -14,7 +14,6 @@ from typing import Optional, Dict, List
 from tqdm import tqdm
 from openai import OpenAI, OpenAIError
 from concurrent.futures import ThreadPoolExecutor, as_completed
-import threading
 from functools import wraps
 
 # 导入配置
@@ -24,26 +23,23 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 from src.utils.config import (  # noqa: E402
-    API_KEY, BASE_URL, MODEL, SUMMARY_DIR, TEMPERATURE, REQUEST_DELAY, REQUEST_TIMEOUT, MAX_WORKERS,
-    ENABLE_CACHE, JINA_MAX_REQUESTS_PER_MINUTE, JINA_MAX_RETRIES, JINA_BACKOFF_FACTOR
+    API_KEY, BASE_URL, MODEL, SUMMARY_DIR, TEMPERATURE, REQUEST_DELAY, MAX_WORKERS,
+    ENABLE_CACHE,
+)
+from src.document_extraction import (  # noqa: E402
+    ExtractionManager,
+    ensure_valid_extraction_content,
+    get_paper_content_issue,
+    normalize_whitespace,
 )
 from src.utils.cache_manager import CacheManager  # noqa: E402
+from src.utils.exceptions import ValidationError  # noqa: E402
+from src.utils.io import save_json, save_text  # noqa: E402
 from src.utils.notify import notify_failures  # noqa: E402
+from src.utils.validation import validate_non_negative_int, validate_positive_int  # noqa: E402
 
 
-MIN_VALID_PAPER_CONTENT_CHARS = 2000
-MIN_VALID_PAPER_CONTENT_ALPHA_CHARS = 800
-INVALID_PAPER_CONTENT_PATTERNS = (
-    "upstream connect error",
-    "error code:",
-    "bad gateway",
-    "too many requests",
-    "rate limit exceeded",
-    "access denied",
-    "request failed",
-    "server error",
-    "captcha",
-)
+ensure_valid_paper_content = ensure_valid_extraction_content
 
 
 def strip_think_tags(text: str) -> str:
@@ -51,38 +47,9 @@ def strip_think_tags(text: str) -> str:
     return re.sub(r'<think>[\s\S]*?</think>\s*', '', text).strip()
 
 
-def normalize_whitespace(text: Optional[str]) -> str:
-    """Collapse repeated whitespace for lightweight content validation."""
-    return re.sub(r'\s+', ' ', text or '').strip()
-
-
-def get_paper_content_issue(content: Optional[str]) -> Optional[str]:
-    """Return a human-readable issue when fetched paper content looks invalid."""
-    normalized = normalize_whitespace(content)
-    if not normalized:
-        return "内容为空"
-
-    lowered = normalized.lower()
-    for pattern in INVALID_PAPER_CONTENT_PATTERNS:
-        if pattern in lowered:
-            return f"命中错误页特征: {pattern}"
-
-    if len(normalized) < MIN_VALID_PAPER_CONTENT_CHARS:
-        return f"内容过短 ({len(normalized)} chars)"
-
-    alpha_chars = sum(ch.isalpha() for ch in normalized)
-    if alpha_chars < MIN_VALID_PAPER_CONTENT_ALPHA_CHARS:
-        return f"有效字母过少 ({alpha_chars})"
-
-    return None
-
-
-def ensure_valid_paper_content(content: Optional[str], source: str) -> str:
-    """Validate fetched paper content and raise a retryable error when invalid."""
-    issue = get_paper_content_issue(content)
-    if issue:
-        raise ValueError(f"{source} 返回的论文内容无效: {issue}")
-    return content or ""
+def has_non_empty_text(value) -> bool:
+    """Return True when a JSON field contains meaningful text."""
+    return isinstance(value, str) and bool(value.strip())
 
 
 def is_section_heading(line: str) -> bool:
@@ -149,74 +116,6 @@ def extract_abstract_from_paper_content(paper_content: str) -> str:
 
     return ""
 
-
-class JinaRateLimiter:
-    """Jina API速率限制器 - 20 RPM"""
-    
-    def __init__(self, max_requests_per_minute: int = 20):
-        self.max_requests_per_minute = max_requests_per_minute
-        self.min_interval = 60.0 / max_requests_per_minute  # 每个请求之间的最小间隔（秒）
-        self.last_request_time = 0
-        self.lock = threading.Lock()
-    
-    def wait_if_needed(self):
-        """如果需要的话，等待以满足速率限制"""
-        with self.lock:
-            current_time = time.time()
-            time_since_last = current_time - self.last_request_time
-            
-            if time_since_last < self.min_interval:
-                wait_time = self.min_interval - time_since_last
-                time.sleep(wait_time)
-            
-            self.last_request_time = time.time()
-
-
-# 全局Jina速率限制器实例
-jina_rate_limiter = JinaRateLimiter(max_requests_per_minute=JINA_MAX_REQUESTS_PER_MINUTE)
-
-
-def retry_on_failure(max_retries: int = None, backoff_factor: float = None,
-                     apply_rate_limit: bool = False, retryable_exceptions=None):
-    """重试装饰器，支持速率限制和指数退避"""
-    if max_retries is None:
-        max_retries = JINA_MAX_RETRIES
-    if backoff_factor is None:
-        backoff_factor = JINA_BACKOFF_FACTOR
-    if retryable_exceptions is None:
-        retryable_exceptions = (requests.exceptions.RequestException,)
-
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            last_exception = None
-
-            for attempt in range(max_retries):
-                try:
-                    # 如果需要，在每次尝试前应用速率限制
-                    if apply_rate_limit:
-                        jina_rate_limiter.wait_if_needed()
-                    return func(*args, **kwargs)
-                except retryable_exceptions as e:
-                    last_exception = e
-                    if attempt < max_retries - 1:
-                        wait_time = backoff_factor ** attempt
-                        print(f"⚠️ API请求失败 (尝试 {attempt + 1}/{max_retries}), {wait_time:.2f}秒后重试: {e}")
-                        time.sleep(wait_time)
-                    else:
-                        print(f"❌ API请求失败，已达到最大重试次数: {e}")
-                except Exception as e:
-                    # 对于其他非网络相关的异常，直接抛出
-                    raise e
-
-            # 如果所有重试都失败了，抛出最后一个异常
-            if last_exception:
-                raise last_exception
-
-        return wrapper
-    return decorator
-
-
 def retry_on_openai_error(max_retries: int = 6, backoff_factor: float = 2.0):
     """
     OpenAI API 重试装饰器
@@ -274,76 +173,6 @@ def retry_on_openai_error(max_retries: int = 6, backoff_factor: float = 2.0):
 
         return wrapper
     return decorator
-
-
-@retry_on_failure(
-    apply_rate_limit=True,
-    retryable_exceptions=(requests.exceptions.RequestException, ValueError),
-)
-def fetch_paper_content_from_jinja(arxiv_url: str, cache_manager: Optional[CacheManager] = None) -> Optional[str]:
-    """
-    使用jinja.ai获取论文完整内容，支持缓存
-    
-    Args:
-        arxiv_url: arXiv论文链接
-        cache_manager: 缓存管理器
-    
-    Returns:
-        论文的完整文本内容，如果获取失败则返回None
-    """
-    # 🚀 优化：首先检查缓存
-    if cache_manager and ENABLE_CACHE:
-        cached_paper = cache_manager.get_paper_cache(arxiv_url)
-        if cached_paper and cached_paper.get('data', {}).get('content'):
-            cached_content = cached_paper['data']['content']
-            cached_issue = get_paper_content_issue(cached_content)
-            if not cached_issue:
-                return cached_content
-            print(f"⚠️ 缓存的论文内容无效，忽略缓存: {arxiv_url} ({cached_issue})")
-    
-    # 如果缓存中没有，才调用jina.ai API
-    print(f"🌐 从jina.ai获取论文内容: {arxiv_url}")
-    
-    # 处理不同格式的链接
-    if arxiv_url.startswith('/arxiv/'):
-        # 相对路径格式: /arxiv/2509.18083
-        arxiv_id = arxiv_url.replace('/arxiv/', '')
-        pdf_url = f'https://arxiv.org/pdf/{arxiv_id}'
-    elif '/abs/' in arxiv_url:
-        # 完整abs链接转换为pdf链接
-        pdf_url = arxiv_url.replace('/abs/', '/pdf/')
-    elif '/pdf/' in arxiv_url:
-        # 已经是pdf链接
-        pdf_url = arxiv_url
-    else:
-        # 假设是arXiv ID
-        pdf_url = f'https://arxiv.org/pdf/{arxiv_url}'
-        
-    # 使用jinja.ai API
-    jinja_url = f'https://r.jina.ai/{pdf_url}'
-    headers = {}
-    try:
-        from src.utils.config import JINA_API_TOKEN as _JINA_TOKEN
-    except Exception:
-        _JINA_TOKEN = ""
-    if _JINA_TOKEN:
-        headers["Authorization"] = f"Bearer {_JINA_TOKEN}"
-    
-    response = requests.get(jinja_url, headers=headers or None, timeout=REQUEST_TIMEOUT)
-    
-    if response.status_code == 200:
-        content = response.content.decode('utf-8', errors='replace')
-        content = ensure_valid_paper_content(content, f"jina.ai {arxiv_url}")
-        
-        # 🚀 优化：保存到缓存
-        if cache_manager and ENABLE_CACHE:
-            cache_manager.set_paper_cache(arxiv_url, {'content': content})
-            print(f"💾 已缓存论文内容: {arxiv_url}")
-        
-        return content
-    else:
-        # 对于HTTP错误，抛出异常以触发重试机制
-        response.raise_for_status()
 
 
 def extract_arxiv_id_from_link(link: str) -> Optional[str]:
@@ -1074,7 +903,7 @@ ArXiv ID: {paper.get('arxiv_id', 'Unknown')}
     return daily_overview
 
 
-def main():
+def main() -> int:
     """主函数"""
     parser = argparse.ArgumentParser(description='论文总结生成工具')
     parser.add_argument('--input-file', required=True,
@@ -1099,16 +928,24 @@ def main():
                        help='禁用缓存机制')
     
     args = parser.parse_args()
+
+    try:
+        validate_non_negative_int(args.max_papers, "--max-papers")
+        validate_positive_int(args.max_workers, "--max-workers")
+    except ValidationError as exc:
+        print(f"❌ 参数校验失败: {exc}")
+        return 2
     
     # 初始化缓存管理器
     cache_manager = None
     if not args.disable_cache and ENABLE_CACHE:
         cache_manager = CacheManager()
+    document_extractor = ExtractionManager(cache_manager=cache_manager)
     
     # 检查输入文件
     if not os.path.exists(args.input_file):
         print(f"❌ 输入文件未找到: {args.input_file}")
-        return
+        return 1
     
     # 创建输出目录
     os.makedirs(args.output_dir, exist_ok=True)
@@ -1133,7 +970,7 @@ def main():
         print(f"📚 成功加载 {len(papers)} 篇论文")
     except Exception as e:
         print(f"❌ 读取文件时出错: {e}")
-        return
+        return 1
     
     # 限制处理数量
     if args.max_papers > 0:
@@ -1147,8 +984,8 @@ def main():
         paper_title = paper.get('title', 'Untitled Paper')
         paper_link = paper.get('link', '')
         
-        # 检查是否已有intro_logic字段且不为空（新prompt系统的标志字段）
-        if args.skip_existing and paper.get('intro_logic'):
+        # 检查是否已有完整结果；缺少原始摘要的半成品需要重新处理以便回填。
+        if args.skip_existing and paper.get('intro_logic') and has_non_empty_text(paper.get('summary')):
             return 'skipped', index, paper, f"⏭️ 跳过已有总结的论文: {paper_title[:50]}..."
         
         try:
@@ -1164,10 +1001,9 @@ def main():
             cached_translation = None
 
             if cache_manager and ENABLE_CACHE:
-                # 先用论文链接作为键检查是否有缓存的内容
-                paper_content_cache = cache_manager.get_paper_cache(paper_link)
-                if paper_content_cache and paper_content_cache.get('data', {}).get('content'):
-                    cached_paper_content = paper_content_cache['data']['content']
+                cached_result = document_extractor.get_cached_result(paper_link)
+                if cached_result and cached_result.content:
+                    cached_paper_content = cached_result.content
                     cached_issue = get_paper_content_issue(cached_paper_content)
                     if cached_issue:
                         print(f"⚠️ 跳过无效缓存正文 {paper_title[:30]}: {cached_issue}")
@@ -1217,18 +1053,22 @@ def main():
             
             # 先尝试从缓存获取论文内容
             if cache_manager and ENABLE_CACHE:
-                paper_cache = cache_manager.get_paper_cache(paper_link)
-                if paper_cache and paper_cache.get('data', {}).get('content'):
-                    cached_content = paper_cache['data']['content']
+                cached_result = document_extractor.get_cached_result(paper_link)
+                if cached_result and cached_result.content:
+                    cached_content = cached_result.content
                     cached_issue = get_paper_content_issue(cached_content)
                     if not cached_issue:
                         paper_content = cached_content
                     else:
                         print(f"⚠️ 忽略无效缓存正文 {paper_title[:30]}: {cached_issue}")
 
-            # 如果缓存中没有内容，才从jina.ai获取
+            # 如果缓存中没有内容，才通过统一提取层获取
             if not paper_content:
-                paper_content = fetch_paper_content_from_jinja(paper_link, cache_manager)
+                try:
+                    extraction_result = document_extractor.extract(paper_link)
+                    paper_content = extraction_result.content
+                except Exception as exc:
+                    print(f"⚠️ 提取论文内容失败 {paper_title[:30]}: {exc}")
                 if not paper_content:
                     return 'failed', index, paper, f"❌ 无法获取论文内容: {paper_title}"
             paper_content = ensure_valid_paper_content(paper_content, paper_title)
@@ -1366,8 +1206,9 @@ def main():
         output_path = os.path.join(args.output_dir, output_filename)
         
         # 保存更新后的数据
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(updated_papers, f, ensure_ascii=False, indent=2)
+        if not save_json(output_path, updated_papers, indent=2, ensure_ascii=False):
+            print(f"❌ 保存总结结果失败: {output_path}")
+            return 1
         
         print(f"\n💾 已保存更新后的JSON文件: {output_path}")
         
@@ -1390,8 +1231,8 @@ def main():
             # 保存每日速览到独立的 Markdown 文件
             overview_filename = f"daily_overview_{date_str}.md"
             overview_path = os.path.join(args.output_dir, overview_filename)
-            with open(overview_path, 'w', encoding='utf-8') as f:
-                f.write(daily_overview)
+            if not save_text(overview_path, daily_overview):
+                raise IOError(overview_path)
             
             print(f"✅ 已生成今日AI论文速览: {overview_path}")
             
@@ -1406,6 +1247,7 @@ def main():
     if processed > 0:
         print(f"📂 输出文件: {output_path}")
     print("🎉 处理完成！")
+    return 0 if (processed > 0 or skipped > 0) else 1
 
 
 def generate_papers_list_html(filtered_papers, output_dir):
@@ -1912,4 +1754,4 @@ def generate_papers_list_html(filtered_papers, output_dir):
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

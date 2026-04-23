@@ -11,11 +11,12 @@ from typing import Dict, List, Any
 
 # 导入配置
 try:
-    from src.utils.config import SUMMARY_DIR, WEBPAGES_DIR, DOMAIN_PAPER_DIR
+    from src.utils.config import SUMMARY_DIR, WEBPAGES_DIR, DOMAIN_PAPER_DIR, ARXIV_PAPER_DIR
 except ImportError:
     SUMMARY_DIR = "summary"
     WEBPAGES_DIR = "webpages"
     DOMAIN_PAPER_DIR = "domain_paper"
+    ARXIV_PAPER_DIR = "arxiv_paper"
 
 # 分页配置
 INITIAL_DAYS = 3  # 初始加载的天数（其余通过"加载更多"按需加载）
@@ -29,6 +30,20 @@ RICHNESS_FIELDS = (
     "methodology",
     "additional_insights",
     "research_value",
+)
+
+SOURCE_METADATA_FIELDS = (
+    "index",
+    "title",
+    "link",
+    "arxiv_id",
+    "authors",
+    "summary",
+    "abstract",
+    "subjects",
+    "date",
+    "category",
+    "crawl_time",
 )
 
 
@@ -65,6 +80,62 @@ def normalize_papers_for_display(papers: List[Dict[str, Any]]) -> List[Dict[str,
     return normalized
 
 
+def build_arxiv_source_index() -> Dict[str, Dict[str, Any]]:
+    """Load crawl-stage metadata for backfilling partial downstream files."""
+    source_by_id: Dict[str, Dict[str, Any]] = {}
+    arxiv_dir = Path(ARXIV_PAPER_DIR)
+    if not arxiv_dir.exists():
+        return source_by_id
+
+    for json_file in arxiv_dir.glob("*.json"):
+        try:
+            with open(json_file, "r", encoding="utf-8") as f:
+                papers = json.load(f)
+        except Exception as e:
+            print(f"加载源文件 {json_file} 时出错: {e}")
+            continue
+
+        if not isinstance(papers, list):
+            continue
+
+        for paper in papers:
+            if not isinstance(paper, dict):
+                continue
+            arxiv_id = (paper.get("arxiv_id") or "").strip()
+            if arxiv_id:
+                source_by_id[arxiv_id] = paper
+
+    return source_by_id
+
+
+def backfill_paper_metadata(
+    papers: List[Dict[str, Any]],
+    source_by_id: Dict[str, Dict[str, Any]],
+) -> List[Dict[str, Any]]:
+    """Backfill fields that old filtered/clustered outputs may have dropped."""
+    backfilled = []
+    for paper in papers:
+        paper_copy = dict(paper)
+        source_paper = source_by_id.get((paper_copy.get("arxiv_id") or "").strip())
+        if source_paper:
+            for field in SOURCE_METADATA_FIELDS:
+                source_value = source_paper.get(field)
+                if source_value is None:
+                    continue
+
+                current_value = paper_copy.get(field)
+                if field in {"summary", "abstract"}:
+                    should_repair = has_non_empty_text(source_value) and not has_non_empty_text(current_value)
+                else:
+                    should_repair = current_value in (None, "") and source_value not in (None, "")
+
+                if should_repair:
+                    paper_copy[field] = source_value
+
+        backfilled.append(paper_copy)
+    return backfilled
+
+
 def score_paper_file(json_file: Path, papers: List[Dict[str, Any]]) -> tuple:
     """Prefer clustered and fully enriched daily files over partial fallbacks."""
     normalized = normalize_papers_for_display(papers)
@@ -98,6 +169,7 @@ def load_paper_data() -> Dict[str, List[Dict[str, Any]]]:
     summary_dir = Path(SUMMARY_DIR)
     domain_paper_dir = Path(DOMAIN_PAPER_DIR)
     candidates_by_date: Dict[str, List[tuple]] = {}
+    source_by_id = build_arxiv_source_index()
 
     candidate_files = list(summary_dir.glob("*_with_summary2.json"))
     candidate_files.extend(domain_paper_dir.glob("clustered_papers_*.json"))
@@ -115,7 +187,8 @@ def load_paper_data() -> Dict[str, List[Dict[str, Any]]]:
             date_match = re.search(r'(\d{4}-\d{2}-\d{2})', filename)
             if date_match:
                 date = date_match.group(1)
-                normalized_papers = normalize_papers_for_display(papers)
+                backfilled_papers = backfill_paper_metadata(papers, source_by_id)
+                normalized_papers = normalize_papers_for_display(backfilled_papers)
                 candidates_by_date.setdefault(date, []).append(
                     (score_paper_file(json_file, normalized_papers), json_file, normalized_papers)
                 )

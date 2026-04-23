@@ -12,11 +12,13 @@ from typing import Optional, Dict, Any, List
 
 # 导入配置
 try:
-    from config import CACHE_DIR, ENABLE_CACHE, CACHE_EXPIRY_DAYS
+    from src.utils.config import CACHE_DIR, ENABLE_CACHE, CACHE_EXPIRY_DAYS
 except ImportError:
     CACHE_DIR = "cache"
     ENABLE_CACHE = True
     CACHE_EXPIRY_DAYS = 30
+
+from src.utils.io import save_json
 
 
 class CacheManager:
@@ -31,6 +33,7 @@ class CacheManager:
             os.makedirs(self.cache_dir, exist_ok=True)
             # 创建子目录
             os.makedirs(os.path.join(self.cache_dir, "papers"), exist_ok=True)
+            os.makedirs(os.path.join(self.cache_dir, "documents"), exist_ok=True)
             os.makedirs(os.path.join(self.cache_dir, "summaries"), exist_ok=True)
             os.makedirs(os.path.join(self.cache_dir, "webpages"), exist_ok=True)
             os.makedirs(os.path.join(self.cache_dir, "crawl"), exist_ok=True)
@@ -42,6 +45,14 @@ class CacheManager:
     def _get_cache_file(self, cache_type: str, key: str) -> str:
         """获取缓存文件路径"""
         return os.path.join(self.cache_dir, cache_type, f"{key}.json")
+
+    def _write_cache_file(self, cache_file: str, cache_data: Dict[str, Any]) -> None:
+        """Atomically persist cache content."""
+        cache_dir = os.path.dirname(cache_file)
+        if cache_dir:
+            os.makedirs(cache_dir, exist_ok=True)
+        if not save_json(cache_file, cache_data):
+            raise IOError(f"无法写入缓存文件: {cache_file}")
     
     def _is_cache_valid(self, cache_file: str) -> bool:
         """检查缓存是否有效（未过期）"""
@@ -88,11 +99,45 @@ class CacheManager:
                 "data": paper_data,
                 "cached_at": datetime.now().isoformat()
             }
-            
-            with open(cache_file, 'w', encoding='utf-8') as f:
-                json.dump(cache_data, f, ensure_ascii=False, indent=2)
+            self._write_cache_file(cache_file, cache_data)
         except Exception as e:
             print(f"⚠️ 保存论文缓存失败: {e}")
+
+    def get_document_cache(self, cache_key: str) -> Optional[Dict[str, Any]]:
+        """获取统一文档提取缓存。"""
+        if not self.enabled:
+            return None
+
+        key = self._generate_key(cache_key)
+        cache_file = self._get_cache_file("documents", key)
+
+        if not self._is_cache_valid(cache_file):
+            return None
+
+        try:
+            with open(cache_file, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"⚠️ 读取文档缓存失败: {e}")
+            return None
+
+    def set_document_cache(self, cache_key: str, document_data: Dict[str, Any]) -> None:
+        """设置统一文档提取缓存。"""
+        if not self.enabled:
+            return
+
+        key = self._generate_key(cache_key)
+        cache_file = self._get_cache_file("documents", key)
+
+        try:
+            cache_data = {
+                "cache_key": cache_key,
+                "data": document_data,
+                "cached_at": datetime.now().isoformat()
+            }
+            self._write_cache_file(cache_file, cache_data)
+        except Exception as e:
+            print(f"⚠️ 保存文档缓存失败: {e}")
     
     def get_summary_cache(self, paper_title: str, paper_content: str) -> Optional[str]:
         """获取总结缓存"""
@@ -128,9 +173,7 @@ class CacheManager:
                 "summary": summary,
                 "cached_at": datetime.now().isoformat()
             }
-            
-            with open(cache_file, 'w', encoding='utf-8') as f:
-                json.dump(cache_data, f, ensure_ascii=False, indent=2)
+            self._write_cache_file(cache_file, cache_data)
         except Exception as e:
             print(f"⚠️ 保存总结缓存失败: {e}")
     
@@ -168,9 +211,7 @@ class CacheManager:
                 "webpage_content": webpage_content,
                 "cached_at": datetime.now().isoformat()
             }
-            
-            with open(cache_file, 'w', encoding='utf-8') as f:
-                json.dump(cache_data, f, ensure_ascii=False, indent=2)
+            self._write_cache_file(cache_file, cache_data)
         except Exception as e:
             print(f"⚠️ 保存网页缓存失败: {e}")
 
@@ -223,9 +264,7 @@ class CacheManager:
                 "paper_count": len(papers),
                 "cached_at": datetime.now().isoformat()
             }
-
-            with open(cache_file, 'w', encoding='utf-8') as f:
-                json.dump(cache_data, f, ensure_ascii=False, indent=2)
+            self._write_cache_file(cache_file, cache_data)
         except Exception as e:
             print(f"⚠️ 保存爬取缓存失败: {e}")
 
@@ -237,7 +276,7 @@ class CacheManager:
         print("🧹 清理过期缓存...")
         cleaned_count = 0
         
-        for cache_type in ["papers", "summaries", "webpages", "crawl"]:
+        for cache_type in ["papers", "documents", "summaries", "webpages", "crawl"]:
             cache_type_dir = os.path.join(self.cache_dir, cache_type)
             if not os.path.exists(cache_type_dir):
                 continue
@@ -259,12 +298,12 @@ class CacheManager:
     def get_cache_stats(self) -> Dict[str, int]:
         """获取缓存统计信息"""
         if not self.enabled:
-            return {"papers": 0, "summaries": 0, "webpages": 0, "crawl": 0, "total": 0}
+            return {"papers": 0, "documents": 0, "summaries": 0, "webpages": 0, "crawl": 0, "total": 0}
 
         stats = {}
         total = 0
 
-        for cache_type in ["papers", "summaries", "webpages", "crawl"]:
+        for cache_type in ["papers", "documents", "summaries", "webpages", "crawl"]:
             cache_type_dir = os.path.join(self.cache_dir, cache_type)
             if os.path.exists(cache_type_dir):
                 count = len([f for f in os.listdir(cache_type_dir) if f.endswith('.json')])
@@ -335,4 +374,3 @@ if __name__ == "__main__":
     
     # 清理过期缓存
     cache_manager.clean_expired_cache()
-

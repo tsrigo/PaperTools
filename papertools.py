@@ -8,7 +8,6 @@ import os
 import sys
 import subprocess
 import argparse
-from datetime import datetime
 
 from src.utils.config import (
     CRAWL_CATEGORIES, 
@@ -65,11 +64,34 @@ def check_config():
     
     return True
 
+
+def report_document_extractor_statuses() -> bool:
+    """Show which document-extraction providers are available locally."""
+    try:
+        from src.document_extraction import get_provider_statuses, resolve_provider_chain
+        from src.utils.config import DOCUMENT_EXTRACTOR_CHAIN
+    except Exception as exc:
+        print(f"⚠️  无法加载文档提取配置: {exc}")
+        return False
+
+    print("📄 文档提取 provider 状态:")
+    statuses = get_provider_statuses(resolve_provider_chain(DOCUMENT_EXTRACTOR_CHAIN))
+    available_local = False
+    for status in statuses:
+        state = "✅" if status.available else "⚪"
+        print(f"  {state} {status.name}: {status.detail}")
+        if status.available and status.name != "jina":
+            available_local = True
+
+    print(f"  🔗 provider chain: {DOCUMENT_EXTRACTOR_CHAIN}")
+    if not available_local:
+        print("  ℹ️  当前没有本地提取 provider，可继续使用 Jina 远程兜底。")
+    return True
+
 def clean_cache():
     """清理缓存文件"""
     import shutil
     cache_dirs = ['cache', '__pycache__']
-    temp_files = ['*.pyc', '*.pyo', '*.log']
     
     print("🧹 清理缓存文件...")
     for cache_dir in cache_dirs:
@@ -101,7 +123,7 @@ def serve_webpages():
         print("❌ 错误: 未找到论文数据")
         print("💡 请先运行: python papertools.py run")
 
-def run_pipeline(args):
+def run_pipeline(args) -> int:
     """运行完整流水线"""
     # 构建pipeline.py的参数
     cmd = [sys.executable, 'src/core/pipeline.py']
@@ -123,7 +145,8 @@ def run_pipeline(args):
         cmd.extend(['--skip-serve'])
     
     print("🚀 启动论文处理流水线...")
-    subprocess.run(cmd)
+    result = subprocess.run(cmd)
+    return result.returncode
 
 def main():
     parser = argparse.ArgumentParser(
@@ -165,29 +188,36 @@ def main():
     
     if not args.command:
         parser.print_help()
-        return
+        return 1
     
     # 基本检查
     check_python_version()
     
     if args.command == 'clean':
         clean_cache()
+        return 0
     elif args.command == 'check':
         print("🔍 检查环境...")
         deps_ok = check_and_install_dependencies()
         config_ok = check_config()
-        if deps_ok and config_ok:
+        providers_ok = report_document_extractor_statuses()
+        if deps_ok and config_ok and providers_ok:
             print("✅ 环境检查通过")
+            return 0
         else:
             print("❌ 环境检查失败")
+            return 1
     elif args.command == 'serve':
         serve_webpages()
+        return 0
     elif args.command == 'run':
         if not check_and_install_dependencies():
-            return
+            return 1
         if not check_config():
-            return
-        run_pipeline(args)
+            return 1
+        return run_pipeline(args)
+
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

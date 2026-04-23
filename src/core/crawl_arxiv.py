@@ -26,7 +26,14 @@ if project_root not in sys.path:
 try:
     from src.utils.config import ARXIV_PAPER_DIR, CRAWL_CATEGORIES, MAX_PAPERS_PER_CATEGORY, MAX_WORKERS, DATE_FORMAT
     from src.utils.cache_manager import CacheManager
+    from src.utils.exceptions import ValidationError
+    from src.utils.io import save_json
     from src.utils.retry import retry_with_backoff
+    from src.utils.validation import (
+        validate_date_inputs,
+        validate_positive_float,
+        validate_positive_int,
+    )
 except ImportError:
     # 如果没有config文件，使用默认配置
     ARXIV_PAPER_DIR = "arxiv_paper"
@@ -35,6 +42,21 @@ except ImportError:
     MAX_WORKERS = 4
     DATE_FORMAT = "%Y-%m-%d"
     CacheManager = None
+    ValidationError = ValueError
+
+    def save_json(filepath, data, indent=2, ensure_ascii=False):  # type: ignore[no-redef]
+        with open(filepath, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=indent, ensure_ascii=ensure_ascii)
+        return True
+
+    def validate_date_inputs(**kwargs):  # type: ignore[no-redef]
+        return kwargs.get('date'), kwargs.get('start_date'), kwargs.get('end_date')
+
+    def validate_positive_float(value, field_name, allow_zero=False):  # type: ignore[no-redef]
+        return value
+
+    def validate_positive_int(value, field_name, minimum=1):  # type: ignore[no-redef]
+        return value
 
 # 全局缓存管理器
 _cache_manager = None
@@ -300,14 +322,14 @@ def save_papers(all_papers: Dict, selected_categories: List[str], output_dir: st
     # 只保存合并文件
     combined_filename = f"{'_'.join(sorted(selected_categories))}_paper_{date_suffix}.json"
     combined_filepath = os.path.join(output_dir, combined_filename)
-    with open(combined_filepath, 'w', encoding='utf-8') as f:
-        json.dump(list(all_papers.values()), f, ensure_ascii=False, indent=4)
+    if not save_json(combined_filepath, list(all_papers.values()), indent=4, ensure_ascii=False):
+        raise IOError(f"保存论文文件失败: {combined_filepath}")
     print(f"📚 已保存 {len(all_papers)} 篇去重论文到 {combined_filepath}")
     
     return combined_filepath
 
 
-def main():
+def main() -> int:
     """主函数"""
     parser = argparse.ArgumentParser(description='增强版arXiv论文爬取工具')
     parser.add_argument('--categories', nargs='+', default=['all'], 
@@ -333,6 +355,19 @@ def main():
 
     args = parser.parse_args()
 
+    try:
+        validate_positive_int(args.max_papers, "--max-papers")
+        validate_positive_int(args.max_workers, "--max-workers")
+        validate_positive_float(args.delay, "--delay", allow_zero=False)
+        args.date, args.start_date, args.end_date = validate_date_inputs(
+            date=args.date,
+            start_date=args.start_date,
+            end_date=args.end_date,
+        )
+    except ValidationError as exc:
+        print(f"❌ 参数校验失败: {exc}")
+        return 2
+
     # 处理清理缓存请求
     if args.clear_cache:
         cache_manager = get_cache_manager()
@@ -344,7 +379,7 @@ def main():
                 print(f"  {cache_type}: {count}")
         else:
             print("⚠️ 缓存管理器不可用")
-        return
+        return 0
     
     # 创建输出目录
     os.makedirs(args.output_dir, exist_ok=True)
@@ -361,13 +396,10 @@ def main():
     valid_categories = [cat for cat in selected_categories if cat in CRAWL_CATEGORIES]
     if not valid_categories:
         print("❌ 没有选择有效的类别。可用类别:", CRAWL_CATEGORIES)
-        return
+        return 2
     
     # 处理日期参数
     use_date_range = args.start_date and args.end_date
-    if use_date_range and args.date:
-        print("❌ 不能同时指定单个日期和日期范围")
-        return
     
     print("🚀 开始爬取arXiv论文")
     print(f"📋 选择的类别: {valid_categories}")
@@ -428,7 +460,7 @@ def main():
     
     if not all_papers:
         print("❌ 没有成功爬取到任何论文")
-        return
+        return 1
     
     # 保存论文
     if use_date_range:
@@ -445,7 +477,8 @@ def main():
     print(f"📊 总共爬取: {len(all_papers)} 篇去重论文")
     print(f"📂 主输出文件: {output_file}")
     print("=" * 50)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

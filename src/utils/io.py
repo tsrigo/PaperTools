@@ -5,6 +5,7 @@ IO utilities module for common file operations
 
 import json
 import os
+import tempfile
 from typing import Any, Dict, List, Optional
 
 from src.utils.logger import get_logger
@@ -61,15 +62,61 @@ def save_json(
         dir_path = os.path.dirname(filepath)
         if dir_path:
             os.makedirs(dir_path, exist_ok=True)
-
-        with open(filepath, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=indent, ensure_ascii=ensure_ascii)
+        fd, temp_path = tempfile.mkstemp(
+            prefix=f".{os.path.basename(filepath)}.",
+            suffix=".tmp",
+            dir=dir_path or ".",
+            text=True,
+        )
+        try:
+            with os.fdopen(fd, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=indent, ensure_ascii=ensure_ascii)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(temp_path, filepath)
+        except Exception:
+            try:
+                os.unlink(temp_path)
+            except OSError:
+                pass
+            raise
         return True
     except IOError as e:
         logger.error(f"保存文件失败 {filepath}: {e}")
         return False
     except (TypeError, ValueError) as e:
         logger.error(f"JSON 序列化错误: {e}")
+        return False
+
+
+def save_text(filepath: str, content: str) -> bool:
+    """Atomically save plain text content."""
+    try:
+        dir_path = os.path.dirname(filepath)
+        if dir_path:
+            os.makedirs(dir_path, exist_ok=True)
+
+        fd, temp_path = tempfile.mkstemp(
+            prefix=f".{os.path.basename(filepath)}.",
+            suffix=".tmp",
+            dir=dir_path or ".",
+            text=True,
+        )
+        try:
+            with os.fdopen(fd, 'w', encoding='utf-8') as f:
+                f.write(content)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(temp_path, filepath)
+        except Exception:
+            try:
+                os.unlink(temp_path)
+            except OSError:
+                pass
+            raise
+        return True
+    except OSError as e:
+        logger.error(f"保存文本文件失败 {filepath}: {e}")
         return False
 
 
