@@ -57,6 +57,11 @@ API_KEY = _get_env_str("OPENAI_API_KEY")
 BASE_URL = _get_env_str("OPENAI_BASE_URL")
 MODEL = _get_env_str("MODEL")
 FILTER_MODEL = _get_env_str("FILTER_MODEL", "minimax-m2.5")  # 筛选用轻量模型
+DEFAULT_SUMMARY_BASE_URL = "https://api-inference.modelscope.cn/v1"
+DEFAULT_SUMMARY_MODEL = "MiniMax/MiniMax-M2.7"
+SUMMARY_API_KEY = _get_env_str("SUMMARY_OPENAI_API_KEY", API_KEY)
+SUMMARY_BASE_URL = _get_env_str("SUMMARY_OPENAI_BASE_URL", DEFAULT_SUMMARY_BASE_URL)
+SUMMARY_MODEL = _get_env_str("SUMMARY_MODEL", DEFAULT_SUMMARY_MODEL)
 
 # Prestige 筛选配置
 PRESTIGE_ENABLED = _get_env_bool("PRESTIGE_ENABLED", True)

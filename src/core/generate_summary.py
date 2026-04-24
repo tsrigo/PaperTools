@@ -23,7 +23,7 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 from src.utils.config import (  # noqa: E402
-    API_KEY, BASE_URL, MODEL, SUMMARY_DIR, TEMPERATURE, REQUEST_DELAY, MAX_WORKERS,
+    SUMMARY_API_KEY, SUMMARY_BASE_URL, SUMMARY_MODEL, SUMMARY_DIR, TEMPERATURE, REQUEST_DELAY, MAX_WORKERS,
     ENABLE_CACHE,
 )
 from src.document_extraction import (  # noqa: E402
@@ -910,11 +910,11 @@ def main() -> int:
                        help='输入的JSON文件路径')
     parser.add_argument('--output-dir', default=SUMMARY_DIR,
                        help=f'输出目录（JSON文件保存位置，默认: {SUMMARY_DIR})')
-    parser.add_argument('--api-key', default=API_KEY,
+    parser.add_argument('--api-key', default=SUMMARY_API_KEY,
                        help='API密钥')
-    parser.add_argument('--base-url', default=BASE_URL,
+    parser.add_argument('--base-url', default=SUMMARY_BASE_URL,
                        help='API基础URL')
-    parser.add_argument('--model', default=MODEL,
+    parser.add_argument('--model', default=SUMMARY_MODEL,
                        help='使用的模型')
     parser.add_argument('--temperature', type=float, default=TEMPERATURE,
                        help='生成温度')
@@ -939,7 +939,7 @@ def main() -> int:
     # 初始化缓存管理器
     cache_manager = None
     if not args.disable_cache and ENABLE_CACHE:
-        cache_manager = CacheManager()
+        cache_manager = CacheManager(summary_namespace=f"{args.base_url}:{args.model}")
     document_extractor = ExtractionManager(cache_manager=cache_manager)
     
     # 检查输入文件

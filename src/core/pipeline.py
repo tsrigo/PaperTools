@@ -21,7 +21,7 @@ if project_root not in sys.path:
 # 导入配置
 try:
     from src.utils.config import (
-        API_KEY, BASE_URL, MODEL, FILTER_MODEL, TEMPERATURE,
+        API_KEY, BASE_URL, MODEL, FILTER_MODEL, SUMMARY_API_KEY, SUMMARY_BASE_URL, SUMMARY_MODEL, TEMPERATURE,
         ARXIV_PAPER_DIR, DOMAIN_PAPER_DIR, SUMMARY_DIR, WEBPAGES_DIR,
         CRAWL_CATEGORIES, MAX_PAPERS_PER_CATEGORY, MAX_WORKERS, MAX_PAPERS_TOTAL_DEFAULT
     )
@@ -85,6 +85,27 @@ class ProgressTracker:
         self.log_with_timestamp(f"🎉 流水线执行完成! 总耗时: {total_time:.1f}秒")
 
 
+def redact_command(cmd: List[str]) -> str:
+    """Return a log-safe command string without secrets."""
+    redacted = []
+    redact_next = False
+    for part in cmd:
+        if redact_next:
+            redacted.append("<redacted>")
+            redact_next = False
+            continue
+        if part in {"--api-key", "--summary-api-key"}:
+            redacted.append(part)
+            redact_next = True
+            continue
+        if part.startswith("--api-key=") or part.startswith("--summary-api-key="):
+            key, _ = part.split("=", 1)
+            redacted.append(f"{key}=<redacted>")
+            continue
+        redacted.append(part)
+    return " ".join(redacted)
+
+
 def run_command(cmd: List[str], description: str, progress_tracker: ProgressTracker = None) -> bool:
     """
     运行命令并处理结果
@@ -99,10 +120,10 @@ def run_command(cmd: List[str], description: str, progress_tracker: ProgressTrac
     """
     if progress_tracker:
         progress_tracker.log_with_timestamp(f"🔄 开始: {description}")
-        progress_tracker.log_with_timestamp(f"   命令: {' '.join(cmd)}")
+        progress_tracker.log_with_timestamp(f"   命令: {redact_command(cmd)}")
     else:
         print(f"🔄 {description}...")
-        print(f"   命令: {' '.join(cmd)}")
+        print(f"   命令: {redact_command(cmd)}")
     
     start_time = time.time()
     
@@ -206,6 +227,9 @@ def main() -> int:
     parser.add_argument('--api-key', default=API_KEY, help='API密钥')
     parser.add_argument('--base-url', default=BASE_URL, help='API基础URL')
     parser.add_argument('--model', default=MODEL, help='使用的模型')
+    parser.add_argument('--summary-api-key', default=SUMMARY_API_KEY, help='总结生成API密钥')
+    parser.add_argument('--summary-base-url', default=SUMMARY_BASE_URL, help='总结生成API基础URL')
+    parser.add_argument('--summary-model', default=SUMMARY_MODEL, help='总结生成模型')
     parser.add_argument('--temperature', type=float, default=TEMPERATURE, help='生成温度')
     
     # 流程控制
@@ -278,6 +302,7 @@ def main() -> int:
     print("🚀 启动完整的学术论文处理流水线")
     print("=" * 60)
     progress.log_with_timestamp(f"🤖 使用模型: {args.model}")
+    progress.log_with_timestamp(f"📝 总结使用模型: {args.summary_model}")
     progress.log_with_timestamp(f"📊 每类最大论文数: {args.max_papers_per_category}")
     progress.log_with_timestamp(f"🔢 总处理数量: {args.max_papers_total}")
     progress.log_with_timestamp(f"🧵 最大线程数: {args.max_workers}")
@@ -469,9 +494,9 @@ def main() -> int:
             sys.executable, "src/core/generate_summary.py",
             "--input-file", cluster_output_file,
             "--output-dir", SUMMARY_DIR,
-            "--api-key", args.api_key,
-            "--base-url", args.base_url,
-            "--model", args.model,
+            "--api-key", args.summary_api_key,
+            "--base-url", args.summary_base_url,
+            "--model", args.summary_model,
             "--temperature", str(args.temperature),
             "--skip-existing",
             "--max-workers", str(args.max_workers)

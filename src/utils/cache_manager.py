@@ -24,10 +24,11 @@ from src.utils.io import save_json
 class CacheManager:
     """缓存管理器"""
     
-    def __init__(self, cache_dir: str = CACHE_DIR):
+    def __init__(self, cache_dir: str = CACHE_DIR, summary_namespace: str = ""):
         self.cache_dir = cache_dir
         self.enabled = ENABLE_CACHE
         self.expiry_days = CACHE_EXPIRY_DAYS
+        self.summary_namespace = summary_namespace
 
         if self.enabled:
             os.makedirs(self.cache_dir, exist_ok=True)
@@ -145,7 +146,7 @@ class CacheManager:
             return None
         
         # 使用标题和内容的组合生成键
-        key = self._generate_key(f"{paper_title}:{paper_content[:1000]}")
+        key = self._generate_key(f"{self.summary_namespace}:{paper_title}:{paper_content[:1000]}")
         cache_file = self._get_cache_file("summaries", key)
         
         if not self._is_cache_valid(cache_file):
@@ -164,7 +165,7 @@ class CacheManager:
         if not self.enabled:
             return
         
-        key = self._generate_key(f"{paper_title}:{paper_content[:1000]}")
+        key = self._generate_key(f"{self.summary_namespace}:{paper_title}:{paper_content[:1000]}")
         cache_file = self._get_cache_file("summaries", key)
         
         try:
