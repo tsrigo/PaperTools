@@ -6,6 +6,7 @@
 
 import json
 import re
+import time
 from pathlib import Path
 from typing import Dict, List, Any
 
@@ -319,6 +320,7 @@ def generate_complete_html() -> str:
 
     # 只取最近 INITIAL_DAYS 天的数据嵌入 HTML
     initial_dates = all_dates[:INITIAL_DAYS]
+    data_version = str(int(time.time()))
 
     # 生成JavaScript数据 - 只包含初始数据
     js_data = "const allPapers = {\n"
@@ -371,6 +373,7 @@ def generate_complete_html() -> str:
     js_data += f"const availableDates = {json.dumps(all_dates)};\n"
     js_data += f"const loadedDates = new Set({json.dumps(initial_dates)});\n"
     js_data += f"const LOAD_MORE_DAYS = {LOAD_MORE_DAYS};\n\n"
+    js_data += f"const DATA_VERSION = {json.dumps(data_version)};\n\n"
 
     # 添加每日速览数据 - 只包含初始数据
     js_data += "const dailyOverviewsRaw = {\n"
@@ -996,7 +999,7 @@ def generate_complete_html() -> str:
 
             for (const date of datesToLoad) {{
                 try {{
-                    const response = await fetch(`data/${{date}}.json`);
+                    const response = await fetch(`data/${{date}}.json?v=${{DATA_VERSION}}`);
                     if (!response.ok) continue;
 
                     const dateData = await response.json();
@@ -1869,7 +1872,7 @@ def generate_complete_html() -> str:
             const datesToLoad = unloaded.slice(0, idx + 1);
             for (const d of datesToLoad) {{
                 try {{
-                    const response = await fetch(`data/${{d}}.json`);
+                    const response = await fetch(`data/${{d}}.json?v=${{DATA_VERSION}}`);
                     if (response.ok) {{
                         const dateData = await response.json();
                         allPapers[d] = dateData.clusters || [];
