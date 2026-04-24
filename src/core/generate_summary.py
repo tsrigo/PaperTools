@@ -10,7 +10,9 @@ import re
 import requests
 import time
 import argparse
-from typing import Optional, Dict, List
+import threading
+from dataclasses import dataclass, field
+from typing import Optional, Dict, List, Tuple
 from tqdm import tqdm
 from openai import OpenAI, OpenAIError
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -23,8 +25,9 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 from src.utils.config import (  # noqa: E402
-    SUMMARY_API_KEY, SUMMARY_BASE_URL, SUMMARY_MODEL, SUMMARY_DIR, TEMPERATURE, REQUEST_DELAY, MAX_WORKERS,
-    ENABLE_CACHE,
+    SUMMARY_API_KEY, SUMMARY_BASE_URL, SUMMARY_MODEL, SUMMARY_MODEL_CHAIN,
+    SUMMARY_SJTU_API_KEY, SUMMARY_SJTU_BASE_URL, SUMMARY_DIR, TEMPERATURE, REQUEST_DELAY, MAX_WORKERS,
+    SUMMARY_CONTENT_CHAR_LIMIT, SUMMARY_MAX_WORKERS, ENABLE_CACHE,
 )
 from src.document_extraction import (  # noqa: E402
     ExtractionManager,
@@ -116,6 +119,153 @@ def extract_abstract_from_paper_content(paper_content: str) -> str:
 
     return ""
 
+
+@dataclass
+class SummaryProvider:
+    """One OpenAI-compatible summary model endpoint."""
+    name: str
+    base_url: str
+    api_key: str
+    model: str
+    client: OpenAI = field(init=False)
+    disabled: bool = False
+    disable_reason: str = ""
+
+    def __post_init__(self):
+        self.client = OpenAI(
+            api_key=self.api_key,
+            base_url=self.base_url,
+            timeout=180.0,
+        )
+
+    @property
+    def label(self) -> str:
+        return f"{self.name}:{self.model}"
+
+    @property
+    def cache_label(self) -> str:
+        return f"{self.base_url}:{self.model}"
+
+
+_PROVIDER_LOCK = threading.Lock()
+
+
+def _split_csv(value: str) -> List[str]:
+    return [item.strip() for item in (value or "").split(",") if item.strip()]
+
+
+def build_summary_providers(
+    model_chain: str,
+    modelscope_api_key: str,
+    modelscope_base_url: str,
+    sjtu_api_key: str,
+    sjtu_base_url: str,
+) -> List[SummaryProvider]:
+    """Build the summary fallback chain from provider:model entries."""
+    provider_config = {
+        "modelscope": (modelscope_api_key, modelscope_base_url),
+        "sjtu": (sjtu_api_key, sjtu_base_url),
+    }
+    providers: List[SummaryProvider] = []
+    seen = set()
+
+    for entry in _split_csv(model_chain):
+        if ":" in entry:
+            provider_name, model = entry.split(":", 1)
+            provider_name = provider_name.strip().lower()
+            model = model.strip()
+        else:
+            model = entry
+            provider_name = "modelscope" if "/" in model else "sjtu"
+
+        if provider_name not in provider_config or not model:
+            print(f"⚠️ 忽略无法识别的总结模型配置: {entry}")
+            continue
+
+        api_key, base_url = provider_config[provider_name]
+        if not api_key or not base_url:
+            print(f"⚠️ 跳过缺少凭据的总结 provider: {provider_name}:{model}")
+            continue
+
+        key = (provider_name, base_url, model)
+        if key in seen:
+            continue
+        seen.add(key)
+        providers.append(SummaryProvider(provider_name, base_url, api_key, model))
+
+    return providers
+
+
+def should_disable_provider(exc: Exception) -> bool:
+    """Return True for errors that are unlikely to recover within this run."""
+    message = str(exc).lower()
+    permanent_markers = [
+        "insufficient balance",
+        "insufficient_balance",
+        "quota",
+        "not a valid model",
+        "invalid model",
+        "model not found",
+        "401",
+        "403",
+        "unauthorized",
+        "forbidden",
+        "invalid_api_key",
+    ]
+    return any(marker in message for marker in permanent_markers)
+
+
+def mark_provider_disabled(provider: SummaryProvider, exc: Exception) -> None:
+    with _PROVIDER_LOCK:
+        provider.disabled = True
+        provider.disable_reason = str(exc)
+
+
+def collect_streaming_completion(
+    providers: List[SummaryProvider],
+    messages: List[Dict[str, str]],
+    temperature: float,
+    cache_key: str,
+) -> Tuple[str, SummaryProvider]:
+    """Try summary providers in order and return the first non-empty response."""
+    last_exception: Optional[Exception] = None
+
+    for provider in providers:
+        with _PROVIDER_LOCK:
+            disabled = provider.disabled
+        if disabled:
+            continue
+
+        try:
+            response = provider.client.chat.completions.create(
+                model=provider.model,
+                messages=messages,
+                temperature=temperature,
+                stream=True,
+            )
+            result = ""
+            for chunk in response:
+                if chunk.choices and len(chunk.choices) > 0:
+                    delta = chunk.choices[0].delta
+                    if delta and delta.content:
+                        result += delta.content
+
+            result = strip_think_tags(result)
+            if not result.strip():
+                raise ValueError(f"LLM returned empty result for {cache_key}")
+            return result, provider
+        except Exception as exc:
+            last_exception = exc
+            print(f"⚠️ 总结模型失败，尝试下一个: {provider.label}: {exc}")
+            if should_disable_provider(exc):
+                mark_provider_disabled(provider, exc)
+            continue
+
+    if last_exception:
+        raise last_exception
+    raise RuntimeError("没有可用的总结模型 provider")
+
+
 def retry_on_openai_error(max_retries: int = 6, backoff_factor: float = 2.0):
     """
     OpenAI API 重试装饰器
@@ -191,14 +341,13 @@ def extract_arxiv_id_from_link(link: str) -> Optional[str]:
 
 
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
-def translate_summary(summary: str, client: OpenAI, model: str, temperature: float, paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
+def translate_summary(summary: str, providers: List[SummaryProvider], temperature: float, paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
     """
     翻译英文摘要为中文
 
     Args:
         summary: 英文摘要
-        client: OpenAI客户端
-        model: 使用的模型
+        providers: 总结模型回退链
         temperature: 生成温度
         paper_title: 论文标题（用于缓存）
         cache_manager: 缓存管理器
@@ -209,9 +358,10 @@ def translate_summary(summary: str, client: OpenAI, model: str, temperature: flo
     # 尝试从缓存获取
     if cache_manager and ENABLE_CACHE:
         cache_key = f"translation_{paper_title}_{summary[:100]}"
-        cached_translation = cache_manager.get_summary_cache(cache_key, summary)
-        if cached_translation:
-            return cached_translation
+        for provider in providers:
+            cached_translation = cache_manager.get_summary_cache(f"{provider.cache_label}:{cache_key}", summary)
+            if cached_translation:
+                return cached_translation
 
     # 构建翻译prompt
     prompt = f"""请将以下英文学术论文摘要翻译成中文，要求：
@@ -226,9 +376,7 @@ def translate_summary(summary: str, client: OpenAI, model: str, temperature: flo
 
 请提供中文翻译："""
 
-    response = client.chat.completions.create(
-        model=model,
-        messages=[
+    messages = [
             {
                 "role": "system",
                 "content": "你是一个专业的学术论文翻译助手，擅长将英文学术论文摘要准确翻译成中文。"
@@ -237,59 +385,38 @@ def translate_summary(summary: str, client: OpenAI, model: str, temperature: flo
                 "role": "user",
                 "content": prompt
             }
-        ],
-        temperature=temperature,
-        stream=True,
+        ]
+    translation, provider = collect_streaming_completion(
+        providers, messages, temperature, f"translation_{paper_title[:50]}"
     )
-    translation = ""
-    for chunk in response:
-        if chunk.choices and len(chunk.choices) > 0:
-            delta = chunk.choices[0].delta
-            if delta and delta.content:
-                translation += delta.content
-
-    translation = strip_think_tags(translation)
-
-    if not translation.strip():
-        raise ValueError(f"Translation returned empty for {paper_title[:50]}")
 
     # 保存到缓存
     if cache_manager and ENABLE_CACHE:
         cache_key = f"translation_{paper_title}_{summary[:100]}"
-        cache_manager.set_summary_cache(cache_key, summary, translation)
+        cache_manager.set_summary_cache(f"{provider.cache_label}:{cache_key}", summary, translation)
 
     return translation
 
 
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
-def _llm_generate(client, model: str, temperature: float, system: str, prompt: str,
+def _llm_generate(providers: List[SummaryProvider], temperature: float, system: str, prompt: str,
                    cache_key: str, paper_content: str, cache_manager) -> str:
     """Shared helper: cache lookup → LLM streaming call → strip think tags → cache save."""
     if cache_manager and ENABLE_CACHE:
-        cached = cache_manager.get_summary_cache(cache_key, paper_content)
-        if cached:
-            return cached
+        for provider in providers:
+            cached = cache_manager.get_summary_cache(f"{provider.cache_label}:{cache_key}", paper_content)
+            if cached:
+                return cached
 
-    response = client.chat.completions.create(
-        model=model,
-        messages=[{"role": "system", "content": system}, {"role": "user", "content": prompt}],
-        temperature=temperature,
-        stream=True,
+    result, provider = collect_streaming_completion(
+        providers,
+        [{"role": "system", "content": system}, {"role": "user", "content": prompt}],
+        temperature,
+        cache_key,
     )
-    result = ""
-    for chunk in response:
-        if chunk.choices and len(chunk.choices) > 0:
-            delta = chunk.choices[0].delta
-            if delta and delta.content:
-                result += delta.content
-
-    result = strip_think_tags(result)
-
-    if not result.strip():
-        raise ValueError(f"LLM returned empty result for {cache_key}")
 
     if cache_manager and ENABLE_CACHE:
-        cache_manager.set_summary_cache(cache_key, paper_content, result)
+        cache_manager.set_summary_cache(f"{provider.cache_label}:{cache_key}", paper_content, result)
     return result
 
 
@@ -297,14 +424,14 @@ def _llm_generate(client, model: str, temperature: float, system: str, prompt: s
 # Prompt 1: Introduction Logic (Chinese)
 # ---------------------------------------------------------------------------
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
-def generate_intro_logic(paper_content: str, client: OpenAI, model: str, temperature: float,
+def generate_intro_logic(paper_content: str, providers: List[SummaryProvider], temperature: float,
                          paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
     prompt = f"""{paper_content}
 
 ---
 请完整提取 Introduction 部分"讲故事"（引出问题）的逻辑链条（不涉及具体方法等），然后压缩成一个有序列表。最后一点要求是"研究问题"（一个问句）。用纯文本回答，不要使用任何加粗或斜体。专业术语保持英文。"""
 
-    return _llm_generate(client, model, temperature,
+    return _llm_generate(providers, temperature,
                          "你是一个精确的学术阅读助手。用中文回复，专业术语保持英文。",
                          prompt, f"intro_logic_zh_{paper_title}", paper_content, cache_manager)
 
@@ -313,7 +440,7 @@ def generate_intro_logic(paper_content: str, client: OpenAI, model: str, tempera
 # Prompt 2: Core Insight (Chinese)
 # ---------------------------------------------------------------------------
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
-def generate_core_insight(paper_content: str, client: OpenAI, model: str, temperature: float,
+def generate_core_insight(paper_content: str, providers: List[SummaryProvider], temperature: float,
                           paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
     prompt = f"""{paper_content}
 
@@ -330,7 +457,7 @@ def generate_core_insight(paper_content: str, client: OpenAI, model: str, temper
 
 用中文回复，专业术语保持英文，引用论文原文时保持英文。"""
 
-    return _llm_generate(client, model, temperature,
+    return _llm_generate(providers, temperature,
                          "你是一位善于发现研究灵感源头的学术分析师。你的任务是找到论文背后那个关键的intellectual insight——不是问题本身，而是解决问题的那个独特视角。",
                          prompt, f"core_insight_v2_{paper_title}", paper_content, cache_manager)
 
@@ -339,7 +466,7 @@ def generate_core_insight(paper_content: str, client: OpenAI, model: str, temper
 # Prompt 3: Methodology Breakdown (Chinese)
 # ---------------------------------------------------------------------------
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
-def generate_methodology(paper_content: str, client: OpenAI, model: str, temperature: float,
+def generate_methodology(paper_content: str, providers: List[SummaryProvider], temperature: float,
                          paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
     prompt = f"""{paper_content}
 
@@ -381,7 +508,7 @@ def generate_methodology(paper_content: str, client: OpenAI, model: str, tempera
 
 请根据以上要求，为我解读以下论文的内容。"""
 
-    return _llm_generate(client, model, temperature,
+    return _llm_generate(providers, temperature,
                          "你是一个资深的学术论文解读助手，用大白话讲解方法论与设计逻辑。",
                          prompt, f"methodology_v2_{paper_title}", paper_content, cache_manager)
 
@@ -390,7 +517,7 @@ def generate_methodology(paper_content: str, client: OpenAI, model: str, tempera
 # Prompt 4: Additional Insights (Chinese)
 # ---------------------------------------------------------------------------
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
-def generate_additional_insights(paper_content: str, client: OpenAI, model: str, temperature: float,
+def generate_additional_insights(paper_content: str, providers: List[SummaryProvider], temperature: float,
                                  paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
     prompt = f"""{paper_content}
 
@@ -409,7 +536,7 @@ def generate_additional_insights(paper_content: str, client: OpenAI, model: str,
 
 请只输出有实质内容的条目，没有就不写。每条用1-2句话概括，附上论文中的依据。用中文回复，专业术语保持英文。"""
 
-    return _llm_generate(client, model, temperature,
+    return _llm_generate(providers, temperature,
                          "你是一个善于从论文中榨取最大价值的研究助手。",
                          prompt, f"additional_insights_{paper_title}", paper_content, cache_manager)
 
@@ -418,7 +545,7 @@ def generate_additional_insights(paper_content: str, client: OpenAI, model: str,
 # Prompt 5: Research Value Evaluation (Chinese)
 # ---------------------------------------------------------------------------
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
-def generate_research_value(client: OpenAI, model: str, temperature: float,
+def generate_research_value(providers: List[SummaryProvider], temperature: float,
                             paper_title: str, arxiv_id: str, date: str,
                             intro_logic: str, methodology: str,
                             additional_insights: str, original_summary: str,
@@ -513,7 +640,7 @@ ArXiv ID：{arxiv_id}
 - **与 Carlini 原则的对照**：这篇论文最符合和最不符合 Carlini 哪条研究原则？各一句话。"""
 
     # Cache key uses paper_title as proxy; the assembled_input serves as content hash
-    return _llm_generate(client, model, temperature,
+    return _llm_generate(providers, temperature,
                          "你是一位经验丰富的研究评审者，客观评估研究问题的价值。",
                          prompt, f"research_value_{paper_title}", assembled_input, cache_manager)
 
@@ -718,7 +845,7 @@ def generate_critical_evaluation(paper_content: str, client: OpenAI, model: str,
 # Affiliation Extraction
 # ---------------------------------------------------------------------------
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
-def extract_affiliations(paper_content: str, authors: str, client: OpenAI, model: str, temperature: float,
+def extract_affiliations(paper_content: str, authors: str, providers: List[SummaryProvider], temperature: float,
                          paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
     """从论文内容中提取作者机构及角标信息，返回 JSON 字符串。"""
     prompt = f"""{paper_content}
@@ -767,19 +894,18 @@ def extract_affiliations(paper_content: str, authors: str, client: OpenAI, model
 7. 保持作者顺序与论文一致"""
 
     system = "你是一个学术信息提取助手。请精确提取作者机构信息，只输出 JSON，不要输出其他内容。"
-    return _llm_generate(client, model, temperature, system,
+    return _llm_generate(providers, temperature, system,
                          prompt, f"affiliations_{paper_title}", paper_content, cache_manager)
 
 
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
-def generate_daily_overview(papers: List[Dict], client: OpenAI, model: str, temperature: float, date_str: str = "", cache_manager: Optional[CacheManager] = None) -> str:
+def generate_daily_overview(papers: List[Dict], providers: List[SummaryProvider], temperature: float, date_str: str = "", cache_manager: Optional[CacheManager] = None) -> str:
     """
     生成"今日AI论文速览"
     
     Args:
         papers: 论文列表
-        client: OpenAI客户端
-        model: 使用的模型
+        providers: 总结模型回退链
         temperature: 生成温度
         date_str: 日期字符串（用于缓存和标题）
         cache_manager: 缓存管理器
@@ -792,10 +918,11 @@ def generate_daily_overview(papers: List[Dict], client: OpenAI, model: str, temp
         cache_key = f"daily_overview_v2_{date_str}"
         # 使用所有论文标题的组合作为内容指纹
         content_fingerprint = "_".join([p.get('title', '')[:30] for p in papers[:10]])
-        cached_overview = cache_manager.get_summary_cache(cache_key, content_fingerprint)
-        if cached_overview:
-            print(f"📋 使用缓存的每日速览: {date_str}")
-            return cached_overview
+        for provider in providers:
+            cached_overview = cache_manager.get_summary_cache(f"{provider.cache_label}:{cache_key}", content_fingerprint)
+            if cached_overview:
+                print(f"📋 使用缓存的每日速览: {date_str}")
+                return cached_overview
     
     # 构建论文信息列表（包含聚类信息）
     papers_info = []
@@ -867,9 +994,7 @@ ArXiv ID: {paper.get('arxiv_id', 'Unknown')}
 
 请现在生成"今日AI论文速览"报告："""
 
-    response = client.chat.completions.create(
-        model=model,
-        messages=[
+    messages = [
             {
                 "role": "system",
                 "content": "你是一位顶尖的AI研究分析师和科技媒体主编，擅长将复杂的学术论文信息提炼成结构清晰、重点突出的每日速览。"
@@ -878,27 +1003,16 @@ ArXiv ID: {paper.get('arxiv_id', 'Unknown')}
                 "role": "user",
                 "content": prompt
             }
-        ],
-        temperature=temperature,
-        stream=True,
+        ]
+    daily_overview, provider = collect_streaming_completion(
+        providers, messages, temperature, f"daily_overview_v2_{date_str}"
     )
-    daily_overview = ""
-    for chunk in response:
-        if chunk.choices and len(chunk.choices) > 0:
-            delta = chunk.choices[0].delta
-            if delta and delta.content:
-                daily_overview += delta.content
-
-    daily_overview = strip_think_tags(daily_overview)
-
-    if not daily_overview.strip():
-        raise ValueError(f"Daily overview returned empty for {date_str}")
 
     # 保存到缓存
     if cache_manager and ENABLE_CACHE:
         cache_key = f"daily_overview_v2_{date_str}"
         content_fingerprint = "_".join([p.get('title', '')[:30] for p in papers[:10]])
-        cache_manager.set_summary_cache(cache_key, content_fingerprint, daily_overview)
+        cache_manager.set_summary_cache(f"{provider.cache_label}:{cache_key}", content_fingerprint, daily_overview)
 
     return daily_overview
 
@@ -916,14 +1030,20 @@ def main() -> int:
                        help='API基础URL')
     parser.add_argument('--model', default=SUMMARY_MODEL,
                        help='使用的模型')
+    parser.add_argument('--model-chain', default=SUMMARY_MODEL_CHAIN,
+                       help='总结模型回退链，格式 provider:model,provider:model')
+    parser.add_argument('--sjtu-api-key', default=SUMMARY_SJTU_API_KEY,
+                       help='SJTU 兜底 API 密钥')
+    parser.add_argument('--sjtu-base-url', default=SUMMARY_SJTU_BASE_URL,
+                       help='SJTU 兜底 API 基础 URL')
     parser.add_argument('--temperature', type=float, default=TEMPERATURE,
                        help='生成温度')
     parser.add_argument('--max-papers', type=int, default=0,
                        help='最大处理论文数量，0表示处理所有（推荐处理所有）')
     parser.add_argument('--skip-existing', action='store_true',
                        help='跳过已有summary2字段的论文')
-    parser.add_argument('--max-workers', type=int, default=MAX_WORKERS,
-                       help=f'最大线程数 (默认: {MAX_WORKERS})')
+    parser.add_argument('--max-workers', type=int, default=SUMMARY_MAX_WORKERS,
+                       help=f'最大线程数 (默认: {SUMMARY_MAX_WORKERS})')
     parser.add_argument('--disable-cache', action='store_true',
                        help='禁用缓存机制')
     
@@ -936,10 +1056,21 @@ def main() -> int:
         print(f"❌ 参数校验失败: {exc}")
         return 2
     
+    providers = build_summary_providers(
+        args.model_chain,
+        args.api_key,
+        args.base_url,
+        args.sjtu_api_key,
+        args.sjtu_base_url,
+    )
+    if not providers:
+        print("❌ 没有可用的总结模型配置")
+        return 2
+
     # 初始化缓存管理器
     cache_manager = None
     if not args.disable_cache and ENABLE_CACHE:
-        cache_manager = CacheManager(summary_namespace=f"{args.base_url}:{args.model}")
+        cache_manager = CacheManager(summary_namespace="summary_model_chain_v2")
     document_extractor = ExtractionManager(cache_manager=cache_manager)
     
     # 检查输入文件
@@ -950,17 +1081,10 @@ def main() -> int:
     # 创建输出目录
     os.makedirs(args.output_dir, exist_ok=True)
     
-    # 初始化OpenAI客户端
-    client = OpenAI(
-        api_key=args.api_key,
-        base_url=args.base_url,
-        timeout=180.0,  # 增加超时时间到180秒，避免524错误
-    )
-    
     print("📝 开始生成论文总结")
     print(f"📁 输入文件: {args.input_file}")
     print(f"📂 输出目录: {args.output_dir}")
-    print(f"🤖 使用模型: {args.model}")
+    print(f"🤖 总结模型链: {', '.join(provider.label for provider in providers)}")
     print("=" * 50)
     
     # 加载论文数据
@@ -1045,7 +1169,7 @@ def main() -> int:
                         paper_copy['affiliations'] = cached_affiliations or ""
                         paper_copy['summary_translation'] = cached_translation or "无需翻译"
                         paper_copy['summary_generated_time'] = time.strftime('%Y-%m-%d %H:%M:%S')
-                        paper_copy['summary_model'] = args.model
+                        paper_copy['summary_model'] = ",".join(provider.label for provider in providers)
                         return 'success', index, paper_copy, f"📋 使用缓存: {paper_title[:50]}..."
             
             # 如果没有完整缓存，才获取论文内容
@@ -1070,8 +1194,19 @@ def main() -> int:
                 except Exception as exc:
                     print(f"⚠️ 提取论文内容失败 {paper_title[:30]}: {exc}")
                 if not paper_content:
-                    return 'failed', index, paper, f"❌ 无法获取论文内容: {paper_title}"
-            paper_content = ensure_valid_paper_content(paper_content, paper_title)
+                    if original_summary:
+                        paper_content = (
+                            f"Title: {paper_title}\n"
+                            f"Authors: {paper.get('authors', '')}\n"
+                            f"ArXiv ID: {paper.get('arxiv_id', '')}\n\n"
+                            f"Abstract:\n{original_summary}\n\n"
+                            "[Full text extraction failed; analysis is based on title and abstract.]"
+                        )
+                        print(f"📝 使用标题和原始摘要作为兜底内容: {paper_title[:50]}...")
+                    else:
+                        return 'failed', index, paper, f"❌ 无法获取论文内容: {paper_title}"
+            if "[Full text extraction failed;" not in paper_content:
+                paper_content = ensure_valid_paper_content(paper_content, paper_title)
 
             if not original_summary:
                 extracted_summary = extract_abstract_from_paper_content(paper_content)
@@ -1080,34 +1215,34 @@ def main() -> int:
                     print(f"📝 从论文正文回填原始摘要: {paper_title[:50]}...")
             
             # 检查内容长度并截断
-            if len(paper_content) > 200000:
-                paper_content = paper_content[:200000] + "\n\n[内容已截断...]"
+            if len(paper_content) > SUMMARY_CONTENT_CHAR_LIMIT:
+                paper_content = paper_content[:SUMMARY_CONTENT_CHAR_LIMIT] + "\n\n[内容已截断...]"
             
             # 生成4个新prompt的内容
             intro_logic = ""
             try:
-                intro_logic = generate_intro_logic(paper_content, client, args.model, args.temperature, paper.get('title', ''), cache_manager)
+                intro_logic = generate_intro_logic(paper_content, providers, args.temperature, paper.get('title', ''), cache_manager)
             except Exception as e:
                 print(f"⚠️ 生成intro_logic失败 {paper_title[:30]}: {e}")
                 intro_logic = "Introduction logic extraction failed"
 
             core_insight = ""
             try:
-                core_insight = generate_core_insight(paper_content, client, args.model, args.temperature, paper.get('title', ''), cache_manager)
+                core_insight = generate_core_insight(paper_content, providers, args.temperature, paper.get('title', ''), cache_manager)
             except Exception as e:
                 print(f"⚠️ 生成core_insight失败 {paper_title[:30]}: {e}")
                 core_insight = "Core insight extraction failed"
 
             methodology = ""
             try:
-                methodology = generate_methodology(paper_content, client, args.model, args.temperature, paper.get('title', ''), cache_manager)
+                methodology = generate_methodology(paper_content, providers, args.temperature, paper.get('title', ''), cache_manager)
             except Exception as e:
                 print(f"⚠️ 生成methodology失败 {paper_title[:30]}: {e}")
                 methodology = "方法论解读生成失败"
 
             additional_insights = ""
             try:
-                additional_insights = generate_additional_insights(paper_content, client, args.model, args.temperature, paper.get('title', ''), cache_manager)
+                additional_insights = generate_additional_insights(paper_content, providers, args.temperature, paper.get('title', ''), cache_manager)
             except Exception as e:
                 print(f"⚠️ 生成additional_insights失败 {paper_title[:30]}: {e}")
                 additional_insights = "额外洞察提取失败"
@@ -1116,7 +1251,7 @@ def main() -> int:
             summary_translation = ""
             if original_summary:
                 try:
-                    summary_translation = translate_summary(original_summary, client, args.model, args.temperature, paper.get('title', ''), cache_manager)
+                    summary_translation = translate_summary(original_summary, providers, args.temperature, paper.get('title', ''), cache_manager)
                 except Exception as e:
                     print(f"⚠️ 翻译摘要失败 {paper_title[:30]}: {e}")
                     summary_translation = "翻译失败"
@@ -1125,7 +1260,7 @@ def main() -> int:
             research_value = ""
             try:
                 research_value = generate_research_value(
-                    client, args.model, args.temperature,
+                    providers, args.temperature,
                     paper_title, paper.get('arxiv_id', ''), paper.get('date', ''),
                     intro_logic, methodology, additional_insights, original_summary,
                     cache_manager)
@@ -1136,7 +1271,7 @@ def main() -> int:
             # 提取作者机构信息
             affiliations = ""
             try:
-                affiliations = extract_affiliations(paper_content, paper.get('authors', ''), client, args.model, args.temperature, paper.get('title', ''), cache_manager)
+                affiliations = extract_affiliations(paper_content, paper.get('authors', ''), providers, args.temperature, paper.get('title', ''), cache_manager)
             except Exception as e:
                 print(f"⚠️ 提取机构信息失败 {paper_title[:30]}: {e}")
 
@@ -1152,7 +1287,7 @@ def main() -> int:
             paper_copy['affiliations'] = affiliations
             paper_copy['summary_translation'] = summary_translation
             paper_copy['summary_generated_time'] = time.strftime('%Y-%m-%d %H:%M:%S')
-            paper_copy['summary_model'] = args.model
+            paper_copy['summary_model'] = ",".join(provider.label for provider in providers)
 
             return 'success', index, paper_copy, f"✅ 成功生成总结和分析: {paper_title[:50]}..."
             
@@ -1221,8 +1356,7 @@ def main() -> int:
             
             daily_overview = generate_daily_overview(
                 updated_papers, 
-                client, 
-                args.model, 
+                providers,
                 args.temperature, 
                 date_str, 
                 cache_manager

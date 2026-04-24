@@ -21,7 +21,9 @@ if project_root not in sys.path:
 # 导入配置
 try:
     from src.utils.config import (
-        API_KEY, BASE_URL, MODEL, FILTER_MODEL, SUMMARY_API_KEY, SUMMARY_BASE_URL, SUMMARY_MODEL, TEMPERATURE,
+        API_KEY, BASE_URL, MODEL, FILTER_MODEL,
+        SUMMARY_API_KEY, SUMMARY_BASE_URL, SUMMARY_MODEL, SUMMARY_MODEL_CHAIN,
+        SUMMARY_SJTU_API_KEY, SUMMARY_SJTU_BASE_URL, SUMMARY_MAX_WORKERS, TEMPERATURE,
         ARXIV_PAPER_DIR, DOMAIN_PAPER_DIR, SUMMARY_DIR, WEBPAGES_DIR,
         CRAWL_CATEGORIES, MAX_PAPERS_PER_CATEGORY, MAX_WORKERS, MAX_PAPERS_TOTAL_DEFAULT
     )
@@ -94,11 +96,15 @@ def redact_command(cmd: List[str]) -> str:
             redacted.append("<redacted>")
             redact_next = False
             continue
-        if part in {"--api-key", "--summary-api-key"}:
+        if part in {"--api-key", "--summary-api-key", "--summary-sjtu-api-key"}:
             redacted.append(part)
             redact_next = True
             continue
-        if part.startswith("--api-key=") or part.startswith("--summary-api-key="):
+        if (
+            part.startswith("--api-key=")
+            or part.startswith("--summary-api-key=")
+            or part.startswith("--summary-sjtu-api-key=")
+        ):
             key, _ = part.split("=", 1)
             redacted.append(f"{key}=<redacted>")
             continue
@@ -230,6 +236,9 @@ def main() -> int:
     parser.add_argument('--summary-api-key', default=SUMMARY_API_KEY, help='总结生成API密钥')
     parser.add_argument('--summary-base-url', default=SUMMARY_BASE_URL, help='总结生成API基础URL')
     parser.add_argument('--summary-model', default=SUMMARY_MODEL, help='总结生成模型')
+    parser.add_argument('--summary-model-chain', default=SUMMARY_MODEL_CHAIN, help='总结模型回退链')
+    parser.add_argument('--summary-sjtu-api-key', default=SUMMARY_SJTU_API_KEY, help='总结SJTU兜底API密钥')
+    parser.add_argument('--summary-sjtu-base-url', default=SUMMARY_SJTU_BASE_URL, help='总结SJTU兜底API基础URL')
     parser.add_argument('--temperature', type=float, default=TEMPERATURE, help='生成温度')
     
     # 流程控制
@@ -302,7 +311,7 @@ def main() -> int:
     print("🚀 启动完整的学术论文处理流水线")
     print("=" * 60)
     progress.log_with_timestamp(f"🤖 使用模型: {args.model}")
-    progress.log_with_timestamp(f"📝 总结使用模型: {args.summary_model}")
+    progress.log_with_timestamp(f"📝 总结模型链: {args.summary_model_chain}")
     progress.log_with_timestamp(f"📊 每类最大论文数: {args.max_papers_per_category}")
     progress.log_with_timestamp(f"🔢 总处理数量: {args.max_papers_total}")
     progress.log_with_timestamp(f"🧵 最大线程数: {args.max_workers}")
@@ -497,9 +506,12 @@ def main() -> int:
             "--api-key", args.summary_api_key,
             "--base-url", args.summary_base_url,
             "--model", args.summary_model,
+            "--model-chain", args.summary_model_chain,
+            "--sjtu-api-key", args.summary_sjtu_api_key,
+            "--sjtu-base-url", args.summary_sjtu_base_url,
             "--temperature", str(args.temperature),
             "--skip-existing",
-            "--max-workers", str(args.max_workers)
+            "--max-workers", str(min(args.max_workers, SUMMARY_MAX_WORKERS))
         ]
         
         if run_command(cmd, "生成论文总结", progress):

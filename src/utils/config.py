@@ -59,9 +59,26 @@ MODEL = _get_env_str("MODEL")
 FILTER_MODEL = _get_env_str("FILTER_MODEL", "minimax-m2.5")  # 筛选用轻量模型
 DEFAULT_SUMMARY_BASE_URL = "https://api-inference.modelscope.cn/v1"
 DEFAULT_SUMMARY_MODEL = "MiniMax/MiniMax-M2.7"
+DEFAULT_SUMMARY_MODEL_CHAIN = (
+    "modelscope:MiniMax/MiniMax-M2.7,"
+    "modelscope:ZhipuAI/GLM-5.1,"
+    "modelscope:moonshotai/Kimi-K2.5,"
+    "sjtu:deepseek-reasoner,"
+    "sjtu:minimax"
+)
 SUMMARY_API_KEY = _get_env_str("SUMMARY_OPENAI_API_KEY", API_KEY)
 SUMMARY_BASE_URL = _get_env_str("SUMMARY_OPENAI_BASE_URL", DEFAULT_SUMMARY_BASE_URL)
 SUMMARY_MODEL = _get_env_str("SUMMARY_MODEL", DEFAULT_SUMMARY_MODEL)
+SUMMARY_MODEL_CHAIN = _get_env_str("SUMMARY_MODEL_CHAIN", DEFAULT_SUMMARY_MODEL_CHAIN)
+SUMMARY_SJTU_API_KEY = _get_env_str(
+    "SUMMARY_SJTU_OPENAI_API_KEY",
+    _get_env_str("SJTU_OPENAI_API_KEY", API_KEY),
+)
+SUMMARY_SJTU_BASE_URL = _get_env_str(
+    "SUMMARY_SJTU_OPENAI_BASE_URL",
+    _get_env_str("SJTU_OPENAI_BASE_URL", "https://models.sjtu.edu.cn/api/v1/"),
+)
+SUMMARY_CONTENT_CHAR_LIMIT = _get_env_int("SUMMARY_CONTENT_CHAR_LIMIT", 200000, minimum=10000)
 
 # Prestige 筛选配置
 PRESTIGE_ENABLED = _get_env_bool("PRESTIGE_ENABLED", True)
@@ -100,6 +117,7 @@ MAX_PAPERS_TOTAL_DEFAULT = 0
 
 # 多线程配置
 MAX_WORKERS = _get_env_int("MAX_WORKERS", 20, minimum=1)  # 并发线程数，100 RPM 限额下安全运行
+SUMMARY_MAX_WORKERS = _get_env_int("SUMMARY_MAX_WORKERS", 5, minimum=1)
 
 # 论文筛选Prompt模板
 PAPER_FILTER_PROMPT = """你是一位顶尖的人工智能研究员，正在为一项关于 "LLM智能体及其演化"（LLM-based Agents and their Evolution） 的研究课题筛选前沿论文。请你严格、精准地判断这篇论文是否符合我的研究范围。

@@ -31,7 +31,13 @@ INVALID_PAPER_CONTENT_PATTERNS = (
     "access denied",
     "request failed",
     "server error",
+)
+INVALID_PAPER_CONTENT_GATE_PATTERNS = (
     "captcha",
+    "verify you are human",
+    "checking your browser",
+    "enable cookies",
+    "automated access",
 )
 KNOWN_PROVIDER_NAMES = ("docling", "pymupdf4llm", "jina")
 DEFAULT_PROVIDER_CHAIN = ("docling", "pymupdf4llm", "jina")
@@ -132,6 +138,11 @@ def get_paper_content_issue(content: Optional[str]) -> Optional[str]:
     for pattern in INVALID_PAPER_CONTENT_PATTERNS:
         if pattern in lowered:
             return f"命中错误页特征: {pattern}"
+
+    if len(normalized) < 10000:
+        for pattern in INVALID_PAPER_CONTENT_GATE_PATTERNS:
+            if pattern in lowered:
+                return f"命中访问拦截页特征: {pattern}"
 
     if len(normalized) < MIN_VALID_PAPER_CONTENT_CHARS:
         return f"内容过短 ({len(normalized)} chars)"
@@ -427,7 +438,11 @@ class ExtractionManager:
         suffix = get_file_suffix_for_source(context.source_type, context.normalized_source)
         local_path = os.path.join(temp_dir, f"{provider.name}{suffix}")
 
-        response = requests.get(context.normalized_source, timeout=self.request_timeout)
+        headers = {
+            "User-Agent": "PaperTools/1.0 (+https://github.com/tsrigo/PaperTools)",
+            "Accept": "application/pdf,*/*;q=0.8",
+        }
+        response = requests.get(context.normalized_source, headers=headers, timeout=self.request_timeout)
         response.raise_for_status()
         with open(local_path, "wb") as handle:
             handle.write(response.content)

@@ -146,7 +146,8 @@ class CacheManager:
             return None
         
         # 使用标题和内容的组合生成键
-        key = self._generate_key(f"{self.summary_namespace}:{paper_title}:{paper_content[:1000]}")
+        content_hash = self._generate_key(paper_content or "")
+        key = self._generate_key(f"{self.summary_namespace}:{paper_title}:{len(paper_content or '')}:{content_hash}")
         cache_file = self._get_cache_file("summaries", key)
         
         if not self._is_cache_valid(cache_file):
@@ -165,7 +166,8 @@ class CacheManager:
         if not self.enabled:
             return
         
-        key = self._generate_key(f"{self.summary_namespace}:{paper_title}:{paper_content[:1000]}")
+        content_hash = self._generate_key(paper_content or "")
+        key = self._generate_key(f"{self.summary_namespace}:{paper_title}:{len(paper_content or '')}:{content_hash}")
         cache_file = self._get_cache_file("summaries", key)
         
         try:
