@@ -4,9 +4,9 @@
 不依赖外部模板，直接生成完整的HTML页面
 """
 
+import hashlib
 import json
 import re
-import time
 from pathlib import Path
 from typing import Dict, List, Any
 
@@ -201,6 +201,34 @@ def load_paper_data() -> Dict[str, List[Dict[str, Any]]]:
         papers_by_date[date] = chosen_papers
         print(f"加载了 {len(chosen_papers)} 篇论文，日期: {date}，来源: {chosen_file.parent.name}/{chosen_file.name}")
 
+    data_dir = Path(WEBPAGES_DIR) / "data"
+    if data_dir.exists():
+        for date_file in data_dir.glob("*.json"):
+            if date_file.name == "index.json":
+                continue
+
+            date = date_file.stem
+            if date in papers_by_date:
+                continue
+
+            try:
+                with open(date_file, "r", encoding="utf-8") as f:
+                    date_data = json.load(f)
+
+                flattened_papers = []
+                for cluster in date_data.get("clusters", []) or []:
+                    cluster_name = cluster.get("name") or "Other"
+                    for paper in cluster.get("papers", []) or []:
+                        paper_copy = dict(paper)
+                        paper_copy["cluster"] = paper_copy.get("cluster") or cluster_name
+                        flattened_papers.append(paper_copy)
+
+                if flattened_papers:
+                    papers_by_date[date] = normalize_papers_for_display(flattened_papers)
+                    print(f"保留已发布数据 {date}: {len(flattened_papers)} 篇，来源: {date_file}")
+            except Exception as e:
+                print(f"加载已发布数据 {date_file} 时出错: {e}")
+
     return papers_by_date
 
 
@@ -225,7 +253,36 @@ def load_daily_overviews() -> Dict[str, str]:
         except Exception as e:
             print(f"加载每日速览文件 {md_file} 时出错: {e}")
 
+    data_dir = Path(WEBPAGES_DIR) / "data"
+    if data_dir.exists():
+        for date_file in data_dir.glob("*.json"):
+            if date_file.name == "index.json" or date_file.stem in overviews:
+                continue
+
+            try:
+                with open(date_file, "r", encoding="utf-8") as f:
+                    date_data = json.load(f)
+                overview = date_data.get("overview", "")
+                if overview:
+                    overviews[date_file.stem] = overview
+                    print(f"保留已发布每日速览，日期: {date_file.stem}")
+            except Exception as e:
+                print(f"加载已发布每日速览 {date_file} 时出错: {e}")
+
     return overviews
+
+
+def build_data_version(papers_by_date: Dict[str, List[Dict[str, Any]]], daily_overviews: Dict[str, str]) -> str:
+    """Return a deterministic cache-busting version for published JSON data."""
+    payload = {
+        date: {
+            "papers": papers_by_date.get(date, []),
+            "overview": daily_overviews.get(date, ""),
+        }
+        for date in sorted(papers_by_date)
+    }
+    encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True, default=str).encode("utf-8")
+    return hashlib.sha1(encoded).hexdigest()[:12]
 
 def escape_js_string(text: str) -> str:
     """转义JavaScript字符串"""
@@ -320,7 +377,7 @@ def generate_complete_html() -> str:
 
     # 只取最近 INITIAL_DAYS 天的数据嵌入 HTML
     initial_dates = all_dates[:INITIAL_DAYS]
-    data_version = str(int(time.time()))
+    data_version = build_data_version(papers_by_date, daily_overviews)
 
     # 生成JavaScript数据 - 只包含初始数据
     js_data = "const allPapers = {\n"

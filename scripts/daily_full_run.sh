@@ -96,7 +96,9 @@ else
     log "✅ Pipeline completed"
 fi
 
-git add arxiv_paper/ domain_paper/ summary/ webpages/
+# arxiv_paper/domain_paper/summary are local cache/state directories and are
+# intentionally gitignored. The published artifact is webpages/.
+git add webpages/
 if git diff --cached --quiet; then
     log "ℹ️ No generated changes detected; nothing to commit"
     exit "$PIPELINE_EXIT"
