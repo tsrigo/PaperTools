@@ -206,6 +206,7 @@ def should_disable_provider(exc: Exception) -> bool:
         "not a valid model",
         "invalid model",
         "model not found",
+        "no provider supported",
         "401",
         "403",
         "unauthorized",
