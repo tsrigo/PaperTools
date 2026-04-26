@@ -72,6 +72,8 @@ SOURCE_METADATA_FIELDS = (
 )
 
 FILTER_LLM_TIMEOUT = float(os.getenv("PAPERTOOLS_FILTER_LLM_TIMEOUT", "90"))
+FILTER_EXTRACT_CHAIN = os.getenv("PAPERTOOLS_FILTER_EXTRACT_CHAIN", "jina")
+FILTER_EXTRACT_TIMEOUT = int(os.getenv("PAPERTOOLS_FILTER_EXTRACT_TIMEOUT", "45"))
 
 
 def has_non_empty_text(value: Any) -> bool:
@@ -425,7 +427,11 @@ def main() -> int:
         timeout=FILTER_LLM_TIMEOUT,
     )
     cache_manager = CacheManager() if ENABLE_CACHE else None
-    document_extractor = ExtractionManager(cache_manager=cache_manager)
+    document_extractor = ExtractionManager(
+        cache_manager=cache_manager,
+        chain=FILTER_EXTRACT_CHAIN,
+        request_timeout=FILTER_EXTRACT_TIMEOUT,
+    )
 
     print("🔍 开始论文筛选")
     print(f"📁 输入文件: {args.input_file}")
@@ -433,6 +439,7 @@ def main() -> int:
     print(f"🏛️ Prestige 硬筛: {'启用' if PRESTIGE_ENABLED else '关闭'}")
     if PRESTIGE_ENABLED:
         print(f"📄 Prestige 上下文截断长度: {PRESTIGE_CONTEXT_CHARS} 字符")
+        print(f"📄 Prestige 文档提取链: {FILTER_EXTRACT_CHAIN} (timeout={FILTER_EXTRACT_TIMEOUT}s)")
     print("=" * 50)
 
     try:

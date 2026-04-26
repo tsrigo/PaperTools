@@ -20,7 +20,7 @@ from src.utils.config import (
     JINA_BACKOFF_FACTOR,
     JINA_MAX_REQUESTS_PER_MINUTE,
     JINA_MAX_RETRIES,
-    REQUEST_TIMEOUT,
+    JINA_REQUEST_TIMEOUT,
 )
 
 
@@ -196,7 +196,7 @@ class JinaExtractor(BaseDocumentExtractor):
         for attempt in range(JINA_MAX_RETRIES):
             try:
                 jina_rate_limiter.wait_if_needed()
-                response = requests.get(jina_url, headers=headers, timeout=REQUEST_TIMEOUT)
+                response = requests.get(jina_url, headers=headers, timeout=JINA_REQUEST_TIMEOUT)
                 response.raise_for_status()
                 content = ensure_valid_extraction_content(
                     response.content.decode("utf-8", errors="replace"),

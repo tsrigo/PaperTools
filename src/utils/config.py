@@ -276,6 +276,7 @@ PRESTIGE_COMPANY_WHITELIST = {
 JINA_MAX_REQUESTS_PER_MINUTE = _get_env_int("JINA_MAX_REQUESTS_PER_MINUTE", 20, minimum=1)
 JINA_MAX_RETRIES = _get_env_int("JINA_MAX_RETRIES", 3, minimum=1)
 JINA_BACKOFF_FACTOR = _get_env_float("JINA_BACKOFF_FACTOR", 2.0, minimum=1.0)
+JINA_REQUEST_TIMEOUT = _get_env_int("JINA_REQUEST_TIMEOUT", min(REQUEST_TIMEOUT, 45), minimum=1)
 JINA_API_TOKEN = _get_env_str("JINA_API_TOKEN")  # 可选：为r.jina.ai添加Bearer Token
 
 # 统一文档提取配置
