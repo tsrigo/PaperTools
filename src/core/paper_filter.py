@@ -71,6 +71,8 @@ SOURCE_METADATA_FIELDS = (
     'crawl_time',
 )
 
+FILTER_LLM_TIMEOUT = float(os.getenv("PAPERTOOLS_FILTER_LLM_TIMEOUT", "90"))
+
 
 def has_non_empty_text(value: Any) -> bool:
     """Return True when a value is meaningful display text."""
@@ -142,15 +144,15 @@ def run_llm_prompt(prompt: str, system: str, client: OpenAI, model: str,
             {"role": "user", "content": prompt},
         ],
         temperature=temperature,
-        stream=True,
+        stream=False,
+        timeout=FILTER_LLM_TIMEOUT,
     )
 
     response_text = ""
-    for chunk in response:
-        if chunk.choices and len(chunk.choices) > 0:
-            delta = chunk.choices[0].delta
-            if delta and delta.content:
-                response_text += delta.content
+    if response.choices:
+        message = response.choices[0].message
+        if message and message.content:
+            response_text = message.content
 
     return strip_think_tags(response_text)
 
@@ -420,7 +422,7 @@ def main() -> int:
     client = OpenAI(
         api_key=args.api_key,
         base_url=args.base_url,
-        timeout=180.0,
+        timeout=FILTER_LLM_TIMEOUT,
     )
     cache_manager = CacheManager() if ENABLE_CACHE else None
     document_extractor = ExtractionManager(cache_manager=cache_manager)
