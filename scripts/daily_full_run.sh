@@ -34,6 +34,10 @@ run_logged() {
     "$@" >>"$LOG_FILE" 2>&1
 }
 
+fetch_origin_master() {
+    run_logged git fetch origin +refs/heads/master:refs/remotes/origin/master
+}
+
 exec 9>"$LOCK_FILE"
 if command -v flock >/dev/null 2>&1; then
     if ! flock -n 9; then
@@ -72,7 +76,7 @@ pkill -f "src/core/pipeline.py" 2>/dev/null || true
 pkill -f "src/core/serve_webpages.py" 2>/dev/null || true
 sleep 2
 
-run_logged git fetch origin master
+fetch_origin_master
 run_logged git worktree add --detach "$WORKTREE_DIR" origin/master
 
 if [ -f "$ROOT_DIR/.env" ]; then
@@ -116,7 +120,7 @@ set -e
 
 if [ "$PUSH_EXIT" -ne 0 ]; then
     log "⚠️ Initial push failed; rebasing on latest origin/master and retrying"
-    run_logged git fetch origin master
+    fetch_origin_master
     if git rebase origin/master >>"$LOG_FILE" 2>&1; then
         set +e
         git push origin HEAD:master >>"$LOG_FILE" 2>&1
