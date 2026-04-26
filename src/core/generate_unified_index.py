@@ -164,6 +164,57 @@ def score_paper_file(json_file: Path, papers: List[Dict[str, Any]]) -> tuple:
     )
 
 
+def paper_identity(paper: Dict[str, Any]) -> str:
+    """Return a stable key for merging rerun output with already published data."""
+    return (
+        str(paper.get("arxiv_id") or "").strip()
+        or str(paper.get("link") or "").strip()
+        or str(paper.get("title") or "").strip()
+    )
+
+
+def paper_display_score(paper: Dict[str, Any]) -> tuple:
+    """Prefer records with generated analysis, non-Other clusters, and metadata."""
+    rich_fields_present = sum(1 for field in RICHNESS_FIELDS if has_non_empty_text(paper.get(field)))
+    source_fields_present = sum(1 for field in SOURCE_METADATA_FIELDS if paper.get(field) not in (None, ""))
+    cluster = paper.get("cluster") or ""
+    return (
+        rich_fields_present,
+        1 if cluster and cluster != "Other" else 0,
+        len(paper.get("tags", []) or []),
+        source_fields_present,
+    )
+
+
+def merge_published_papers(
+    current_papers: List[Dict[str, Any]],
+    published_papers: List[Dict[str, Any]],
+) -> List[Dict[str, Any]]:
+    """Merge same-date rerun output with published data so reruns do not drop papers."""
+    merged: Dict[str, Dict[str, Any]] = {}
+    order: List[str] = []
+
+    for paper in current_papers:
+        key = paper_identity(paper)
+        if not key:
+            key = f"current-{len(order)}"
+        if key not in merged:
+            order.append(key)
+        merged[key] = paper
+
+    for paper in published_papers:
+        key = paper_identity(paper)
+        if not key:
+            key = f"published-{len(order)}"
+        if key not in merged:
+            order.append(key)
+            merged[key] = paper
+        elif paper_display_score(paper) > paper_display_score(merged[key]):
+            merged[key] = paper
+
+    return normalize_papers_for_display([merged[key] for key in order])
+
+
 def load_paper_data() -> Dict[str, List[Dict[str, Any]]]:
     """加载论文数据"""
     papers_by_date = {}
@@ -224,8 +275,19 @@ def load_paper_data() -> Dict[str, List[Dict[str, Any]]]:
                         flattened_papers.append(paper_copy)
 
                 if flattened_papers:
-                    papers_by_date[date] = normalize_papers_for_display(flattened_papers)
-                    print(f"保留已发布数据 {date}: {len(flattened_papers)} 篇，来源: {date_file}")
+                    published_papers = normalize_papers_for_display(flattened_papers)
+                    if date in papers_by_date:
+                        before_count = len(papers_by_date[date])
+                        merged_papers = merge_published_papers(papers_by_date[date], published_papers)
+                        papers_by_date[date] = merged_papers
+                        if len(merged_papers) > before_count:
+                            print(
+                                f"合并已发布数据 {date}: 当前 {before_count} 篇，"
+                                f"发布 {len(published_papers)} 篇，合并后 {len(merged_papers)} 篇"
+                            )
+                    else:
+                        papers_by_date[date] = published_papers
+                        print(f"保留已发布数据 {date}: {len(flattened_papers)} 篇，来源: {date_file}")
             except Exception as e:
                 print(f"加载已发布数据 {date_file} 时出错: {e}")
 
