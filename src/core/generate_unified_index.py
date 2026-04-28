@@ -259,9 +259,6 @@ def load_paper_data() -> Dict[str, List[Dict[str, Any]]]:
                 continue
 
             date = date_file.stem
-            if date in papers_by_date:
-                continue
-
             try:
                 with open(date_file, "r", encoding="utf-8") as f:
                     date_data = json.load(f)
