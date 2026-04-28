@@ -19,6 +19,19 @@ except ImportError:
     DOMAIN_PAPER_DIR = "domain_paper"
     ARXIV_PAPER_DIR = "arxiv_paper"
 
+try:
+    from src.utils.io import save_json, save_text
+except ImportError:
+    def save_json(filepath, data, indent=2, ensure_ascii=False):  # type: ignore[no-redef]
+        with open(filepath, "w", encoding="utf-8") as handle:
+            json.dump(data, handle, ensure_ascii=ensure_ascii, indent=indent)
+        return True
+
+    def save_text(filepath, content):  # type: ignore[no-redef]
+        with open(filepath, "w", encoding="utf-8") as handle:
+            handle.write(content)
+        return True
+
 # 分页配置
 INITIAL_DAYS = 3  # 初始加载的天数（其余通过"加载更多"按需加载）
 LOAD_MORE_DAYS = 7  # 每次"加载更多"加载的天数
@@ -409,8 +422,8 @@ def save_date_data_files(papers_by_date: Dict, daily_overviews: Dict) -> List[st
         }
 
         date_file = data_dir / f"{date}.json"
-        with open(date_file, 'w', encoding='utf-8') as f:
-            json.dump(date_data, f, ensure_ascii=False)
+        if not save_json(str(date_file), date_data, indent=None, ensure_ascii=False):
+            raise IOError(f"保存数据文件失败: {date_file}")
         print(f"保存数据文件: {date_file}")
 
     # 生成日期索引文件
@@ -420,8 +433,8 @@ def save_date_data_files(papers_by_date: Dict, daily_overviews: Dict) -> List[st
         "load_more_days": LOAD_MORE_DAYS
     }
     index_file = data_dir / "index.json"
-    with open(index_file, 'w', encoding='utf-8') as f:
-        json.dump(index_data, f, ensure_ascii=False, indent=2)
+    if not save_json(str(index_file), index_data, indent=2, ensure_ascii=False):
+        raise IOError(f"保存索引文件失败: {index_file}")
     print(f"保存索引文件: {index_file}")
 
     return all_dates
@@ -1429,15 +1442,15 @@ def generate_complete_html() -> str:
             try {{
                 // 解析 JSON（可能被包在 ```json ... ``` 中）
                 let jsonStr = affiliationsStr;
-                const match = jsonStr.match(/```json\s*([\s\S]*?)\s*```/);
+                const match = jsonStr.match(/```json\\s*([\\s\\S]*?)\\s*```/);
                 if (match) jsonStr = match[1];
-                const objMatch = jsonStr.match(/\{{[\s\S]*\}}/);
+                const objMatch = jsonStr.match(/\\{{[\\s\\S]*\\}}/);
                 if (objMatch) jsonStr = objMatch[0];
                 const data = JSON.parse(jsonStr);
 
                 // 兼容旧格式（数组）
                 if (Array.isArray(data)) {{
-                    const authors = authorsStr.split(/,\s*/);
+                    const authors = authorsStr.split(/,\\s*/);
                     const affMap = {{}};
                     data.forEach(a => {{ if (a.name && a.affiliation) affMap[a.name.trim().toLowerCase()] = a.affiliation; }});
                     return authors.map(a => {{
@@ -2113,8 +2126,8 @@ def main():
 
         # 写入输出文件到webpages目录
         output_path = webpages_dir / "index.html"
-        with open(output_path, 'w', encoding='utf-8') as f:
-            f.write(html_content)
+        if not save_text(str(output_path), html_content):
+            raise IOError(f"写入统一HTML页面失败: {output_path}")
 
         print(f"成功生成统一HTML页面: {output_path}")
 

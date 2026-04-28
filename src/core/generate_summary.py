@@ -55,6 +55,26 @@ def has_non_empty_text(value) -> bool:
     return isinstance(value, str) and bool(value.strip())
 
 
+SUMMARY_ANALYSIS_FIELDS = (
+    "intro_logic",
+    "core_insight",
+    "methodology",
+    "additional_insights",
+    "research_value",
+)
+
+
+def has_complete_summary_analysis(paper: Dict) -> bool:
+    """Return True only when a paper has all fields needed by the web UI."""
+    if not has_non_empty_text(paper.get("summary")):
+        return False
+    if not all(has_non_empty_text(paper.get(field)) for field in SUMMARY_ANALYSIS_FIELDS):
+        return False
+    if not has_non_empty_text(paper.get("summary_translation")):
+        return False
+    return True
+
+
 def is_section_heading(line: str) -> bool:
     """Heuristic section-heading detector used for abstract extraction."""
     cleaned = re.sub(r'^[#>\-\s]+', '', line or '').strip()
@@ -1109,8 +1129,8 @@ def main() -> int:
         paper_title = paper.get('title', 'Untitled Paper')
         paper_link = paper.get('link', '')
         
-        # 检查是否已有完整结果；缺少原始摘要的半成品需要重新处理以便回填。
-        if args.skip_existing and paper.get('intro_logic') and has_non_empty_text(paper.get('summary')):
+        # 只有网页所需字段都存在时才跳过；半成品需要重新处理以便回填。
+        if args.skip_existing and has_complete_summary_analysis(paper):
             return 'skipped', index, paper, f"⏭️ 跳过已有总结的论文: {paper_title[:50]}..."
         
         try:
@@ -1333,14 +1353,14 @@ def main() -> int:
         failure_msgs = [f"{failed} papers failed during summary generation"]
         notify_failures("summarize", failure_msgs)
 
-    # 保存更新后的JSON文件
-    if processed > 0:
-        # 生成输出文件名
-        input_filename = os.path.basename(args.input_file)
-        name_without_ext = os.path.splitext(input_filename)[0]
-        output_filename = f"{name_without_ext}_with_summary2.json"
-        output_path = os.path.join(args.output_dir, output_filename)
-        
+    output_path = ""
+    input_filename = os.path.basename(args.input_file)
+    name_without_ext = os.path.splitext(input_filename)[0]
+    output_filename = f"{name_without_ext}_with_summary2.json"
+    output_path = os.path.join(args.output_dir, output_filename)
+
+    # 保存更新后的JSON文件。即使本轮全是 skip，也要写出文件，避免下游回退到未总结版本。
+    if processed > 0 or skipped > 0:
         # 保存更新后的数据
         if not save_json(output_path, updated_papers, indent=2, ensure_ascii=False):
             print(f"❌ 保存总结结果失败: {output_path}")
@@ -1349,37 +1369,39 @@ def main() -> int:
         print(f"\n💾 已保存更新后的JSON文件: {output_path}")
         
         # 生成"今日AI论文速览"
-        print("\n📰 正在生成今日AI论文速览...")
-        try:
-            # 从文件名中提取日期
-            date_match = re.search(r'(\d{4}-\d{2}-\d{2})', input_filename)
-            date_str = date_match.group(1) if date_match else time.strftime('%Y-%m-%d')
+        date_match = re.search(r'(\d{4}-\d{2}-\d{2})', input_filename)
+        date_str = date_match.group(1) if date_match else time.strftime('%Y-%m-%d')
+        overview_filename = f"daily_overview_{date_str}.md"
+        overview_path = os.path.join(args.output_dir, overview_filename)
+
+        if processed == 0 and os.path.exists(overview_path):
+            print(f"⏭️ 本轮无新增总结，保留已有每日速览: {overview_path}")
+        else:
+            print("\n📰 正在生成今日AI论文速览...")
+            try:
+                daily_overview = generate_daily_overview(
+                    updated_papers,
+                    providers,
+                    args.temperature,
+                    date_str,
+                    cache_manager
+                )
             
-            daily_overview = generate_daily_overview(
-                updated_papers, 
-                providers,
-                args.temperature, 
-                date_str, 
-                cache_manager
-            )
+                # 保存每日速览到独立的 Markdown 文件
+                if not save_text(overview_path, daily_overview):
+                    raise IOError(overview_path)
             
-            # 保存每日速览到独立的 Markdown 文件
-            overview_filename = f"daily_overview_{date_str}.md"
-            overview_path = os.path.join(args.output_dir, overview_filename)
-            if not save_text(overview_path, daily_overview):
-                raise IOError(overview_path)
+                print(f"✅ 已生成今日AI论文速览: {overview_path}")
             
-            print(f"✅ 已生成今日AI论文速览: {overview_path}")
-            
-        except Exception as e:
-            print(f"⚠️ 生成每日速览时出错: {e}")
+            except Exception as e:
+                print(f"⚠️ 生成每日速览时出错: {e}")
     
     # 打印统计信息
     print("\n📊 总结生成完成！")
     print(f"✅ 已处理: {processed} 篇论文")
     print(f"⏭️ 已跳过: {skipped} 篇论文")
     print(f"❌ 失败: {failed} 篇论文")
-    if processed > 0:
+    if processed > 0 or skipped > 0:
         print(f"📂 输出文件: {output_path}")
     print("🎉 处理完成！")
     return 0 if (processed > 0 or skipped > 0) else 1

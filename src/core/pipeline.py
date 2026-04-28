@@ -69,6 +69,14 @@ def count_paper_records(json_path: Optional[str]) -> Optional[int]:
     return None
 
 
+def directory_has_json_files(directory: str) -> bool:
+    """Return True when a pipeline data directory contains JSON candidates."""
+    return os.path.exists(directory) and any(
+        name.endswith(".json")
+        for name in os.listdir(directory)
+    )
+
+
 class ProgressTracker:
     """进度跟踪器"""
     
@@ -560,6 +568,7 @@ def main() -> int:
         else:
             progress.complete_step("生成论文总结", False)
             progress.log_with_timestamp("⚠️ 总结生成失败，但继续执行后续步骤")
+            notify_failures("summary", ["Summary stage failed, falling back to clustered papers"])
     else:
         progress.skip_step("生成论文总结")
         # 如果跳过总结，尝试使用已存在的带summary2文件
@@ -572,32 +581,31 @@ def main() -> int:
                     summary_output_file = candidate
                     progress.log_with_timestamp(f"📄 使用已有的带总结文件: {summary_output_file}")
                 else:
-                    # 兜底：查找SUMMARY_DIR下最近的 *_with_summary2.json
-                    from glob import glob
-                    candidates = glob(os.path.join(SUMMARY_DIR, "*_with_summary2.json"))
-                    if candidates:
-                        latest_summary = max(candidates, key=os.path.getmtime)
-                        summary_output_file = latest_summary
-                        progress.log_with_timestamp(f"📄 使用最近的带总结文件: {summary_output_file}")
-                    else:
-                        progress.log_with_timestamp("⚠️ 未找到带总结文件，使用筛选文件")
+                    progress.log_with_timestamp("⚠️ 未找到匹配的带总结文件，使用当前聚类/筛选文件")
             else:
                 progress.log_with_timestamp("⚠️ 无筛选文件可用于匹配总结，继续使用筛选文件")
         except Exception as e:
             progress.log_with_timestamp(f"⚠️ 检查已有总结文件时出错: {e}")
     
     # ============ 步骤5: 生成统一页面 ============
+    unified_generation_ok = True
     if not args.skip_unified:
         progress.start_step("生成统一页面")
         
         try:
             # 检查必要文件
             if not os.path.exists("src/core/generate_unified_index.py"):
-                progress.log_with_timestamp("⚠️ 未找到 src/core/generate_unified_index.py，跳过统一页面生成")
-                progress.skip_step("生成统一页面")
-            elif not os.path.exists(SUMMARY_DIR) or not any(f.endswith('.json') for f in os.listdir(SUMMARY_DIR)):
-                progress.log_with_timestamp("⚠️ 未找到论文数据文件，跳过统一页面生成")
-                progress.skip_step("生成统一页面")
+                progress.log_with_timestamp("❌ 未找到 src/core/generate_unified_index.py，无法生成页面")
+                unified_generation_ok = False
+                progress.complete_step("生成统一页面", False)
+            elif not (
+                directory_has_json_files(SUMMARY_DIR)
+                or directory_has_json_files(DOMAIN_PAPER_DIR)
+                or directory_has_json_files(os.path.join(WEBPAGES_DIR, "data"))
+            ):
+                progress.log_with_timestamp("❌ 未找到论文数据文件，无法生成页面")
+                unified_generation_ok = False
+                progress.complete_step("生成统一页面", False)
             else:
                 # 运行统一页面生成脚本
                 cmd = [sys.executable, "src/core/generate_unified_index.py"]
@@ -608,12 +616,15 @@ def main() -> int:
                         progress.log_with_timestamp(f"✅ 统一页面已生成: {unified_page_path}")
                         progress.complete_step("生成统一页面", True)
                     else:
-                        progress.log_with_timestamp("⚠️ 统一页面生成脚本运行成功但未找到输出文件")
+                        progress.log_with_timestamp("❌ 统一页面生成脚本运行成功但未找到输出文件")
+                        unified_generation_ok = False
                         progress.complete_step("生成统一页面", False)
                 else:
+                    unified_generation_ok = False
                     progress.complete_step("生成统一页面", False)
         except Exception as e:
             progress.log_with_timestamp(f"❌ 统一页面生成失败: {e}")
+            unified_generation_ok = False
             progress.complete_step("生成统一页面", False)
     else:
         progress.skip_step("生成统一页面")
@@ -708,7 +719,7 @@ def main() -> int:
         pass  # notification is best-effort
 
     print("\n✨ 流水线执行完成！")
-    return 0
+    return 0 if unified_generation_ok else 1
 
 
 if __name__ == "__main__":
