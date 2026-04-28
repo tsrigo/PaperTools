@@ -5,15 +5,36 @@ Compatible with Pumble, Slack, Feishu, Discord webhooks, etc.
 """
 
 import logging
+import os
 import requests
 from typing import List, Optional
 
 logger = logging.getLogger(__name__)
+PROXY_ENV_VARS = ("http_proxy", "https_proxy", "HTTP_PROXY", "HTTPS_PROXY", "all_proxy", "ALL_PROXY")
+DIRECT_RETRY_EXCEPTIONS = (
+    requests.exceptions.ProxyError,
+    requests.exceptions.ConnectionError,
+    requests.exceptions.ConnectTimeout,
+)
 
 try:
     from src.utils.config import WEBHOOK_URL
 except ImportError:
     WEBHOOK_URL = ""
+
+
+def _has_proxy_env() -> bool:
+    return any(os.environ.get(name) for name in PROXY_ENV_VARS)
+
+
+def _post_notification(url: str, message: str, *, trust_env: bool) -> None:
+    session = requests.Session()
+    session.trust_env = trust_env
+    try:
+        resp = session.post(url, json={"text": message}, timeout=10)
+        resp.raise_for_status()
+    finally:
+        session.close()
 
 
 def send_notification(message: str, webhook_url: Optional[str] = None) -> bool:
@@ -23,10 +44,21 @@ def send_notification(message: str, webhook_url: Optional[str] = None) -> bool:
         return False
 
     try:
-        resp = requests.post(url, json={"text": message}, timeout=10)
-        resp.raise_for_status()
+        _post_notification(url, message, trust_env=True)
         logger.info("Webhook notification sent successfully")
         return True
+    except DIRECT_RETRY_EXCEPTIONS as exc:
+        if _has_proxy_env():
+            logger.warning("Webhook notification failed via proxy/env; retrying direct: %s", exc)
+            try:
+                _post_notification(url, message, trust_env=False)
+                logger.info("Webhook notification sent successfully without proxy/env")
+                return True
+            except Exception as direct_exc:
+                logger.warning("Failed to send webhook notification without proxy/env: %s", direct_exc)
+                return False
+        logger.warning("Failed to send webhook notification: %s", exc)
+        return False
     except Exception as exc:
         logger.warning("Failed to send webhook notification: %s", exc)
         return False

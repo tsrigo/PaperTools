@@ -39,6 +39,36 @@ from src.utils.validation import (
 )
 
 
+def count_paper_records(json_path: Optional[str]) -> Optional[int]:
+    """Count papers in either list-shaped pipeline files or generated page data."""
+    if not json_path or not os.path.exists(json_path):
+        return None
+
+    try:
+        with open(json_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except Exception:
+        return None
+
+    if isinstance(data, list):
+        return len(data)
+
+    if isinstance(data, dict):
+        papers = data.get("papers")
+        if isinstance(papers, list):
+            return len(papers)
+
+        clusters = data.get("clusters")
+        if isinstance(clusters, list):
+            return sum(
+                len(cluster.get("papers", []))
+                for cluster in clusters
+                if isinstance(cluster, dict)
+            )
+
+    return None
+
+
 class ProgressTracker:
     """进度跟踪器"""
     
@@ -633,9 +663,14 @@ def main() -> int:
         except Exception:
             progress.log_with_timestamp(f"  🔍 筛选文件: {filter_output_file}")
     
-    if os.path.exists(SUMMARY_DIR):
-        summary_files = len([f for f in os.listdir(SUMMARY_DIR) if f.endswith('.md')])
-        progress.log_with_timestamp(f"  📝 生成总结: {summary_files} 篇")
+    summary_count = None
+    if summary_output_file and summary_output_file.endswith("_with_summary2.json"):
+        summary_count = count_paper_records(summary_output_file)
+
+    if summary_count is not None:
+        progress.log_with_timestamp(f"  📝 生成总结: {summary_count} 篇")
+    elif os.path.exists(SUMMARY_DIR):
+        progress.log_with_timestamp("  📝 生成总结: 0 篇")
     
     if os.path.exists(WEBPAGES_DIR):
         webpage_dirs = len([d for d in os.listdir(WEBPAGES_DIR) if os.path.isdir(os.path.join(WEBPAGES_DIR, d))])
@@ -657,15 +692,17 @@ def main() -> int:
     # Send pipeline completion notification
     try:
         stats = {}
-        if crawl_output_file and os.path.exists(crawl_output_file):
-            with open(crawl_output_file, 'r', encoding='utf-8') as f:
-                stats['crawled'] = len(json.load(f))
-        if filter_output_file and os.path.exists(filter_output_file):
-            with open(filter_output_file, 'r', encoding='utf-8') as f:
-                stats['filtered'] = len(json.load(f))
-        if cluster_output_file and os.path.exists(cluster_output_file):
-            with open(cluster_output_file, 'r', encoding='utf-8') as f:
-                stats['clustered'] = len(json.load(f))
+        crawled_count = count_paper_records(crawl_output_file)
+        filtered_count = count_paper_records(filter_output_file)
+        clustered_count = count_paper_records(cluster_output_file)
+        if crawled_count is not None:
+            stats['crawled'] = crawled_count
+        if filtered_count is not None:
+            stats['filtered'] = filtered_count
+        if clustered_count is not None:
+            stats['clustered'] = clustered_count
+        if summary_count is not None:
+            stats['summarized'] = summary_count
         notify_pipeline_complete(stats)
     except Exception:
         pass  # notification is best-effort

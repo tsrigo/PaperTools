@@ -24,6 +24,7 @@ WORKTREE_DIR="${PAPERTOOLS_DAILY_WORKTREE:-/tmp/papertools-daily-${RUN_ID}}"
 PROXY_HOST="${PAPERTOOLS_PROXY_HOST:-127.0.0.1}"
 PROXY_PORT="${PAPERTOOLS_PROXY_PORT:-7897}"
 PROXY_URL="${PAPERTOOLS_PROXY_URL:-http://${PROXY_HOST}:${PROXY_PORT}}"
+NO_PROXY_VALUE="localhost,127.0.0.1,::1"
 
 log() {
     echo "[$RUN_TS] $*" | tee -a "$LOG_FILE"
@@ -36,6 +37,23 @@ run_logged() {
 
 fetch_origin_master() {
     run_logged git fetch origin +refs/heads/master:refs/remotes/origin/master
+}
+
+set_proxy_env() {
+    export http_proxy="$PROXY_URL"
+    export https_proxy="$PROXY_URL"
+    export HTTP_PROXY="$PROXY_URL"
+    export HTTPS_PROXY="$PROXY_URL"
+    export all_proxy="$PROXY_URL"
+    export ALL_PROXY="$PROXY_URL"
+    export no_proxy="$NO_PROXY_VALUE"
+    export NO_PROXY="$NO_PROXY_VALUE"
+}
+
+clear_proxy_env() {
+    unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY all_proxy ALL_PROXY
+    export no_proxy="$NO_PROXY_VALUE"
+    export NO_PROXY="$NO_PROXY_VALUE"
 }
 
 exec 9>"$LOCK_FILE"
@@ -54,14 +72,9 @@ cleanup() {
 trap cleanup EXIT
 
 if command -v nc >/dev/null 2>&1 && nc -z "$PROXY_HOST" "$PROXY_PORT" >/dev/null 2>&1; then
-    export http_proxy="$PROXY_URL"
-    export https_proxy="$PROXY_URL"
-    export HTTP_PROXY="$PROXY_URL"
-    export HTTPS_PROXY="$PROXY_URL"
-    export NO_PROXY="localhost,127.0.0.1"
+    set_proxy_env
 else
-    unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY
-    export NO_PROXY="localhost,127.0.0.1"
+    clear_proxy_env
 fi
 
 log "🚀 Starting daily full pipeline"
