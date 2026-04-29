@@ -13,6 +13,11 @@ cp .env.example .env
 | `OPENAI_API_KEY` | 是 | LLM API 密钥 |
 | `OPENAI_BASE_URL` | 是 | API 端点地址，例如 `https://api.openai.com/v1` |
 | `MODEL` | 是 | 模型名称，例如 `gpt-4o`、`deepseek-chat` |
+| `FILTER_MODEL` | 否 | 筛选阶段模型；不会使用 Prism summary provider |
+| `SUMMARY_MODEL_CHAIN` | 否 | 总结/翻译阶段模型回退链，例如 `prism:gpt-5.5,...` |
+| `SUMMARY_PRISM_OPENAI_API_KEY` | 否 | Prism 总结/翻译 API 密钥，只用于筛选后的内容生成 |
+| `SUMMARY_PRISM_OPENAI_BASE_URL` | 否 | Prism OpenAI-compatible base URL，默认 `https://ai.prism.uno/v1` |
+| `SUMMARY_PRISM_RPM` | 否 | Prism provider 每分钟请求上限，默认 `5` |
 | `WEBHOOK_URL` | 否 | 流水线完成或失败时推送通知的 webhook 地址 |
 | `JINA_API_TOKEN` | 否 | Jina Reader API 令牌，用于获取论文全文。不填则跳过全文拉取 |
 

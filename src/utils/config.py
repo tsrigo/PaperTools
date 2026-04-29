@@ -60,6 +60,7 @@ FILTER_MODEL = _get_env_str("FILTER_MODEL", "minimax-m2.5")  # 筛选用轻量�
 DEFAULT_SUMMARY_BASE_URL = "https://api-inference.modelscope.cn/v1"
 DEFAULT_SUMMARY_MODEL = "MiniMax/MiniMax-M2.7"
 DEFAULT_SUMMARY_MODEL_CHAIN = (
+    "prism:gpt-5.5,"
     "modelscope:MiniMax/MiniMax-M2.7,"
     "modelscope:ZhipuAI/GLM-5.1,"
     "modelscope:moonshotai/Kimi-K2.5,"
@@ -78,6 +79,12 @@ SUMMARY_SJTU_BASE_URL = _get_env_str(
     "SUMMARY_SJTU_OPENAI_BASE_URL",
     _get_env_str("SJTU_OPENAI_BASE_URL", "https://models.sjtu.edu.cn/api/v1/"),
 )
+SUMMARY_PRISM_API_KEY = _get_env_str(
+    "SUMMARY_PRISM_OPENAI_API_KEY",
+    _get_env_str("PRISM_OPENAI_API_KEY", ""),
+)
+SUMMARY_PRISM_BASE_URL = _get_env_str("SUMMARY_PRISM_OPENAI_BASE_URL", "https://ai.prism.uno/v1")
+SUMMARY_PRISM_RPM = _get_env_int("SUMMARY_PRISM_RPM", 5, minimum=1)
 SUMMARY_CONTENT_CHAR_LIMIT = _get_env_int("SUMMARY_CONTENT_CHAR_LIMIT", 200000, minimum=10000)
 
 # Prestige 筛选配置

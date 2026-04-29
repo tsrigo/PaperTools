@@ -26,7 +26,9 @@ if project_root not in sys.path:
 
 from src.utils.config import (  # noqa: E402
     SUMMARY_API_KEY, SUMMARY_BASE_URL, SUMMARY_MODEL, SUMMARY_MODEL_CHAIN,
-    SUMMARY_SJTU_API_KEY, SUMMARY_SJTU_BASE_URL, SUMMARY_DIR, TEMPERATURE, REQUEST_DELAY, MAX_WORKERS,
+    SUMMARY_SJTU_API_KEY, SUMMARY_SJTU_BASE_URL,
+    SUMMARY_PRISM_API_KEY, SUMMARY_PRISM_BASE_URL, SUMMARY_PRISM_RPM,
+    SUMMARY_DIR, TEMPERATURE, REQUEST_DELAY, MAX_WORKERS,
     SUMMARY_CONTENT_CHAR_LIMIT, SUMMARY_MAX_WORKERS, ENABLE_CACHE,
 )
 from src.document_extraction import (  # noqa: E402
@@ -55,6 +57,29 @@ def has_non_empty_text(value) -> bool:
     return isinstance(value, str) and bool(value.strip())
 
 
+FAILED_GENERATION_MARKERS = (
+    "翻译失败",
+    "生成失败",
+    "提取失败",
+    "extraction failed",
+    "generation failed",
+    "translation failed",
+)
+
+
+def is_failed_generated_text(value) -> bool:
+    """Return True for placeholder failure strings that should be regenerated."""
+    if not isinstance(value, str):
+        return False
+    lowered = value.strip().lower()
+    return any(marker in lowered for marker in FAILED_GENERATION_MARKERS)
+
+
+def has_valid_generated_text(value) -> bool:
+    """Return True for meaningful generated text that is not a failure sentinel."""
+    return has_non_empty_text(value) and not is_failed_generated_text(value)
+
+
 SUMMARY_ANALYSIS_FIELDS = (
     "intro_logic",
     "core_insight",
@@ -66,11 +91,11 @@ SUMMARY_ANALYSIS_FIELDS = (
 
 def has_complete_summary_analysis(paper: Dict) -> bool:
     """Return True only when a paper has all fields needed by the web UI."""
-    if not has_non_empty_text(paper.get("summary")):
+    if not has_valid_generated_text(paper.get("summary")):
         return False
-    if not all(has_non_empty_text(paper.get(field)) for field in SUMMARY_ANALYSIS_FIELDS):
+    if not all(has_valid_generated_text(paper.get(field)) for field in SUMMARY_ANALYSIS_FIELDS):
         return False
-    if not has_non_empty_text(paper.get("summary_translation")):
+    if not has_valid_generated_text(paper.get("summary_translation")):
         return False
     return True
 
@@ -147,9 +172,12 @@ class SummaryProvider:
     base_url: str
     api_key: str
     model: str
+    rpm_limit: int = 0
     client: OpenAI = field(init=False)
     disabled: bool = False
     disable_reason: str = ""
+    _rate_lock: threading.Lock = field(default_factory=threading.Lock, init=False, repr=False)
+    _next_request_at: float = field(default=0.0, init=False, repr=False)
 
     def __post_init__(self):
         self.client = OpenAI(
@@ -166,6 +194,21 @@ class SummaryProvider:
     def cache_label(self) -> str:
         return f"{self.base_url}:{self.model}"
 
+    def wait_for_rate_limit(self) -> None:
+        """Throttle request starts for low-RPM providers across worker threads."""
+        if self.rpm_limit <= 0:
+            return
+
+        min_interval = 60.0 / float(self.rpm_limit)
+        with self._rate_lock:
+            now = time.monotonic()
+            if now < self._next_request_at:
+                wait_time = self._next_request_at - now
+                print(f"⏳ {self.label} 限速等待 {wait_time:.1f}s (RPM={self.rpm_limit})")
+                time.sleep(wait_time)
+                now = time.monotonic()
+            self._next_request_at = now + min_interval
+
 
 _PROVIDER_LOCK = threading.Lock()
 
@@ -180,11 +223,15 @@ def build_summary_providers(
     modelscope_base_url: str,
     sjtu_api_key: str,
     sjtu_base_url: str,
+    prism_api_key: str,
+    prism_base_url: str,
+    prism_rpm: int,
 ) -> List[SummaryProvider]:
     """Build the summary fallback chain from provider:model entries."""
     provider_config = {
-        "modelscope": (modelscope_api_key, modelscope_base_url),
-        "sjtu": (sjtu_api_key, sjtu_base_url),
+        "modelscope": (modelscope_api_key, modelscope_base_url, 0),
+        "sjtu": (sjtu_api_key, sjtu_base_url, 0),
+        "prism": (prism_api_key, prism_base_url, prism_rpm),
     }
     providers: List[SummaryProvider] = []
     seen = set()
@@ -202,7 +249,7 @@ def build_summary_providers(
             print(f"⚠️ 忽略无法识别的总结模型配置: {entry}")
             continue
 
-        api_key, base_url = provider_config[provider_name]
+        api_key, base_url, rpm_limit = provider_config[provider_name]
         if not api_key or not base_url:
             print(f"⚠️ 跳过缺少凭据的总结 provider: {provider_name}:{model}")
             continue
@@ -211,7 +258,7 @@ def build_summary_providers(
         if key in seen:
             continue
         seen.add(key)
-        providers.append(SummaryProvider(provider_name, base_url, api_key, model))
+        providers.append(SummaryProvider(provider_name, base_url, api_key, model, rpm_limit=rpm_limit))
 
     return providers
 
@@ -258,6 +305,7 @@ def collect_streaming_completion(
             continue
 
         try:
+            provider.wait_for_rate_limit()
             response = provider.client.chat.completions.create(
                 model=provider.model,
                 messages=messages,
@@ -381,7 +429,7 @@ def translate_summary(summary: str, providers: List[SummaryProvider], temperatur
         cache_key = f"translation_{paper_title}_{summary[:100]}"
         for provider in providers:
             cached_translation = cache_manager.get_summary_cache(f"{provider.cache_label}:{cache_key}", summary)
-            if cached_translation:
+            if cached_translation and has_valid_generated_text(cached_translation):
                 return cached_translation
 
     # 构建翻译prompt
@@ -1057,6 +1105,12 @@ def main() -> int:
                        help='SJTU 兜底 API 密钥')
     parser.add_argument('--sjtu-base-url', default=SUMMARY_SJTU_BASE_URL,
                        help='SJTU 兜底 API 基础 URL')
+    parser.add_argument('--prism-api-key', default=SUMMARY_PRISM_API_KEY,
+                       help='Prism 生成 API 密钥')
+    parser.add_argument('--prism-base-url', default=SUMMARY_PRISM_BASE_URL,
+                       help='Prism 生成 API 基础 URL')
+    parser.add_argument('--prism-rpm', type=int, default=SUMMARY_PRISM_RPM,
+                       help=f'Prism provider RPM 限制 (默认: {SUMMARY_PRISM_RPM})')
     parser.add_argument('--temperature', type=float, default=TEMPERATURE,
                        help='生成温度')
     parser.add_argument('--max-papers', type=int, default=0,
@@ -1073,6 +1127,7 @@ def main() -> int:
     try:
         validate_non_negative_int(args.max_papers, "--max-papers")
         validate_positive_int(args.max_workers, "--max-workers")
+        validate_positive_int(args.prism_rpm, "--prism-rpm")
     except ValidationError as exc:
         print(f"❌ 参数校验失败: {exc}")
         return 2
@@ -1083,6 +1138,9 @@ def main() -> int:
         args.base_url,
         args.sjtu_api_key,
         args.sjtu_base_url,
+        args.prism_api_key,
+        args.prism_base_url,
+        args.prism_rpm,
     )
     if not providers:
         print("❌ 没有可用的总结模型配置")
@@ -1275,7 +1333,7 @@ def main() -> int:
                     summary_translation = translate_summary(original_summary, providers, args.temperature, paper.get('title', ''), cache_manager)
                 except Exception as e:
                     print(f"⚠️ 翻译摘要失败 {paper_title[:30]}: {e}")
-                    summary_translation = "翻译失败"
+                    summary_translation = ""
 
             # 生成研究价值评估（基于已有分析结果拼接）
             research_value = ""

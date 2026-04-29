@@ -23,7 +23,9 @@ try:
     from src.utils.config import (
         API_KEY, BASE_URL, MODEL, FILTER_MODEL,
         SUMMARY_API_KEY, SUMMARY_BASE_URL, SUMMARY_MODEL, SUMMARY_MODEL_CHAIN,
-        SUMMARY_SJTU_API_KEY, SUMMARY_SJTU_BASE_URL, SUMMARY_MAX_WORKERS, TEMPERATURE,
+        SUMMARY_SJTU_API_KEY, SUMMARY_SJTU_BASE_URL,
+        SUMMARY_PRISM_API_KEY, SUMMARY_PRISM_BASE_URL, SUMMARY_PRISM_RPM,
+        SUMMARY_MAX_WORKERS, TEMPERATURE,
         ARXIV_PAPER_DIR, DOMAIN_PAPER_DIR, SUMMARY_DIR, WEBPAGES_DIR,
         CRAWL_CATEGORIES, MAX_PAPERS_PER_CATEGORY, MAX_WORKERS, MAX_PAPERS_TOTAL_DEFAULT
     )
@@ -134,7 +136,12 @@ def redact_command(cmd: List[str]) -> str:
             redacted.append("<redacted>")
             redact_next = False
             continue
-        if part in {"--api-key", "--summary-api-key", "--summary-sjtu-api-key"}:
+        if part in {
+            "--api-key",
+            "--summary-api-key",
+            "--summary-sjtu-api-key",
+            "--summary-prism-api-key",
+        }:
             redacted.append(part)
             redact_next = True
             continue
@@ -142,6 +149,7 @@ def redact_command(cmd: List[str]) -> str:
             part.startswith("--api-key=")
             or part.startswith("--summary-api-key=")
             or part.startswith("--summary-sjtu-api-key=")
+            or part.startswith("--summary-prism-api-key=")
         ):
             key, _ = part.split("=", 1)
             redacted.append(f"{key}=<redacted>")
@@ -277,6 +285,9 @@ def main() -> int:
     parser.add_argument('--summary-model-chain', default=SUMMARY_MODEL_CHAIN, help='总结模型回退链')
     parser.add_argument('--summary-sjtu-api-key', default=SUMMARY_SJTU_API_KEY, help='总结SJTU兜底API密钥')
     parser.add_argument('--summary-sjtu-base-url', default=SUMMARY_SJTU_BASE_URL, help='总结SJTU兜底API基础URL')
+    parser.add_argument('--summary-prism-api-key', default=SUMMARY_PRISM_API_KEY, help='Prism总结API密钥')
+    parser.add_argument('--summary-prism-base-url', default=SUMMARY_PRISM_BASE_URL, help='Prism总结API基础URL')
+    parser.add_argument('--summary-prism-rpm', type=int, default=SUMMARY_PRISM_RPM, help='Prism总结RPM限制')
     parser.add_argument('--temperature', type=float, default=TEMPERATURE, help='生成温度')
     
     # 流程控制
@@ -315,6 +326,7 @@ def main() -> int:
         validate_positive_int(args.max_papers_per_category, "--max-papers-per-category")
         validate_non_negative_int(args.max_papers_total, "--max-papers-total")
         validate_positive_int(args.max_workers, "--max-workers")
+        validate_positive_int(args.summary_prism_rpm, "--summary-prism-rpm")
         args.date, args.start_date, args.end_date = validate_date_inputs(
             date=args.date,
             start_date=args.start_date,
@@ -547,6 +559,9 @@ def main() -> int:
             "--model-chain", args.summary_model_chain,
             "--sjtu-api-key", args.summary_sjtu_api_key,
             "--sjtu-base-url", args.summary_sjtu_base_url,
+            "--prism-api-key", args.summary_prism_api_key,
+            "--prism-base-url", args.summary_prism_base_url,
+            "--prism-rpm", str(args.summary_prism_rpm),
             "--temperature", str(args.temperature),
             "--skip-existing",
             "--max-workers", str(min(args.max_workers, SUMMARY_MAX_WORKERS))
