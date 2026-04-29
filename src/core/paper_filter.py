@@ -25,6 +25,7 @@ if project_root not in sys.path:
 # 导入配置
 try:
     from src.core.generate_summary import (  # noqa: E402
+        SummaryProvider,
         extract_affiliations,
         strip_think_tags,
     )
@@ -312,7 +313,9 @@ def get_affiliation_context(paper_content: str) -> str:
 
 def fetch_affiliations_for_prestige(paper: dict, client: OpenAI, model: str, temperature: float,
                                     cache_manager: Optional[CacheManager] = None,
-                                    document_extractor: Optional[ExtractionManager] = None) -> Tuple[Optional[str], str]:
+                                    document_extractor: Optional[ExtractionManager] = None,
+                                    api_key: str = API_KEY,
+                                    base_url: str = BASE_URL) -> Tuple[Optional[str], str]:
     """为 prestige 筛选提取机构信息。"""
     paper_link = paper.get('link') or paper.get('arxiv_id', '')
     paper_title = paper.get('title', '')
@@ -333,11 +336,11 @@ def fetch_affiliations_for_prestige(paper: dict, client: OpenAI, model: str, tem
     if not truncated_content.strip():
         return None, "论文前置内容为空，待后续重试机构提取"
 
+    providers = [SummaryProvider("filter", base_url, api_key, model)]
     affiliations = extract_affiliations(
         truncated_content,
         authors,
-        client,
-        model,
+        providers,
         temperature,
         paper_title,
         cache_manager,
@@ -371,11 +374,7 @@ def is_current_filtered_schema(paper: dict) -> bool:
     if prestige_result is True:
         return True
 
-    return (
-        prestige_result is None
-        and paper.get('prestige_source') == 'missing_affiliations'
-        and paper.get('prestige_status') == 'pending'
-    )
+    return False
 
 
 def is_current_excluded_schema(paper: dict) -> bool:
@@ -591,6 +590,8 @@ def main() -> int:
                     args.temperature,
                     cache_manager,
                     document_extractor,
+                    args.api_key,
+                    args.base_url,
                 )
             except Exception as exc:
                 affiliations = None

@@ -46,6 +46,15 @@ RICHNESS_FIELDS = (
     "research_value",
 )
 
+FAILED_GENERATION_MARKERS = (
+    "翻译失败",
+    "生成失败",
+    "提取失败",
+    "extraction failed",
+    "generation failed",
+    "translation failed",
+)
+
 SOURCE_METADATA_FIELDS = (
     "index",
     "title",
@@ -64,6 +73,19 @@ SOURCE_METADATA_FIELDS = (
 def has_non_empty_text(value: Any) -> bool:
     """Check whether a JSON field contains meaningful text."""
     return isinstance(value, str) and bool(value.strip())
+
+
+def is_failed_generated_text(value: Any) -> bool:
+    """Return True for failure sentinels that should not be shown as content."""
+    if not isinstance(value, str):
+        return False
+    lowered = value.strip().lower()
+    return any(marker in lowered for marker in FAILED_GENERATION_MARKERS)
+
+
+def has_valid_generated_text(value: Any) -> bool:
+    """Check whether generated text is non-empty and not a failure placeholder."""
+    return has_non_empty_text(value) and not is_failed_generated_text(value)
 
 
 def derive_arxiv_tags(paper: Dict[str, Any]) -> List[str]:
@@ -88,6 +110,9 @@ def normalize_papers_for_display(papers: List[Dict[str, Any]]) -> List[Dict[str,
     normalized = []
     for paper in papers:
         paper_copy = dict(paper)
+        for field in RICHNESS_FIELDS:
+            if is_failed_generated_text(paper_copy.get(field)):
+                paper_copy[field] = ""
         paper_copy["cluster"] = paper_copy.get("cluster") or "Other"
         paper_copy["tags"] = derive_arxiv_tags(paper_copy)
         normalized.append(paper_copy)
@@ -162,7 +187,7 @@ def score_paper_file(json_file: Path, papers: List[Dict[str, Any]]) -> tuple:
         1
         for paper in normalized
         for field in RICHNESS_FIELDS
-        if has_non_empty_text(paper.get(field))
+        if has_valid_generated_text(paper.get(field))
     )
 
     return (
@@ -188,11 +213,13 @@ def paper_identity(paper: Dict[str, Any]) -> str:
 
 def paper_display_score(paper: Dict[str, Any]) -> tuple:
     """Prefer records with generated analysis, non-Other clusters, and metadata."""
-    rich_fields_present = sum(1 for field in RICHNESS_FIELDS if has_non_empty_text(paper.get(field)))
+    rich_fields_present = sum(1 for field in RICHNESS_FIELDS if has_valid_generated_text(paper.get(field)))
+    failed_fields_present = sum(1 for field in RICHNESS_FIELDS if is_failed_generated_text(paper.get(field)))
     source_fields_present = sum(1 for field in SOURCE_METADATA_FIELDS if paper.get(field) not in (None, ""))
     cluster = paper.get("cluster") or ""
     return (
         rich_fields_present,
+        -failed_fields_present,
         1 if cluster and cluster != "Other" else 0,
         len(paper.get("tags", []) or []),
         source_fields_present,

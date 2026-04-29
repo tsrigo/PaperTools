@@ -474,7 +474,7 @@ def _llm_generate(providers: List[SummaryProvider], temperature: float, system: 
     if cache_manager and ENABLE_CACHE:
         for provider in providers:
             cached = cache_manager.get_summary_cache(f"{provider.cache_label}:{cache_key}", paper_content)
-            if cached:
+            if has_valid_generated_text(cached):
                 return cached
 
     result, provider = collect_streaming_completion(
@@ -1221,16 +1221,28 @@ def main() -> int:
                         cached_core_insight = cache_manager.get_summary_cache(f"core_insight_v2_{paper_title}", cached_paper_content)
                         cached_methodology = cache_manager.get_summary_cache(f"methodology_v2_{paper_title}", cached_paper_content)
                         cached_additional_insights = cache_manager.get_summary_cache(f"additional_insights_{paper_title}", cached_paper_content)
+                        if not has_valid_generated_text(cached_intro_logic):
+                            cached_intro_logic = None
+                        if not has_valid_generated_text(cached_core_insight):
+                            cached_core_insight = None
+                        if not has_valid_generated_text(cached_methodology):
+                            cached_methodology = None
+                        if not has_valid_generated_text(cached_additional_insights):
+                            cached_additional_insights = None
 
                     if original_summary:
                         cache_key = f"translation_{paper_title}_{original_summary[:100]}"
                         cached_translation = cache_manager.get_summary_cache(cache_key, original_summary)
+                        if not has_valid_generated_text(cached_translation):
+                            cached_translation = None
 
                     # research_value 的缓存依赖其他字段，只有全部都有缓存时才检查
                     if cached_intro_logic and cached_methodology and cached_additional_insights:
                         # 拼接作为 content hash
                         rv_content = cached_intro_logic + cached_methodology + cached_additional_insights + original_summary
                         cached_research_value = cache_manager.get_summary_cache(f"research_value_{paper_title}", rv_content)
+                        if not has_valid_generated_text(cached_research_value):
+                            cached_research_value = None
 
                     # affiliations 缓存
                     cached_affiliations = cache_manager.get_summary_cache(f"affiliations_{paper_title}", cached_paper_content) if cached_paper_content else None
@@ -1303,28 +1315,28 @@ def main() -> int:
                 intro_logic = generate_intro_logic(paper_content, providers, args.temperature, paper.get('title', ''), cache_manager)
             except Exception as e:
                 print(f"⚠️ 生成intro_logic失败 {paper_title[:30]}: {e}")
-                intro_logic = "Introduction logic extraction failed"
+                intro_logic = ""
 
             core_insight = ""
             try:
                 core_insight = generate_core_insight(paper_content, providers, args.temperature, paper.get('title', ''), cache_manager)
             except Exception as e:
                 print(f"⚠️ 生成core_insight失败 {paper_title[:30]}: {e}")
-                core_insight = "Core insight extraction failed"
+                core_insight = ""
 
             methodology = ""
             try:
                 methodology = generate_methodology(paper_content, providers, args.temperature, paper.get('title', ''), cache_manager)
             except Exception as e:
                 print(f"⚠️ 生成methodology失败 {paper_title[:30]}: {e}")
-                methodology = "方法论解读生成失败"
+                methodology = ""
 
             additional_insights = ""
             try:
                 additional_insights = generate_additional_insights(paper_content, providers, args.temperature, paper.get('title', ''), cache_manager)
             except Exception as e:
                 print(f"⚠️ 生成additional_insights失败 {paper_title[:30]}: {e}")
-                additional_insights = "额外洞察提取失败"
+                additional_insights = ""
 
             # 翻译原始摘要（这里也会检查缓存）
             summary_translation = ""
@@ -1345,7 +1357,7 @@ def main() -> int:
                     cache_manager)
             except Exception as e:
                 print(f"⚠️ 生成research_value失败 {paper_title[:30]}: {e}")
-                research_value = "研究价值评估生成失败"
+                research_value = ""
 
             # 提取作者机构信息
             affiliations = ""
@@ -1368,6 +1380,9 @@ def main() -> int:
             paper_copy['summary_generated_time'] = time.strftime('%Y-%m-%d %H:%M:%S')
             paper_copy['summary_model'] = ",".join(provider.label for provider in providers)
 
+            if not has_complete_summary_analysis(paper_copy):
+                return 'partial_failed', index, paper_copy, f"⚠️ 部分总结字段生成失败: {paper_title[:50]}..."
+
             return 'success', index, paper_copy, f"✅ 成功生成总结和分析: {paper_title[:50]}..."
             
         except Exception as e:
@@ -1378,6 +1393,7 @@ def main() -> int:
     processed = 0
     skipped = 0
     failed = 0
+    partial_failed = 0
     updated_papers = papers.copy()  # 创建副本用于更新
     
     with ThreadPoolExecutor(max_workers=args.max_workers) as executor:
@@ -1395,6 +1411,10 @@ def main() -> int:
                     updated_papers[index] = updated_paper  # 更新对应位置的论文数据
                 elif status == 'skipped':
                     skipped += 1
+                elif status == 'partial_failed':
+                    failed += 1
+                    partial_failed += 1
+                    updated_papers[index] = updated_paper
                 else:  # failed
                     failed += 1
                 
@@ -1418,7 +1438,7 @@ def main() -> int:
     output_path = os.path.join(args.output_dir, output_filename)
 
     # 保存更新后的JSON文件。即使本轮全是 skip，也要写出文件，避免下游回退到未总结版本。
-    if processed > 0 or skipped > 0:
+    if processed > 0 or skipped > 0 or partial_failed > 0:
         # 保存更新后的数据
         if not save_json(output_path, updated_papers, indent=2, ensure_ascii=False):
             print(f"❌ 保存总结结果失败: {output_path}")
