@@ -137,6 +137,10 @@ def run_pipeline(args) -> int:
     # 添加其他参数
     if args.date:
         cmd.extend(['--date', args.date])
+    if args.start_date:
+        cmd.extend(['--start-date', args.start_date])
+    if args.end_date:
+        cmd.extend(['--end-date', args.end_date])
     if args.categories:
         cmd.extend(['--categories'] + args.categories)
     if args.max_papers_total:
@@ -158,6 +162,7 @@ def main():
   python papertools.py serve                   # 启动网页服务器
   python papertools.py clean                   # 清理缓存文件
   python papertools.py run --date 2025-09-24   # 处理指定日期论文
+  python papertools.py run --start-date 2025-09-22 --end-date 2025-09-24
         """,
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
@@ -169,6 +174,8 @@ def main():
     run_parser.add_argument('--mode', choices=['quick', 'full'], default='full',
                            help=f'运行模式: quick({MAX_PAPERS_TOTAL_QUICK}篇) 或 full({MAX_PAPERS_TOTAL_FULL}篇)')
     run_parser.add_argument('--date', help='处理指定日期的论文 (YYYY-MM-DD)')
+    run_parser.add_argument('--start-date', help='处理日期范围起始日期 (YYYY-MM-DD)')
+    run_parser.add_argument('--end-date', help='处理日期范围结束日期 (YYYY-MM-DD)')
     run_parser.add_argument('--categories', nargs='+', 
                            default=CRAWL_CATEGORIES,
                            help='论文类别')

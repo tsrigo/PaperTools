@@ -20,6 +20,9 @@ cp .env.example .env
 | `SUMMARY_PRISM_RPM` | 否 | Prism provider 每分钟请求上限，默认 `5` |
 | `SUMMARY_PRISM_REASONING_EFFORT` | 否 | Prism `reasoning_effort` 参数，默认 `xhigh`；留空则不传 |
 | `WEBHOOK_URL` | 否 | 流水线完成或失败时推送通知的 webhook 地址 |
+| `PAPERTOOLS_DAILY_WINDOW_DAYS` | 否 | 每日 cron wrapper 默认滚动补抓天数，默认 `4` |
+| `PAPERTOOLS_DAILY_START_DATE` | 否 | 手动覆盖每日 cron wrapper 的补抓起始日期 |
+| `PAPERTOOLS_DAILY_END_DATE` | 否 | 手动覆盖每日 cron wrapper 的补抓结束日期 |
 | `JINA_API_TOKEN` | 否 | Jina Reader API 令牌，用于获取论文全文。不填则跳过全文拉取 |
 
 ---

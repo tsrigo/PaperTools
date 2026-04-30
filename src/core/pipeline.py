@@ -371,6 +371,7 @@ def main() -> int:
     
     # 处理日期参数
     use_date_range = args.start_date and args.end_date
+    date_lookup_key = f"{args.start_date}_to_{args.end_date}" if use_date_range else args.date
     
     if use_date_range:
         progress.log_with_timestamp(f"📅 日期范围: {args.start_date} 到 {args.end_date}")
@@ -410,8 +411,8 @@ def main() -> int:
             progress.log_with_timestamp("❌ 爬取失败，流水线终止")
             return 1
         # 按日期查找爬取文件
-        if args.date:
-            crawl_output_file = find_file_by_date(ARXIV_PAPER_DIR, args.date, "*.json")
+        if date_lookup_key:
+            crawl_output_file = find_file_by_date(ARXIV_PAPER_DIR, date_lookup_key, "*.json")
         else:
             crawl_output_file = find_latest_file(ARXIV_PAPER_DIR, "*.json")
         if not crawl_output_file:
@@ -423,8 +424,8 @@ def main() -> int:
         progress.skip_step("爬取arXiv论文")
         crawl_output_file = args.crawl_input_file
         if not crawl_output_file or not check_file_exists(crawl_output_file, "爬取输入文件"):
-            if args.date:
-                crawl_output_file = find_file_by_date(ARXIV_PAPER_DIR, args.date, "*.json")
+            if date_lookup_key:
+                crawl_output_file = find_file_by_date(ARXIV_PAPER_DIR, date_lookup_key, "*.json")
             else:
                 crawl_output_file = find_latest_file(ARXIV_PAPER_DIR, "*.json")
             if not crawl_output_file:
@@ -452,8 +453,8 @@ def main() -> int:
             progress.log_with_timestamp("❌ 筛选失败，流水线终止")
             return 1
         # 按日期查找筛选文件
-        if args.date:
-            filter_output_file = find_file_by_date(DOMAIN_PAPER_DIR, args.date, "*.json")
+        if date_lookup_key:
+            filter_output_file = find_file_by_date(DOMAIN_PAPER_DIR, date_lookup_key, "*.json")
         else:
             filter_output_file = find_latest_file(DOMAIN_PAPER_DIR, "*.json")
         if not filter_output_file:
@@ -465,8 +466,8 @@ def main() -> int:
         progress.skip_step("筛选相关论文")
         filter_output_file = args.filter_input_file
         if not filter_output_file or not check_file_exists(filter_output_file, "筛选输入文件"):
-            if args.date:
-                filter_output_file = find_file_by_date(DOMAIN_PAPER_DIR, args.date, "*.json")
+            if date_lookup_key:
+                filter_output_file = find_file_by_date(DOMAIN_PAPER_DIR, date_lookup_key, "*.json")
             else:
                 filter_output_file = find_latest_file(DOMAIN_PAPER_DIR, "*.json")
             if not filter_output_file:
@@ -509,8 +510,8 @@ def main() -> int:
             # Find the cluster output file
             from glob import glob
             cluster_files = glob(os.path.join(DOMAIN_PAPER_DIR, "clustered_*.json"))
-            if args.date:
-                date_cluster_files = [f for f in cluster_files if args.date in f]
+            if date_lookup_key:
+                date_cluster_files = [f for f in cluster_files if date_lookup_key in f]
                 if date_cluster_files:
                     cluster_output_file = max(date_cluster_files, key=os.path.getmtime)
                 elif cluster_files:
@@ -533,8 +534,8 @@ def main() -> int:
         progress.skip_step("论文聚类")
         from glob import glob
         cluster_files = glob(os.path.join(DOMAIN_PAPER_DIR, "clustered_*.json"))
-        if args.date:
-            date_cluster_files = [f for f in cluster_files if args.date in f]
+        if date_lookup_key:
+            date_cluster_files = [f for f in cluster_files if date_lookup_key in f]
             if date_cluster_files:
                 cluster_output_file = max(date_cluster_files, key=os.path.getmtime)
                 progress.log_with_timestamp(f"📄 使用已有的聚类文件: {cluster_output_file}")

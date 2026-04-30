@@ -28,6 +28,7 @@ papertools run
 | `SUMMARY_PRISM_RPM` | Prism 每分钟请求上限，默认 5 | 否 |
 | `SUMMARY_PRISM_REASONING_EFFORT` | Prism `reasoning_effort`，默认 `xhigh` | 否 |
 | `WEBHOOK_URL` | 失败/完成通知 webhook | 否 |
+| `PAPERTOOLS_DAILY_WINDOW_DAYS` | 每日任务滚动补抓天数，默认 4 | 否 |
 | `JINA_API_TOKEN` | Jina Reader API（全文获取）| 否 |
 
 筛选规则在 `src/utils/config.py` 的 `PAPER_FILTER_PROMPT` 中定义。
@@ -38,6 +39,7 @@ papertools run
 papertools run                        # 运行完整流水线
 papertools run --mode quick           # 快速测试（10篇）
 papertools run --date 2026-03-28      # 指定日期
+papertools run --start-date 2026-03-26 --end-date 2026-03-28
 papertools serve                      # 启动本地服务器
 papertools clean                      # 清理缓存
 papertools check                      # 检查环境

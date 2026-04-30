@@ -20,6 +20,7 @@ LOCK_FILE="$LOG_DIR/daily_full_run.lock"
 PYTHON_BIN="${PYTHON_BIN:-/opt/miniconda3/bin/python3}"
 RUN_ID="$(date '+%Y%m%d-%H%M%S')"
 WORKTREE_DIR="${PAPERTOOLS_DAILY_WORKTREE:-/tmp/papertools-daily-${RUN_ID}}"
+DAILY_WINDOW_DAYS="${PAPERTOOLS_DAILY_WINDOW_DAYS:-4}"
 PROXY_HOST="${PAPERTOOLS_PROXY_HOST:-127.0.0.1}"
 PROXY_PORT="${PAPERTOOLS_PROXY_PORT:-7897}"
 PROXY_URL="${PAPERTOOLS_PROXY_URL:-http://${PROXY_HOST}:${PROXY_PORT}}"
@@ -160,6 +161,13 @@ else
 fi
 
 log "🚀 Starting daily full pipeline"
+if ! [[ "$DAILY_WINDOW_DAYS" =~ ^[0-9]+$ ]] || [ "$DAILY_WINDOW_DAYS" -lt 1 ]; then
+    log "⚠️ Invalid PAPERTOOLS_DAILY_WINDOW_DAYS=$DAILY_WINDOW_DAYS; falling back to 4"
+    DAILY_WINDOW_DAYS=4
+fi
+DAILY_END_DATE="${PAPERTOOLS_DAILY_END_DATE:-$(date '+%Y-%m-%d')}"
+DAILY_START_DATE="${PAPERTOOLS_DAILY_START_DATE:-$(date -d "$((DAILY_WINDOW_DAYS - 1)) days ago" '+%Y-%m-%d')}"
+log "📅 Daily crawl window: $DAILY_START_DATE to $DAILY_END_DATE"
 if [ -n "${http_proxy:-}" ]; then
     log "🌐 Proxy enabled: $http_proxy"
 else
@@ -191,7 +199,7 @@ log "📌 Running from clean origin/master worktree at $BASE_SHA"
 
 PIPELINE_EXIT=0
 CURRENT_STAGE="pipeline"
-if "$PYTHON_BIN" papertools.py run --mode full --skip-serve >>"$LOG_FILE" 2>&1; then
+if "$PYTHON_BIN" papertools.py run --mode full --skip-serve --start-date "$DAILY_START_DATE" --end-date "$DAILY_END_DATE" >>"$LOG_FILE" 2>&1; then
     PIPELINE_EXIT=0
 else
     PIPELINE_EXIT=$?

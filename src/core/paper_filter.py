@@ -361,6 +361,19 @@ def compact_excluded_paper(paper: dict) -> dict:
     return excluded_paper
 
 
+def extract_date_part_from_filename(filename: str, fallback: str) -> str:
+    """Preserve full YYYY-MM-DD_to_YYYY-MM-DD range labels from upstream files."""
+    range_match = re.search(r'(\d{4}-\d{2}-\d{2}_to_\d{4}-\d{2}-\d{2})', filename)
+    if range_match:
+        return range_match.group(1)
+
+    date_match = re.search(r'(\d{4}-\d{2}-\d{2})', filename)
+    if date_match:
+        return date_match.group(1)
+
+    return fallback
+
+
 def is_current_filtered_schema(paper: dict) -> bool:
     """判断保留结果是否符合当前筛选结构。"""
     if 'filter_reason' not in paper:
@@ -453,7 +466,7 @@ def main() -> int:
 
     current_date = datetime.now().strftime('%Y%m%d')
     input_filename = os.path.basename(args.input_file)
-    date_part = input_filename.split('_')[-1].split('.json')[0] if '_' in input_filename else current_date
+    date_part = extract_date_part_from_filename(input_filename, current_date)
 
     output_filename = f"filtered_papers_{date_part}.json"
     output_filepath = os.path.join(args.output_dir, output_filename)

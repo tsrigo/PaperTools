@@ -65,6 +65,7 @@ SOURCE_METADATA_FIELDS = (
     "abstract",
     "subjects",
     "date",
+    "source_date",
     "category",
     "crawl_time",
 )
@@ -255,6 +256,30 @@ def merge_published_papers(
     return normalize_papers_for_display([merged[key] for key in order])
 
 
+def extract_yyyy_mm_dd(value: Any) -> str:
+    """Extract a normalized YYYY-MM-DD date from a field value."""
+    if value in (None, ""):
+        return ""
+    match = re.search(r"\d{4}-\d{2}-\d{2}", str(value))
+    return match.group(0) if match else ""
+
+
+def group_papers_by_source_date(
+    papers: List[Dict[str, Any]],
+    fallback_date: str,
+) -> Dict[str, List[Dict[str, Any]]]:
+    """Group range-run papers by the upstream date page that produced them."""
+    grouped: Dict[str, List[Dict[str, Any]]] = {}
+    for paper in papers:
+        date = (
+            extract_yyyy_mm_dd(paper.get("source_date"))
+            or extract_yyyy_mm_dd(paper.get("date"))
+            or fallback_date
+        )
+        grouped.setdefault(date, []).append(paper)
+    return grouped
+
+
 def load_paper_data() -> Dict[str, List[Dict[str, Any]]]:
     """加载论文数据"""
     papers_by_date = {}
@@ -276,14 +301,25 @@ def load_paper_data() -> Dict[str, List[Dict[str, Any]]]:
                 continue
 
             filename = json_file.stem
+            range_match = re.search(r'(\d{4}-\d{2}-\d{2})_to_(\d{4}-\d{2}-\d{2})', filename)
             date_match = re.search(r'(\d{4}-\d{2}-\d{2})', filename)
             if date_match:
-                date = date_match.group(1)
                 backfilled_papers = backfill_paper_metadata(papers, source_by_id)
                 normalized_papers = normalize_papers_for_display(backfilled_papers)
-                candidates_by_date.setdefault(date, []).append(
-                    (score_paper_file(json_file, normalized_papers), json_file, normalized_papers)
-                )
+                if range_match:
+                    grouped_papers = group_papers_by_source_date(
+                        normalized_papers,
+                        range_match.group(1),
+                    )
+                    for date, date_papers in grouped_papers.items():
+                        candidates_by_date.setdefault(date, []).append(
+                            (score_paper_file(json_file, date_papers), json_file, date_papers)
+                        )
+                else:
+                    date = date_match.group(1)
+                    candidates_by_date.setdefault(date, []).append(
+                        (score_paper_file(json_file, normalized_papers), json_file, normalized_papers)
+                    )
         except Exception as e:
             print(f"加载文件 {json_file} 时出错: {e}")
 

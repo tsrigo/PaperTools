@@ -1103,6 +1103,25 @@ ArXiv ID: {paper.get('arxiv_id', 'Unknown')}
     return daily_overview
 
 
+def extract_yyyy_mm_dd(value: object) -> str:
+    if value in (None, ""):
+        return ""
+    match = re.search(r"\d{4}-\d{2}-\d{2}", str(value))
+    return match.group(0) if match else ""
+
+
+def group_papers_by_source_date(papers: List[Dict], fallback_date: str) -> Dict[str, List[Dict]]:
+    grouped: Dict[str, List[Dict]] = {}
+    for paper in papers:
+        date_str = (
+            extract_yyyy_mm_dd(paper.get("source_date"))
+            or extract_yyyy_mm_dd(paper.get("date"))
+            or fallback_date
+        )
+        grouped.setdefault(date_str, []).append(paper)
+    return grouped
+
+
 def main() -> int:
     """主函数"""
     parser = argparse.ArgumentParser(description='论文总结生成工具')
@@ -1467,30 +1486,39 @@ def main() -> int:
         print(f"\n💾 已保存更新后的JSON文件: {output_path}")
         
         # 生成"今日AI论文速览"
+        range_match = re.search(r'(\d{4}-\d{2}-\d{2})_to_(\d{4}-\d{2}-\d{2})', input_filename)
         date_match = re.search(r'(\d{4}-\d{2}-\d{2})', input_filename)
-        date_str = date_match.group(1) if date_match else time.strftime('%Y-%m-%d')
-        overview_filename = f"daily_overview_{date_str}.md"
-        overview_path = os.path.join(args.output_dir, overview_filename)
+        fallback_date = date_match.group(1) if date_match else time.strftime('%Y-%m-%d')
+        papers_by_overview_date = (
+            group_papers_by_source_date(updated_papers, fallback_date)
+            if range_match
+            else {fallback_date: updated_papers}
+        )
 
-        if processed == 0 and os.path.exists(overview_path):
-            print(f"⏭️ 本轮无新增总结，保留已有每日速览: {overview_path}")
-        else:
-            print("\n📰 正在生成今日AI论文速览...")
+        for date_str, overview_papers in sorted(papers_by_overview_date.items()):
+            overview_filename = f"daily_overview_{date_str}.md"
+            overview_path = os.path.join(args.output_dir, overview_filename)
+
+            if processed == 0 and os.path.exists(overview_path):
+                print(f"⏭️ 本轮无新增总结，保留已有每日速览: {overview_path}")
+                continue
+
+            print(f"\n📰 正在生成今日AI论文速览 ({date_str})...")
             try:
                 daily_overview = generate_daily_overview(
-                    updated_papers,
+                    overview_papers,
                     providers,
                     args.temperature,
                     date_str,
                     cache_manager
                 )
-            
+
                 # 保存每日速览到独立的 Markdown 文件
                 if not save_text(overview_path, daily_overview):
                     raise IOError(overview_path)
-            
+
                 print(f"✅ 已生成今日AI论文速览: {overview_path}")
-            
+
             except Exception as e:
                 print(f"⚠️ 生成每日速览时出错: {e}")
     

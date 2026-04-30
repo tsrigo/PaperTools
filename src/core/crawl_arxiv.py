@@ -209,6 +209,9 @@ def scrape_papers(category: str, max_papers: int = MAX_PAPERS_PER_CATEGORY, dela
     if use_cache and cache_manager:
         cached_papers = cache_manager.get_crawl_cache(category, cache_date)
         if cached_papers is not None:
+            if target_date:
+                for paper in cached_papers:
+                    paper.setdefault('source_date', target_date)
             print(f"📦 从缓存加载 {category} ({cache_date}): {len(cached_papers)} 篇论文")
             paper_ids = set(p.get('arxiv_id', p['link'].split('/')[-1]) for p in cached_papers)
             return cached_papers, paper_ids
@@ -276,6 +279,7 @@ def scrape_papers(category: str, max_papers: int = MAX_PAPERS_PER_CATEGORY, dela
             'summary': summary,
             'subjects': subjects,
             'date': date,
+            'source_date': target_date or date,
             'category': category,
             'crawl_time': datetime.now().isoformat()
         }
