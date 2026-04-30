@@ -12,12 +12,21 @@ from typing import Dict, List, Any
 
 # 导入配置
 try:
-    from src.utils.config import SUMMARY_DIR, WEBPAGES_DIR, DOMAIN_PAPER_DIR, ARXIV_PAPER_DIR
+    from src.utils.config import (
+        SUMMARY_DIR,
+        WEBPAGES_DIR,
+        DOMAIN_PAPER_DIR,
+        ARXIV_PAPER_DIR,
+        PRESTIGE_COMPANY_WHITELIST,
+        PRESTIGE_INSTITUTION_WHITELIST,
+    )
 except ImportError:
     SUMMARY_DIR = "summary"
     WEBPAGES_DIR = "webpages"
     DOMAIN_PAPER_DIR = "domain_paper"
     ARXIV_PAPER_DIR = "arxiv_paper"
+    PRESTIGE_COMPANY_WHITELIST = {}
+    PRESTIGE_INSTITUTION_WHITELIST = {}
 
 try:
     from src.utils.io import save_json, save_text
@@ -106,6 +115,144 @@ def derive_arxiv_tags(paper: Dict[str, Any]) -> List[str]:
     return sorted(tags)
 
 
+def normalize_match_text(text: str) -> str:
+    """Normalize free text for whitelist matching."""
+    text = (text or "").lower()
+    text = re.sub(r"[^a-z0-9]+", " ", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def extract_institution_names_from_affiliations(affiliations: Any) -> List[str]:
+    """Parse affiliation JSON emitted by summary generation."""
+    if not isinstance(affiliations, str) or not affiliations.strip():
+        return []
+
+    cleaned = affiliations.strip()
+    fence_match = re.search(r"```(?:json)?\s*([\s\S]*?)```", cleaned)
+    if fence_match:
+        cleaned = fence_match.group(1).strip()
+
+    try:
+        data = json.loads(cleaned)
+    except Exception:
+        return [cleaned]
+
+    if not isinstance(data, dict):
+        return [cleaned]
+
+    names = []
+    seen = set()
+    for inst in data.get("institutions", []) or []:
+        if not isinstance(inst, dict):
+            continue
+        name = (inst.get("name") or "").strip()
+        if name and name not in seen:
+            names.append(name)
+            seen.add(name)
+    return names
+
+
+def find_whitelist_hits(values: List[str], whitelist: Dict[str, List[str]]) -> List[str]:
+    """Return canonical whitelist entries present in values."""
+    hits = []
+    seen = set()
+    normalized_values = [f" {normalize_match_text(value)} " for value in values if value]
+    for canonical, aliases in whitelist.items():
+        for alias in aliases:
+            normalized_alias = normalize_match_text(alias)
+            if not normalized_alias:
+                continue
+            if any(f" {normalized_alias} " in value for value in normalized_values):
+                if canonical not in seen:
+                    hits.append(canonical)
+                    seen.add(canonical)
+                break
+    return hits
+
+
+def repair_prestige_from_affiliations(paper: Dict[str, Any]) -> None:
+    """Repair stale prestige status when later summary extraction found affiliations."""
+    affiliations = paper.get("affiliations")
+    if not has_valid_generated_text(affiliations):
+        return
+
+    current_source = paper.get("prestige_source")
+    current_result = paper.get("prestige_result")
+    if current_result is True and current_source != "missing_affiliations":
+        return
+
+    institution_names = extract_institution_names_from_affiliations(affiliations)
+    institution_hits = find_whitelist_hits(institution_names, PRESTIGE_INSTITUTION_WHITELIST)
+    company_hits = find_whitelist_hits(institution_names, PRESTIGE_COMPANY_WHITELIST)
+
+    reasons = []
+    if institution_hits:
+        reasons.append("白名单命中顶级学术机构: " + ", ".join(institution_hits))
+    if company_hits:
+        reasons.append("白名单命中知名公司/研究机构: " + ", ".join(company_hits))
+
+    if not reasons:
+        return
+
+    paper["prestige_result"] = True
+    paper["prestige_reason"] = "；".join(reasons)
+    if institution_hits and not company_hits:
+        paper["prestige_source"] = "whitelist_institution"
+    elif company_hits and not institution_hits:
+        paper["prestige_source"] = "whitelist_company"
+    else:
+        paper["prestige_source"] = "whitelist"
+    paper["prestige_status"] = "verified"
+    paper["prestige_matches"] = {
+        "authors": (paper.get("prestige_matches") or {}).get("authors", []),
+        "institutions": institution_hits,
+        "companies": company_hits,
+        "institution_names": institution_names,
+    }
+
+
+def merge_paper_fields(base: Dict[str, Any], candidate: Dict[str, Any]) -> Dict[str, Any]:
+    """Merge complementary records for the same paper instead of picking one whole file."""
+    merged = dict(base)
+
+    for field in RICHNESS_FIELDS:
+        if not has_valid_generated_text(merged.get(field)) and has_valid_generated_text(candidate.get(field)):
+            merged[field] = candidate.get(field)
+
+    for field in SOURCE_METADATA_FIELDS:
+        if merged.get(field) in (None, "") and candidate.get(field) not in (None, ""):
+            merged[field] = candidate.get(field)
+
+    for field in ("filter_reason", "summary_generated_time", "summary_model", "link"):
+        if merged.get(field) in (None, "") and candidate.get(field) not in (None, ""):
+            merged[field] = candidate.get(field)
+
+    if not has_valid_generated_text(merged.get("affiliations")) and has_valid_generated_text(candidate.get("affiliations")):
+        merged["affiliations"] = candidate.get("affiliations")
+
+    merged_cluster = merged.get("cluster") or ""
+    candidate_cluster = candidate.get("cluster") or ""
+    if (not merged_cluster or merged_cluster == "Other") and candidate_cluster and candidate_cluster != "Other":
+        merged["cluster"] = candidate_cluster
+
+    merged_tags = list(merged.get("tags") or [])
+    for tag in candidate.get("tags") or []:
+        if tag not in merged_tags:
+            merged_tags.append(tag)
+    if merged_tags:
+        merged["tags"] = merged_tags
+
+    candidate_prestige_result = candidate.get("prestige_result")
+    merged_prestige_result = merged.get("prestige_result")
+    if candidate_prestige_result is True and merged_prestige_result is not True:
+        for field in ("prestige_result", "prestige_reason", "prestige_source", "prestige_status", "prestige_matches"):
+            if field in candidate:
+                merged[field] = candidate[field]
+
+    repair_prestige_from_affiliations(merged)
+    return merged
+
+
 def normalize_papers_for_display(papers: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """Normalize optional metadata so display logic is robust to partial files."""
     normalized = []
@@ -116,6 +263,7 @@ def normalize_papers_for_display(papers: List[Dict[str, Any]]) -> List[Dict[str,
                 paper_copy[field] = ""
         paper_copy["cluster"] = paper_copy.get("cluster") or "Other"
         paper_copy["tags"] = derive_arxiv_tags(paper_copy)
+        repair_prestige_from_affiliations(paper_copy)
         normalized.append(paper_copy)
     return normalized
 
@@ -250,10 +398,27 @@ def merge_published_papers(
         if key not in merged:
             order.append(key)
             merged[key] = paper
-        elif paper_display_score(paper) > paper_display_score(merged[key]):
-            merged[key] = paper
+        else:
+            primary, secondary = (
+                (paper, merged[key])
+                if paper_display_score(paper) > paper_display_score(merged[key])
+                else (merged[key], paper)
+            )
+            merged[key] = merge_paper_fields(primary, secondary)
 
     return normalize_papers_for_display([merged[key] for key in order])
+
+
+def merge_candidate_papers(candidates: List[tuple]) -> tuple:
+    """Merge same-date summary/cluster/filter candidates field-by-field."""
+    sorted_candidates = sorted(candidates, key=lambda item: item[0], reverse=True)
+    best_score, best_file, best_papers = sorted_candidates[0]
+    merged_papers = normalize_papers_for_display(best_papers)
+
+    for _score, _json_file, candidate_papers in sorted_candidates[1:]:
+        merged_papers = merge_published_papers(merged_papers, normalize_papers_for_display(candidate_papers))
+
+    return best_score, best_file, merged_papers
 
 
 def extract_yyyy_mm_dd(value: Any) -> str:
@@ -324,7 +489,7 @@ def load_paper_data() -> Dict[str, List[Dict[str, Any]]]:
             print(f"加载文件 {json_file} 时出错: {e}")
 
     for date, candidates in candidates_by_date.items():
-        _, chosen_file, chosen_papers = max(candidates, key=lambda item: item[0])
+        _, chosen_file, chosen_papers = merge_candidate_papers(candidates)
         papers_by_date[date] = chosen_papers
         print(f"加载了 {len(chosen_papers)} 篇论文，日期: {date}，来源: {chosen_file.parent.name}/{chosen_file.name}")
 
