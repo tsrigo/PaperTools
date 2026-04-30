@@ -68,11 +68,13 @@ SOURCE_METADATA_FIELDS = (
     'abstract',
     'subjects',
     'date',
+    'source_date',
     'category',
     'crawl_time',
 )
 
-FILTER_LLM_TIMEOUT = float(os.getenv("PAPERTOOLS_FILTER_LLM_TIMEOUT", "90"))
+FILTER_LLM_TIMEOUT = float(os.getenv("PAPERTOOLS_FILTER_LLM_TIMEOUT", "45"))
+FILTER_LLM_MAX_RETRIES = int(os.getenv("PAPERTOOLS_FILTER_LLM_MAX_RETRIES", "1"))
 FILTER_EXTRACT_CHAIN = os.getenv("PAPERTOOLS_FILTER_EXTRACT_CHAIN", "jina")
 FILTER_EXTRACT_TIMEOUT = int(os.getenv("PAPERTOOLS_FILTER_EXTRACT_TIMEOUT", "45"))
 
@@ -136,7 +138,7 @@ def parse_llm_response(response_text: str) -> Tuple[bool, str]:
     return result, reason
 
 
-@retry_with_backoff(max_retries=3, initial_delay=2.0)
+@retry_with_backoff(max_retries=FILTER_LLM_MAX_RETRIES, initial_delay=2.0, max_delay=8.0)
 def run_llm_prompt(prompt: str, system: str, client: OpenAI, model: str,
                    temperature: float = TEMPERATURE) -> str:
     """执行 LLM prompt，并返回原始文本。"""
@@ -448,6 +450,7 @@ def main() -> int:
     print("🔍 开始论文筛选")
     print(f"📁 输入文件: {args.input_file}")
     print(f"🤖 使用模型: {args.model}")
+    print(f"⏱️ Filter LLM timeout: {FILTER_LLM_TIMEOUT}s, retries: {FILTER_LLM_MAX_RETRIES}")
     print(f"🏛️ Prestige 硬筛: {'启用' if PRESTIGE_ENABLED else '关闭'}")
     if PRESTIGE_ENABLED:
         print(f"📄 Prestige 上下文截断长度: {PRESTIGE_CONTEXT_CHARS} 字符")
@@ -700,14 +703,13 @@ def main() -> int:
 
                 time.sleep(REQUEST_DELAY / max(args.max_workers, 1))
 
-                if processed_count % 50 == 0:
-                    try:
-                        all_filtered = existing_filtered + filtered_papers
-                        all_excluded = existing_excluded + excluded_papers
-                        save_json(output_filepath, all_filtered, indent=4, ensure_ascii=False)
-                        save_json(excluded_filepath, all_excluded, indent=4, ensure_ascii=False)
-                    except Exception:
-                        pass
+                try:
+                    all_filtered = existing_filtered + filtered_papers
+                    all_excluded = existing_excluded + excluded_papers
+                    save_json(output_filepath, all_filtered, indent=4, ensure_ascii=False)
+                    save_json(excluded_filepath, all_excluded, indent=4, ensure_ascii=False)
+                except Exception:
+                    pass
 
             except Exception as e:
                 print(f"❌ 获取筛选结果时出错: {e}")

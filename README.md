@@ -28,6 +28,8 @@ papertools run
 | `SUMMARY_PRISM_RPM` | Prism 每分钟请求上限，默认 5 | 否 |
 | `SUMMARY_PRISM_REASONING_EFFORT` | Prism `reasoning_effort`，默认 `xhigh` | 否 |
 | `FILTER_MAX_WORKERS` | 筛选阶段并发上限，默认 5 | 否 |
+| `PAPERTOOLS_FILTER_LLM_TIMEOUT` | 筛选阶段单次 LLM 请求超时秒数，默认 45 | 否 |
+| `PAPERTOOLS_FILTER_LLM_MAX_RETRIES` | 筛选阶段 LLM 重试次数，默认 1 | 否 |
 | `WEBHOOK_URL` | 失败/完成通知 webhook | 否 |
 | `PAPERTOOLS_DAILY_WINDOW_DAYS` | 每日任务滚动补抓天数，默认 4 | 否 |
 | `JINA_API_TOKEN` | Jina Reader API（全文获取）| 否 |
