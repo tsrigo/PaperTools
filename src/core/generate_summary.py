@@ -28,6 +28,7 @@ from src.utils.config import (  # noqa: E402
     SUMMARY_API_KEY, SUMMARY_BASE_URL, SUMMARY_MODEL, SUMMARY_MODEL_CHAIN,
     SUMMARY_SJTU_API_KEY, SUMMARY_SJTU_BASE_URL,
     SUMMARY_PRISM_API_KEY, SUMMARY_PRISM_BASE_URL, SUMMARY_PRISM_RPM,
+    SUMMARY_PRISM_REASONING_EFFORT,
     SUMMARY_DIR, TEMPERATURE, REQUEST_DELAY, MAX_WORKERS,
     SUMMARY_CONTENT_CHAR_LIMIT, SUMMARY_MAX_WORKERS, ENABLE_CACHE,
 )
@@ -173,6 +174,7 @@ class SummaryProvider:
     api_key: str
     model: str
     rpm_limit: int = 0
+    reasoning_effort: str = ""
     client: OpenAI = field(init=False)
     disabled: bool = False
     disable_reason: str = ""
@@ -188,11 +190,13 @@ class SummaryProvider:
 
     @property
     def label(self) -> str:
-        return f"{self.name}:{self.model}"
+        suffix = f" reasoning={self.reasoning_effort}" if self.reasoning_effort else ""
+        return f"{self.name}:{self.model}{suffix}"
 
     @property
     def cache_label(self) -> str:
-        return f"{self.base_url}:{self.model}"
+        suffix = f":reasoning={self.reasoning_effort}" if self.reasoning_effort else ""
+        return f"{self.base_url}:{self.model}{suffix}"
 
     def wait_for_rate_limit(self) -> None:
         """Throttle request starts for low-RPM providers across worker threads."""
@@ -226,12 +230,13 @@ def build_summary_providers(
     prism_api_key: str,
     prism_base_url: str,
     prism_rpm: int,
+    prism_reasoning_effort: str,
 ) -> List[SummaryProvider]:
     """Build the summary fallback chain from provider:model entries."""
     provider_config = {
-        "modelscope": (modelscope_api_key, modelscope_base_url, 0),
-        "sjtu": (sjtu_api_key, sjtu_base_url, 0),
-        "prism": (prism_api_key, prism_base_url, prism_rpm),
+        "modelscope": (modelscope_api_key, modelscope_base_url, 0, ""),
+        "sjtu": (sjtu_api_key, sjtu_base_url, 0, ""),
+        "prism": (prism_api_key, prism_base_url, prism_rpm, prism_reasoning_effort),
     }
     providers: List[SummaryProvider] = []
     seen = set()
@@ -249,16 +254,25 @@ def build_summary_providers(
             print(f"⚠️ 忽略无法识别的总结模型配置: {entry}")
             continue
 
-        api_key, base_url, rpm_limit = provider_config[provider_name]
+        api_key, base_url, rpm_limit, reasoning_effort = provider_config[provider_name]
         if not api_key or not base_url:
             print(f"⚠️ 跳过缺少凭据的总结 provider: {provider_name}:{model}")
             continue
 
-        key = (provider_name, base_url, model)
+        key = (provider_name, base_url, model, reasoning_effort)
         if key in seen:
             continue
         seen.add(key)
-        providers.append(SummaryProvider(provider_name, base_url, api_key, model, rpm_limit=rpm_limit))
+        providers.append(
+            SummaryProvider(
+                provider_name,
+                base_url,
+                api_key,
+                model,
+                rpm_limit=rpm_limit,
+                reasoning_effort=reasoning_effort,
+            )
+        )
 
     return providers
 
@@ -306,12 +320,15 @@ def collect_streaming_completion(
 
         try:
             provider.wait_for_rate_limit()
-            response = provider.client.chat.completions.create(
-                model=provider.model,
-                messages=messages,
-                temperature=temperature,
-                stream=True,
-            )
+            request_kwargs = {
+                "model": provider.model,
+                "messages": messages,
+                "temperature": temperature,
+                "stream": True,
+            }
+            if provider.reasoning_effort:
+                request_kwargs["reasoning_effort"] = provider.reasoning_effort
+            response = provider.client.chat.completions.create(**request_kwargs)
             result = ""
             for chunk in response:
                 if chunk.choices and len(chunk.choices) > 0:
@@ -1111,6 +1128,8 @@ def main() -> int:
                        help='Prism 生成 API 基础 URL')
     parser.add_argument('--prism-rpm', type=int, default=SUMMARY_PRISM_RPM,
                        help=f'Prism provider RPM 限制 (默认: {SUMMARY_PRISM_RPM})')
+    parser.add_argument('--prism-reasoning-effort', default=SUMMARY_PRISM_REASONING_EFFORT,
+                       help=f'Prism reasoning_effort 参数，留空则不传 (默认: {SUMMARY_PRISM_REASONING_EFFORT})')
     parser.add_argument('--temperature', type=float, default=TEMPERATURE,
                        help='生成温度')
     parser.add_argument('--max-papers', type=int, default=0,
@@ -1141,6 +1160,7 @@ def main() -> int:
         args.prism_api_key,
         args.prism_base_url,
         args.prism_rpm,
+        args.prism_reasoning_effort,
     )
     if not providers:
         print("❌ 没有可用的总结模型配置")

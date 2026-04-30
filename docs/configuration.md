@@ -18,6 +18,7 @@ cp .env.example .env
 | `SUMMARY_PRISM_OPENAI_API_KEY` | 否 | Prism 总结/翻译 API 密钥，只用于筛选后的内容生成 |
 | `SUMMARY_PRISM_OPENAI_BASE_URL` | 否 | Prism OpenAI-compatible base URL，默认 `https://ai.prism.uno/v1` |
 | `SUMMARY_PRISM_RPM` | 否 | Prism provider 每分钟请求上限，默认 `5` |
+| `SUMMARY_PRISM_REASONING_EFFORT` | 否 | Prism `reasoning_effort` 参数，默认 `xhigh`；留空则不传 |
 | `WEBHOOK_URL` | 否 | 流水线完成或失败时推送通知的 webhook 地址 |
 | `JINA_API_TOKEN` | 否 | Jina Reader API 令牌，用于获取论文全文。不填则跳过全文拉取 |
 

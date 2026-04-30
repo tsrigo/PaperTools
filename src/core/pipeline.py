@@ -25,6 +25,7 @@ try:
         SUMMARY_API_KEY, SUMMARY_BASE_URL, SUMMARY_MODEL, SUMMARY_MODEL_CHAIN,
         SUMMARY_SJTU_API_KEY, SUMMARY_SJTU_BASE_URL,
         SUMMARY_PRISM_API_KEY, SUMMARY_PRISM_BASE_URL, SUMMARY_PRISM_RPM,
+        SUMMARY_PRISM_REASONING_EFFORT,
         SUMMARY_MAX_WORKERS, TEMPERATURE,
         ARXIV_PAPER_DIR, DOMAIN_PAPER_DIR, SUMMARY_DIR, WEBPAGES_DIR,
         CRAWL_CATEGORIES, MAX_PAPERS_PER_CATEGORY, MAX_WORKERS, MAX_PAPERS_TOTAL_DEFAULT
@@ -288,6 +289,8 @@ def main() -> int:
     parser.add_argument('--summary-prism-api-key', default=SUMMARY_PRISM_API_KEY, help='Prism总结API密钥')
     parser.add_argument('--summary-prism-base-url', default=SUMMARY_PRISM_BASE_URL, help='Prism总结API基础URL')
     parser.add_argument('--summary-prism-rpm', type=int, default=SUMMARY_PRISM_RPM, help='Prism总结RPM限制')
+    parser.add_argument('--summary-prism-reasoning-effort', default=SUMMARY_PRISM_REASONING_EFFORT,
+                       help='Prism reasoning_effort 参数，留空则不传')
     parser.add_argument('--temperature', type=float, default=TEMPERATURE, help='生成温度')
     
     # 流程控制
@@ -562,6 +565,7 @@ def main() -> int:
             "--prism-api-key", args.summary_prism_api_key,
             "--prism-base-url", args.summary_prism_base_url,
             "--prism-rpm", str(args.summary_prism_rpm),
+            "--prism-reasoning-effort", args.summary_prism_reasoning_effort,
             "--temperature", str(args.temperature),
             "--skip-existing",
             "--max-workers", str(min(args.max_workers, SUMMARY_MAX_WORKERS))

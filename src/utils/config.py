@@ -85,6 +85,7 @@ SUMMARY_PRISM_API_KEY = _get_env_str(
 )
 SUMMARY_PRISM_BASE_URL = _get_env_str("SUMMARY_PRISM_OPENAI_BASE_URL", "https://ai.prism.uno/v1")
 SUMMARY_PRISM_RPM = _get_env_int("SUMMARY_PRISM_RPM", 5, minimum=1)
+SUMMARY_PRISM_REASONING_EFFORT = _get_env_str("SUMMARY_PRISM_REASONING_EFFORT", "xhigh")
 SUMMARY_CONTENT_CHAR_LIMIT = _get_env_int("SUMMARY_CONTENT_CHAR_LIMIT", 200000, minimum=10000)
 
 # Prestige 筛选配置

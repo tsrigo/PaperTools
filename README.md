@@ -26,6 +26,7 @@ papertools run
 | `SUMMARY_MODEL_CHAIN` | 总结/翻译模型回退链 | 否 |
 | `SUMMARY_PRISM_OPENAI_API_KEY` | Prism 总结/翻译 API，不用于筛选 | 否 |
 | `SUMMARY_PRISM_RPM` | Prism 每分钟请求上限，默认 5 | 否 |
+| `SUMMARY_PRISM_REASONING_EFFORT` | Prism `reasoning_effort`，默认 `xhigh` | 否 |
 | `WEBHOOK_URL` | 失败/完成通知 webhook | 否 |
 | `JINA_API_TOKEN` | Jina Reader API（全文获取）| 否 |
 
