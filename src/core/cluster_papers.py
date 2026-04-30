@@ -19,7 +19,13 @@ if project_root not in sys.path:
 
 from openai import OpenAI
 
-from src.utils.config import API_KEY, BASE_URL, MODEL, TEMPERATURE, DOMAIN_PAPER_DIR
+from src.utils.config import (
+    CLUSTER_API_KEY,
+    CLUSTER_BASE_URL,
+    CLUSTER_MODEL,
+    TEMPERATURE,
+    DOMAIN_PAPER_DIR,
+)
 from src.utils.retry import retry_with_backoff
 
 # ---------------------------------------------------------------------------
@@ -259,9 +265,9 @@ def main():
         default=DOMAIN_PAPER_DIR,
         help=f"Output directory (default: {DOMAIN_PAPER_DIR})",
     )
-    parser.add_argument("--api-key", default=API_KEY, help="API key")
-    parser.add_argument("--base-url", default=BASE_URL, help="API base URL")
-    parser.add_argument("--model", default=MODEL, help="Model to use")
+    parser.add_argument("--api-key", default=CLUSTER_API_KEY, help="API key")
+    parser.add_argument("--base-url", default=CLUSTER_BASE_URL, help="API base URL")
+    parser.add_argument("--model", default=CLUSTER_MODEL, help="Model to use")
     parser.add_argument(
         "--temperature", type=float, default=TEMPERATURE, help="Sampling temperature"
     )

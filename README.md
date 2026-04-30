@@ -23,6 +23,7 @@ papertools run
 | `OPENAI_BASE_URL` | API 地址 | 是 |
 | `OPENAI_API_KEY` | API 密钥 | 是 |
 | `MODEL` | 模型名 | 是 |
+| `CLUSTER_MODEL` | 聚类阶段模型，默认跟随 `FILTER_MODEL` | 否 |
 | `SUMMARY_MODEL_CHAIN` | 总结/翻译模型回退链 | 否 |
 | `SUMMARY_PRISM_OPENAI_API_KEY` | Prism 总结/翻译 API，不用于筛选 | 否 |
 | `SUMMARY_PRISM_RPM` | Prism 每分钟请求上限，默认 5 | 否 |

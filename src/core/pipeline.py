@@ -22,6 +22,7 @@ if project_root not in sys.path:
 try:
     from src.utils.config import (
         API_KEY, BASE_URL, MODEL, FILTER_MODEL,
+        CLUSTER_API_KEY, CLUSTER_BASE_URL, CLUSTER_MODEL,
         SUMMARY_API_KEY, SUMMARY_BASE_URL, SUMMARY_MODEL, SUMMARY_MODEL_CHAIN,
         SUMMARY_SJTU_API_KEY, SUMMARY_SJTU_BASE_URL,
         SUMMARY_PRISM_API_KEY, SUMMARY_PRISM_BASE_URL, SUMMARY_PRISM_RPM,
@@ -502,11 +503,12 @@ def main() -> int:
             sys.executable, "src/core/cluster_papers.py",
             "--input-file", filter_output_file,
             "--output-dir", DOMAIN_PAPER_DIR,
-            "--api-key", args.api_key,
-            "--base-url", args.base_url,
-            "--model", args.model,
+            "--api-key", CLUSTER_API_KEY,
+            "--base-url", CLUSTER_BASE_URL,
+            "--model", CLUSTER_MODEL,
             "--temperature", str(args.temperature),
         ]
+        progress.log_with_timestamp(f"🗂️ 聚类使用模型: {CLUSTER_MODEL}")
         if run_command(cmd, "论文聚类", progress):
             # Find the cluster output file
             from glob import glob
