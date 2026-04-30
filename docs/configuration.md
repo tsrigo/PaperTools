@@ -19,6 +19,7 @@ cp .env.example .env
 | `SUMMARY_PRISM_OPENAI_BASE_URL` | 否 | Prism OpenAI-compatible base URL，默认 `https://ai.prism.uno/v1` |
 | `SUMMARY_PRISM_RPM` | 否 | Prism provider 每分钟请求上限，默认 `5` |
 | `SUMMARY_PRISM_REASONING_EFFORT` | 否 | Prism `reasoning_effort` 参数，默认 `xhigh`；留空则不传 |
+| `FILTER_MAX_WORKERS` | 否 | 筛选阶段最大并发，默认 `5`，用于降低筛选模型尾延迟和限流风险 |
 | `WEBHOOK_URL` | 否 | 流水线完成或失败时推送通知的 webhook 地址 |
 | `PAPERTOOLS_DAILY_WINDOW_DAYS` | 否 | 每日 cron wrapper 默认滚动补抓天数，默认 `4` |
 | `PAPERTOOLS_DAILY_START_DATE` | 否 | 手动覆盖每日 cron wrapper 的补抓起始日期 |

@@ -26,7 +26,7 @@ try:
         SUMMARY_SJTU_API_KEY, SUMMARY_SJTU_BASE_URL,
         SUMMARY_PRISM_API_KEY, SUMMARY_PRISM_BASE_URL, SUMMARY_PRISM_RPM,
         SUMMARY_PRISM_REASONING_EFFORT,
-        SUMMARY_MAX_WORKERS, TEMPERATURE,
+        SUMMARY_MAX_WORKERS, FILTER_MAX_WORKERS, TEMPERATURE,
         ARXIV_PAPER_DIR, DOMAIN_PAPER_DIR, SUMMARY_DIR, WEBPAGES_DIR,
         CRAWL_CATEGORIES, MAX_PAPERS_PER_CATEGORY, MAX_WORKERS, MAX_PAPERS_TOTAL_DEFAULT
     )
@@ -445,9 +445,10 @@ def main() -> int:
             "--model", FILTER_MODEL,
             "--temperature", str(args.temperature),
             "--max-papers", str(args.max_papers_total),
-            "--max-workers", str(args.max_workers)
+            "--max-workers", str(min(args.max_workers, FILTER_MAX_WORKERS))
         ]
         progress.log_with_timestamp(f"🔍 筛选使用模型: {FILTER_MODEL}")
+        progress.log_with_timestamp(f"🧵 筛选并发: {min(args.max_workers, FILTER_MAX_WORKERS)}")
         if not run_command(cmd, "筛选论文", progress):
             progress.complete_step("筛选论文", False)
             progress.log_with_timestamp("❌ 筛选失败，流水线终止")

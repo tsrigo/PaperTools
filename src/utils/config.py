@@ -125,6 +125,7 @@ MAX_PAPERS_TOTAL_DEFAULT = 0
 
 # 多线程配置
 MAX_WORKERS = _get_env_int("MAX_WORKERS", 20, minimum=1)  # 并发线程数，100 RPM 限额下安全运行
+FILTER_MAX_WORKERS = _get_env_int("FILTER_MAX_WORKERS", min(MAX_WORKERS, 5), minimum=1)
 SUMMARY_MAX_WORKERS = _get_env_int("SUMMARY_MAX_WORKERS", 5, minimum=1)
 
 # 论文筛选Prompt模板
