@@ -32,6 +32,12 @@ papertools run
 | `SUMMARY_PRISM_WINDOW_SECONDS` | Prism 滚动限额窗口秒数，默认 300 | 否 |
 | `SUMMARY_PRISM_WINDOW_SAFETY_REQUESTS` | Prism 滚动窗口安全余量，默认 1 | 否 |
 | `SUMMARY_PRISM_429_COOLDOWN_SECONDS` | Prism 429 后冷却秒数，默认 300 | 否 |
+| `REVIEWGROUNDER_API_KEY` | ReviewGrounder key；默认优先复用 `SUMMARY_PRISM_OPENAI_API_KEY` | 否 |
+| `REVIEWGROUNDER_BASE_URL` | ReviewGrounder base URL；默认优先复用 `SUMMARY_PRISM_OPENAI_BASE_URL` | 否 |
+| `REVIEWGROUNDER_MODEL` | ReviewGrounder backbone，默认 `gpt-5.5` | 否 |
+| `REVIEWGROUNDER_REASONING_EFFORT` | ReviewGrounder reasoning effort，默认 `xhigh` | 否 |
+| `REVIEWGROUNDER_RPM` | ReviewGrounder backbone 的滚动 RPM 限制，默认 `5` | 否 |
+| `REVIEWGROUNDER_MAX_RELATED_PAPERS` | 每篇最多纳入的 related papers，默认 `1` | 否 |
 | `FILTER_MAX_WORKERS` | 筛选阶段并发上限，默认 5 | 否 |
 | `PAPERTOOLS_FILTER_LLM_TIMEOUT` | 筛选阶段单次 LLM 请求超时秒数，默认 45 | 否 |
 | `PAPERTOOLS_FILTER_LLM_MAX_RETRIES` | 筛选阶段 LLM 重试次数，默认 1 | 否 |

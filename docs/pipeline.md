@@ -91,9 +91,11 @@ python src/core/cluster_papers.py \
 **做什么**：
 1. 可选地通过 Jina Reader API（`r.jina.ai`）获取论文全文（需要 `JINA_API_TOKEN`）
 2. 调用 LLM 为每篇论文生成以下内容，写入 JSON 的对应字段：
-   - `summary2`：中文论文摘要/总结
-   - `inspiration_trace`：创新思路的演进分析（从挑战识别到解决方案的逻辑链）
-   - `research_insights`：对读者的启发性观点
+   - `intro_logic`：Introduction 逻辑链
+   - `core_insight`：核心切入点 / pain point
+   - `methodology`：方法论解读
+   - `additional_insights`：延伸洞察
+   - `research_value`：由 ReviewGrounder 生成的审稿式研究价值评估
 
 **输入**：`domain_paper/clustered_<date>.json`（或 `filtered_papers_<date>.json`，若跳过聚类）
 
@@ -112,8 +114,18 @@ python src/core/generate_summary.py \
 
 | 参数 | 说明 |
 |------|------|
-| `--skip-existing` | 跳过已有 `summary2` 的论文，用于增量更新 |
+| `--skip-existing` | 跳过已有完整总结且 `research_value_source=reviewgrounder` 的论文，用于增量更新 |
 | `--max-workers` | 并发线程数 |
+
+**ReviewGrounder 相关环境变量**：
+
+| 变量 | 说明 |
+|------|------|
+| `REVIEWGROUNDER_MODEL` | ReviewGrounder backbone，默认 `gpt-5.5` |
+| `REVIEWGROUNDER_REASONING_EFFORT` | ReviewGrounder reasoning effort，默认 `xhigh` |
+| `REVIEWGROUNDER_RPM` | ReviewGrounder backbone 的滚动 RPM 限制，默认 `5` |
+| `REVIEWGROUNDER_MAX_PARALLEL_SUMMARIES` | related-work 摘要并发数，默认 `1` |
+| `REVIEWGROUNDER_ENABLE_WEB_FALLBACK` | ASTA/S2 不可用时是否使用 OpenAlex 联网检索兜底 |
 
 ---
 

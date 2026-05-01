@@ -27,6 +27,12 @@ cp .env.example .env
 | `SUMMARY_PRISM_WINDOW_SECONDS` | 否 | Prism 滚动限额窗口秒数，默认 `300` |
 | `SUMMARY_PRISM_WINDOW_SAFETY_REQUESTS` | 否 | Prism 滚动窗口安全余量，默认 `1` |
 | `SUMMARY_PRISM_429_COOLDOWN_SECONDS` | 否 | Prism 429 后冷却秒数，默认 `300` |
+| `REVIEWGROUNDER_API_KEY` | 否 | ReviewGrounder 审稿模型 API key；不填则优先回退 `SUMMARY_PRISM_OPENAI_API_KEY`，再回退 `OPENAI_API_KEY` |
+| `REVIEWGROUNDER_BASE_URL` | 否 | ReviewGrounder 审稿模型 API 地址；不填则优先回退 `SUMMARY_PRISM_OPENAI_BASE_URL`，再回退 `OPENAI_BASE_URL` |
+| `REVIEWGROUNDER_MODEL` | 否 | ReviewGrounder backbone，默认 `gpt-5.5` |
+| `REVIEWGROUNDER_REASONING_EFFORT` | 否 | ReviewGrounder reasoning effort，默认 `xhigh` |
+| `REVIEWGROUNDER_RPM` | 否 | ReviewGrounder backbone 的进程级滚动 RPM 限制，默认 `5` |
+| `REVIEWGROUNDER_MAX_RELATED_PAPERS` | 否 | 每篇目标论文最多纳入的 related papers，默认 `1`，用于适配 5 RPM 后端 |
 | `FILTER_MAX_WORKERS` | 否 | 筛选阶段最大并发，默认 `5`，用于降低筛选模型尾延迟和限流风险 |
 | `PAPERTOOLS_FILTER_LLM_TIMEOUT` | 否 | 筛选阶段单次 LLM 请求超时秒数，默认 `45` |
 | `PAPERTOOLS_FILTER_LLM_MAX_RETRIES` | 否 | 筛选阶段 LLM 重试次数，默认 `1` |

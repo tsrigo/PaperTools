@@ -55,6 +55,13 @@ RICHNESS_FIELDS = (
     "research_value",
 )
 
+REVIEWGROUNDER_METADATA_FIELDS = (
+    "reviewgrounder_review",
+    "research_value_source",
+    "research_value_model",
+    "research_value_reasoning_effort",
+)
+
 FAILED_GENERATION_MARKERS = (
     "翻译失败",
     "生成失败",
@@ -223,7 +230,7 @@ def merge_paper_fields(base: Dict[str, Any], candidate: Dict[str, Any]) -> Dict[
         if merged.get(field) in (None, "") and candidate.get(field) not in (None, ""):
             merged[field] = candidate.get(field)
 
-    for field in ("filter_reason", "summary_generated_time", "summary_model", "link"):
+    for field in ("filter_reason", "summary_generated_time", "summary_model", "link", *REVIEWGROUNDER_METADATA_FIELDS):
         if merged.get(field) in (None, "") and candidate.get(field) not in (None, ""):
             merged[field] = candidate.get(field)
 
@@ -708,6 +715,9 @@ def generate_complete_html() -> str:
                 js_data += f'                    "methodology": "{escape_js_string(paper.get("methodology", ""))}",\n'
                 js_data += f'                    "additional_insights": "{escape_js_string(paper.get("additional_insights", ""))}",\n'
                 js_data += f'                    "research_value": "{escape_js_string(paper.get("research_value", ""))}",\n'
+                js_data += f'                    "research_value_source": "{escape_js_string(paper.get("research_value_source", ""))}",\n'
+                js_data += f'                    "research_value_model": "{escape_js_string(paper.get("research_value_model", ""))}",\n'
+                js_data += f'                    "research_value_reasoning_effort": "{escape_js_string(paper.get("research_value_reasoning_effort", ""))}",\n'
                 js_data += f'                    "affiliations": "{escape_js_string(paper.get("affiliations", ""))}",\n'
                 js_data += f'                    "summary_translation": "{escape_js_string(paper.get("summary_translation", ""))}"\n'
                 js_data += "                },\n"
@@ -1858,7 +1868,7 @@ def generate_complete_html() -> str:
                 {{ key: 'core_insight', id: `core-insight-${{aid}}`, title: '核心切入点 / Pain Point', color: 'orange' }},
                 {{ key: 'methodology', id: `methodology-${{aid}}`, title: '方法论解读', color: 'purple' }},
                 {{ key: 'additional_insights', id: `additional-insights-${{aid}}`, title: '延伸洞察', color: 'red' }},
-                {{ key: 'research_value', id: `research-value-${{aid}}`, title: '研究价值', color: 'teal' }},
+                {{ key: 'research_value', id: `research-value-${{aid}}`, title: paper.research_value_source === 'reviewgrounder' ? 'ReviewGrounder 审稿' : '研究价值', color: 'teal' }},
                 {{ key: 'filter_reason', id: `filter-reason-${{aid}}`, title: '筛选原因', color: 'blue' }},
             ];
 
