@@ -41,6 +41,13 @@ from src.utils.config import (  # noqa: E402
     SUMMARY_PRISM_WINDOW_SAFETY_REQUESTS, SUMMARY_PRISM_429_COOLDOWN_SECONDS,
     SUMMARY_DIR, TEMPERATURE, REQUEST_DELAY, MAX_WORKERS,
     SUMMARY_CONTENT_CHAR_LIMIT, SUMMARY_MAX_WORKERS, ENABLE_CACHE,
+    REVIEWGROUNDER_ENABLED, REVIEWGROUNDER_MODEL, REVIEWGROUNDER_REASONING_EFFORT,
+)
+from src.core.reviewgrounder_adapter import (  # noqa: E402
+    build_reviewgrounder_cache_payload,
+    generate_reviewgrounder_review,
+    reviewgrounder_error_result,
+    reviewgrounder_markdown_from_result,
 )
 from src.document_extraction import (  # noqa: E402
     ExtractionManager,
@@ -105,6 +112,8 @@ def has_complete_summary_analysis(paper: Dict) -> bool:
     if not has_valid_generated_text(paper.get("summary")):
         return False
     if not all(has_valid_generated_text(paper.get(field)) for field in SUMMARY_ANALYSIS_FIELDS):
+        return False
+    if REVIEWGROUNDER_ENABLED and paper.get("research_value_source") != "reviewgrounder":
         return False
     if not has_valid_generated_text(paper.get("summary_translation")):
         return False
@@ -1333,6 +1342,7 @@ def main() -> int:
             cached_methodology = None
             cached_additional_insights = None
             cached_research_value = None
+            cached_reviewgrounder_review = None
             cached_translation = None
 
             if cache_manager and ENABLE_CACHE:
@@ -1368,13 +1378,26 @@ def main() -> int:
                         if not has_valid_generated_text(cached_translation):
                             cached_translation = None
 
-                    # research_value 的缓存依赖其他字段，只有全部都有缓存时才检查
-                    if cached_intro_logic and cached_methodology and cached_additional_insights:
-                        # 拼接作为 content hash
-                        rv_content = cached_intro_logic + cached_methodology + cached_additional_insights + original_summary
-                        cached_research_value = cache_manager.get_summary_cache(f"research_value_{paper_title}", rv_content)
-                        if not has_valid_generated_text(cached_research_value):
-                            cached_research_value = None
+                    # ReviewGrounder 缓存依赖全文、模型和 grounding 配置；旧 research_value 缓存不再复用。
+                    if cached_paper_content:
+                        reviewgrounder_cache_payload = build_reviewgrounder_cache_payload(
+                            paper_title=paper_title,
+                            arxiv_id=paper.get('arxiv_id', ''),
+                            date=paper.get('source_date') or paper.get('date', ''),
+                            abstract=original_summary or paper.get('summary', ''),
+                            paper_content=cached_paper_content,
+                        )
+                        cached_reviewgrounder_raw = cache_manager.get_summary_cache(
+                            f"reviewgrounder_{paper_title}",
+                            reviewgrounder_cache_payload,
+                        )
+                        if cached_reviewgrounder_raw:
+                            try:
+                                cached_reviewgrounder_review = json.loads(cached_reviewgrounder_raw)
+                                cached_research_value = reviewgrounder_markdown_from_result(cached_reviewgrounder_review)
+                            except Exception:
+                                cached_reviewgrounder_review = None
+                                cached_research_value = None
 
                     # affiliations 缓存
                     cached_affiliations = cache_manager.get_summary_cache(f"affiliations_{paper_title}", cached_paper_content) if cached_paper_content else None
@@ -1388,7 +1411,11 @@ def main() -> int:
                         paper_copy['core_insight'] = cached_core_insight
                         paper_copy['methodology'] = cached_methodology
                         paper_copy['additional_insights'] = cached_additional_insights
+                        paper_copy['reviewgrounder_review'] = cached_reviewgrounder_review
                         paper_copy['research_value'] = cached_research_value
+                        paper_copy['research_value_source'] = 'reviewgrounder'
+                        paper_copy['research_value_model'] = REVIEWGROUNDER_MODEL
+                        paper_copy['research_value_reasoning_effort'] = REVIEWGROUNDER_REASONING_EFFORT
                         paper_copy['affiliations'] = cached_affiliations or ""
                         paper_copy['summary_translation'] = cached_translation or "无需翻译"
                         paper_copy['summary_generated_time'] = time.strftime('%Y-%m-%d %H:%M:%S')
@@ -1441,62 +1468,109 @@ def main() -> int:
             if len(paper_content) > SUMMARY_CONTENT_CHAR_LIMIT:
                 paper_content = paper_content[:SUMMARY_CONTENT_CHAR_LIMIT] + "\n\n[内容已截断...]"
             
-            # 生成4个新prompt的内容
-            intro_logic = ""
-            try:
-                intro_logic = generate_intro_logic(paper_content, providers, args.temperature, paper.get('title', ''), cache_manager)
-            except Exception as e:
-                print(f"⚠️ 生成intro_logic失败 {paper_title[:30]}: {e}")
-                intro_logic = ""
+            # 生成4个新prompt的内容；已有有效字段直接复用，便于只迁移旧 research_value。
+            intro_logic = paper.get('intro_logic', '') if has_valid_generated_text(paper.get('intro_logic')) else ""
+            if not intro_logic:
+                try:
+                    intro_logic = generate_intro_logic(paper_content, providers, args.temperature, paper.get('title', ''), cache_manager)
+                except Exception as e:
+                    print(f"⚠️ 生成intro_logic失败 {paper_title[:30]}: {e}")
+                    intro_logic = ""
 
-            core_insight = ""
-            try:
-                core_insight = generate_core_insight(paper_content, providers, args.temperature, paper.get('title', ''), cache_manager)
-            except Exception as e:
-                print(f"⚠️ 生成core_insight失败 {paper_title[:30]}: {e}")
-                core_insight = ""
+            core_insight = paper.get('core_insight', '') if has_valid_generated_text(paper.get('core_insight')) else ""
+            if not core_insight:
+                try:
+                    core_insight = generate_core_insight(paper_content, providers, args.temperature, paper.get('title', ''), cache_manager)
+                except Exception as e:
+                    print(f"⚠️ 生成core_insight失败 {paper_title[:30]}: {e}")
+                    core_insight = ""
 
-            methodology = ""
-            try:
-                methodology = generate_methodology(paper_content, providers, args.temperature, paper.get('title', ''), cache_manager)
-            except Exception as e:
-                print(f"⚠️ 生成methodology失败 {paper_title[:30]}: {e}")
-                methodology = ""
+            methodology = paper.get('methodology', '') if has_valid_generated_text(paper.get('methodology')) else ""
+            if not methodology:
+                try:
+                    methodology = generate_methodology(paper_content, providers, args.temperature, paper.get('title', ''), cache_manager)
+                except Exception as e:
+                    print(f"⚠️ 生成methodology失败 {paper_title[:30]}: {e}")
+                    methodology = ""
 
-            additional_insights = ""
-            try:
-                additional_insights = generate_additional_insights(paper_content, providers, args.temperature, paper.get('title', ''), cache_manager)
-            except Exception as e:
-                print(f"⚠️ 生成additional_insights失败 {paper_title[:30]}: {e}")
-                additional_insights = ""
+            additional_insights = (
+                paper.get('additional_insights', '')
+                if has_valid_generated_text(paper.get('additional_insights'))
+                else ""
+            )
+            if not additional_insights:
+                try:
+                    additional_insights = generate_additional_insights(paper_content, providers, args.temperature, paper.get('title', ''), cache_manager)
+                except Exception as e:
+                    print(f"⚠️ 生成additional_insights失败 {paper_title[:30]}: {e}")
+                    additional_insights = ""
 
             # 翻译原始摘要（这里也会检查缓存）
-            summary_translation = ""
+            summary_translation = (
+                paper.get('summary_translation', '')
+                if has_valid_generated_text(paper.get('summary_translation'))
+                else ""
+            )
             if original_summary:
-                try:
-                    summary_translation = translate_summary(original_summary, providers, args.temperature, paper.get('title', ''), cache_manager)
-                except Exception as e:
-                    print(f"⚠️ 翻译摘要失败 {paper_title[:30]}: {e}")
-                    summary_translation = ""
+                if not summary_translation:
+                    try:
+                        summary_translation = translate_summary(original_summary, providers, args.temperature, paper.get('title', ''), cache_manager)
+                    except Exception as e:
+                        print(f"⚠️ 翻译摘要失败 {paper_title[:30]}: {e}")
+                        summary_translation = ""
 
-            # 生成研究价值评估（基于已有分析结果拼接）
+            # 生成 ReviewGrounder 审稿，替代旧研究价值 prompt。
             research_value = ""
-            try:
-                research_value = generate_research_value(
-                    providers, args.temperature,
-                    paper_title, paper.get('arxiv_id', ''), paper.get('date', ''),
-                    intro_logic, methodology, additional_insights, original_summary,
-                    cache_manager)
-            except Exception as e:
-                print(f"⚠️ 生成research_value失败 {paper_title[:30]}: {e}")
-                research_value = ""
+            reviewgrounder_review = None
+            if REVIEWGROUNDER_ENABLED:
+                try:
+                    reviewgrounder_cache_payload = build_reviewgrounder_cache_payload(
+                        paper_title=paper_title,
+                        arxiv_id=paper.get('arxiv_id', ''),
+                        date=paper.get('source_date') or paper.get('date', ''),
+                        abstract=original_summary or paper.get('summary', ''),
+                        paper_content=paper_content,
+                    )
+                    cached_reviewgrounder_raw = (
+                        cache_manager.get_summary_cache(f"reviewgrounder_{paper_title}", reviewgrounder_cache_payload)
+                        if cache_manager and ENABLE_CACHE else None
+                    )
+                    if cached_reviewgrounder_raw:
+                        reviewgrounder_review = json.loads(cached_reviewgrounder_raw)
+                    else:
+                        reviewgrounder_review = generate_reviewgrounder_review(
+                            paper_content,
+                            paper_title=paper_title,
+                            abstract=original_summary or paper.get('summary', ''),
+                            arxiv_id=paper.get('arxiv_id', ''),
+                            date=paper.get('source_date') or paper.get('date', ''),
+                            keywords=paper.get('tags') or None,
+                        )
+                        if cache_manager and ENABLE_CACHE:
+                            cache_manager.set_summary_cache(
+                                f"reviewgrounder_{paper_title}",
+                                reviewgrounder_cache_payload,
+                                json.dumps(reviewgrounder_review, ensure_ascii=False),
+                            )
+                    research_value = reviewgrounder_markdown_from_result(reviewgrounder_review)
+                except Exception as e:
+                    print(f"⚠️ 生成ReviewGrounder审稿失败 {paper_title[:30]}: {e}")
+                    reviewgrounder_review = reviewgrounder_error_result(e, paper_title)
+                    research_value = reviewgrounder_markdown_from_result(reviewgrounder_review)
+            else:
+                reviewgrounder_review = reviewgrounder_error_result(
+                    RuntimeError("REVIEWGROUNDER_ENABLED=false"),
+                    paper_title,
+                )
+                research_value = reviewgrounder_markdown_from_result(reviewgrounder_review)
 
             # 提取作者机构信息
-            affiliations = ""
-            try:
-                affiliations = extract_affiliations(paper_content, paper.get('authors', ''), providers, args.temperature, paper.get('title', ''), cache_manager)
-            except Exception as e:
-                print(f"⚠️ 提取机构信息失败 {paper_title[:30]}: {e}")
+            affiliations = paper.get('affiliations', '') if has_valid_generated_text(paper.get('affiliations')) else ""
+            if not affiliations:
+                try:
+                    affiliations = extract_affiliations(paper_content, paper.get('authors', ''), providers, args.temperature, paper.get('title', ''), cache_manager)
+                except Exception as e:
+                    print(f"⚠️ 提取机构信息失败 {paper_title[:30]}: {e}")
 
             # 添加总结到论文数据中
             paper_copy = paper.copy()
@@ -1506,7 +1580,11 @@ def main() -> int:
             paper_copy['core_insight'] = core_insight
             paper_copy['methodology'] = methodology
             paper_copy['additional_insights'] = additional_insights
+            paper_copy['reviewgrounder_review'] = reviewgrounder_review
             paper_copy['research_value'] = research_value
+            paper_copy['research_value_source'] = 'reviewgrounder'
+            paper_copy['research_value_model'] = REVIEWGROUNDER_MODEL
+            paper_copy['research_value_reasoning_effort'] = REVIEWGROUNDER_REASONING_EFFORT
             paper_copy['affiliations'] = affiliations
             paper_copy['summary_translation'] = summary_translation
             paper_copy['summary_generated_time'] = time.strftime('%Y-%m-%d %H:%M:%S')
