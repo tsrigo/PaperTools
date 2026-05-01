@@ -1250,6 +1250,8 @@ def main() -> int:
                        help=f'最大线程数 (默认: {SUMMARY_MAX_WORKERS})')
     parser.add_argument('--disable-cache', action='store_true',
                        help='禁用缓存机制')
+    parser.add_argument('--skip-overview', action='store_true',
+                       help='只生成逐篇论文总结，跳过每日速览')
     
     args = parser.parse_args()
 
@@ -1587,6 +1589,10 @@ def main() -> int:
         )
 
         for date_str, overview_papers in sorted(papers_by_overview_date.items()):
+            if args.skip_overview:
+                print(f"⏭️ 跳过每日速览生成: {date_str}")
+                continue
+
             overview_filename = f"daily_overview_{date_str}.md"
             overview_path = os.path.join(args.output_dir, overview_filename)
 
