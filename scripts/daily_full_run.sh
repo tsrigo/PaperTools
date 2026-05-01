@@ -65,6 +65,12 @@ import os
 import sys
 
 try:
+    import warnings
+    warnings.filterwarnings(
+        "ignore",
+        message=r"urllib3 .*doesn't match a supported version!",
+        category=Warning,
+    )
     import requests
 except Exception as exc:
     print(f"Webhook notification skipped; requests unavailable: {exc}")

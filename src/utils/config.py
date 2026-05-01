@@ -61,14 +61,14 @@ CLUSTER_API_KEY = _get_env_str("CLUSTER_OPENAI_API_KEY", API_KEY)
 CLUSTER_BASE_URL = _get_env_str("CLUSTER_OPENAI_BASE_URL", BASE_URL)
 CLUSTER_MODEL = _get_env_str("CLUSTER_MODEL", FILTER_MODEL or MODEL)
 DEFAULT_SUMMARY_BASE_URL = "https://api-inference.modelscope.cn/v1"
-DEFAULT_SUMMARY_MODEL = "MiniMax/MiniMax-M2.7"
+DEFAULT_SUMMARY_MODEL = "minimax"
 DEFAULT_SUMMARY_MODEL_CHAIN = (
     "prism:gpt-5.5,"
-    "modelscope:MiniMax/MiniMax-M2.7,"
-    "modelscope:ZhipuAI/GLM-5.1,"
-    "modelscope:moonshotai/Kimi-K2.5,"
+    "sjtu:minimax,"
+    "sjtu:glm,"
+    "sjtu:qwen,"
     "sjtu:deepseek-reasoner,"
-    "sjtu:minimax"
+    "sjtu:deepseek-chat"
 )
 SUMMARY_API_KEY = _get_env_str("SUMMARY_OPENAI_API_KEY", API_KEY)
 SUMMARY_BASE_URL = _get_env_str("SUMMARY_OPENAI_BASE_URL", DEFAULT_SUMMARY_BASE_URL)
@@ -89,6 +89,9 @@ SUMMARY_PRISM_API_KEY = _get_env_str(
 SUMMARY_PRISM_BASE_URL = _get_env_str("SUMMARY_PRISM_OPENAI_BASE_URL", "https://ai.prism.uno/v1")
 SUMMARY_PRISM_RPM = _get_env_int("SUMMARY_PRISM_RPM", 5, minimum=1)
 SUMMARY_PRISM_REASONING_EFFORT = _get_env_str("SUMMARY_PRISM_REASONING_EFFORT", "xhigh")
+SUMMARY_PRISM_WINDOW_SECONDS = _get_env_int("SUMMARY_PRISM_WINDOW_SECONDS", 300, minimum=60)
+SUMMARY_PRISM_WINDOW_SAFETY_REQUESTS = _get_env_int("SUMMARY_PRISM_WINDOW_SAFETY_REQUESTS", 1, minimum=0)
+SUMMARY_PRISM_429_COOLDOWN_SECONDS = _get_env_int("SUMMARY_PRISM_429_COOLDOWN_SECONDS", 300, minimum=0)
 SUMMARY_CONTENT_CHAR_LIMIT = _get_env_int("SUMMARY_CONTENT_CHAR_LIMIT", 200000, minimum=10000)
 
 # Prestige 筛选配置

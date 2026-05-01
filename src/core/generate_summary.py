@@ -7,12 +7,21 @@ Paper summary generation script - adds summary2 field to JSON file
 import json
 import os
 import re
-import requests
 import time
 import argparse
 import threading
+import warnings
+from collections import deque
 from dataclasses import dataclass, field
-from typing import Optional, Dict, List, Tuple
+from typing import Deque, Optional, Dict, List, Tuple
+
+warnings.filterwarnings(
+    "ignore",
+    message=r"urllib3 .*doesn't match a supported version!",
+    category=Warning,
+)
+
+import requests
 from tqdm import tqdm
 from openai import OpenAI, OpenAIError
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -28,7 +37,8 @@ from src.utils.config import (  # noqa: E402
     SUMMARY_API_KEY, SUMMARY_BASE_URL, SUMMARY_MODEL, SUMMARY_MODEL_CHAIN,
     SUMMARY_SJTU_API_KEY, SUMMARY_SJTU_BASE_URL,
     SUMMARY_PRISM_API_KEY, SUMMARY_PRISM_BASE_URL, SUMMARY_PRISM_RPM,
-    SUMMARY_PRISM_REASONING_EFFORT,
+    SUMMARY_PRISM_REASONING_EFFORT, SUMMARY_PRISM_WINDOW_SECONDS,
+    SUMMARY_PRISM_WINDOW_SAFETY_REQUESTS, SUMMARY_PRISM_429_COOLDOWN_SECONDS,
     SUMMARY_DIR, TEMPERATURE, REQUEST_DELAY, MAX_WORKERS,
     SUMMARY_CONTENT_CHAR_LIMIT, SUMMARY_MAX_WORKERS, ENABLE_CACHE,
 )
@@ -175,17 +185,23 @@ class SummaryProvider:
     model: str
     rpm_limit: int = 0
     reasoning_effort: str = ""
+    rate_window_seconds: int = 0
+    rate_window_safety_requests: int = 0
+    rate_limit_cooldown_seconds: int = 0
     client: OpenAI = field(init=False)
     disabled: bool = False
     disable_reason: str = ""
     _rate_lock: threading.Lock = field(default_factory=threading.Lock, init=False, repr=False)
     _next_request_at: float = field(default=0.0, init=False, repr=False)
+    _request_timestamps: Deque[float] = field(default_factory=deque, init=False, repr=False)
+    _cooldown_until: float = field(default=0.0, init=False, repr=False)
 
     def __post_init__(self):
         self.client = OpenAI(
             api_key=self.api_key,
             base_url=self.base_url,
             timeout=180.0,
+            max_retries=0,
         )
 
     @property
@@ -204,14 +220,51 @@ class SummaryProvider:
             return
 
         min_interval = 60.0 / float(self.rpm_limit)
-        with self._rate_lock:
-            now = time.monotonic()
-            if now < self._next_request_at:
-                wait_time = self._next_request_at - now
-                print(f"⏳ {self.label} 限速等待 {wait_time:.1f}s (RPM={self.rpm_limit})")
-                time.sleep(wait_time)
+        window_seconds = max(0, int(self.rate_window_seconds or 0))
+        window_limit = 0
+        if window_seconds > 0:
+            raw_window_limit = int(self.rpm_limit * window_seconds / 60.0)
+            window_limit = max(1, raw_window_limit - max(0, int(self.rate_window_safety_requests)))
+
+        while True:
+            wait_time = 0.0
+            wait_reason = "间隔"
+
+            with self._rate_lock:
                 now = time.monotonic()
-            self._next_request_at = now + min_interval
+
+                if window_seconds > 0:
+                    while self._request_timestamps and now - self._request_timestamps[0] >= window_seconds:
+                        self._request_timestamps.popleft()
+
+                wait_until = max(self._cooldown_until, self._next_request_at)
+                if self._cooldown_until > now and self._cooldown_until >= wait_until:
+                    wait_reason = "429冷却"
+
+                if window_limit > 0 and len(self._request_timestamps) >= window_limit:
+                    window_until = self._request_timestamps[0] + window_seconds
+                    if window_until > wait_until:
+                        wait_until = window_until
+                        wait_reason = f"{window_seconds}s窗口"
+
+                if wait_until <= now:
+                    self._request_timestamps.append(now)
+                    self._next_request_at = now + min_interval
+                    return
+
+                wait_time = wait_until - now
+
+            print(f"⏳ {self.label} 限速等待 {wait_time:.1f}s ({wait_reason}, RPM={self.rpm_limit})")
+            time.sleep(wait_time)
+
+    def note_rate_limit_error(self) -> None:
+        """Back off after provider-enforced rolling-window rate-limit errors."""
+        cooldown = max(0, int(self.rate_limit_cooldown_seconds or 0))
+        if cooldown <= 0:
+            return
+        with self._rate_lock:
+            self._cooldown_until = max(self._cooldown_until, time.monotonic() + cooldown)
+        print(f"⏳ {self.label} 触发 429，冷却 {cooldown}s 后再使用该 provider")
 
 
 _PROVIDER_LOCK = threading.Lock()
@@ -233,28 +286,55 @@ def build_summary_providers(
     prism_reasoning_effort: str,
 ) -> List[SummaryProvider]:
     """Build the summary fallback chain from provider:model entries."""
+    unsupported_models = {
+        ("modelscope", "MiniMax/MiniMax-M2.7"),
+        ("modelscope", "MiniMax/MiniMax-M2.7:MiniMax"),
+    }
     provider_config = {
-        "modelscope": (modelscope_api_key, modelscope_base_url, 0, ""),
-        "sjtu": (sjtu_api_key, sjtu_base_url, 0, ""),
-        "prism": (prism_api_key, prism_base_url, prism_rpm, prism_reasoning_effort),
+        "modelscope": (modelscope_api_key, modelscope_base_url, 0, "", 0, 0, 0),
+        "sjtu": (sjtu_api_key, sjtu_base_url, 0, "", 0, 0, 0),
+        "prism": (
+            prism_api_key,
+            prism_base_url,
+            prism_rpm,
+            prism_reasoning_effort,
+            SUMMARY_PRISM_WINDOW_SECONDS,
+            SUMMARY_PRISM_WINDOW_SAFETY_REQUESTS,
+            SUMMARY_PRISM_429_COOLDOWN_SECONDS,
+        ),
     }
     providers: List[SummaryProvider] = []
     seen = set()
 
     for entry in _split_csv(model_chain):
+        provider_name = ""
+        model = entry
         if ":" in entry:
-            provider_name, model = entry.split(":", 1)
-            provider_name = provider_name.strip().lower()
+            maybe_provider, maybe_model = entry.split(":", 1)
+            maybe_provider = maybe_provider.strip().lower()
+            if maybe_provider in provider_config:
+                provider_name = maybe_provider
+                model = maybe_model.strip()
+        if not provider_name:
             model = model.strip()
-        else:
-            model = entry
             provider_name = "modelscope" if "/" in model else "sjtu"
 
         if provider_name not in provider_config or not model:
             print(f"⚠️ 忽略无法识别的总结模型配置: {entry}")
             continue
+        if (provider_name, model) in unsupported_models:
+            print(f"⚠️ 跳过当前不可用的总结模型: {provider_name}:{model}，请使用 sjtu:minimax")
+            continue
 
-        api_key, base_url, rpm_limit, reasoning_effort = provider_config[provider_name]
+        (
+            api_key,
+            base_url,
+            rpm_limit,
+            reasoning_effort,
+            rate_window_seconds,
+            rate_window_safety_requests,
+            rate_limit_cooldown_seconds,
+        ) = provider_config[provider_name]
         if not api_key or not base_url:
             print(f"⚠️ 跳过缺少凭据的总结 provider: {provider_name}:{model}")
             continue
@@ -271,6 +351,9 @@ def build_summary_providers(
                 model,
                 rpm_limit=rpm_limit,
                 reasoning_effort=reasoning_effort,
+                rate_window_seconds=rate_window_seconds,
+                rate_window_safety_requests=rate_window_safety_requests,
+                rate_limit_cooldown_seconds=rate_limit_cooldown_seconds,
             )
         )
 
@@ -295,6 +378,12 @@ def should_disable_provider(exc: Exception) -> bool:
         "invalid_api_key",
     ]
     return any(marker in message for marker in permanent_markers)
+
+
+def is_rate_limit_error(exc: Exception) -> bool:
+    """Return True for provider rate-limit errors."""
+    message = str(exc).lower()
+    return "429" in message or "rate limit" in message or "请求数限制" in message
 
 
 def mark_provider_disabled(provider: SummaryProvider, exc: Exception) -> None:
@@ -343,7 +432,9 @@ def collect_streaming_completion(
         except Exception as exc:
             last_exception = exc
             print(f"⚠️ 总结模型失败，尝试下一个: {provider.label}: {exc}")
-            if should_disable_provider(exc):
+            if is_rate_limit_error(exc):
+                provider.note_rate_limit_error()
+            elif should_disable_provider(exc):
                 mark_provider_disabled(provider, exc)
             continue
 

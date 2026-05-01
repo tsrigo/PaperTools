@@ -140,7 +140,10 @@ def redact_command(cmd: List[str]) -> str:
             continue
         if part in {
             "--api-key",
+            "--cluster-api-key",
             "--summary-api-key",
+            "--sjtu-api-key",
+            "--prism-api-key",
             "--summary-sjtu-api-key",
             "--summary-prism-api-key",
         }:
@@ -149,7 +152,10 @@ def redact_command(cmd: List[str]) -> str:
             continue
         if (
             part.startswith("--api-key=")
+            or part.startswith("--cluster-api-key=")
             or part.startswith("--summary-api-key=")
+            or part.startswith("--sjtu-api-key=")
+            or part.startswith("--prism-api-key=")
             or part.startswith("--summary-sjtu-api-key=")
             or part.startswith("--summary-prism-api-key=")
         ):

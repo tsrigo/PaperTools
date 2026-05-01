@@ -2,8 +2,15 @@
 
 import time
 import logging
+import warnings
 from functools import wraps
 from typing import Tuple, Type
+
+warnings.filterwarnings(
+    "ignore",
+    message=r"urllib3 .*doesn't match a supported version!",
+    category=Warning,
+)
 
 import requests
 from openai import OpenAIError

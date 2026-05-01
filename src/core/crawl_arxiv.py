@@ -4,6 +4,14 @@
 Enhanced arXiv paper crawler with improved functionality
 """
 
+import warnings
+
+warnings.filterwarnings(
+    "ignore",
+    message=r"urllib3 .*doesn't match a supported version!",
+    category=Warning,
+)
+
 import requests
 from bs4 import BeautifulSoup
 import json

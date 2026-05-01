@@ -24,10 +24,14 @@ papertools run
 | `OPENAI_API_KEY` | API 密钥 | 是 |
 | `MODEL` | 模型名 | 是 |
 | `CLUSTER_MODEL` | 聚类阶段模型，默认跟随 `FILTER_MODEL` | 否 |
-| `SUMMARY_MODEL_CHAIN` | 总结/翻译模型回退链 | 否 |
+| `SUMMARY_MODEL_CHAIN` | 总结/翻译模型回退链，默认 `prism:gpt-5.5,sjtu:minimax,sjtu:glm,sjtu:qwen,sjtu:deepseek-reasoner,sjtu:deepseek-chat` | 否 |
+| `SUMMARY_SJTU_OPENAI_API_KEY` | 致远一号总结/翻译 API，不用于筛选 | 否 |
 | `SUMMARY_PRISM_OPENAI_API_KEY` | Prism 总结/翻译 API，不用于筛选 | 否 |
 | `SUMMARY_PRISM_RPM` | Prism 每分钟请求上限，默认 5 | 否 |
 | `SUMMARY_PRISM_REASONING_EFFORT` | Prism `reasoning_effort`，默认 `xhigh` | 否 |
+| `SUMMARY_PRISM_WINDOW_SECONDS` | Prism 滚动限额窗口秒数，默认 300 | 否 |
+| `SUMMARY_PRISM_WINDOW_SAFETY_REQUESTS` | Prism 滚动窗口安全余量，默认 1 | 否 |
+| `SUMMARY_PRISM_429_COOLDOWN_SECONDS` | Prism 429 后冷却秒数，默认 300 | 否 |
 | `FILTER_MAX_WORKERS` | 筛选阶段并发上限，默认 5 | 否 |
 | `PAPERTOOLS_FILTER_LLM_TIMEOUT` | 筛选阶段单次 LLM 请求超时秒数，默认 45 | 否 |
 | `PAPERTOOLS_FILTER_LLM_MAX_RETRIES` | 筛选阶段 LLM 重试次数，默认 1 | 否 |

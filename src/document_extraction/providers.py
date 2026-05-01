@@ -4,8 +4,15 @@ from __future__ import annotations
 
 import threading
 import time
+import warnings
 from importlib import util as importlib_util
 from typing import Any, Dict, Iterable, Optional
+
+warnings.filterwarnings(
+    "ignore",
+    message=r"urllib3 .*doesn't match a supported version!",
+    category=Warning,
+)
 
 import requests
 

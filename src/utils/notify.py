@@ -6,6 +6,14 @@ Compatible with Pumble, Slack, Feishu, Discord webhooks, etc.
 
 import logging
 import os
+import warnings
+
+warnings.filterwarnings(
+    "ignore",
+    message=r"urllib3 .*doesn't match a supported version!",
+    category=Warning,
+)
+
 import requests
 from typing import List, Optional
 
