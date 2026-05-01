@@ -308,6 +308,58 @@ def evaluate_prestige_whitelist(authors: str, affiliations: str) -> Tuple[bool, 
     return False, "", 'llm', match_payload
 
 
+def resolve_missing_affiliations_prestige(
+    title: str,
+    authors: str,
+    fetch_reason: str,
+    paper_with_reason: dict,
+    client: OpenAI,
+    model: str,
+    temperature: float,
+    cache_manager: Optional[CacheManager] = None,
+) -> Tuple[bool, dict, str]:
+    """Apply the prestige hard filter when affiliation extraction is unavailable."""
+    whitelist_match, whitelist_reason, whitelist_source, whitelist_matches = evaluate_prestige_whitelist(
+        authors,
+        "",
+    )
+    paper_with_reason['affiliations'] = ""
+    paper_with_reason['prestige_matches'] = whitelist_matches
+    paper_with_reason['prestige_rule_version'] = PRESTIGE_RULE_VERSION
+
+    if whitelist_match:
+        paper_with_reason['prestige_result'] = True
+        paper_with_reason['prestige_reason'] = f"{whitelist_reason}；机构信息缺失: {fetch_reason}"
+        paper_with_reason['prestige_source'] = whitelist_source
+        paper_with_reason['prestige_status'] = 'verified'
+        return True, paper_with_reason, paper_with_reason['prestige_reason']
+
+    missing_affiliations_context = f"机构信息缺失。提取失败原因: {fetch_reason}"
+    try:
+        prestige_match, prestige_reason = query_prestige_llm(
+            title,
+            authors,
+            missing_affiliations_context,
+            client,
+            model,
+            temperature,
+            cache_manager,
+        )
+    except Exception as exc:
+        prestige_match = False
+        prestige_reason = f"机构信息缺失且声望 LLM 判断失败，按硬筛排除: {exc}"
+
+    paper_with_reason['prestige_result'] = prestige_match
+    paper_with_reason['prestige_reason'] = f"{prestige_reason}\n\n机构提取状态: {fetch_reason}"
+    paper_with_reason['prestige_source'] = 'llm_missing_affiliations'
+    paper_with_reason['prestige_status'] = 'verified' if prestige_match else 'rejected'
+
+    if not prestige_match:
+        paper_with_reason['exclude_stage'] = 'prestige'
+
+    return prestige_match, paper_with_reason, paper_with_reason['prestige_reason']
+
+
 def get_affiliation_context(paper_content: str) -> str:
     """只保留首段上下文，控制机构提取成本。"""
     return paper_content[:PRESTIGE_CONTEXT_CHARS]
@@ -616,18 +668,19 @@ def main() -> int:
             paper_with_reason['affiliations'] = affiliations or ""
 
             if not affiliations:
-                paper_with_reason['prestige_result'] = None
-                paper_with_reason['prestige_reason'] = fetch_reason
-                paper_with_reason['prestige_source'] = 'missing_affiliations'
-                paper_with_reason['prestige_status'] = 'pending'
-                paper_with_reason['prestige_matches'] = {
-                    'authors': [],
-                    'institutions': [],
-                    'companies': [],
-                    'institution_names': [],
-                }
-                paper_with_reason['prestige_rule_version'] = PRESTIGE_RULE_VERSION
-                return 'include', paper_with_reason, f"⚠️ Prestige 信息缺失，先保留: {title[:50]}...", fetch_reason
+                prestige_match, paper_with_reason, prestige_reason = resolve_missing_affiliations_prestige(
+                    title,
+                    authors,
+                    fetch_reason,
+                    paper_with_reason,
+                    client,
+                    args.model,
+                    args.temperature,
+                    cache_manager,
+                )
+                if prestige_match:
+                    return 'include', paper_with_reason, f"✅ Prestige 作者命中: {title[:50]}...", prestige_reason
+                return 'exclude_prestige', paper_with_reason, f"🚫 Prestige 信息缺失且未命中: {title[:50]}...", prestige_reason
 
             whitelist_match, whitelist_reason, whitelist_source, whitelist_matches = evaluate_prestige_whitelist(
                 authors,
