@@ -882,6 +882,12 @@ def main() -> int:
             return 'exclude_prestige', paper_with_reason, f"🚫 Prestige 未命中: {title[:50]}...", prestige_reason
 
         except OpenAIError as e:
+            if "timed out" in str(e).lower():
+                paper_with_reason = paper.copy()
+                timeout_reason = f"单篇主题筛选 API 超时，按主题排除: {e}"
+                paper_with_reason['filter_reason'] = timeout_reason
+                paper_with_reason['exclude_stage'] = 'topic'
+                return 'exclude_topic', paper_with_reason, f"⏱️ 主题筛选超时: {title[:50]}...", timeout_reason
             return 'error', paper, f"❌ API 调用失败: {e}", f"处理错误: {e}"
         except Exception as e:
             return 'error', paper, f"❌ 处理论文时出错: {e}", f"处理错误: {e}"
