@@ -10,7 +10,7 @@ import os
 import re
 import sys
 import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -73,6 +73,7 @@ SOURCE_METADATA_FIELDS = (
 
 FILTER_LLM_TIMEOUT = float(os.getenv("PAPERTOOLS_FILTER_LLM_TIMEOUT", "45"))
 FILTER_LLM_MAX_RETRIES = int(os.getenv("PAPERTOOLS_FILTER_LLM_MAX_RETRIES", "1"))
+FILTER_PAPER_TIMEOUT = float(os.getenv("PAPERTOOLS_FILTER_PAPER_TIMEOUT", "180"))
 FILTER_EXTRACT_CHAIN = os.getenv("PAPERTOOLS_FILTER_EXTRACT_CHAIN", "jina")
 FILTER_EXTRACT_TIMEOUT = int(os.getenv("PAPERTOOLS_FILTER_EXTRACT_TIMEOUT", "45"))
 PRESTIGE_LLM_ENABLED = os.getenv("PAPERTOOLS_PRESTIGE_LLM_ENABLED", "0").lower() in {
@@ -618,6 +619,7 @@ def main() -> int:
     print(f"📁 输入文件: {args.input_file}")
     print(f"🤖 使用模型: {args.model}")
     print(f"⏱️ Filter LLM timeout: {FILTER_LLM_TIMEOUT}s, retries: {FILTER_LLM_MAX_RETRIES}")
+    print(f"⏱️ 单篇筛选 watchdog: {FILTER_PAPER_TIMEOUT}s")
     print(f"🏛️ Prestige 硬筛: {'启用' if PRESTIGE_ENABLED else '关闭'}")
     if PRESTIGE_ENABLED:
         print(f"🏛️ Prestige 机构在线提取: {'启用' if PRESTIGE_AFFILIATION_FETCH_ENABLED else '关闭'}")
@@ -892,46 +894,104 @@ def main() -> int:
     topic_excluded_count = 0
     prestige_excluded_count = 0
     error_count = 0
+    timed_out_count = 0
 
-    with ThreadPoolExecutor(max_workers=args.max_workers) as executor:
-        futures = [executor.submit(filter_paper_wrapper, paper) for paper in papers]
+    def save_progress() -> None:
+        try:
+            all_filtered = existing_filtered + filtered_papers
+            all_excluded = existing_excluded + excluded_papers
+            save_json(output_filepath, all_filtered, indent=4, ensure_ascii=False)
+            save_json(excluded_filepath, all_excluded, indent=4, ensure_ascii=False)
+        except Exception:
+            pass
 
-        processed_count = 0
-        matched_count = 0
+    executor = ThreadPoolExecutor(max_workers=args.max_workers)
+    paper_iter = iter(papers)
+    future_metadata = {}
+    pending = set()
 
-        for future in tqdm(as_completed(futures), total=len(papers), desc="筛选论文", unit="篇", ncols=80):
-            try:
-                status, paper, message, _reason = future.result()
+    def submit_next_paper() -> bool:
+        try:
+            paper = next(paper_iter)
+        except StopIteration:
+            return False
+        future = executor.submit(filter_paper_wrapper, paper)
+        future_metadata[future] = (paper, time.monotonic())
+        pending.add(future)
+        return True
+
+    for _ in range(min(args.max_workers, len(papers))):
+        submit_next_paper()
+
+    processed_count = 0
+    matched_count = 0
+
+    with tqdm(total=len(papers), desc="筛选论文", unit="篇", ncols=80) as progress:
+        while pending:
+            done, _ = wait(pending, timeout=5.0, return_when=FIRST_COMPLETED)
+            now = time.monotonic()
+
+            timed_out = [
+                future
+                for future in pending
+                if future not in done and now - future_metadata[future][1] > FILTER_PAPER_TIMEOUT
+            ]
+
+            for future in timed_out:
+                original_paper, started_at = future_metadata[future]
+                pending.remove(future)
+                future.cancel()
                 processed_count += 1
+                timed_out_count += 1
+                topic_excluded_count += 1
 
-                if status == 'include':
-                    filtered_papers.append(paper)
-                    matched_count += 1
-                elif status == 'exclude_topic':
-                    excluded_papers.append(compact_excluded_paper(paper))
-                    topic_excluded_count += 1
-                elif status == 'exclude_prestige':
-                    excluded_papers.append(compact_excluded_paper(paper))
-                    prestige_excluded_count += 1
-                elif status == 'skip':
-                    pass
-                else:
-                    error_count += 1
-                    print(f"❌ [{matched_count}/{processed_count}] {message}")
+                paper_with_reason = original_paper.copy()
+                timeout_seconds = now - started_at
+                paper_with_reason['filter_reason'] = (
+                    f"单篇筛选超过 {FILTER_PAPER_TIMEOUT:.0f}s 未返回，"
+                    f"本轮按主题筛选超时排除，实际等待 {timeout_seconds:.1f}s"
+                )
+                paper_with_reason['exclude_stage'] = 'topic'
+                excluded_papers.append(compact_excluded_paper(paper_with_reason))
+                print(f"⏱️ 单篇筛选超时，按主题排除: {original_paper.get('title', '')[:50]}...")
+                save_progress()
+                progress.update(1)
+                submit_next_paper()
 
-                time.sleep(REQUEST_DELAY / max(args.max_workers, 1))
-
+            for future in done:
+                if future not in pending:
+                    continue
+                pending.remove(future)
                 try:
-                    all_filtered = existing_filtered + filtered_papers
-                    all_excluded = existing_excluded + excluded_papers
-                    save_json(output_filepath, all_filtered, indent=4, ensure_ascii=False)
-                    save_json(excluded_filepath, all_excluded, indent=4, ensure_ascii=False)
-                except Exception:
-                    pass
+                    status, paper, message, _reason = future.result()
+                    processed_count += 1
 
-            except Exception as e:
-                print(f"❌ 获取筛选结果时出错: {e}")
-                continue
+                    if status == 'include':
+                        filtered_papers.append(paper)
+                        matched_count += 1
+                    elif status == 'exclude_topic':
+                        excluded_papers.append(compact_excluded_paper(paper))
+                        topic_excluded_count += 1
+                    elif status == 'exclude_prestige':
+                        excluded_papers.append(compact_excluded_paper(paper))
+                        prestige_excluded_count += 1
+                    elif status == 'skip':
+                        pass
+                    else:
+                        error_count += 1
+                        print(f"❌ [{matched_count}/{processed_count}] {message}")
+
+                    time.sleep(REQUEST_DELAY / max(args.max_workers, 1))
+                    save_progress()
+
+                except Exception as e:
+                    error_count += 1
+                    print(f"❌ 获取筛选结果时出错: {e}")
+                finally:
+                    progress.update(1)
+                    submit_next_paper()
+
+    executor.shutdown(wait=False, cancel_futures=True)
 
     print("\n📊 筛选完成！")
     print(f"📈 总论文数: {len(papers)}")
@@ -944,6 +1004,8 @@ def main() -> int:
     print(f"📊 筛选率: {len(filtered_papers) / len(papers) * 100:.1f}%")
     if error_count:
         print(f"⚠️ 处理错误数: {error_count}")
+    if timed_out_count:
+        print(f"⏱️ 单篇筛选超时数: {timed_out_count}")
 
     if filtered_papers:
         print("\n📋 筛选出的论文:")
@@ -989,6 +1051,7 @@ def main() -> int:
         "topic_excluded": topic_excluded_count,
         "prestige_excluded": prestige_excluded_count,
         "error_count": error_count,
+        "timed_out_count": timed_out_count,
         "fatal_zero_result": fatal_zero_result,
     }
     if fatal_zero_result:
@@ -999,9 +1062,17 @@ def main() -> int:
 
     if fatal_zero_result:
         print(f"❌ {status_payload['failure_reason']}")
+        if timed_out_count:
+            sys.stdout.flush()
+            sys.stderr.flush()
+            os._exit(1)
         return 1
 
     print("🎉 筛选完成！")
+    if timed_out_count:
+        sys.stdout.flush()
+        sys.stderr.flush()
+        os._exit(0)
     return 0
 
 
