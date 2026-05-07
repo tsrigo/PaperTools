@@ -581,6 +581,7 @@ def main() -> int:
         api_key=args.api_key,
         base_url=args.base_url,
         timeout=FILTER_LLM_TIMEOUT,
+        max_retries=0,
     )
     cache_manager = CacheManager() if ENABLE_CACHE else None
     document_extractor = ExtractionManager(
