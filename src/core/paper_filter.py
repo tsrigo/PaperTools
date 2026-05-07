@@ -81,6 +81,15 @@ PRESTIGE_LLM_ENABLED = os.getenv("PAPERTOOLS_PRESTIGE_LLM_ENABLED", "0").lower()
     "yes",
     "on",
 }
+PRESTIGE_AFFILIATION_FETCH_ENABLED = os.getenv(
+    "PAPERTOOLS_PRESTIGE_AFFILIATION_FETCH_ENABLED",
+    "0",
+).lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
 
 
 class LLMResponseParseError(ValueError):
@@ -611,6 +620,8 @@ def main() -> int:
     print(f"⏱️ Filter LLM timeout: {FILTER_LLM_TIMEOUT}s, retries: {FILTER_LLM_MAX_RETRIES}")
     print(f"🏛️ Prestige 硬筛: {'启用' if PRESTIGE_ENABLED else '关闭'}")
     if PRESTIGE_ENABLED:
+        print(f"🏛️ Prestige 机构在线提取: {'启用' if PRESTIGE_AFFILIATION_FETCH_ENABLED else '关闭'}")
+        print(f"🏛️ Prestige LLM 兜底判断: {'启用' if PRESTIGE_LLM_ENABLED else '关闭'}")
         print(f"📄 Prestige 上下文截断长度: {PRESTIGE_CONTEXT_CHARS} 字符")
         print(f"📄 Prestige 文档提取链: {FILTER_EXTRACT_CHAIN} (timeout={FILTER_EXTRACT_TIMEOUT}s)")
     print("=" * 50)
@@ -788,20 +799,27 @@ def main() -> int:
             if not PRESTIGE_ENABLED:
                 return 'include', paper_with_reason, f"✅ 匹配: {title[:50]}...", topic_reason
 
-            try:
-                affiliations, fetch_reason = fetch_affiliations_for_prestige(
-                    paper_with_reason,
-                    client,
-                    args.model,
-                    args.temperature,
-                    cache_manager,
-                    document_extractor,
-                    args.api_key,
-                    args.base_url,
-                )
-            except Exception as exc:
+            if PRESTIGE_AFFILIATION_FETCH_ENABLED:
+                try:
+                    affiliations, fetch_reason = fetch_affiliations_for_prestige(
+                        paper_with_reason,
+                        client,
+                        args.model,
+                        args.temperature,
+                        cache_manager,
+                        document_extractor,
+                        args.api_key,
+                        args.base_url,
+                    )
+                except Exception as exc:
+                    affiliations = None
+                    fetch_reason = f"机构提取失败: {exc}"
+            else:
                 affiliations = None
-                fetch_reason = f"机构提取失败: {exc}"
+                fetch_reason = (
+                    "Prestige 机构在线提取默认关闭；"
+                    "如需启用请设置 PAPERTOOLS_PRESTIGE_AFFILIATION_FETCH_ENABLED=1"
+                )
 
             paper_with_reason['affiliations'] = affiliations or ""
 
