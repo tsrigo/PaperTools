@@ -25,8 +25,6 @@ if project_root not in sys.path:
 # 导入配置
 try:
     from src.core.generate_summary import (  # noqa: E402
-        SummaryProvider,
-        extract_affiliations,
         strip_think_tags,
     )
     from src.utils.cache_manager import CacheManager  # noqa: E402
@@ -387,6 +385,65 @@ def get_affiliation_context(paper_content: str) -> str:
     return paper_content[:PRESTIGE_CONTEXT_CHARS]
 
 
+def query_affiliations_llm(paper_content: str, authors: str, client: OpenAI, model: str,
+                           temperature: float, paper_title: str = "",
+                           cache_manager: Optional[CacheManager] = None) -> str:
+    """Extract affiliation JSON with the bounded non-streaming filter client."""
+    cache_key = f"filter_affiliations_v1_{paper_title}"
+
+    if cache_manager and ENABLE_CACHE:
+        cached_response = cache_manager.get_summary_cache(cache_key, paper_content)
+        if cached_response:
+            return strip_think_tags(cached_response).strip()
+
+    prompt = f"""{paper_content}
+
+---
+
+上面是一篇学术论文的内容。论文作者列表为：{authors}
+
+请从论文中提取完整的作者-机构对应关系和所有角标信息（equal contribution、corresponding author、脚注等）。通常在论文的第一页标题下方会标注这些信息。
+
+请严格按以下 JSON 格式输出，不要输出其他内容：
+```json
+{{
+  "authors": [
+    {{"name": "作者全名", "affiliations": [1], "markers": ["*"]}},
+    {{"name": "作者全名", "affiliations": [1, 2], "markers": []}}
+  ],
+  "institutions": [
+    {{"id": 1, "name": "机构简称"}},
+    {{"id": 2, "name": "机构简称"}}
+  ],
+  "footnotes": [
+    {{"marker": "*", "text": "Equal contribution"}},
+    {{"marker": "†", "text": "Corresponding author"}}
+  ]
+}}
+```
+
+要求：
+1. `affiliations` 是机构编号数组，一个作者可能属于多个机构
+2. `markers` 是该作者拥有的特殊角标（如 *、†、‡），没有则为空数组
+3. `institutions` 按编号排列，机构名称必须使用最短常见缩写
+4. `footnotes` 包含论文中的角标说明
+5. 如果找不到某作者的机构，`affiliations` 为空数组
+6. 保持作者顺序与论文一致"""
+
+    response_text = run_llm_prompt(
+        prompt,
+        "你是一个学术信息提取助手。请精确提取作者机构信息，只输出 JSON，不要输出其他内容。",
+        client,
+        model,
+        temperature,
+    )
+
+    if cache_manager and ENABLE_CACHE:
+        cache_manager.set_summary_cache(cache_key, paper_content, response_text)
+
+    return response_text.strip()
+
+
 def fetch_affiliations_for_prestige(paper: dict, client: OpenAI, model: str, temperature: float,
                                     cache_manager: Optional[CacheManager] = None,
                                     document_extractor: Optional[ExtractionManager] = None,
@@ -412,11 +469,11 @@ def fetch_affiliations_for_prestige(paper: dict, client: OpenAI, model: str, tem
     if not truncated_content.strip():
         return None, "论文前置内容为空，待后续重试机构提取"
 
-    providers = [SummaryProvider("filter", base_url, api_key, model)]
-    affiliations = extract_affiliations(
+    affiliations = query_affiliations_llm(
         truncated_content,
         authors,
-        providers,
+        client,
+        model,
         temperature,
         paper_title,
         cache_manager,
