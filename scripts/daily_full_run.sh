@@ -203,25 +203,87 @@ cd "$WORKTREE_DIR"
 BASE_SHA="$(git rev-parse --short HEAD)"
 log "📌 Running from clean origin/master worktree at $BASE_SHA"
 
-PIPELINE_EXIT=0
-CURRENT_STAGE="pipeline"
-if "$PYTHON_BIN" papertools.py run --mode full --skip-serve --start-date "$DAILY_START_DATE" --end-date "$DAILY_END_DATE" >>"$LOG_FILE" 2>&1; then
-    PIPELINE_EXIT=0
-else
-    PIPELINE_EXIT=$?
-fi
+build_date_list() {
+    local current="$DAILY_START_DATE"
+    while [ "$(date -d "$current" '+%Y%m%d')" -le "$(date -d "$DAILY_END_DATE" '+%Y%m%d')" ]; do
+        printf '%s\n' "$current"
+        current="$(date -d "$current + 1 day" '+%Y-%m-%d')"
+    done
+}
 
-if [ "$PIPELINE_EXIT" -ne 0 ]; then
-    log "⚠️ Pipeline exited with code $PIPELINE_EXIT"
-    notify_failure "$(printf '❌ PaperTools pipeline failed\n  • exit_code: %s\n  • base: %s\n  • run_id: %s' "$PIPELINE_EXIT" "$BASE_SHA" "$RUN_ID")"
-    if [ "${PAPERTOOLS_COMMIT_ON_PIPELINE_FAILURE:-0}" != "1" ]; then
-        log "⏭️ Not committing generated output after pipeline failure"
-        exit "$PIPELINE_EXIT"
+validate_date_output() {
+    local run_date="$1"
+    local status_file="$2"
+    "$PYTHON_BIN" - "$run_date" "$status_file" <<'PY' >>"$LOG_FILE" 2>&1
+import json
+import os
+import sys
+
+run_date = sys.argv[1]
+status_file = sys.argv[2]
+
+with open(status_file, "r", encoding="utf-8") as handle:
+    status = json.load(handle)
+
+if status.get("status") != "ok" or status.get("exit_code") != 0:
+    raise SystemExit(f"pipeline status is not healthy for {run_date}: {status}")
+
+date_file = os.path.join("webpages", "data", f"{run_date}.json")
+if not os.path.exists(date_file):
+    raise SystemExit(f"missing generated date file: {date_file}")
+
+with open(date_file, "r", encoding="utf-8") as handle:
+    date_data = json.load(handle)
+
+if date_data.get("date") != run_date:
+    raise SystemExit(f"date mismatch in {date_file}: {date_data.get('date')!r}")
+
+if not isinstance(date_data.get("clusters", []), list):
+    raise SystemExit(f"invalid clusters payload in {date_file}")
+
+index_file = os.path.join("webpages", "data", "index.json")
+with open(index_file, "r", encoding="utf-8") as handle:
+    index_data = json.load(handle)
+
+if run_date not in index_data.get("dates", []):
+    raise SystemExit(f"{run_date} missing from webpages/data/index.json")
+
+print(f"validated generated output for {run_date}")
+PY
+}
+
+PIPELINE_EXIT=0
+PUBLISHED_DATE_LIST=""
+while IFS= read -r RUN_DATE; do
+    [ -n "$RUN_DATE" ] || continue
+    CURRENT_STAGE="pipeline_${RUN_DATE}"
+    STATUS_FILE="logs/pipeline_status_${RUN_DATE}.json"
+    log "📅 Running daily pipeline for $RUN_DATE"
+
+    set +e
+    "$PYTHON_BIN" papertools.py run --mode full --skip-serve --date "$RUN_DATE" --status-file "$STATUS_FILE" >>"$LOG_FILE" 2>&1
+    PIPELINE_EXIT=$?
+    set -e
+
+    if [ "$PIPELINE_EXIT" -ne 0 ]; then
+        log "⚠️ Pipeline for $RUN_DATE exited with code $PIPELINE_EXIT"
+        notify_failure "$(printf '❌ PaperTools pipeline failed\n  • date: %s\n  • exit_code: %s\n  • base: %s\n  • run_id: %s' "$RUN_DATE" "$PIPELINE_EXIT" "$BASE_SHA" "$RUN_ID")"
+        if [ "${PAPERTOOLS_COMMIT_ON_PIPELINE_FAILURE:-0}" != "1" ]; then
+            log "⏭️ Not committing generated output after pipeline failure"
+            exit "$PIPELINE_EXIT"
+        fi
+        log "⚠️ PAPERTOOLS_COMMIT_ON_PIPELINE_FAILURE=1; continuing with generated partial output"
+    else
+        validate_date_output "$RUN_DATE" "$STATUS_FILE"
+        log "✅ Pipeline completed for $RUN_DATE"
     fi
-    log "⚠️ PAPERTOOLS_COMMIT_ON_PIPELINE_FAILURE=1; committing generated partial output"
-else
-    log "✅ Pipeline completed"
-fi
+
+    if [ -z "$PUBLISHED_DATE_LIST" ]; then
+        PUBLISHED_DATE_LIST="$RUN_DATE"
+    else
+        PUBLISHED_DATE_LIST="$PUBLISHED_DATE_LIST, $RUN_DATE"
+    fi
+done < <(build_date_list)
 
 # arxiv_paper/domain_paper/summary are local cache/state directories and are
 # intentionally gitignored. The published artifact is webpages/.
@@ -229,8 +291,8 @@ CURRENT_STAGE="stage_generated_webpages"
 git add webpages/
 if git diff --cached --quiet; then
     log "ℹ️ No generated changes detected; nothing to commit"
-    notify_wrapper "$(printf 'ℹ️ PaperTools daily complete; no generated changes\n  • pipeline_exit: %s\n  • base: %s\n  • run_id: %s' "$PIPELINE_EXIT" "$BASE_SHA" "$RUN_ID")"
-    exit "$PIPELINE_EXIT"
+    notify_wrapper "$(printf 'ℹ️ PaperTools daily complete; no generated changes\n  • dates: %s\n  • pipeline_exit: %s\n  • base: %s\n  • run_id: %s' "$PUBLISHED_DATE_LIST" "$PIPELINE_EXIT" "$BASE_SHA" "$RUN_ID")"
+    exit 0
 fi
 
 COMMIT_MSG="chore: arxiv daily update $(date '+%Y-%m-%d')"

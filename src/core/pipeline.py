@@ -11,7 +11,7 @@ import argparse
 import subprocess
 import time
 from datetime import datetime
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 # 添加项目根目录到Python路径
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -220,6 +220,31 @@ def run_command(cmd: List[str], description: str, progress_tracker: ProgressTrac
         return False
 
 
+def write_status_file(status_file: Optional[str], payload: Dict[str, Any]) -> None:
+    """Best-effort structured status for daily automation."""
+    if not status_file:
+        return
+    try:
+        status_dir = os.path.dirname(status_file)
+        if status_dir:
+            os.makedirs(status_dir, exist_ok=True)
+        with open(status_file, 'w', encoding='utf-8') as f:
+            json.dump(payload, f, ensure_ascii=False, indent=2)
+    except Exception as exc:
+        print(f"⚠️ 写入状态文件失败: {exc}")
+
+
+def read_json_file(filepath: Optional[str]) -> Optional[Any]:
+    """Read JSON when present; return None on failure."""
+    if not filepath or not os.path.exists(filepath):
+        return None
+    try:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception:
+        return None
+
+
 
 def find_latest_file(directory: str, pattern: str = "*.json") -> Optional[str]:
     """找到目录中最新的匹配文件，优先选择合并文件和筛选结果文件"""
@@ -325,12 +350,29 @@ def main() -> int:
                        help='起始日期 (格式: YYYY-MM-DD)，与--end-date一起使用指定日期范围')
     parser.add_argument('--end-date', default=None,
                        help='结束日期 (格式: YYYY-MM-DD)，与--start-date一起使用指定日期范围')
+    parser.add_argument('--status-file', default=None, help='写入结构化流水线状态 JSON')
     
     # 输入输出目录
     parser.add_argument('--crawl-input-file', help='爬取步骤的输入文件（如果跳过爬取）')
     parser.add_argument('--filter-input-file', help='筛选步骤的输入文件（如果跳过筛选）')
     
     args = parser.parse_args()
+    pipeline_status: Dict[str, Any] = {
+        "status": "running",
+        "date": args.date,
+        "start_date": args.start_date,
+        "end_date": args.end_date,
+        "created_at": datetime.now().isoformat(timespec="seconds"),
+    }
+
+    def finish_pipeline(exit_code: int, status: str = "ok", reason: Optional[str] = None) -> int:
+        pipeline_status["status"] = status
+        pipeline_status["exit_code"] = exit_code
+        pipeline_status["finished_at"] = datetime.now().isoformat(timespec="seconds")
+        if reason:
+            pipeline_status["failure_reason"] = reason
+        write_status_file(args.status_file, pipeline_status)
+        return exit_code
 
     try:
         validate_positive_int(args.max_papers_per_category, "--max-papers-per-category")
@@ -345,7 +387,7 @@ def main() -> int:
     except ValidationError as exc:
         progress = ProgressTracker()
         progress.log_with_timestamp(f"❌ 参数校验失败: {exc}")
-        return 2
+        return finish_pipeline(2, "failed", f"参数校验失败: {exc}")
 
     # 根据 --start-from 自动设置跳过标志
     stage_order = ['crawl', 'filter', 'cluster', 'summary', 'unified', 'serve']
@@ -416,7 +458,7 @@ def main() -> int:
         if not run_command(cmd, "爬取论文", progress):
             progress.complete_step("爬取论文", False)
             progress.log_with_timestamp("❌ 爬取失败，流水线终止")
-            return 1
+            return finish_pipeline(1, "failed", "爬取失败")
         # 按日期查找爬取文件
         if date_lookup_key:
             crawl_output_file = find_file_by_date(ARXIV_PAPER_DIR, date_lookup_key, "*.json")
@@ -425,7 +467,7 @@ def main() -> int:
         if not crawl_output_file:
             progress.complete_step("爬取论文", False)
             progress.log_with_timestamp("❌ 未找到爬取输出文件")
-            return 1
+            return finish_pipeline(1, "failed", "未找到爬取输出文件")
         progress.complete_step("爬取论文", True)
     else:
         progress.skip_step("爬取arXiv论文")
@@ -437,12 +479,21 @@ def main() -> int:
                 crawl_output_file = find_latest_file(ARXIV_PAPER_DIR, "*.json")
             if not crawl_output_file:
                 progress.log_with_timestamp("❌ 未找到可用的爬取文件")
-                return 1
+                return finish_pipeline(1, "failed", "未找到可用的爬取文件")
     progress.log_with_timestamp(f"📄 使用爬取文件: {crawl_output_file}")
+    pipeline_status["crawl_output_file"] = crawl_output_file
+    crawl_papers_for_status = read_json_file(crawl_output_file)
+    if isinstance(crawl_papers_for_status, list):
+        pipeline_status["crawled"] = len(crawl_papers_for_status)
     
     # ============ 步骤2: 筛选论文 ============
     if not args.skip_filter:
         progress.start_step("筛选相关论文")
+        os.makedirs("logs", exist_ok=True)
+        filter_status_file = os.path.join(
+            "logs",
+            f"filter_status_{date_lookup_key or datetime.now().strftime('%Y-%m-%d')}_{int(time.time())}.json",
+        )
         cmd = [
             sys.executable, "src/core/paper_filter.py",
             "--input-file", crawl_output_file,
@@ -452,14 +503,24 @@ def main() -> int:
             "--model", FILTER_MODEL,
             "--temperature", str(args.temperature),
             "--max-papers", str(args.max_papers_total),
-            "--max-workers", str(min(args.max_workers, FILTER_MAX_WORKERS))
+            "--max-workers", str(min(args.max_workers, FILTER_MAX_WORKERS)),
+            "--status-file", filter_status_file,
         ]
         progress.log_with_timestamp(f"🔍 筛选使用模型: {FILTER_MODEL}")
         progress.log_with_timestamp(f"🧵 筛选并发: {min(args.max_workers, FILTER_MAX_WORKERS)}")
         if not run_command(cmd, "筛选论文", progress):
+            filter_status = read_json_file(filter_status_file)
+            if isinstance(filter_status, dict):
+                pipeline_status["filter_status"] = filter_status
             progress.complete_step("筛选论文", False)
             progress.log_with_timestamp("❌ 筛选失败，流水线终止")
-            return 1
+            reason = "筛选失败"
+            if isinstance(filter_status, dict) and filter_status.get("failure_reason"):
+                reason = str(filter_status["failure_reason"])
+            return finish_pipeline(1, "failed", reason)
+        filter_status = read_json_file(filter_status_file)
+        if isinstance(filter_status, dict):
+            pipeline_status["filter_status"] = filter_status
         # 按日期查找筛选文件
         if date_lookup_key:
             filter_output_file = find_file_by_date(DOMAIN_PAPER_DIR, date_lookup_key, "*.json")
@@ -468,7 +529,7 @@ def main() -> int:
         if not filter_output_file:
             progress.complete_step("筛选论文", False)
             progress.log_with_timestamp("❌ 未找到筛选输出文件")
-            return 1
+            return finish_pipeline(1, "failed", "未找到筛选输出文件")
         progress.complete_step("筛选论文", True)
     else:
         progress.skip_step("筛选相关论文")
@@ -480,7 +541,7 @@ def main() -> int:
                 filter_output_file = find_latest_file(DOMAIN_PAPER_DIR, "*.json")
             if not filter_output_file:
                 progress.log_with_timestamp("❌ 未找到可用的筛选文件")
-                return 1
+                return finish_pipeline(1, "failed", "未找到可用的筛选文件")
     progress.log_with_timestamp(f"📄 使用筛选文件: {filter_output_file}")
     
     # 检查筛选结果
@@ -495,7 +556,24 @@ def main() -> int:
             progress.log_with_timestamp("⚠️ 筛选后没有论文，跳过聚类和总结，继续生成页面与通知")
     except Exception as e:
         progress.log_with_timestamp(f"❌ 读取筛选文件失败: {e}")
-        return 1
+        return finish_pipeline(1, "failed", f"读取筛选文件失败: {e}")
+
+    pipeline_status["filter_output_file"] = filter_output_file
+    pipeline_status["filtered"] = len(filtered_papers)
+    if isinstance(pipeline_status.get("filter_status"), dict):
+        filter_status = pipeline_status["filter_status"]
+        if filter_status.get("fatal_zero_result"):
+            reason = filter_status.get("failure_reason") or "筛选阶段异常零结果"
+            progress.log_with_timestamp(f"❌ {reason}")
+            return finish_pipeline(1, "failed", str(reason))
+        if (
+            len(filtered_papers) == 0
+            and int(filter_status.get("error_count") or 0) > 0
+            and int(filter_status.get("prefiltered_count") or 0) > 0
+        ):
+            reason = "筛选结果为 0 且存在 LLM/API 错误，拒绝发布疑似异常空结果"
+            progress.log_with_timestamp(f"❌ {reason}")
+            return finish_pipeline(1, "failed", reason)
 
     # ============ 步骤3: 论文聚类 ============
     cluster_output_file = filter_output_file  # default fallback
@@ -743,12 +821,15 @@ def main() -> int:
             stats['clustered'] = clustered_count
         if summary_count is not None:
             stats['summarized'] = summary_count
+        pipeline_status.update(stats)
         notify_pipeline_complete(stats)
     except Exception:
         pass  # notification is best-effort
 
     print("\n✨ 流水线执行完成！")
-    return 0 if unified_generation_ok else 1
+    if unified_generation_ok:
+        return finish_pipeline(0, "ok")
+    return finish_pipeline(1, "failed", "统一页面生成失败")
 
 
 if __name__ == "__main__":

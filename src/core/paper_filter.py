@@ -79,9 +79,27 @@ FILTER_EXTRACT_CHAIN = os.getenv("PAPERTOOLS_FILTER_EXTRACT_CHAIN", "jina")
 FILTER_EXTRACT_TIMEOUT = int(os.getenv("PAPERTOOLS_FILTER_EXTRACT_TIMEOUT", "45"))
 
 
+class LLMResponseParseError(ValueError):
+    """Raised when a filter LLM response cannot be parsed safely."""
+
+
 def has_non_empty_text(value: Any) -> bool:
     """Return True when a value is meaningful display text."""
     return isinstance(value, str) and bool(value.strip())
+
+
+def write_status_file(status_file: Optional[str], payload: Dict[str, Any]) -> None:
+    """Best-effort structured status for the pipeline wrapper."""
+    if not status_file:
+        return
+    try:
+        status_dir = os.path.dirname(status_file)
+        if status_dir:
+            os.makedirs(status_dir, exist_ok=True)
+        with open(status_file, 'w', encoding='utf-8') as f:
+            json.dump(payload, f, ensure_ascii=False, indent=2)
+    except Exception as exc:
+        print(f"⚠️ 写入状态文件失败: {exc}")
 
 
 def build_source_paper_index(papers: List[dict]) -> Dict[str, dict]:
@@ -127,8 +145,12 @@ def parse_llm_response(response_text: str) -> Tuple[bool, str]:
     result_match = re.search(r'结果[:：]\s*(True|False)', response_text, flags=re.IGNORECASE)
     reason_match = re.search(r'理由[:：]\s*(.*)', response_text, flags=re.DOTALL)
 
-    result = bool(result_match and result_match.group(1).lower() == 'true')
-    reason = "解析失败"
+    if not result_match:
+        preview = response_text[:500] if response_text else "<empty response>"
+        raise LLMResponseParseError(f"无法解析 LLM 筛选结果字段: {preview}")
+
+    result = result_match.group(1).lower() == 'true'
+    reason = ""
 
     if reason_match:
         reason = reason_match.group(1).strip()
@@ -471,6 +493,7 @@ def main() -> int:
     parser.add_argument('--temperature', type=float, default=TEMPERATURE, help='生成温度')
     parser.add_argument('--max-papers', type=int, default=0, help='最大处理论文数量，0 表示处理所有')
     parser.add_argument('--max-workers', type=int, default=MAX_WORKERS, help=f'最大线程数 (默认: {MAX_WORKERS})')
+    parser.add_argument('--status-file', default=None, help='写入结构化筛选状态 JSON')
 
     args = parser.parse_args()
 
@@ -479,10 +502,20 @@ def main() -> int:
         validate_positive_int(args.max_workers, "--max-workers")
     except ValidationError as exc:
         print(f"❌ 参数校验失败: {exc}")
+        write_status_file(args.status_file, {
+            "status": "failed",
+            "input_file": args.input_file,
+            "failure_reason": f"参数校验失败: {exc}",
+        })
         return 2
 
     if not os.path.exists(args.input_file):
         print(f"❌ 输入文件未找到: {args.input_file}")
+        write_status_file(args.status_file, {
+            "status": "failed",
+            "input_file": args.input_file,
+            "failure_reason": "输入文件未找到",
+        })
         return 1
 
     os.makedirs(args.output_dir, exist_ok=True)
@@ -515,9 +548,15 @@ def main() -> int:
         print(f"📚 成功加载 {len(papers)} 篇论文")
     except Exception as e:
         print(f"❌ 读取文件时出错: {e}")
+        write_status_file(args.status_file, {
+            "status": "failed",
+            "input_file": args.input_file,
+            "failure_reason": f"读取文件时出错: {e}",
+        })
         return 1
 
     source_papers_by_id = build_source_paper_index(papers)
+    original_paper_count = len(papers)
 
     current_date = datetime.now().strftime('%Y%m%d')
     input_filename = os.path.basename(args.input_file)
@@ -599,6 +638,17 @@ def main() -> int:
             except Exception as e:
                 print(f"❌ 保存回填结果时出错: {e}")
                 return 1
+        write_status_file(args.status_file, {
+            "status": "ok",
+            "input_file": args.input_file,
+            "total_input": original_paper_count,
+            "processed_existing": len(processed_arxiv_ids),
+            "prefiltered_count": 0,
+            "filtered_new": 0,
+            "filtered_total": len(existing_filtered),
+            "error_count": 0,
+            "fatal_zero_result": False,
+        })
         return 0
 
     if args.max_papers > 0:
@@ -621,12 +671,27 @@ def main() -> int:
     print(f"🔑 关键词预筛: {len(pre_filtered)} 篇通过, {len(keyword_excluded)} 篇排除")
     keyword_excluded_count = len(keyword_excluded)
     existing_excluded.extend(keyword_excluded)
+    prefiltered_count = len(pre_filtered)
     papers = pre_filtered
 
     if not papers:
         print("✅ 关键词预筛后无论文需要 LLM 筛选")
         excluded_saved = save_json(excluded_filepath, existing_excluded, indent=2, ensure_ascii=False)
         filtered_saved = save_json(output_filepath, existing_filtered, indent=2, ensure_ascii=False)
+        write_status_file(args.status_file, {
+            "status": "ok" if excluded_saved and filtered_saved else "failed",
+            "input_file": args.input_file,
+            "total_input": original_paper_count,
+            "processed_existing": len(processed_arxiv_ids),
+            "prefiltered_count": prefiltered_count,
+            "filtered_new": 0,
+            "filtered_total": len(existing_filtered),
+            "keyword_excluded": keyword_excluded_count,
+            "topic_excluded": 0,
+            "prestige_excluded": 0,
+            "error_count": 0,
+            "fatal_zero_result": False,
+        })
         return 0 if excluded_saved and filtered_saved else 1
 
     def filter_paper_wrapper(paper: dict):
@@ -807,6 +872,34 @@ def main() -> int:
         except Exception as e:
             print(f"❌ 保存被排除论文时出错: {e}")
             return 1
+
+    fatal_zero_result = error_count > 0 and len(filtered_papers) == 0
+    status_payload = {
+        "status": "failed" if fatal_zero_result else "ok",
+        "input_file": args.input_file,
+        "output_file": output_filepath,
+        "excluded_file": excluded_filepath,
+        "total_input": original_paper_count,
+        "processed_existing": len(processed_arxiv_ids),
+        "processed_new": processed_count,
+        "prefiltered_count": prefiltered_count,
+        "filtered_new": len(filtered_papers),
+        "filtered_total": len(all_filtered_papers),
+        "keyword_excluded": keyword_excluded_count,
+        "topic_excluded": topic_excluded_count,
+        "prestige_excluded": prestige_excluded_count,
+        "error_count": error_count,
+        "fatal_zero_result": fatal_zero_result,
+    }
+    if fatal_zero_result:
+        status_payload["failure_reason"] = (
+            f"筛选阶段 {error_count} 个错误且本轮筛选结果为 0，拒绝发布疑似异常空结果"
+        )
+    write_status_file(args.status_file, status_payload)
+
+    if fatal_zero_result:
+        print(f"❌ {status_payload['failure_reason']}")
+        return 1
 
     print("🎉 筛选完成！")
     return 0

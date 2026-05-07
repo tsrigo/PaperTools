@@ -145,8 +145,26 @@ def run_pipeline(args) -> int:
         cmd.extend(['--categories'] + args.categories)
     if args.max_papers_total:
         cmd.extend(['--max-papers-total', str(args.max_papers_total)])
+    if args.max_papers_per_category:
+        cmd.extend(['--max-papers-per-category', str(args.max_papers_per_category)])
+    if args.max_workers:
+        cmd.extend(['--max-workers', str(args.max_workers)])
+    if args.start_from:
+        cmd.extend(['--start-from', args.start_from])
+    if args.skip_crawl:
+        cmd.extend(['--skip-crawl'])
+    if args.skip_filter:
+        cmd.extend(['--skip-filter'])
+    if args.skip_cluster:
+        cmd.extend(['--skip-cluster'])
+    if args.skip_summary:
+        cmd.extend(['--skip-summary'])
+    if args.skip_unified:
+        cmd.extend(['--skip-unified'])
     if args.skip_serve:
         cmd.extend(['--skip-serve'])
+    if args.status_file:
+        cmd.extend(['--status-file', args.status_file])
     
     print("🚀 启动论文处理流水线...")
     result = subprocess.run(cmd)
@@ -179,8 +197,18 @@ def main():
     run_parser.add_argument('--categories', nargs='+', 
                            default=CRAWL_CATEGORIES,
                            help='论文类别')
+    run_parser.add_argument('--max-papers-per-category', type=int, help='每个类别最大爬取数量')
     run_parser.add_argument('--max-papers-total', type=int, help='总处理数量')
+    run_parser.add_argument('--max-workers', type=int, help='最大线程数')
+    run_parser.add_argument('--start-from', choices=['crawl', 'filter', 'cluster', 'summary', 'unified', 'serve'],
+                           help='从指定阶段开始执行')
+    run_parser.add_argument('--skip-crawl', action='store_true', help='跳过爬取步骤')
+    run_parser.add_argument('--skip-filter', action='store_true', help='跳过筛选步骤')
+    run_parser.add_argument('--skip-cluster', action='store_true', help='跳过聚类步骤')
+    run_parser.add_argument('--skip-summary', action='store_true', help='跳过总结步骤')
+    run_parser.add_argument('--skip-unified', action='store_true', help='跳过统一页面生成步骤')
     run_parser.add_argument('--skip-serve', action='store_true', help='跳过启动服务器步骤')
+    run_parser.add_argument('--status-file', help='写入结构化流水线状态 JSON')
     
     # serve 子命令
     subparsers.add_parser('serve', help='启动网页服务器')
