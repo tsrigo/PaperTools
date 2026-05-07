@@ -75,6 +75,12 @@ FILTER_LLM_TIMEOUT = float(os.getenv("PAPERTOOLS_FILTER_LLM_TIMEOUT", "45"))
 FILTER_LLM_MAX_RETRIES = int(os.getenv("PAPERTOOLS_FILTER_LLM_MAX_RETRIES", "1"))
 FILTER_EXTRACT_CHAIN = os.getenv("PAPERTOOLS_FILTER_EXTRACT_CHAIN", "jina")
 FILTER_EXTRACT_TIMEOUT = int(os.getenv("PAPERTOOLS_FILTER_EXTRACT_TIMEOUT", "45"))
+PRESTIGE_LLM_ENABLED = os.getenv("PAPERTOOLS_PRESTIGE_LLM_ENABLED", "0").lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
 
 
 class LLMResponseParseError(ValueError):
@@ -353,6 +359,15 @@ def resolve_missing_affiliations_prestige(
         paper_with_reason['prestige_source'] = whitelist_source
         paper_with_reason['prestige_status'] = 'verified'
         return True, paper_with_reason, paper_with_reason['prestige_reason']
+
+    if not PRESTIGE_LLM_ENABLED:
+        prestige_reason = f"机构信息缺失且未命中确定性白名单，按 prestige 硬筛排除: {fetch_reason}"
+        paper_with_reason['prestige_result'] = False
+        paper_with_reason['prestige_reason'] = prestige_reason
+        paper_with_reason['prestige_source'] = 'deterministic_missing_affiliations'
+        paper_with_reason['prestige_status'] = 'rejected'
+        paper_with_reason['exclude_stage'] = 'prestige'
+        return False, paper_with_reason, prestige_reason
 
     missing_affiliations_context = f"机构信息缺失。提取失败原因: {fetch_reason}"
     try:
@@ -817,6 +832,15 @@ def main() -> int:
                 paper_with_reason['prestige_reason'] = whitelist_reason
                 paper_with_reason['prestige_source'] = whitelist_source
                 return 'include', paper_with_reason, f"✅ 白名单命中: {title[:50]}...", whitelist_reason
+
+            if not PRESTIGE_LLM_ENABLED:
+                prestige_reason = "未命中确定性 prestige 白名单，跳过不稳定的 prestige LLM 判断并按硬筛排除"
+                paper_with_reason['prestige_result'] = False
+                paper_with_reason['prestige_reason'] = prestige_reason
+                paper_with_reason['prestige_source'] = 'deterministic_whitelist'
+                paper_with_reason['prestige_status'] = 'rejected'
+                paper_with_reason['exclude_stage'] = 'prestige'
+                return 'exclude_prestige', paper_with_reason, f"🚫 Prestige 未命中: {title[:50]}...", prestige_reason
 
             prestige_match, prestige_reason = query_prestige_llm(
                 title,
