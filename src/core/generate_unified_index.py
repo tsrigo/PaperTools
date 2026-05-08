@@ -533,6 +533,9 @@ def load_paper_data() -> Dict[str, List[Dict[str, Any]]]:
                     else:
                         papers_by_date[date] = published_papers
                         print(f"保留已发布数据 {date}: {len(flattened_papers)} 篇，来源: {date_file}")
+                elif date not in papers_by_date and date_data.get("date") == date:
+                    papers_by_date[date] = []
+                    print(f"保留已发布零结果日期 {date}，来源: {date_file}")
             except Exception as e:
                 print(f"加载已发布数据 {date_file} 时出错: {e}")
 
