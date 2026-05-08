@@ -21,6 +21,7 @@ PYTHON_BIN="${PYTHON_BIN:-/opt/miniconda3/bin/python3}"
 RUN_ID="$(date '+%Y%m%d-%H%M%S')"
 WORKTREE_DIR="${PAPERTOOLS_DAILY_WORKTREE:-/tmp/papertools-daily-${RUN_ID}}"
 DAILY_WINDOW_DAYS="${PAPERTOOLS_DAILY_WINDOW_DAYS:-4}"
+REPROCESS_EXISTING_DATES="${PAPERTOOLS_DAILY_REPROCESS_EXISTING:-0}"
 PROXY_HOST="${PAPERTOOLS_PROXY_HOST:-127.0.0.1}"
 PROXY_PORT="${PAPERTOOLS_PROXY_PORT:-7897}"
 PROXY_URL="${PAPERTOOLS_PROXY_URL:-http://${PROXY_HOST}:${PROXY_PORT}}"
@@ -174,6 +175,11 @@ fi
 DAILY_END_DATE="${PAPERTOOLS_DAILY_END_DATE:-$(date '+%Y-%m-%d')}"
 DAILY_START_DATE="${PAPERTOOLS_DAILY_START_DATE:-$(date -d "$((DAILY_WINDOW_DAYS - 1)) days ago" '+%Y-%m-%d')}"
 log "📅 Daily crawl window: $DAILY_START_DATE to $DAILY_END_DATE"
+if [ "$REPROCESS_EXISTING_DATES" = "1" ]; then
+    log "♻️ Existing published dates will be reprocessed"
+else
+    log "⏭️ Existing published dates will be skipped by default"
+fi
 if [ -n "${http_proxy:-}" ]; then
     log "🌐 Proxy enabled: $http_proxy"
 else
@@ -254,8 +260,26 @@ PY
 
 PIPELINE_EXIT=0
 PUBLISHED_DATE_LIST=""
+SKIPPED_DATE_LIST=""
+
+append_date() {
+    local current_list="$1"
+    local run_date="$2"
+    if [ -z "$current_list" ]; then
+        printf '%s' "$run_date"
+    else
+        printf '%s, %s' "$current_list" "$run_date"
+    fi
+}
+
 while IFS= read -r RUN_DATE; do
     [ -n "$RUN_DATE" ] || continue
+    if [ "$REPROCESS_EXISTING_DATES" != "1" ] && [ -f "webpages/data/${RUN_DATE}.json" ]; then
+        log "⏭️ Skipping $RUN_DATE; webpages/data/${RUN_DATE}.json already exists"
+        SKIPPED_DATE_LIST="$(append_date "$SKIPPED_DATE_LIST" "$RUN_DATE")"
+        continue
+    fi
+
     CURRENT_STAGE="pipeline_${RUN_DATE}"
     STATUS_FILE="logs/pipeline_status_${RUN_DATE}.json"
     log "📅 Running daily pipeline for $RUN_DATE"
@@ -278,11 +302,7 @@ while IFS= read -r RUN_DATE; do
         log "✅ Pipeline completed for $RUN_DATE"
     fi
 
-    if [ -z "$PUBLISHED_DATE_LIST" ]; then
-        PUBLISHED_DATE_LIST="$RUN_DATE"
-    else
-        PUBLISHED_DATE_LIST="$PUBLISHED_DATE_LIST, $RUN_DATE"
-    fi
+    PUBLISHED_DATE_LIST="$(append_date "$PUBLISHED_DATE_LIST" "$RUN_DATE")"
 done < <(build_date_list)
 
 # arxiv_paper/domain_paper/summary are local cache/state directories and are
@@ -291,7 +311,7 @@ CURRENT_STAGE="stage_generated_webpages"
 git add webpages/
 if git diff --cached --quiet; then
     log "ℹ️ No generated changes detected; nothing to commit"
-    notify_wrapper "$(printf 'ℹ️ PaperTools daily complete; no generated changes\n  • dates: %s\n  • pipeline_exit: %s\n  • base: %s\n  • run_id: %s' "$PUBLISHED_DATE_LIST" "$PIPELINE_EXIT" "$BASE_SHA" "$RUN_ID")"
+    notify_wrapper "$(printf 'ℹ️ PaperTools daily complete; no generated changes\n  • processed_dates: %s\n  • skipped_dates: %s\n  • pipeline_exit: %s\n  • base: %s\n  • run_id: %s' "${PUBLISHED_DATE_LIST:-none}" "${SKIPPED_DATE_LIST:-none}" "$PIPELINE_EXIT" "$BASE_SHA" "$RUN_ID")"
     exit 0
 fi
 
@@ -340,5 +360,5 @@ PUBLISHED_DATES="$(
         | tr '\n' ',' \
         | sed 's/,$//;s/,/, /g'
 )"
-notify_wrapper "$(printf '✅ PaperTools publish complete\n  • commit: %s\n  • dates: %s\n  • pipeline_exit: %s\n  • run_id: %s' "$COMMIT_SHA" "${PUBLISHED_DATES:-none}" "$PIPELINE_EXIT" "$RUN_ID")"
+notify_wrapper "$(printf '✅ PaperTools publish complete\n  • commit: %s\n  • published_dates: %s\n  • skipped_dates: %s\n  • pipeline_exit: %s\n  • run_id: %s' "$COMMIT_SHA" "${PUBLISHED_DATES:-none}" "${SKIPPED_DATE_LIST:-none}" "$PIPELINE_EXIT" "$RUN_ID")"
 exit "$PIPELINE_EXIT"

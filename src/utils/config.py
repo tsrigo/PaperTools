@@ -52,14 +52,32 @@ def _get_env_bool(name: str, default: bool) -> bool:
         return default
     return value.lower() in ("1", "true", "yes", "on")
 
+
+def _normalize_model_alias(model: str) -> str:
+    aliases = {
+        "minimax-m2": "qwen",
+        "minimax-m2.5": "qwen",
+        "minimax-m2.7": "qwen",
+        "minimax/minimax-m2": "qwen",
+        "minimax/minimax-m2.5": "qwen",
+        "minimax/minimax-m2.7": "qwen",
+        "deepseek-reasoner": "deepseek-chat",
+        "deepseek/deepseek-chat": "deepseek-chat",
+        "deepseek/deepseek-r1": "deepseek-chat",
+        "deepseek-r1": "deepseek-chat",
+    }
+    return aliases.get(model, model)
+
 # API 配置 - 从.env文件中读取
 API_KEY = _get_env_str("OPENAI_API_KEY")
 BASE_URL = _get_env_str("OPENAI_BASE_URL")
 MODEL = _get_env_str("MODEL")
-FILTER_MODEL = _get_env_str("FILTER_MODEL", "minimax-m2.5")  # 筛选用轻量模型
+FILTER_MODEL = _normalize_model_alias(
+    _get_env_str("FILTER_MODEL", "qwen")
+)  # 筛选用轻量模型
 CLUSTER_API_KEY = _get_env_str("CLUSTER_OPENAI_API_KEY", API_KEY)
 CLUSTER_BASE_URL = _get_env_str("CLUSTER_OPENAI_BASE_URL", BASE_URL)
-CLUSTER_MODEL = _get_env_str("CLUSTER_MODEL", FILTER_MODEL or MODEL)
+CLUSTER_MODEL = _normalize_model_alias(_get_env_str("CLUSTER_MODEL", FILTER_MODEL or MODEL))
 DEFAULT_SUMMARY_BASE_URL = "https://api-inference.modelscope.cn/v1"
 DEFAULT_SUMMARY_MODEL = "minimax"
 DEFAULT_SUMMARY_MODEL_CHAIN = (

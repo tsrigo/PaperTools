@@ -9,6 +9,7 @@ import json
 import os
 import re
 import sys
+import threading
 import time
 from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from datetime import datetime
@@ -71,11 +72,49 @@ SOURCE_METADATA_FIELDS = (
     'crawl_time',
 )
 
-FILTER_LLM_TIMEOUT = float(os.getenv("PAPERTOOLS_FILTER_LLM_TIMEOUT", "45"))
-FILTER_LLM_MAX_RETRIES = int(os.getenv("PAPERTOOLS_FILTER_LLM_MAX_RETRIES", "1"))
-FILTER_PAPER_TIMEOUT = float(os.getenv("PAPERTOOLS_FILTER_PAPER_TIMEOUT", "180"))
+def env_int(name: str, default: int, minimum: Optional[int] = None) -> int:
+    value = os.getenv(name)
+    if value in (None, ""):
+        return default
+    try:
+        parsed = int(value)
+    except ValueError:
+        print(f"⚠️ {name}={value!r} 不是合法整数，回退到默认值 {default}")
+        return default
+    if minimum is not None and parsed < minimum:
+        print(f"⚠️ {name}={value!r} 小于允许下限 {minimum}，回退到默认值 {default}")
+        return default
+    return parsed
+
+
+def env_float(name: str, default: float, minimum: Optional[float] = None) -> float:
+    value = os.getenv(name)
+    if value in (None, ""):
+        return default
+    try:
+        parsed = float(value)
+    except ValueError:
+        print(f"⚠️ {name}={value!r} 不是合法数字，回退到默认值 {default}")
+        return default
+    if minimum is not None and parsed < minimum:
+        print(f"⚠️ {name}={value!r} 小于允许下限 {minimum}，回退到默认值 {default}")
+        return default
+    return parsed
+
+
+FILTER_LLM_TIMEOUT = env_float("PAPERTOOLS_FILTER_LLM_TIMEOUT", 45, minimum=1)
+FILTER_LLM_MAX_RETRIES = env_int("PAPERTOOLS_FILTER_LLM_MAX_RETRIES", 1, minimum=0)
+FILTER_PAPER_TIMEOUT = env_float("PAPERTOOLS_FILTER_PAPER_TIMEOUT", 180, minimum=1)
 FILTER_EXTRACT_CHAIN = os.getenv("PAPERTOOLS_FILTER_EXTRACT_CHAIN", "jina")
-FILTER_EXTRACT_TIMEOUT = int(os.getenv("PAPERTOOLS_FILTER_EXTRACT_TIMEOUT", "45"))
+FILTER_EXTRACT_TIMEOUT = env_int("PAPERTOOLS_FILTER_EXTRACT_TIMEOUT", 45, minimum=1)
+FILTER_RPM = env_int("PAPERTOOLS_FILTER_RPM", 8, minimum=0)
+FILTER_RATE_WINDOW_SECONDS = env_float("PAPERTOOLS_FILTER_RATE_WINDOW_SECONDS", 60, minimum=1)
+FILTER_RATE_LIMIT_COOLDOWN_SECONDS = env_float("PAPERTOOLS_FILTER_429_COOLDOWN_SECONDS", 65, minimum=0)
+FILTER_MODEL_CHAIN_ENV = (
+    os.getenv("PAPERTOOLS_FILTER_MODEL_CHAIN")
+    or os.getenv("FILTER_MODEL_CHAIN")
+    or ""
+)
 PRESTIGE_LLM_ENABLED = os.getenv("PAPERTOOLS_PRESTIGE_LLM_ENABLED", "0").lower() in {
     "1",
     "true",
@@ -95,6 +134,128 @@ PRESTIGE_AFFILIATION_FETCH_ENABLED = os.getenv(
 
 class LLMResponseParseError(ValueError):
     """Raised when a filter LLM response cannot be parsed safely."""
+
+
+_FILTER_RATE_LOCK = threading.Lock()
+_FILTER_REQUEST_TIMESTAMPS: List[float] = []
+_FILTER_RATE_COOLDOWN_UNTIL = 0.0
+_DISABLED_FILTER_MODELS = set()
+
+
+def split_csv(value: str) -> List[str]:
+    return [item.strip() for item in value.split(",") if item.strip()]
+
+
+def normalize_filter_model(model: str) -> str:
+    """Translate stale local aliases to model ids accepted by the SJTU router."""
+    model = (model or "").strip()
+    aliases = {
+        "minimax-m2": "qwen",
+        "minimax-m2.5": "qwen",
+        "minimax-m2.7": "qwen",
+        "minimax/minimax-m2": "qwen",
+        "minimax/minimax-m2.5": "qwen",
+        "minimax/minimax-m2.7": "qwen",
+        "deepseek-reasoner": "deepseek-chat",
+        "deepseek/deepseek-chat": "deepseek-chat",
+        "deepseek/deepseek-r1": "deepseek-chat",
+        "deepseek-r1": "deepseek-chat",
+    }
+    return aliases.get(model, model)
+
+
+def build_filter_model_chain(primary_model: str) -> List[str]:
+    """Build a de-duplicated topic/prestige filter model fallback chain."""
+    configured = split_csv(FILTER_MODEL_CHAIN_ENV)
+    raw_models = [primary_model]
+    if configured:
+        raw_models.extend(configured)
+    else:
+        raw_models.extend([
+            "qwen",
+            "deepseek-chat",
+            "minimax",
+        ])
+
+    chain = []
+    seen = set()
+    for raw_model in raw_models:
+        model = normalize_filter_model(raw_model)
+        if not model or model in seen:
+            continue
+        seen.add(model)
+        chain.append(model)
+    return chain
+
+
+def coerce_filter_model_chain(models: Any) -> List[str]:
+    if isinstance(models, (list, tuple)):
+        raw_models = [str(model) for model in models]
+    else:
+        raw_models = [str(models)]
+    chain = []
+    seen = set()
+    for raw_model in raw_models:
+        model = normalize_filter_model(raw_model)
+        if model and model not in seen:
+            seen.add(model)
+            chain.append(model)
+    return chain
+
+
+def is_filter_rate_limit_error(exc: Exception) -> bool:
+    message = str(exc).lower()
+    return any(token in message for token in ("429", "rate limit", "too many requests", "rpm limit"))
+
+
+def is_invalid_filter_model_error(exc: Exception) -> bool:
+    message = str(exc).lower()
+    return (
+        "model" in message
+        and any(token in message for token in ("invalid model", "model_not_found", "does not exist", "not found"))
+    )
+
+
+def wait_for_filter_rate_slot() -> None:
+    """Throttle request starts across worker threads before hitting provider RPM."""
+    global _FILTER_RATE_COOLDOWN_UNTIL
+
+    if FILTER_RPM <= 0:
+        return
+
+    while True:
+        wait_seconds = 0.0
+        with _FILTER_RATE_LOCK:
+            now = time.monotonic()
+            if _FILTER_RATE_COOLDOWN_UNTIL > now:
+                wait_seconds = _FILTER_RATE_COOLDOWN_UNTIL - now
+            else:
+                cutoff = now - FILTER_RATE_WINDOW_SECONDS
+                while _FILTER_REQUEST_TIMESTAMPS and _FILTER_REQUEST_TIMESTAMPS[0] <= cutoff:
+                    _FILTER_REQUEST_TIMESTAMPS.pop(0)
+
+                if len(_FILTER_REQUEST_TIMESTAMPS) < FILTER_RPM:
+                    _FILTER_REQUEST_TIMESTAMPS.append(now)
+                    return
+
+                oldest = _FILTER_REQUEST_TIMESTAMPS[0]
+                wait_seconds = max(0.1, FILTER_RATE_WINDOW_SECONDS - (now - oldest) + 0.1)
+
+        time.sleep(wait_seconds)
+
+
+def note_filter_rate_limit_error() -> None:
+    global _FILTER_RATE_COOLDOWN_UNTIL
+
+    if FILTER_RATE_LIMIT_COOLDOWN_SECONDS <= 0:
+        return
+    with _FILTER_RATE_LOCK:
+        _FILTER_RATE_COOLDOWN_UNTIL = max(
+            _FILTER_RATE_COOLDOWN_UNTIL,
+            time.monotonic() + FILTER_RATE_LIMIT_COOLDOWN_SECONDS,
+        )
+        _FILTER_REQUEST_TIMESTAMPS.clear()
+    print(f"⏳ 筛选 API 触发 429，冷却 {FILTER_RATE_LIMIT_COOLDOWN_SECONDS:.0f}s 后重试")
 
 
 def has_non_empty_text(value: Any) -> bool:
@@ -178,16 +339,22 @@ def parse_llm_response(response_text: str) -> Tuple[bool, str]:
 def run_llm_prompt(prompt: str, system: str, client: OpenAI, model: str,
                    temperature: float = TEMPERATURE) -> str:
     """执行 LLM prompt，并返回原始文本。"""
-    response = client.chat.completions.create(
-        model=model,
-        messages=[
-            {"role": "system", "content": system},
-            {"role": "user", "content": prompt},
-        ],
-        temperature=temperature,
-        stream=False,
-        timeout=FILTER_LLM_TIMEOUT,
-    )
+    wait_for_filter_rate_slot()
+    try:
+        response = client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": system},
+                {"role": "user", "content": prompt},
+            ],
+            temperature=temperature,
+            stream=False,
+            timeout=FILTER_LLM_TIMEOUT,
+        )
+    except OpenAIError as exc:
+        if is_filter_rate_limit_error(exc):
+            note_filter_rate_limit_error()
+        raise
 
     response_text = ""
     if response.choices:
@@ -198,10 +365,34 @@ def run_llm_prompt(prompt: str, system: str, client: OpenAI, model: str,
     return strip_think_tags(response_text)
 
 
-def query_topic_llm(title: str, summary: str, client: OpenAI, model: str,
+def run_llm_prompt_with_fallback(prompt: str, system: str, client: OpenAI, models: Any,
+                                 temperature: float = TEMPERATURE) -> str:
+    """Run a filter prompt, skipping stale/invalid model ids when possible."""
+    last_exception = None
+    attempted = []
+    for model in coerce_filter_model_chain(models):
+        if model in _DISABLED_FILTER_MODELS:
+            continue
+        attempted.append(model)
+        try:
+            return run_llm_prompt(prompt, system, client, model, temperature)
+        except OpenAIError as exc:
+            last_exception = exc
+            if is_invalid_filter_model_error(exc):
+                _DISABLED_FILTER_MODELS.add(model)
+                print(f"⚠️ 筛选模型不可用，跳过: {model}: {str(exc)[:240]}")
+                continue
+            raise
+
+    if last_exception:
+        raise last_exception
+    raise RuntimeError(f"没有可用的筛选模型，已尝试: {', '.join(attempted) or '<none>'}")
+
+
+def query_topic_llm(title: str, summary: str, client: OpenAI, model: Any,
                     temperature: float = TEMPERATURE) -> Tuple[bool, str]:
     """使用主题筛选 prompt 判断论文是否相关。"""
-    response_text = run_llm_prompt(
+    response_text = run_llm_prompt_with_fallback(
         PAPER_FILTER_PROMPT.format(title=title, summary=summary),
         "你是一个专业的学术论文筛选助手。请根据给定的筛选条件，准确判断论文是否符合要求。",
         client,
@@ -212,7 +403,7 @@ def query_topic_llm(title: str, summary: str, client: OpenAI, model: str,
 
 
 def query_prestige_llm(title: str, authors: str, affiliations: str, client: OpenAI,
-                       model: str, temperature: float = TEMPERATURE,
+                       model: Any, temperature: float = TEMPERATURE,
                        cache_manager: Optional[CacheManager] = None) -> Tuple[bool, str]:
     """使用 prestige prompt 判断论文是否命中大牛/顶级机构。"""
     cache_key = f"prestige_filter_v3_{title}"
@@ -223,7 +414,7 @@ def query_prestige_llm(title: str, authors: str, affiliations: str, client: Open
         if cached_response:
             return parse_llm_response(cached_response)
 
-    response_text = run_llm_prompt(
+    response_text = run_llm_prompt_with_fallback(
         PRESTIGE_FILTER_PROMPT.format(
             title=title,
             authors=authors,
@@ -350,7 +541,7 @@ def resolve_missing_affiliations_prestige(
     fetch_reason: str,
     paper_with_reason: dict,
     client: OpenAI,
-    model: str,
+    model: Any,
     temperature: float,
     cache_manager: Optional[CacheManager] = None,
 ) -> Tuple[bool, dict, str]:
@@ -410,7 +601,7 @@ def get_affiliation_context(paper_content: str) -> str:
     return paper_content[:PRESTIGE_CONTEXT_CHARS]
 
 
-def query_affiliations_llm(paper_content: str, authors: str, client: OpenAI, model: str,
+def query_affiliations_llm(paper_content: str, authors: str, client: OpenAI, model: Any,
                            temperature: float, paper_title: str = "",
                            cache_manager: Optional[CacheManager] = None) -> str:
     """Extract affiliation JSON with the bounded non-streaming filter client."""
@@ -455,7 +646,7 @@ def query_affiliations_llm(paper_content: str, authors: str, client: OpenAI, mod
 5. 如果找不到某作者的机构，`affiliations` 为空数组
 6. 保持作者顺序与论文一致"""
 
-    response_text = run_llm_prompt(
+    response_text = run_llm_prompt_with_fallback(
         prompt,
         "你是一个学术信息提取助手。请精确提取作者机构信息，只输出 JSON，不要输出其他内容。",
         client,
@@ -469,7 +660,7 @@ def query_affiliations_llm(paper_content: str, authors: str, client: OpenAI, mod
     return response_text.strip()
 
 
-def fetch_affiliations_for_prestige(paper: dict, client: OpenAI, model: str, temperature: float,
+def fetch_affiliations_for_prestige(paper: dict, client: OpenAI, model: Any, temperature: float,
                                     cache_manager: Optional[CacheManager] = None,
                                     document_extractor: Optional[ExtractionManager] = None,
                                     api_key: str = API_KEY,
@@ -614,11 +805,13 @@ def main() -> int:
         chain=FILTER_EXTRACT_CHAIN,
         request_timeout=FILTER_EXTRACT_TIMEOUT,
     )
+    filter_model_chain = build_filter_model_chain(args.model)
 
     print("🔍 开始论文筛选")
     print(f"📁 输入文件: {args.input_file}")
-    print(f"🤖 使用模型: {args.model}")
+    print(f"🤖 使用模型链: {', '.join(filter_model_chain)}")
     print(f"⏱️ Filter LLM timeout: {FILTER_LLM_TIMEOUT}s, retries: {FILTER_LLM_MAX_RETRIES}")
+    print(f"🚦 Filter RPM 限速: {FILTER_RPM if FILTER_RPM > 0 else 'disabled'}/{FILTER_RATE_WINDOW_SECONDS:.0f}s")
     print(f"⏱️ 单篇筛选 watchdog: {FILTER_PAPER_TIMEOUT}s")
     print(f"🏛️ Prestige 硬筛: {'启用' if PRESTIGE_ENABLED else '关闭'}")
     if PRESTIGE_ENABLED:
@@ -790,7 +983,7 @@ def main() -> int:
             return 'skip', paper, f"跳过论文 (缺少标题或摘要): {title[:50]}...", "缺少标题或摘要"
 
         try:
-            topic_match, topic_reason = query_topic_llm(title, summary, client, args.model, args.temperature)
+            topic_match, topic_reason = query_topic_llm(title, summary, client, filter_model_chain, args.temperature)
             paper_with_reason = paper.copy()
             paper_with_reason['filter_reason'] = topic_reason
 
@@ -806,7 +999,7 @@ def main() -> int:
                     affiliations, fetch_reason = fetch_affiliations_for_prestige(
                         paper_with_reason,
                         client,
-                        args.model,
+                        filter_model_chain,
                         args.temperature,
                         cache_manager,
                         document_extractor,
@@ -832,7 +1025,7 @@ def main() -> int:
                     fetch_reason,
                     paper_with_reason,
                     client,
-                    args.model,
+                    filter_model_chain,
                     args.temperature,
                     cache_manager,
                 )
@@ -867,7 +1060,7 @@ def main() -> int:
                 authors,
                 affiliations,
                 client,
-                args.model,
+                filter_model_chain,
                 args.temperature,
                 cache_manager,
             )
