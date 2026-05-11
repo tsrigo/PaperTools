@@ -102,6 +102,13 @@ def env_float(name: str, default: float, minimum: Optional[float] = None) -> flo
     return parsed
 
 
+def env_bool(name: str, default: bool) -> bool:
+    value = os.getenv(name)
+    if value in (None, ""):
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
 FILTER_LLM_TIMEOUT = env_float("PAPERTOOLS_FILTER_LLM_TIMEOUT", 45, minimum=1)
 FILTER_LLM_MAX_RETRIES = env_int("PAPERTOOLS_FILTER_LLM_MAX_RETRIES", 1, minimum=0)
 FILTER_PAPER_TIMEOUT = env_float("PAPERTOOLS_FILTER_PAPER_TIMEOUT", 180, minimum=1)
@@ -121,6 +128,8 @@ PRESTIGE_LLM_ENABLED = os.getenv("PAPERTOOLS_PRESTIGE_LLM_ENABLED", "0").lower()
     "yes",
     "on",
 }
+TOPIC_HEURISTIC_KEEP_ENABLED = env_bool("PAPERTOOLS_TOPIC_HEURISTIC_KEEP_ENABLED", True)
+TOPIC_HEURISTIC_BYPASS_PRESTIGE = env_bool("PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE", True)
 PRESTIGE_AFFILIATION_FETCH_ENABLED = os.getenv(
     "PAPERTOOLS_PRESTIGE_AFFILIATION_FETCH_ENABLED",
     "0",
@@ -201,6 +210,61 @@ def coerce_filter_model_chain(models: Any) -> List[str]:
             seen.add(model)
             chain.append(model)
     return chain
+
+
+def evaluate_topic_heuristic(title: str, summary: str) -> Tuple[bool, str]:
+    """Keep high-confidence agent/evolution papers before asking a brittle LLM judge."""
+    if not TOPIC_HEURISTIC_KEEP_ENABLED:
+        return False, ""
+
+    title = title or ""
+    summary = summary or ""
+    text = f"{title}\n{summary}".lower()
+    compact_text = re.sub(r"\s+", " ", text)
+    signals = []
+
+    def has(pattern: str) -> bool:
+        return re.search(pattern, compact_text, flags=re.IGNORECASE) is not None
+
+    llm_context = has(r"\b(?:llm|large language model|language model|small language model|foundation model|agentic)\b")
+
+    if has(r"\bagentic\b"):
+        signals.append("Agentic")
+    if has(r"\bllms?\s+improv(?:e|ing|es)\s+llms?\b"):
+        signals.append("LLMs improving LLMs")
+    if has(r"\bself[-\s]?(?:evolving|evolution|improving|improvement|refine|refinement)\b"):
+        if has(r"\b(?:llm|large language model|language model|instruction following|reinforcement learning|agent)\b"):
+            signals.append("Self-Evolving/Self-Improving")
+    if has(r"\b(?:llm|large language model|language model|small language model)s?\s+agents?\b"):
+        signals.append("LLM Agents")
+    if has(r"\blong[-\s]?horizon agents?\b"):
+        signals.append("Long-Horizon Agents")
+    if llm_context and has(r"\bagents?\b") and has(
+        r"\b(?:memory|clarification|long[-\s]?horizon|cooperative|cooperation|tool[-\s]?use|"
+        r"tool[-\s]?using|distillation|on[-\s]?policy|verification|elaboration|planning|"
+        r"runtime|harness|scaffold|test[-\s]?time)\b"
+    ):
+        signals.append("Agent capability/behavior")
+    if llm_context and has(r"\bmulti[-\s]?agent\b") and not has(r"\b(?:topology|message routing|communication protocol)\b"):
+        signals.append("Multi-Agent")
+    if has(r"\btest[-\s]?time scaling\b") and has(r"\b(?:agentic|agent|self[-\s]?improv|llms?\s+improv)\b"):
+        signals.append("Agentic test-time scaling")
+
+    if not signals:
+        return False, ""
+
+    unique_signals = []
+    seen = set()
+    for signal in signals:
+        if signal not in seen:
+            seen.add(signal)
+            unique_signals.append(signal)
+
+    return True, (
+        "确定性主题保留：标题和摘要命中强相关信号 "
+        f"({', '.join(unique_signals)})。该规则用于避免模型把明显的 "
+        "LLM Agent / Agentic / Self-Evolving 论文误判为过窄范围之外。"
+    )
 
 
 def is_filter_rate_limit_error(exc: Exception) -> bool:
@@ -834,6 +898,13 @@ def main() -> int:
         })
         return 1
 
+    summary_available_count = sum(
+        1
+        for paper in papers
+        if (paper.get('summary') or paper.get('abstract') or '').strip()
+    )
+    print(f"🧾 摘要字段可用: {summary_available_count}/{len(papers)} 篇；主题模型输入为标题 + 摘要")
+
     source_papers_by_id = build_source_paper_index(papers)
     original_paper_count = len(papers)
 
@@ -991,9 +1062,13 @@ def main() -> int:
             return 'skip', paper, f"跳过论文 (缺少标题或摘要): {title[:50]}...", "缺少标题或摘要"
 
         try:
-            topic_match, topic_reason = query_topic_llm(title, summary, client, filter_model_chain, args.temperature)
+            topic_match, topic_reason = evaluate_topic_heuristic(title, summary)
+            topic_source = 'heuristic' if topic_match else 'llm'
+            if not topic_match:
+                topic_match, topic_reason = query_topic_llm(title, summary, client, filter_model_chain, args.temperature)
             paper_with_reason = paper.copy()
             paper_with_reason['filter_reason'] = topic_reason
+            paper_with_reason['topic_source'] = topic_source
 
             if not topic_match:
                 paper_with_reason['exclude_stage'] = 'topic'
@@ -1001,6 +1076,20 @@ def main() -> int:
 
             if not PRESTIGE_ENABLED:
                 return 'include', paper_with_reason, f"✅ 匹配: {title[:50]}...", topic_reason
+
+            if topic_source == 'heuristic' and TOPIC_HEURISTIC_BYPASS_PRESTIGE:
+                paper_with_reason['prestige_result'] = True
+                paper_with_reason['prestige_reason'] = "主题强相关确定性保留，跳过 prestige 硬筛"
+                paper_with_reason['prestige_source'] = 'topic_heuristic_bypass'
+                paper_with_reason['prestige_status'] = 'bypassed'
+                paper_with_reason['prestige_matches'] = {
+                    'authors': [],
+                    'institutions': [],
+                    'companies': [],
+                    'institution_names': [],
+                }
+                paper_with_reason['prestige_rule_version'] = PRESTIGE_RULE_VERSION
+                return 'include', paper_with_reason, f"✅ 主题强相关保留: {title[:50]}...", topic_reason
 
             if PRESTIGE_AFFILIATION_FETCH_ENABLED:
                 try:
