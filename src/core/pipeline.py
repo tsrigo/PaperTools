@@ -455,6 +455,8 @@ def main() -> int:
             cmd.extend(["--start-date", args.start_date, "--end-date", args.end_date])
         elif args.date:
             cmd.extend(["--date", args.date])
+        if use_date_range or args.date:
+            cmd.append("--allow-empty")
         if not run_command(cmd, "爬取论文", progress):
             progress.complete_step("爬取论文", False)
             progress.log_with_timestamp("❌ 爬取失败，流水线终止")
@@ -810,6 +812,10 @@ def main() -> int:
     # Send pipeline completion notification
     try:
         stats = {}
+        if args.date:
+            stats['date'] = args.date
+        elif use_date_range:
+            stats['date_range'] = f"{args.start_date} to {args.end_date}"
         crawled_count = count_paper_records(crawl_output_file)
         filtered_count = count_paper_records(filter_output_file)
         clustered_count = count_paper_records(cluster_output_file)

@@ -364,6 +364,8 @@ def main() -> int:
                        help='禁用缓存，强制重新爬取')
     parser.add_argument('--clear-cache', action='store_true',
                        help='清理过期缓存后退出')
+    parser.add_argument('--allow-empty', action='store_true',
+                       help='允许指定日期/日期范围没有论文时写出空 JSON 并返回成功')
 
     args = parser.parse_args()
 
@@ -470,16 +472,21 @@ def main() -> int:
                 print(f"❌ 处理类别 {category} 结果时出错: {e}")
                 continue
     
-    if not all_papers:
-        print("❌ 没有成功爬取到任何论文")
-        return 1
-    
     # 保存论文
     if use_date_range:
         # 对于日期范围，使用起始日期作为主要标识
         target_date_for_filename = f"{args.start_date}_to_{args.end_date}"
     else:
         target_date_for_filename = args.date
+
+    if not all_papers:
+        if not args.allow_empty:
+            print("❌ 没有成功爬取到任何论文")
+            return 1
+        if not target_date_for_filename:
+            print("❌ --allow-empty 只支持指定 --date 或 --start-date/--end-date 的爬取")
+            return 1
+        print("ℹ️ 没有爬取到论文；按允许空结果模式写出空 JSON")
     
     output_file = save_papers(all_papers, valid_categories, args.output_dir, current_date, target_date_for_filename)
     

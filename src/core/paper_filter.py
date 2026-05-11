@@ -907,16 +907,24 @@ def main() -> int:
 
     if not papers:
         print("✅ 所有论文都已处理完成！")
-        if repaired_filtered_count:
-            try:
-                if not save_json(output_filepath, existing_filtered, indent=4, ensure_ascii=False):
-                    raise IOError(output_filepath)
-                if existing_excluded and not save_json(excluded_filepath, existing_excluded, indent=4, ensure_ascii=False):
-                    raise IOError(excluded_filepath)
+        try:
+            if not save_json(output_filepath, existing_filtered, indent=4, ensure_ascii=False):
+                raise IOError(output_filepath)
+            if not save_json(excluded_filepath, existing_excluded, indent=4, ensure_ascii=False):
+                raise IOError(excluded_filepath)
+            if repaired_filtered_count:
                 print(f"💾 已保存回填后的筛选结果: {output_filepath}")
-            except Exception as e:
-                print(f"❌ 保存回填结果时出错: {e}")
-                return 1
+            else:
+                print(f"💾 已保存空筛选结果: {output_filepath}")
+        except Exception as e:
+            print(f"❌ 保存筛选结果时出错: {e}")
+            write_status_file(args.status_file, {
+                "status": "failed",
+                "input_file": args.input_file,
+                "total_input": original_paper_count,
+                "failure_reason": f"保存筛选结果时出错: {e}",
+            })
+            return 1
         write_status_file(args.status_file, {
             "status": "ok",
             "input_file": args.input_file,

@@ -12,16 +12,21 @@ export PATH="/opt/miniconda3/bin:$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin:$
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-LOG_DIR="$ROOT_DIR/logs"
+LOG_DIR="${PAPERTOOLS_DAILY_LOG_DIR:-$ROOT_DIR/logs}"
 mkdir -p "$LOG_DIR"
 LOG_FILE="$LOG_DIR/daily_pipeline.log"
-LOCK_FILE="$LOG_DIR/daily_full_run.lock"
+LOCK_DIR="${PAPERTOOLS_DAILY_LOCK_DIR:-$LOG_DIR}"
+mkdir -p "$LOCK_DIR"
+LOCK_FILE="$LOCK_DIR/daily_full_run.lock"
 
 PYTHON_BIN="${PYTHON_BIN:-/opt/miniconda3/bin/python3}"
 RUN_ID="$(date '+%Y%m%d-%H%M%S')"
 WORKTREE_DIR="${PAPERTOOLS_DAILY_WORKTREE:-/tmp/papertools-daily-${RUN_ID}}"
+BOOTSTRAP_WORKTREE_DIR="${PAPERTOOLS_DAILY_BOOTSTRAP_WORKTREE:-/tmp/papertools-daily-bootstrap-${RUN_ID}}"
 DAILY_WINDOW_DAYS="${PAPERTOOLS_DAILY_WINDOW_DAYS:-4}"
 REPROCESS_EXISTING_DATES="${PAPERTOOLS_DAILY_REPROCESS_EXISTING:-0}"
+SELF_REFRESH="${PAPERTOOLS_DAILY_SELF_REFRESH:-1}"
+SELF_REFRESHED="${PAPERTOOLS_DAILY_SELF_REFRESHED:-0}"
 PROXY_HOST="${PAPERTOOLS_PROXY_HOST:-127.0.0.1}"
 PROXY_PORT="${PAPERTOOLS_PROXY_PORT:-7897}"
 PROXY_URL="${PAPERTOOLS_PROXY_URL:-http://${PROXY_HOST}:${PROXY_PORT}}"
@@ -136,6 +141,47 @@ notify_failure() {
     FAILURE_NOTIFIED=1
     notify_wrapper "$1"
 }
+
+cleanup_bootstrap_worktree() {
+    if git worktree list --porcelain 2>/dev/null | grep -Fxq "worktree $BOOTSTRAP_WORKTREE_DIR"; then
+        git worktree remove --force "$BOOTSTRAP_WORKTREE_DIR" >>"$LOG_FILE" 2>&1 || true
+    fi
+}
+
+run_latest_wrapper() {
+    CURRENT_STAGE="self_refresh_fetch_origin_master"
+    log "🔄 Refreshing daily wrapper from origin/master"
+    if ! fetch_origin_master; then
+        notify_failure "$(printf '❌ PaperTools daily wrapper failed\n  • stage: %s\n  • exit_code: %s\n  • run_id: %s' "$CURRENT_STAGE" "1" "$RUN_ID")"
+        exit 1
+    fi
+
+    CURRENT_STAGE="self_refresh_create_worktree"
+    cleanup_bootstrap_worktree
+    if ! run_logged git worktree add --detach "$BOOTSTRAP_WORKTREE_DIR" origin/master; then
+        notify_failure "$(printf '❌ PaperTools daily wrapper failed\n  • stage: %s\n  • exit_code: %s\n  • run_id: %s' "$CURRENT_STAGE" "1" "$RUN_ID")"
+        exit 1
+    fi
+
+    if [ -f "$ROOT_DIR/.env" ]; then
+        cp "$ROOT_DIR/.env" "$BOOTSTRAP_WORKTREE_DIR/.env"
+    fi
+
+    log "🔁 Delegating to latest origin/master daily wrapper"
+    set +e
+    PAPERTOOLS_DAILY_SELF_REFRESHED=1 \
+        PAPERTOOLS_DAILY_LOG_DIR="$LOG_DIR" \
+        PAPERTOOLS_DAILY_LOCK_DIR="$LOCK_DIR" \
+        "$BOOTSTRAP_WORKTREE_DIR/scripts/daily_full_run.sh"
+    local status=$?
+    set -e
+    cleanup_bootstrap_worktree
+    exit "$status"
+}
+
+if [ "$SELF_REFRESH" = "1" ] && [ "$SELF_REFRESHED" != "1" ]; then
+    run_latest_wrapper
+fi
 
 cleanup() {
     if git worktree list --porcelain 2>/dev/null | grep -Fxq "worktree $WORKTREE_DIR"; then
