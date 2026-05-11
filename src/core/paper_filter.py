@@ -117,6 +117,7 @@ FILTER_EXTRACT_TIMEOUT = env_int("PAPERTOOLS_FILTER_EXTRACT_TIMEOUT", 45, minimu
 FILTER_RPM = env_int("PAPERTOOLS_FILTER_RPM", 8, minimum=0)
 FILTER_RATE_WINDOW_SECONDS = env_float("PAPERTOOLS_FILTER_RATE_WINDOW_SECONDS", 60, minimum=1)
 FILTER_RATE_LIMIT_COOLDOWN_SECONDS = env_float("PAPERTOOLS_FILTER_429_COOLDOWN_SECONDS", 65, minimum=0)
+FILTER_MAX_OUTPUT_PAPERS = env_int("PAPERTOOLS_FILTER_MAX_OUTPUT_PAPERS", 15, minimum=0)
 FILTER_MODEL_CHAIN_ENV = (
     os.getenv("PAPERTOOLS_FILTER_MODEL_CHAIN")
     or os.getenv("FILTER_MODEL_CHAIN")
@@ -265,6 +266,104 @@ def evaluate_topic_heuristic(title: str, summary: str) -> Tuple[bool, str]:
         f"({', '.join(unique_signals)})。该规则用于避免模型把明显的 "
         "LLM Agent / Agentic / Self-Evolving 论文误判为过窄范围之外。"
     )
+
+
+def score_filtered_paper_for_selection(paper: dict) -> int:
+    """Rank included papers so the daily page stays readable."""
+    title = paper.get('title', '') or ''
+    summary = paper.get('summary', '') or paper.get('abstract', '') or ''
+    title_text = title.lower()
+    text = f"{title}\n{summary}".lower()
+    score = 0
+
+    prestige_source = paper.get('prestige_source', '')
+    if paper.get('prestige_result') is True and prestige_source != 'topic_heuristic_bypass':
+        score += 100
+    if paper.get('topic_source') == 'heuristic':
+        score += 10
+
+    title_patterns = [
+        (r"\bllms?\s+improv(?:e|ing|es)\s+llms?\b", 70),
+        (r"\bself[-\s]?(?:evolving|evolution|improving|improvement|refine|refinement)\b", 65),
+        (r"\b(?:llm|large language model|language model|small language model)s?\s+agents?\b", 60),
+        (r"\blong[-\s]?horizon agents?\b", 85),
+        (r"\bagentic\b", 45),
+        (r"\btool[-\s]?(?:use|using|calling|augmentation)\b", 38),
+        (r"\b(?:memory|experience)\b.*\bagents?\b|\bagents?\b.*\b(?:memory|experience)\b", 35),
+        (r"\b(?:coding|code repair|cli agents?|sre agents?|web agents?)\b", 25),
+    ]
+    for pattern, weight in title_patterns:
+        if re.search(pattern, title_text, flags=re.IGNORECASE):
+            score += weight
+
+    supporting_patterns = [
+        (r"\bself[-\s]?(?:evolving|evolution|improving|improvement|refine|refinement)\b", 18),
+        (r"\b(?:llm|large language model|language model|small language model)s?\s+agents?\b", 18),
+        (r"\bagentic\b", 12),
+        (r"\btool[-\s]?(?:use|using|calling|augmentation)\b", 10),
+        (r"\bbenchmark(?:ing)?\b|\bevaluat(?:e|ing|ion)\b", 6),
+    ]
+    for pattern, weight in supporting_patterns:
+        if re.search(pattern, text, flags=re.IGNORECASE):
+            score += weight
+
+    penalty_patterns = [
+        (r"\b(?:security|cyber|safety|alignment|interpretability|explainability|watermark|hallucination)\b", 90),
+        (r"\b(?:medical|clinical|chemical|reaction|biological|biomedical|financial|trading|flight|weather|recommendation|physics)\b", 75),
+        (r"\b(?:vision|multimodal|video|vlm|mllm|diffusion|ocr)\b", 80),
+        (r"\b(?:knowledge graph|graph neural|graph representation|graph-accelerated|graph reasoning)\b", 60),
+        (r"\bsurvey\b", 30),
+    ]
+    for pattern, penalty in penalty_patterns:
+        if re.search(pattern, text, flags=re.IGNORECASE):
+            score -= penalty
+
+    if not re.search(
+        r"\b(?:agent|agentic|tool[-\s]?calling|tool[-\s]?use|llms?\s+improv|self[-\s]?(?:evolving|improving))\b",
+        title_text,
+        flags=re.IGNORECASE,
+    ):
+        score -= 60
+
+    return score
+
+
+def apply_output_cap(filtered_papers: List[dict], max_papers: int) -> Tuple[List[dict], List[dict]]:
+    """Keep the published set capped while preserving overflow as exclusions."""
+    for paper in filtered_papers:
+        paper['selection_score'] = score_filtered_paper_for_selection(paper)
+
+    if max_papers <= 0 or len(filtered_papers) <= max_papers:
+        return filtered_papers, []
+
+    ranked = sorted(
+        enumerate(filtered_papers),
+        key=lambda item: (
+            item[1].get('selection_score', 0),
+            item[1].get('prestige_source') != 'topic_heuristic_bypass',
+            item[1].get('source_date') or item[1].get('date') or '',
+            item[0] * -1,
+        ),
+        reverse=True,
+    )
+    selected_indices = {index for index, _paper in ranked[:max_papers]}
+
+    selected = []
+    overflow = []
+    for index, paper in enumerate(filtered_papers):
+        if index in selected_indices:
+            selected.append(paper)
+            continue
+        excluded = compact_excluded_paper(paper)
+        excluded['exclude_stage'] = 'selection_cap'
+        excluded['filter_reason'] = (
+            f"主题相关但超过每日发布上限 {max_papers}，"
+            f"按可读性排序压缩；selection_score={paper.get('selection_score', 0)}"
+        )
+        overflow.append(excluded)
+
+    selected.sort(key=lambda paper: paper.get('selection_score', 0), reverse=True)
+    return selected, overflow
 
 
 def is_filter_rate_limit_error(exc: Exception) -> bool:
@@ -810,7 +909,7 @@ def is_current_excluded_schema(paper: dict) -> bool:
     if not PRESTIGE_ENABLED:
         return True
     stage = paper.get('exclude_stage')
-    if stage in {'keyword', 'topic'}:
+    if stage in {'keyword', 'topic', 'selection_cap'}:
         return True
     if stage != 'prestige' or paper.get('prestige_rule_version') != PRESTIGE_RULE_VERSION:
         return False
@@ -877,6 +976,7 @@ def main() -> int:
     print(f"⏱️ Filter LLM timeout: {FILTER_LLM_TIMEOUT}s, retries: {FILTER_LLM_MAX_RETRIES}")
     print(f"🚦 Filter RPM 限速: {FILTER_RPM if FILTER_RPM > 0 else 'disabled'}/{FILTER_RATE_WINDOW_SECONDS:.0f}s")
     print(f"⏱️ 单篇筛选 watchdog: {FILTER_PAPER_TIMEOUT}s")
+    print(f"📌 每日发布上限: {FILTER_MAX_OUTPUT_PAPERS if FILTER_MAX_OUTPUT_PAPERS > 0 else 'disabled'}")
     print(f"🏛️ Prestige 硬筛: {'启用' if PRESTIGE_ENABLED else '关闭'}")
     if PRESTIGE_ENABLED:
         print(f"🏛️ Prestige 机构在线提取: {'启用' if PRESTIGE_AFFILIATION_FETCH_ENABLED else '关闭'}")
@@ -1312,6 +1412,18 @@ def main() -> int:
 
     all_filtered_papers = existing_filtered + filtered_papers
     all_excluded_papers = existing_excluded + excluded_papers
+    selection_cap_excluded_count = 0
+    all_filtered_papers, selection_cap_excluded = apply_output_cap(
+        all_filtered_papers,
+        FILTER_MAX_OUTPUT_PAPERS,
+    )
+    if selection_cap_excluded:
+        selection_cap_excluded_count = len(selection_cap_excluded)
+        all_excluded_papers.extend(selection_cap_excluded)
+        print(
+            f"📌 每日发布上限压缩: 保留 {len(all_filtered_papers)} 篇，"
+            f"额外转入排除 {selection_cap_excluded_count} 篇"
+        )
 
     try:
         if not save_json(output_filepath, all_filtered_papers, indent=4, ensure_ascii=False):
@@ -1346,6 +1458,7 @@ def main() -> int:
         "keyword_excluded": keyword_excluded_count,
         "topic_excluded": topic_excluded_count,
         "prestige_excluded": prestige_excluded_count,
+        "selection_cap_excluded": selection_cap_excluded_count,
         "error_count": error_count,
         "timed_out_count": timed_out_count,
         "fatal_zero_result": fatal_zero_result,
