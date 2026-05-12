@@ -36,6 +36,7 @@ except ImportError:
 
 from src.utils.notify import notify_failures, notify_pipeline_complete
 from src.utils.exceptions import ValidationError
+from src.utils.publish_quality import validate_publishable_papers
 from src.utils.validation import (
     validate_date_inputs,
     validate_non_negative_int,
@@ -243,6 +244,21 @@ def read_json_file(filepath: Optional[str]) -> Optional[Any]:
             return json.load(f)
     except Exception:
         return None
+
+
+def validate_summary_file(filepath: Optional[str]) -> List[str]:
+    """Return publication-blocking issues for a summary output file."""
+    if not filepath or not os.path.exists(filepath):
+        return [f"总结文件不存在: {filepath}"]
+
+    data = read_json_file(filepath)
+    if not isinstance(data, list):
+        return [f"总结文件不是论文列表: {filepath}"]
+    if not data:
+        return [f"总结文件为空: {filepath}"]
+
+    _ok, errors = validate_publishable_papers(data, context=filepath)
+    return errors
 
 
 
@@ -487,6 +503,10 @@ def main() -> int:
     crawl_papers_for_status = read_json_file(crawl_output_file)
     if isinstance(crawl_papers_for_status, list):
         pipeline_status["crawled"] = len(crawl_papers_for_status)
+        if len(crawl_papers_for_status) == 0:
+            reason = "爬取结果为空，跳过发布空日期"
+            progress.log_with_timestamp(f"⏭️ {reason}")
+            return finish_pipeline(0, "skipped_no_source_papers", reason)
     
     # ============ 步骤2: 筛选论文 ============
     if not args.skip_filter:
@@ -547,15 +567,10 @@ def main() -> int:
     progress.log_with_timestamp(f"📄 使用筛选文件: {filter_output_file}")
     
     # 检查筛选结果
-    zero_filtered_papers = False
     try:
         with open(filter_output_file, 'r', encoding='utf-8') as f:
             filtered_papers = json.load(f)
         progress.log_with_timestamp(f"📊 筛选后论文数量: {len(filtered_papers)}")
-
-        if len(filtered_papers) == 0:
-            zero_filtered_papers = True
-            progress.log_with_timestamp("⚠️ 筛选后没有论文，跳过聚类和总结，继续生成页面与通知")
     except Exception as e:
         progress.log_with_timestamp(f"❌ 读取筛选文件失败: {e}")
         return finish_pipeline(1, "failed", f"读取筛选文件失败: {e}")
@@ -577,13 +592,15 @@ def main() -> int:
             progress.log_with_timestamp(f"❌ {reason}")
             return finish_pipeline(1, "failed", reason)
 
+    if len(filtered_papers) == 0:
+        reason = "筛选后没有可发布论文，跳过发布空日期"
+        progress.log_with_timestamp(f"⏭️ {reason}")
+        return finish_pipeline(0, "skipped_no_selected_papers", reason)
+
     # ============ 步骤3: 论文聚类 ============
     cluster_output_file = filter_output_file  # default fallback
 
-    if zero_filtered_papers:
-        progress.skip_step("论文聚类")
-        progress.log_with_timestamp("📄 当前日期无筛选结果，直接使用筛选文件生成零结果页面")
-    elif not args.skip_cluster:
+    if not args.skip_cluster:
         progress.start_step("论文聚类")
         cmd = [
             sys.executable, "src/core/cluster_papers.py",
@@ -611,14 +628,16 @@ def main() -> int:
             if cluster_output_file and os.path.exists(cluster_output_file):
                 progress.log_with_timestamp(f"📄 聚类输出文件: {cluster_output_file}")
             else:
-                cluster_output_file = filter_output_file
-                progress.log_with_timestamp("⚠️ 未找到聚类输出文件，使用筛选文件继续")
+                reason = "聚类命令成功但未找到聚类输出文件"
+                progress.log_with_timestamp(f"❌ {reason}")
+                progress.complete_step("论文聚类", False)
+                return finish_pipeline(1, "failed", reason)
             progress.complete_step("论文聚类", True)
         else:
             progress.complete_step("论文聚类", False)
-            progress.log_with_timestamp("⚠️ 聚类失败，使用筛选文件继续")
-            cluster_output_file = filter_output_file
-            notify_failures("cluster", ["Clustering stage failed, falling back to filtered papers"])
+            progress.log_with_timestamp("❌ 聚类失败，流水线终止")
+            notify_failures("cluster", ["Clustering stage failed"])
+            return finish_pipeline(1, "failed", "聚类失败")
     else:
         progress.skip_step("论文聚类")
         from glob import glob
@@ -637,9 +656,7 @@ def main() -> int:
     # ============ 步骤4: 生成论文总结 ============
     summary_output_file = cluster_output_file  # 默认使用聚类后的文件
 
-    if zero_filtered_papers:
-        progress.skip_step("生成论文总结")
-    elif not args.skip_summary:
+    if not args.skip_summary:
         progress.start_step("生成论文总结")
 
         cmd = [
@@ -671,13 +688,23 @@ def main() -> int:
             if os.path.exists(summary_output_file):
                 progress.log_with_timestamp(f"📄 使用带总结的文件: {summary_output_file}")
             else:
-                progress.log_with_timestamp("⚠️ 未找到带总结的JSON文件，使用原始聚类文件")
-                summary_output_file = cluster_output_file
+                reason = "总结命令成功但未找到带总结的JSON文件"
+                progress.log_with_timestamp(f"❌ {reason}")
+                progress.complete_step("生成论文总结", False)
+                return finish_pipeline(1, "failed", reason)
+
+            summary_errors = validate_summary_file(summary_output_file)
+            if summary_errors:
+                reason = f"总结文件未通过发布质量检查: {'; '.join(summary_errors[:5])}"
+                progress.log_with_timestamp(f"❌ {reason}")
+                progress.complete_step("生成论文总结", False)
+                return finish_pipeline(1, "failed", reason)
             progress.complete_step("生成论文总结", True)
         else:
             progress.complete_step("生成论文总结", False)
-            progress.log_with_timestamp("⚠️ 总结生成失败，但继续执行后续步骤")
-            notify_failures("summary", ["Summary stage failed, falling back to clustered papers"])
+            progress.log_with_timestamp("❌ 总结生成失败，流水线终止")
+            notify_failures("summary", ["Summary stage failed"])
+            return finish_pipeline(1, "failed", "总结生成失败")
     else:
         progress.skip_step("生成论文总结")
         # 如果跳过总结，尝试使用已存在的带summary2文件
@@ -690,11 +717,22 @@ def main() -> int:
                     summary_output_file = candidate
                     progress.log_with_timestamp(f"📄 使用已有的带总结文件: {summary_output_file}")
                 else:
-                    progress.log_with_timestamp("⚠️ 未找到匹配的带总结文件，使用当前聚类/筛选文件")
+                    reason = "跳过总结但未找到匹配的完整总结文件"
+                    progress.log_with_timestamp(f"❌ {reason}")
+                    return finish_pipeline(1, "failed", reason)
             else:
-                progress.log_with_timestamp("⚠️ 无筛选文件可用于匹配总结，继续使用筛选文件")
+                reason = "跳过总结但无聚类文件可用于匹配总结"
+                progress.log_with_timestamp(f"❌ {reason}")
+                return finish_pipeline(1, "failed", reason)
         except Exception as e:
-            progress.log_with_timestamp(f"⚠️ 检查已有总结文件时出错: {e}")
+            progress.log_with_timestamp(f"❌ 检查已有总结文件时出错: {e}")
+            return finish_pipeline(1, "failed", f"检查已有总结文件时出错: {e}")
+
+        summary_errors = validate_summary_file(summary_output_file)
+        if summary_errors:
+            reason = f"已有总结文件未通过发布质量检查: {'; '.join(summary_errors[:5])}"
+            progress.log_with_timestamp(f"❌ {reason}")
+            return finish_pipeline(1, "failed", reason)
     
     # ============ 步骤5: 生成统一页面 ============
     unified_generation_ok = True
@@ -704,20 +742,24 @@ def main() -> int:
         try:
             # 检查必要文件
             if not os.path.exists("src/core/generate_unified_index.py"):
-                progress.log_with_timestamp("❌ 未找到 src/core/generate_unified_index.py，无法生成页面")
-                unified_generation_ok = False
                 progress.complete_step("生成统一页面", False)
+                reason = "未找到 src/core/generate_unified_index.py，无法生成页面"
+                progress.log_with_timestamp(f"❌ {reason}")
+                return finish_pipeline(1, "failed", reason)
             elif not (
                 directory_has_json_files(SUMMARY_DIR)
                 or directory_has_json_files(DOMAIN_PAPER_DIR)
                 or directory_has_json_files(os.path.join(WEBPAGES_DIR, "data"))
             ):
-                progress.log_with_timestamp("❌ 未找到论文数据文件，无法生成页面")
-                unified_generation_ok = False
                 progress.complete_step("生成统一页面", False)
+                reason = "未找到论文数据文件，无法生成页面"
+                progress.log_with_timestamp(f"❌ {reason}")
+                return finish_pipeline(1, "failed", reason)
             else:
                 # 运行统一页面生成脚本
                 cmd = [sys.executable, "src/core/generate_unified_index.py"]
+                if args.date:
+                    cmd.extend(["--require-date", args.date])
                 
                 if run_command(cmd, "生成统一页面", progress):
                     unified_page_path = os.path.join(WEBPAGES_DIR, "index.html")
@@ -725,16 +767,17 @@ def main() -> int:
                         progress.log_with_timestamp(f"✅ 统一页面已生成: {unified_page_path}")
                         progress.complete_step("生成统一页面", True)
                     else:
-                        progress.log_with_timestamp("❌ 统一页面生成脚本运行成功但未找到输出文件")
-                        unified_generation_ok = False
                         progress.complete_step("生成统一页面", False)
+                        reason = "统一页面生成脚本运行成功但未找到输出文件"
+                        progress.log_with_timestamp(f"❌ {reason}")
+                        return finish_pipeline(1, "failed", reason)
                 else:
-                    unified_generation_ok = False
                     progress.complete_step("生成统一页面", False)
+                    return finish_pipeline(1, "failed", "统一页面生成失败")
         except Exception as e:
             progress.log_with_timestamp(f"❌ 统一页面生成失败: {e}")
-            unified_generation_ok = False
             progress.complete_step("生成统一页面", False)
+            return finish_pipeline(1, "failed", f"统一页面生成失败: {e}")
     else:
         progress.skip_step("生成统一页面")
     

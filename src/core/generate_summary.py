@@ -41,6 +41,7 @@ from src.utils.config import (  # noqa: E402
     SUMMARY_PRISM_WINDOW_SAFETY_REQUESTS, SUMMARY_PRISM_429_COOLDOWN_SECONDS,
     SUMMARY_DIR, TEMPERATURE, REQUEST_DELAY, MAX_WORKERS,
     SUMMARY_CONTENT_CHAR_LIMIT, SUMMARY_MAX_WORKERS, ENABLE_CACHE,
+    SUMMARY_EXTRACTION_MAX_ATTEMPTS,
     REVIEWGROUNDER_ENABLED, REVIEWGROUNDER_MODEL, REVIEWGROUNDER_REASONING_EFFORT,
 )
 from src.core.reviewgrounder_adapter import (  # noqa: E402
@@ -59,6 +60,7 @@ from src.utils.cache_manager import CacheManager  # noqa: E402
 from src.utils.exceptions import ValidationError  # noqa: E402
 from src.utils.io import save_json, save_text  # noqa: E402
 from src.utils.notify import notify_failures  # noqa: E402
+from src.utils.publish_quality import missing_publish_fields  # noqa: E402
 from src.utils.validation import validate_non_negative_int, validate_positive_int  # noqa: E402
 
 
@@ -109,15 +111,7 @@ SUMMARY_ANALYSIS_FIELDS = (
 
 def has_complete_summary_analysis(paper: Dict) -> bool:
     """Return True only when a paper has all fields needed by the web UI."""
-    if not has_valid_generated_text(paper.get("summary")):
-        return False
-    if not all(has_valid_generated_text(paper.get(field)) for field in SUMMARY_ANALYSIS_FIELDS):
-        return False
-    if REVIEWGROUNDER_ENABLED and paper.get("research_value_source") != "reviewgrounder":
-        return False
-    if not has_valid_generated_text(paper.get("summary_translation")):
-        return False
-    return True
+    return not missing_publish_fields(paper)
 
 
 def is_section_heading(line: str) -> bool:
@@ -1420,6 +1414,14 @@ def main() -> int:
                         paper_copy['summary_translation'] = cached_translation or "无需翻译"
                         paper_copy['summary_generated_time'] = time.strftime('%Y-%m-%d %H:%M:%S')
                         paper_copy['summary_model'] = ",".join(provider.label for provider in providers)
+                        cached_missing_fields = missing_publish_fields(paper_copy)
+                        if cached_missing_fields:
+                            return (
+                                'partial_failed',
+                                index,
+                                paper_copy,
+                                f"⚠️ 缓存总结不完整: {paper_title[:50]}... missing={', '.join(cached_missing_fields)}",
+                            )
                         return 'success', index, paper_copy, f"📋 使用缓存: {paper_title[:50]}..."
             
             # 如果没有完整缓存，才获取论文内容
@@ -1436,26 +1438,32 @@ def main() -> int:
                     else:
                         print(f"⚠️ 忽略无效缓存正文 {paper_title[:30]}: {cached_issue}")
 
-            # 如果缓存中没有内容，才通过统一提取层获取
+            # 如果缓存中没有内容，才通过统一提取层获取。每日发布不允许
+            # 用标题+摘要伪装成全文提取成功；提取失败必须重试后硬失败。
             if not paper_content:
-                try:
-                    extraction_result = document_extractor.extract(paper_link)
-                    paper_content = extraction_result.content
-                except Exception as exc:
-                    print(f"⚠️ 提取论文内容失败 {paper_title[:30]}: {exc}")
-                if not paper_content:
-                    if original_summary:
-                        paper_content = (
-                            f"Title: {paper_title}\n"
-                            f"Authors: {paper.get('authors', '')}\n"
-                            f"ArXiv ID: {paper.get('arxiv_id', '')}\n\n"
-                            f"Abstract:\n{original_summary}\n\n"
-                            "[Full text extraction failed; analysis is based on title and abstract.]"
+                last_extraction_error = None
+                for attempt in range(1, SUMMARY_EXTRACTION_MAX_ATTEMPTS + 1):
+                    try:
+                        extraction_result = document_extractor.extract(paper_link)
+                        paper_content = ensure_valid_paper_content(extraction_result.content, paper_title)
+                        break
+                    except Exception as exc:
+                        last_extraction_error = exc
+                        print(
+                            f"⚠️ 提取论文内容失败 {paper_title[:30]} "
+                            f"({attempt}/{SUMMARY_EXTRACTION_MAX_ATTEMPTS}): {exc}"
                         )
-                        print(f"📝 使用标题和原始摘要作为兜底内容: {paper_title[:50]}...")
-                    else:
-                        return 'failed', index, paper, f"❌ 无法获取论文内容: {paper_title}"
-            if "[Full text extraction failed;" not in paper_content:
+                        if attempt < SUMMARY_EXTRACTION_MAX_ATTEMPTS:
+                            time.sleep(min(30, 2 ** (attempt - 1)))
+
+                if not paper_content:
+                    return (
+                        'failed',
+                        index,
+                        paper,
+                        f"❌ 无法获取有效论文全文: {paper_title} ({last_extraction_error})",
+                    )
+            else:
                 paper_content = ensure_valid_paper_content(paper_content, paper_title)
 
             if not original_summary:
@@ -1590,8 +1598,14 @@ def main() -> int:
             paper_copy['summary_generated_time'] = time.strftime('%Y-%m-%d %H:%M:%S')
             paper_copy['summary_model'] = ",".join(provider.label for provider in providers)
 
-            if not has_complete_summary_analysis(paper_copy):
-                return 'partial_failed', index, paper_copy, f"⚠️ 部分总结字段生成失败: {paper_title[:50]}..."
+            missing_fields = missing_publish_fields(paper_copy)
+            if missing_fields:
+                return (
+                    'partial_failed',
+                    index,
+                    paper_copy,
+                    f"⚠️ 部分总结字段生成失败: {paper_title[:50]}... missing={', '.join(missing_fields)}",
+                )
 
             return 'success', index, paper_copy, f"✅ 成功生成总结和分析: {paper_title[:50]}..."
             
@@ -1604,6 +1618,7 @@ def main() -> int:
     skipped = 0
     failed = 0
     partial_failed = 0
+    overview_failed = 0
     updated_papers = papers.copy()  # 创建副本用于更新
     
     with ThreadPoolExecutor(max_workers=args.max_workers) as executor:
@@ -1614,7 +1629,8 @@ def main() -> int:
         for future in tqdm(as_completed(futures), total=len(papers), desc="生成总结"):
             try:
                 status, index, updated_paper, message = future.result()
-                # print(message)
+                if status != 'success' and status != 'skipped':
+                    print(message)
                 
                 if status == 'success':
                     processed += 1
@@ -1666,45 +1682,60 @@ def main() -> int:
             else {fallback_date: updated_papers}
         )
 
-        for date_str, overview_papers in sorted(papers_by_overview_date.items()):
-            if args.skip_overview:
-                print(f"⏭️ 跳过每日速览生成: {date_str}")
-                continue
+        if failed > 0:
+            print("⏭️ 存在论文总结失败，跳过每日速览生成")
+        else:
+            for date_str, overview_papers in sorted(papers_by_overview_date.items()):
+                if args.skip_overview:
+                    print(f"⏭️ 跳过每日速览生成: {date_str}")
+                    continue
 
-            overview_filename = f"daily_overview_{date_str}.md"
-            overview_path = os.path.join(args.output_dir, overview_filename)
+                overview_filename = f"daily_overview_{date_str}.md"
+                overview_path = os.path.join(args.output_dir, overview_filename)
 
-            if processed == 0 and os.path.exists(overview_path):
-                print(f"⏭️ 本轮无新增总结，保留已有每日速览: {overview_path}")
-                continue
+                if processed == 0 and os.path.exists(overview_path):
+                    print(f"⏭️ 本轮无新增总结，保留已有每日速览: {overview_path}")
+                    continue
 
-            print(f"\n📰 正在生成今日AI论文速览 ({date_str})...")
-            try:
-                daily_overview = generate_daily_overview(
-                    overview_papers,
-                    providers,
-                    args.temperature,
-                    date_str,
-                    cache_manager
-                )
+                print(f"\n📰 正在生成今日AI论文速览 ({date_str})...")
+                try:
+                    daily_overview = generate_daily_overview(
+                        overview_papers,
+                        providers,
+                        args.temperature,
+                        date_str,
+                        cache_manager
+                    )
 
-                # 保存每日速览到独立的 Markdown 文件
-                if not save_text(overview_path, daily_overview):
-                    raise IOError(overview_path)
+                    # 保存每日速览到独立的 Markdown 文件
+                    if not save_text(overview_path, daily_overview):
+                        raise IOError(overview_path)
 
-                print(f"✅ 已生成今日AI论文速览: {overview_path}")
+                    print(f"✅ 已生成今日AI论文速览: {overview_path}")
 
-            except Exception as e:
-                print(f"⚠️ 生成每日速览时出错: {e}")
+                except Exception as e:
+                    print(f"⚠️ 生成每日速览时出错: {e}")
+                    overview_failed += 1
     
     # 打印统计信息
     print("\n📊 总结生成完成！")
     print(f"✅ 已处理: {processed} 篇论文")
     print(f"⏭️ 已跳过: {skipped} 篇论文")
     print(f"❌ 失败: {failed} 篇论文")
+    if overview_failed:
+        print(f"❌ 每日速览失败: {overview_failed} 个日期")
     if processed > 0 or skipped > 0:
         print(f"📂 输出文件: {output_path}")
     print("🎉 处理完成！")
+    if failed > 0 or partial_failed > 0:
+        print("❌ 存在未完整生成的论文，拒绝将半成品交给发布阶段")
+        return 1
+    if overview_failed > 0:
+        print("❌ 每日速览生成失败，拒绝发布不完整日期")
+        return 1
+    if processed + skipped != len(papers):
+        print("❌ 处理数量与输入数量不一致，拒绝发布")
+        return 1
     return 0 if (processed > 0 or skipped > 0) else 1
 
 

@@ -290,8 +290,11 @@ with open(date_file, "r", encoding="utf-8") as handle:
 if date_data.get("date") != run_date:
     raise SystemExit(f"date mismatch in {date_file}: {date_data.get('date')!r}")
 
-if not isinstance(date_data.get("clusters", []), list):
-    raise SystemExit(f"invalid clusters payload in {date_file}")
+from src.utils.publish_quality import validate_date_data_payload
+
+ok, errors = validate_date_data_payload(date_data, expected_date=run_date)
+if not ok:
+    raise SystemExit(f"date payload is not publishable for {run_date}: {'; '.join(errors[:5])}")
 
 index_file = os.path.join("webpages", "data", "index.json")
 with open(index_file, "r", encoding="utf-8") as handle:
@@ -301,6 +304,21 @@ if run_date not in index_data.get("dates", []):
     raise SystemExit(f"{run_date} missing from webpages/data/index.json")
 
 print(f"validated generated output for {run_date}")
+PY
+}
+
+read_pipeline_status() {
+    local status_file="$1"
+    "$PYTHON_BIN" - "$status_file" <<'PY'
+import json
+import sys
+
+try:
+    with open(sys.argv[1], "r", encoding="utf-8") as handle:
+        status = json.load(handle)
+    print(status.get("status", "missing"))
+except Exception:
+    print("missing")
 PY
 }
 
@@ -344,6 +362,21 @@ while IFS= read -r RUN_DATE; do
         fi
         log "⚠️ PAPERTOOLS_COMMIT_ON_PIPELINE_FAILURE=1; continuing with generated partial output"
     else
+        PIPELINE_STATUS_VALUE="$(read_pipeline_status "$STATUS_FILE")"
+        case "$PIPELINE_STATUS_VALUE" in
+            skipped_no_source_papers|skipped_no_selected_papers)
+                log "⏭️ Pipeline skipped $RUN_DATE without publishing empty content: $PIPELINE_STATUS_VALUE"
+                CURRENT_STAGE="prune_unpublishable_dates_${RUN_DATE}"
+                run_logged "$PYTHON_BIN" src/core/generate_unified_index.py
+                if [ -f "webpages/data/${RUN_DATE}.json" ]; then
+                    log "❌ Skipped date still has generated output: webpages/data/${RUN_DATE}.json"
+                    notify_failure "$(printf '❌ PaperTools publish gate failed\n  • date: %s\n  • reason: skipped date still generated a data file\n  • base: %s\n  • run_id: %s' "$RUN_DATE" "$BASE_SHA" "$RUN_ID")"
+                    exit 1
+                fi
+                SKIPPED_DATE_LIST="$(append_date "$SKIPPED_DATE_LIST" "$RUN_DATE")"
+                continue
+                ;;
+        esac
         validate_date_output "$RUN_DATE" "$STATUS_FILE"
         log "✅ Pipeline completed for $RUN_DATE"
     fi

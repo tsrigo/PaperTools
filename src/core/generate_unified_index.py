@@ -4,11 +4,18 @@
 不依赖外部模板，直接生成完整的HTML页面
 """
 
+import argparse
 import hashlib
 import json
+import os
 import re
+import sys
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
+
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
 
 # 导入配置
 try:
@@ -30,6 +37,11 @@ except ImportError:
 
 try:
     from src.utils.io import save_json, save_text
+    from src.utils.publish_quality import (
+        has_valid_generated_text,
+        validate_date_data_payload,
+        validate_publishable_papers,
+    )
 except ImportError:
     def save_json(filepath, data, indent=2, ensure_ascii=False):  # type: ignore[no-redef]
         with open(filepath, "w", encoding="utf-8") as handle:
@@ -40,6 +52,15 @@ except ImportError:
         with open(filepath, "w", encoding="utf-8") as handle:
             handle.write(content)
         return True
+
+    def has_valid_generated_text(value):  # type: ignore[no-redef]
+        return isinstance(value, str) and bool(value.strip())
+
+    def validate_publishable_papers(papers, *, context="papers"):  # type: ignore[no-redef]
+        return True, []
+
+    def validate_date_data_payload(date_data, *, expected_date=""):  # type: ignore[no-redef]
+        return True, []
 
 # 分页配置
 INITIAL_DAYS = 3  # 初始加载的天数（其余通过"加载更多"按需加载）
@@ -275,6 +296,28 @@ def normalize_papers_for_display(papers: List[Dict[str, Any]]) -> List[Dict[str,
     return normalized
 
 
+def publishable_papers_or_none(
+    papers: List[Dict[str, Any]],
+    source_label: str,
+) -> Optional[List[Dict[str, Any]]]:
+    """Return normalized papers only when the whole source is ready to publish."""
+    normalized = normalize_papers_for_display(papers)
+    if not normalized:
+        print(f"跳过空日期候选: {source_label}")
+        return None
+
+    ok, errors = validate_publishable_papers(normalized, context=source_label)
+    if not ok:
+        print(f"跳过未完成发布候选: {source_label}")
+        for error in errors[:5]:
+            print(f"  - {error}")
+        if len(errors) > 5:
+            print(f"  - ... 还有 {len(errors) - 5} 个未完成项")
+        return None
+
+    return normalized
+
+
 def build_arxiv_source_index() -> Dict[str, Dict[str, Any]]:
     """Load crawl-stage metadata for backfilling partial downstream files."""
     source_by_id: Dict[str, Dict[str, Any]] = {}
@@ -477,15 +520,30 @@ def load_paper_data() -> Dict[str, List[Dict[str, Any]]]:
             date_match = re.search(r'(\d{4}-\d{2}-\d{2})', filename)
             if date_match:
                 backfilled_papers = backfill_paper_metadata(papers, source_by_id)
-                normalized_papers = normalize_papers_for_display(backfilled_papers)
+                normalized_papers = publishable_papers_or_none(
+                    backfilled_papers,
+                    f"{json_file.parent.name}/{json_file.name}",
+                )
+                if normalized_papers is None:
+                    continue
                 if range_match:
                     grouped_papers = group_papers_by_source_date(
                         normalized_papers,
                         range_match.group(1),
                     )
                     for date, date_papers in grouped_papers.items():
+                        publishable_date_papers = publishable_papers_or_none(
+                            date_papers,
+                            f"{json_file.parent.name}/{json_file.name}:{date}",
+                        )
+                        if publishable_date_papers is None:
+                            continue
                         candidates_by_date.setdefault(date, []).append(
-                            (score_paper_file(json_file, date_papers), json_file, date_papers)
+                            (
+                                score_paper_file(json_file, publishable_date_papers),
+                                json_file,
+                                publishable_date_papers,
+                            )
                         )
                 else:
                     date = date_match.group(1)
@@ -520,7 +578,12 @@ def load_paper_data() -> Dict[str, List[Dict[str, Any]]]:
                         flattened_papers.append(paper_copy)
 
                 if flattened_papers:
-                    published_papers = normalize_papers_for_display(flattened_papers)
+                    published_papers = publishable_papers_or_none(
+                        flattened_papers,
+                        f"{date_file}",
+                    )
+                    if published_papers is None:
+                        continue
                     if date in papers_by_date:
                         before_count = len(papers_by_date[date])
                         merged_papers = merge_published_papers(papers_by_date[date], published_papers)
@@ -533,9 +596,8 @@ def load_paper_data() -> Dict[str, List[Dict[str, Any]]]:
                     else:
                         papers_by_date[date] = published_papers
                         print(f"保留已发布数据 {date}: {len(flattened_papers)} 篇，来源: {date_file}")
-                elif date not in papers_by_date and date_data.get("date") == date:
-                    papers_by_date[date] = []
-                    print(f"保留已发布零结果日期 {date}，来源: {date_file}")
+                elif date_data.get("date") == date:
+                    print(f"跳过已发布空日期 {date}，来源: {date_file}")
             except Exception as e:
                 print(f"加载已发布数据 {date_file} 时出错: {e}")
 
@@ -640,12 +702,29 @@ def collect_all_tags(papers: List[Dict]) -> List[Dict]:
     return result
 
 
+def prune_stale_date_files(data_dir: Path, valid_dates: List[str]) -> None:
+    """Remove date JSON files that are empty, partial, or no longer publishable."""
+    valid_date_set = set(valid_dates)
+    if not data_dir.exists():
+        return
+
+    for date_file in data_dir.glob("*.json"):
+        if date_file.name == "index.json":
+            continue
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", date_file.stem):
+            continue
+        if date_file.stem not in valid_date_set:
+            date_file.unlink()
+            print(f"删除未发布日期数据文件: {date_file}")
+
+
 def save_date_data_files(papers_by_date: Dict, daily_overviews: Dict) -> List[str]:
     """将每个日期的数据保存为独立的 JSON 文件"""
     data_dir = Path(WEBPAGES_DIR) / "data"
     data_dir.mkdir(parents=True, exist_ok=True)
 
     all_dates = sorted(papers_by_date.keys(), reverse=True)
+    prune_stale_date_files(data_dir, all_dates)
 
     for date in all_dates:
         papers = papers_by_date[date]
@@ -658,6 +737,10 @@ def save_date_data_files(papers_by_date: Dict, daily_overviews: Dict) -> List[st
             "tags": tags,
             "overview": daily_overviews.get(date, "")
         }
+
+        ok, errors = validate_date_data_payload(date_data, expected_date=date)
+        if not ok:
+            raise ValueError(f"{date} 未通过发布质量检查: {'; '.join(errors[:5])}")
 
         date_file = data_dir / f"{date}.json"
         if not save_json(str(date_file), date_data, indent=None, ensure_ascii=False):
@@ -681,6 +764,11 @@ def generate_complete_html() -> str:
     """生成完整的HTML页面"""
     papers_by_date = load_paper_data()
     daily_overviews = load_daily_overviews()
+
+    for date in list(papers_by_date.keys()):
+        if not has_valid_generated_text(daily_overviews.get(date, "")):
+            print(f"跳过缺少每日速览的日期 {date}")
+            del papers_by_date[date]
 
     # 保存所有日期的数据到独立文件
     all_dates = save_date_data_files(papers_by_date, daily_overviews)
@@ -2356,8 +2444,33 @@ def generate_complete_html() -> str:
 
     return html_template
 
+def validate_required_date(require_date: str) -> None:
+    """Ensure a requested date was generated and is ready for publication."""
+    if not require_date:
+        return
+
+    date_file = Path(WEBPAGES_DIR) / "data" / f"{require_date}.json"
+    if not date_file.exists():
+        raise ValueError(f"{require_date} 没有可发布数据文件")
+
+    with open(date_file, "r", encoding="utf-8") as handle:
+        date_data = json.load(handle)
+
+    ok, errors = validate_date_data_payload(date_data, expected_date=require_date)
+    if not ok:
+        raise ValueError(f"{require_date} 未通过发布质量检查: {'; '.join(errors[:5])}")
+
+
 def main():
     """主函数"""
+    parser = argparse.ArgumentParser(description="生成统一 PaperTools 网页")
+    parser.add_argument(
+        "--require-date",
+        default="",
+        help="要求指定日期必须生成完整、可发布的数据，否则返回非零退出码",
+    )
+    args = parser.parse_args()
+
     try:
         html_content = generate_complete_html()
 
@@ -2369,6 +2482,8 @@ def main():
         output_path = webpages_dir / "index.html"
         if not save_text(str(output_path), html_content):
             raise IOError(f"写入统一HTML页面失败: {output_path}")
+
+        validate_required_date(args.require_date)
 
         print(f"成功生成统一HTML页面: {output_path}")
 
