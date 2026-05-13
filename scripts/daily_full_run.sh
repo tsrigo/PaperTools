@@ -254,6 +254,10 @@ fi
 cd "$WORKTREE_DIR"
 BASE_SHA="$(git rev-parse --short HEAD)"
 log "📌 Running from clean origin/master worktree at $BASE_SHA"
+CURRENT_STAGE="init_submodules"
+if ! run_logged git submodule update --init --recursive; then
+    log "⚠️ Submodule init failed; continuing because summary generation has a non-ReviewGrounder fallback"
+fi
 
 build_date_list() {
     local current="$DAILY_START_DATE"

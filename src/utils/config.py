@@ -7,8 +7,9 @@ import os
 import warnings
 from dotenv import load_dotenv
 
-# 加载环境变量
-load_dotenv()
+# 加载环境变量。日跑脚本会把生产 .env 复制到临时 worktree；
+# 这里显式让 .env 覆盖外部 shell 环境，避免调试环境里的 OPENAI_* 泄漏进生产流水线。
+load_dotenv(override=True)
 
 
 def _get_env_str(name: str, default: str = "") -> str:
@@ -114,7 +115,7 @@ SUMMARY_CONTENT_CHAR_LIMIT = _get_env_int("SUMMARY_CONTENT_CHAR_LIMIT", 200000, 
 SUMMARY_EXTRACTION_MAX_ATTEMPTS = _get_env_int("SUMMARY_EXTRACTION_MAX_ATTEMPTS", 3, minimum=1)
 
 # ReviewGrounder 审稿配置
-REVIEWGROUNDER_ENABLED = _get_env_bool("REVIEWGROUNDER_ENABLED", True)
+REVIEWGROUNDER_ENABLED = _get_env_bool("REVIEWGROUNDER_ENABLED", False)
 REVIEWGROUNDER_PATH = _get_env_str("REVIEWGROUNDER_PATH", "vendor/ReviewGrounder")
 REVIEWGROUNDER_API_KEY = _get_env_str(
     "REVIEWGROUNDER_API_KEY",
@@ -144,7 +145,7 @@ REVIEWGROUNDER_JSON_TOOL_RETRIES = _get_env_int("REVIEWGROUNDER_JSON_TOOL_RETRIE
 # Prestige 筛选配置
 PRESTIGE_ENABLED = _get_env_bool("PRESTIGE_ENABLED", True)
 PRESTIGE_CONTEXT_CHARS = _get_env_int("PRESTIGE_CONTEXT_CHARS", 16000, minimum=1000)
-PRESTIGE_RULE_VERSION = _get_env_str("PRESTIGE_RULE_VERSION", "hybrid_v1")
+PRESTIGE_RULE_VERSION = _get_env_str("PRESTIGE_RULE_VERSION", "hybrid_v2")
 
 # Webhook notification (optional)
 WEBHOOK_URL = _get_env_str("WEBHOOK_URL", "")

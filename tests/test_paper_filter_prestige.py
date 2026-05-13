@@ -10,6 +10,22 @@ def test_filter_model_chain_normalizes_stale_minimax_alias_to_stable_chat_model(
     assert "deepseek-chat" in chain
 
 
+def test_filter_model_chain_uses_openrouter_model_ids_for_openrouter_base_url():
+    chain = paper_filter.build_filter_model_chain(
+        "qwen",
+        "https://openrouter.ai/api/v1/",
+    )
+
+    assert chain[0] == "qwen/qwen3-30b-a3b"
+    assert "deepseek/deepseek-chat-v3-0324" in chain
+    assert "qwen" not in chain
+
+
+def test_prestige_defaults_do_not_bypass_hard_filter():
+    assert paper_filter.TOPIC_HEURISTIC_BYPASS_PRESTIGE is False
+    assert paper_filter.PRESTIGE_AFFILIATION_FETCH_ENABLED is True
+
+
 def test_filter_model_fallback_skips_invalid_model(monkeypatch):
     calls = []
 
@@ -33,6 +49,33 @@ def test_filter_model_fallback_skips_invalid_model(monkeypatch):
     assert response == "结果: False\n理由: fallback ok"
     assert calls == ["bad-model", "qwen"]
     assert "bad-model" in paper_filter._DISABLED_FILTER_MODELS
+
+
+def test_filter_model_fallback_skips_not_a_valid_model_id(monkeypatch):
+    calls = []
+
+    def fake_run_llm_prompt(_prompt, _system, _client, model, _temperature):
+        calls.append(model)
+        if model == "qwen":
+            raise OpenAIError(
+                "Error code: 400 - {'error': {'message': 'qwen is not a valid model ID'}}"
+            )
+        return "结果: True\n理由: fallback ok"
+
+    monkeypatch.setattr(paper_filter, "run_llm_prompt", fake_run_llm_prompt)
+    paper_filter._DISABLED_FILTER_MODELS.clear()
+
+    response = paper_filter.run_llm_prompt_with_fallback(
+        "prompt",
+        "system",
+        client=None,
+        models=["qwen", "deepseek-chat"],
+        temperature=0.1,
+    )
+
+    assert response == "结果: True\n理由: fallback ok"
+    assert calls == ["qwen", "deepseek-chat"]
+    assert "qwen" in paper_filter._DISABLED_FILTER_MODELS
 
 
 def test_missing_affiliations_without_author_signal_is_excluded(monkeypatch):

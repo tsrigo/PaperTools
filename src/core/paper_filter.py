@@ -130,10 +130,10 @@ PRESTIGE_LLM_ENABLED = os.getenv("PAPERTOOLS_PRESTIGE_LLM_ENABLED", "0").lower()
     "on",
 }
 TOPIC_HEURISTIC_KEEP_ENABLED = env_bool("PAPERTOOLS_TOPIC_HEURISTIC_KEEP_ENABLED", True)
-TOPIC_HEURISTIC_BYPASS_PRESTIGE = env_bool("PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE", True)
+TOPIC_HEURISTIC_BYPASS_PRESTIGE = env_bool("PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE", False)
 PRESTIGE_AFFILIATION_FETCH_ENABLED = os.getenv(
     "PAPERTOOLS_PRESTIGE_AFFILIATION_FETCH_ENABLED",
-    "0",
+    "1",
 ).lower() in {
     "1",
     "true",
@@ -156,9 +156,31 @@ def split_csv(value: str) -> List[str]:
     return [item.strip() for item in value.split(",") if item.strip()]
 
 
-def normalize_filter_model(model: str) -> str:
-    """Translate stale local aliases to model ids accepted by the SJTU router."""
+def is_openrouter_base_url(base_url: str) -> bool:
+    return "openrouter.ai" in (base_url or "").lower()
+
+
+def normalize_filter_model(model: str, base_url: str = "") -> str:
+    """Translate stale local aliases to model ids accepted by the active router."""
     model = (model or "").strip()
+    if is_openrouter_base_url(base_url):
+        aliases = {
+            "qwen": "qwen/qwen3-30b-a3b",
+            "minimax": "qwen/qwen3-30b-a3b",
+            "minimax-m2": "qwen/qwen3-30b-a3b",
+            "minimax-m2.5": "qwen/qwen3-30b-a3b",
+            "minimax-m2.7": "qwen/qwen3-30b-a3b",
+            "minimax/minimax-m2": "qwen/qwen3-30b-a3b",
+            "minimax/minimax-m2.5": "qwen/qwen3-30b-a3b",
+            "minimax/minimax-m2.7": "qwen/qwen3-30b-a3b",
+            "deepseek-chat": "deepseek/deepseek-chat-v3-0324",
+            "deepseek-reasoner": "deepseek/deepseek-chat-v3-0324",
+            "deepseek/deepseek-chat": "deepseek/deepseek-chat-v3-0324",
+            "deepseek/deepseek-r1": "deepseek/deepseek-chat-v3-0324",
+            "deepseek-r1": "deepseek/deepseek-chat-v3-0324",
+        }
+        return aliases.get(model, model)
+
     aliases = {
         "minimax-m2": "qwen",
         "minimax-m2.5": "qwen",
@@ -174,12 +196,17 @@ def normalize_filter_model(model: str) -> str:
     return aliases.get(model, model)
 
 
-def build_filter_model_chain(primary_model: str) -> List[str]:
+def build_filter_model_chain(primary_model: str, base_url: str = "") -> List[str]:
     """Build a de-duplicated topic/prestige filter model fallback chain."""
     configured = split_csv(FILTER_MODEL_CHAIN_ENV)
     raw_models = [primary_model]
     if configured:
         raw_models.extend(configured)
+    elif is_openrouter_base_url(base_url):
+        raw_models.extend([
+            "qwen/qwen3-30b-a3b",
+            "deepseek/deepseek-chat-v3-0324",
+        ])
     else:
         raw_models.extend([
             "qwen",
@@ -190,7 +217,7 @@ def build_filter_model_chain(primary_model: str) -> List[str]:
     chain = []
     seen = set()
     for raw_model in raw_models:
-        model = normalize_filter_model(raw_model)
+        model = normalize_filter_model(raw_model, base_url)
         if not model or model in seen:
             continue
         seen.add(model)
@@ -375,7 +402,19 @@ def is_invalid_filter_model_error(exc: Exception) -> bool:
     message = str(exc).lower()
     return (
         "model" in message
-        and any(token in message for token in ("invalid model", "model_not_found", "does not exist", "not found"))
+        and any(
+            token in message
+            for token in (
+                "invalid model",
+                "invalid model id",
+                "invalid model name",
+                "not a valid model",
+                "not a valid model id",
+                "model_not_found",
+                "does not exist",
+                "not found",
+            )
+        )
     )
 
 
@@ -968,7 +1007,7 @@ def main() -> int:
         chain=FILTER_EXTRACT_CHAIN,
         request_timeout=FILTER_EXTRACT_TIMEOUT,
     )
-    filter_model_chain = build_filter_model_chain(args.model)
+    filter_model_chain = build_filter_model_chain(args.model, args.base_url)
 
     print("🔍 开始论文筛选")
     print(f"📁 输入文件: {args.input_file}")

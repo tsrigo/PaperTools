@@ -12,6 +12,8 @@ PaperTools is a user-facing daily reading system. Treat every generated webpage 
 - Do not upload filtering failures. If filtering has API/model errors, malformed output, or suspicious zero results, stop the run and alert instead of publishing.
 - Do not fall back silently after clustering, summarization, overview generation, or webpage generation fails. These are publication blockers.
 - Prefer failing closed over showing users incomplete papers. A missed day with a clear failure notification is better than a broken page that looks successful.
+- Optional enrichment dependencies such as ReviewGrounder must have a real content-generating fallback. Dependency import failures must not create user-visible error placeholders.
+- Filter model fallback must disable an invalid model ID after the first provider error and continue to the next configured model instead of retrying the same bad ID for every paper.
 
 ## Daily Automation Requirements
 

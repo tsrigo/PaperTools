@@ -269,6 +269,10 @@ class SummaryProvider:
             self._cooldown_until = max(self._cooldown_until, time.monotonic() + cooldown)
         print(f"⏳ {self.label} 触发 429，冷却 {cooldown}s 后再使用该 provider")
 
+    def cooldown_remaining(self) -> float:
+        with self._rate_lock:
+            return max(0.0, self._cooldown_until - time.monotonic())
+
 
 _PROVIDER_LOCK = threading.Lock()
 
@@ -404,10 +408,18 @@ def collect_streaming_completion(
     """Try summary providers in order and return the first non-empty response."""
     last_exception: Optional[Exception] = None
 
-    for provider in providers:
+    for idx, provider in enumerate(providers):
         with _PROVIDER_LOCK:
             disabled = provider.disabled
         if disabled:
+            continue
+        fallback_available = any(not candidate.disabled for candidate in providers[idx + 1:])
+        cooldown_remaining = provider.cooldown_remaining()
+        if fallback_available and cooldown_remaining > 0:
+            print(
+                f"⏭️ {provider.label} 正在 429 冷却 "
+                f"({cooldown_remaining:.1f}s)，使用下一个总结 provider"
+            )
             continue
 
         try:
@@ -1527,9 +1539,12 @@ def main() -> int:
                         print(f"⚠️ 翻译摘要失败 {paper_title[:30]}: {e}")
                         summary_translation = ""
 
-            # 生成 ReviewGrounder 审稿，替代旧研究价值 prompt。
+            # 生成 ReviewGrounder 审稿；依赖不可用时用内置研究价值评估兜底。
             research_value = ""
             reviewgrounder_review = None
+            research_value_source = "reviewgrounder"
+            research_value_model = REVIEWGROUNDER_MODEL
+            research_value_reasoning_effort = REVIEWGROUNDER_REASONING_EFFORT
             if REVIEWGROUNDER_ENABLED:
                 try:
                     reviewgrounder_cache_payload = build_reviewgrounder_cache_payload(
@@ -1563,14 +1578,53 @@ def main() -> int:
                     research_value = reviewgrounder_markdown_from_result(reviewgrounder_review)
                 except Exception as e:
                     print(f"⚠️ 生成ReviewGrounder审稿失败 {paper_title[:30]}: {e}")
+                    print(f"↩️ 使用内置研究价值评估兜底: {paper_title[:50]}...")
+                    try:
+                        research_value = generate_research_value(
+                            providers,
+                            args.temperature,
+                            paper_title,
+                            paper.get('arxiv_id', ''),
+                            paper.get('source_date') or paper.get('date', ''),
+                            intro_logic,
+                            methodology,
+                            additional_insights,
+                            original_summary or paper.get('summary', ''),
+                            cache_manager,
+                        )
+                        reviewgrounder_review = {
+                            "source": "legacy_research_value_fallback",
+                            "fallback_reason": str(e),
+                        }
+                        research_value_source = "legacy_research_value_fallback"
+                        research_value_model = ",".join(provider.label for provider in providers)
+                        research_value_reasoning_effort = ""
+                    except Exception as fallback_exc:
+                        print(f"⚠️ 内置研究价值评估也失败 {paper_title[:30]}: {fallback_exc}")
+                        reviewgrounder_review = reviewgrounder_error_result(fallback_exc, paper_title)
+                        research_value = reviewgrounder_markdown_from_result(reviewgrounder_review)
+            else:
+                try:
+                    research_value = generate_research_value(
+                        providers,
+                        args.temperature,
+                        paper_title,
+                        paper.get('arxiv_id', ''),
+                        paper.get('source_date') or paper.get('date', ''),
+                        intro_logic,
+                        methodology,
+                        additional_insights,
+                        original_summary or paper.get('summary', ''),
+                        cache_manager,
+                    )
+                    reviewgrounder_review = {"source": "legacy_research_value"}
+                    research_value_source = "legacy_research_value"
+                    research_value_model = ",".join(provider.label for provider in providers)
+                    research_value_reasoning_effort = ""
+                except Exception as e:
+                    print(f"⚠️ 内置研究价值评估失败 {paper_title[:30]}: {e}")
                     reviewgrounder_review = reviewgrounder_error_result(e, paper_title)
                     research_value = reviewgrounder_markdown_from_result(reviewgrounder_review)
-            else:
-                reviewgrounder_review = reviewgrounder_error_result(
-                    RuntimeError("REVIEWGROUNDER_ENABLED=false"),
-                    paper_title,
-                )
-                research_value = reviewgrounder_markdown_from_result(reviewgrounder_review)
 
             # 提取作者机构信息
             affiliations = paper.get('affiliations', '') if has_valid_generated_text(paper.get('affiliations')) else ""
@@ -1590,9 +1644,9 @@ def main() -> int:
             paper_copy['additional_insights'] = additional_insights
             paper_copy['reviewgrounder_review'] = reviewgrounder_review
             paper_copy['research_value'] = research_value
-            paper_copy['research_value_source'] = 'reviewgrounder'
-            paper_copy['research_value_model'] = REVIEWGROUNDER_MODEL
-            paper_copy['research_value_reasoning_effort'] = REVIEWGROUNDER_REASONING_EFFORT
+            paper_copy['research_value_source'] = research_value_source
+            paper_copy['research_value_model'] = research_value_model
+            paper_copy['research_value_reasoning_effort'] = research_value_reasoning_effort
             paper_copy['affiliations'] = affiliations
             paper_copy['summary_translation'] = summary_translation
             paper_copy['summary_generated_time'] = time.strftime('%Y-%m-%d %H:%M:%S')

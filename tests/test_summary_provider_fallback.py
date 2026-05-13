@@ -1,0 +1,71 @@
+import time
+
+from src.core.generate_summary import SummaryProvider, collect_streaming_completion
+
+
+class _FakeDelta:
+    content = "fallback ok"
+
+
+class _FakeChoice:
+    delta = _FakeDelta()
+
+
+class _FakeChunk:
+    choices = [_FakeChoice()]
+
+
+class _FakeCompletions:
+    def create(self, **_kwargs):
+        return [_FakeChunk()]
+
+
+class _FakeChat:
+    completions = _FakeCompletions()
+
+
+class _FailingCompletions:
+    def create(self, **_kwargs):
+        raise AssertionError("cooled-down provider should be skipped")
+
+
+class _FailingChat:
+    completions = _FailingCompletions()
+
+
+class _FakeClient:
+    chat = _FakeChat()
+
+
+class _FailingClient:
+    chat = _FailingChat()
+
+
+def _provider(name: str) -> SummaryProvider:
+    provider = SummaryProvider(
+        name=name,
+        base_url="https://example.test/v1",
+        api_key="test-key",
+        model="test-model",
+    )
+    return provider
+
+
+def test_collect_streaming_completion_skips_cooled_down_provider_when_fallback_exists():
+    cooled_down = _provider("prism")
+    fallback = _provider("sjtu")
+    cooled_down.client = _FailingClient()
+    fallback.client = _FakeClient()
+
+    with cooled_down._rate_lock:
+        cooled_down._cooldown_until = time.monotonic() + 60
+
+    result, provider = collect_streaming_completion(
+        [cooled_down, fallback],
+        [{"role": "user", "content": "hello"}],
+        temperature=0.1,
+        cache_key="test",
+    )
+
+    assert result == "fallback ok"
+    assert provider is fallback

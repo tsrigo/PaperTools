@@ -11,7 +11,7 @@ import os
 import re
 import sys
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Set
 
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 if project_root not in sys.path:
@@ -495,8 +495,9 @@ def group_papers_by_source_date(
     return grouped
 
 
-def load_paper_data() -> Dict[str, List[Dict[str, Any]]]:
+def load_paper_data(replace_dates: Optional[Set[str]] = None) -> Dict[str, List[Dict[str, Any]]]:
     """加载论文数据"""
+    replace_dates = replace_dates or set()
     papers_by_date = {}
     summary_dir = Path(SUMMARY_DIR)
     domain_paper_dir = Path(DOMAIN_PAPER_DIR)
@@ -583,6 +584,9 @@ def load_paper_data() -> Dict[str, List[Dict[str, Any]]]:
                         f"{date_file}",
                     )
                     if published_papers is None:
+                        continue
+                    if date in replace_dates and date in papers_by_date:
+                        print(f"跳过合并已发布数据 {date}: 当前运行显式重生成该日期")
                         continue
                     if date in papers_by_date:
                         before_count = len(papers_by_date[date])
@@ -760,9 +764,9 @@ def save_date_data_files(papers_by_date: Dict, daily_overviews: Dict) -> List[st
 
     return all_dates
 
-def generate_complete_html() -> str:
+def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
     """生成完整的HTML页面"""
-    papers_by_date = load_paper_data()
+    papers_by_date = load_paper_data(replace_dates=replace_dates)
     daily_overviews = load_daily_overviews()
 
     for date in list(papers_by_date.keys()):
@@ -2472,7 +2476,8 @@ def main():
     args = parser.parse_args()
 
     try:
-        html_content = generate_complete_html()
+        replace_dates = {args.require_date} if args.require_date else set()
+        html_content = generate_complete_html(replace_dates=replace_dates)
 
         # 确保webpages目录存在
         webpages_dir = Path(WEBPAGES_DIR)
