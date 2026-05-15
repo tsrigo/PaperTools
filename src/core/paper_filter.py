@@ -15,7 +15,7 @@ from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
-from openai import OpenAI, OpenAIError
+from openai import OpenAIError
 from tqdm import tqdm
 
 # 添加项目根目录到Python路径
@@ -53,6 +53,7 @@ except ImportError as exc:
 from src.document_extraction import ExtractionManager  # noqa: E402
 from src.utils.exceptions import ValidationError  # noqa: E402
 from src.utils.io import save_json  # noqa: E402
+from src.utils.openai_client import create_openai_client  # noqa: E402
 from src.utils.retry import retry_with_backoff  # noqa: E402
 from src.utils.validation import validate_non_negative_int, validate_positive_int  # noqa: E402
 
@@ -118,6 +119,12 @@ FILTER_RPM = env_int("PAPERTOOLS_FILTER_RPM", 8, minimum=0)
 FILTER_RATE_WINDOW_SECONDS = env_float("PAPERTOOLS_FILTER_RATE_WINDOW_SECONDS", 60, minimum=1)
 FILTER_RATE_LIMIT_COOLDOWN_SECONDS = env_float("PAPERTOOLS_FILTER_429_COOLDOWN_SECONDS", 65, minimum=0)
 FILTER_MAX_OUTPUT_PAPERS = env_int("PAPERTOOLS_FILTER_MAX_OUTPUT_PAPERS", 15, minimum=0)
+FILTER_SUSPICIOUS_ZERO_MIN_INPUT = env_int("PAPERTOOLS_FILTER_SUSPICIOUS_ZERO_MIN_INPUT", 500, minimum=0)
+FILTER_SUSPICIOUS_ZERO_MIN_PREFILTERED = env_int(
+    "PAPERTOOLS_FILTER_SUSPICIOUS_ZERO_MIN_PREFILTERED",
+    100,
+    minimum=0,
+)
 FILTER_MODEL_CHAIN_ENV = (
     os.getenv("PAPERTOOLS_FILTER_MODEL_CHAIN")
     or os.getenv("FILTER_MODEL_CHAIN")
@@ -144,6 +151,19 @@ PRESTIGE_AFFILIATION_FETCH_ENABLED = os.getenv(
 
 class LLMResponseParseError(ValueError):
     """Raised when a filter LLM response cannot be parsed safely."""
+
+
+def is_suspicious_zero_result(
+    total_input: int,
+    prefiltered_count: int,
+    filtered_total: int,
+) -> bool:
+    """Treat a large all-rejected candidate pool as a filter anomaly, not a quiet skip."""
+    return (
+        filtered_total == 0
+        and total_input >= FILTER_SUSPICIOUS_ZERO_MIN_INPUT
+        and prefiltered_count >= FILTER_SUSPICIOUS_ZERO_MIN_PREFILTERED
+    )
 
 
 _FILTER_RATE_LOCK = threading.Lock()
@@ -538,7 +558,7 @@ def parse_llm_response(response_text: str) -> Tuple[bool, str]:
 
 
 @retry_with_backoff(max_retries=FILTER_LLM_MAX_RETRIES, initial_delay=2.0, max_delay=8.0)
-def run_llm_prompt(prompt: str, system: str, client: OpenAI, model: str,
+def run_llm_prompt(prompt: str, system: str, client: object, model: str,
                    temperature: float = TEMPERATURE) -> str:
     """执行 LLM prompt，并返回原始文本。"""
     wait_for_filter_rate_slot()
@@ -567,7 +587,7 @@ def run_llm_prompt(prompt: str, system: str, client: OpenAI, model: str,
     return strip_think_tags(response_text)
 
 
-def run_llm_prompt_with_fallback(prompt: str, system: str, client: OpenAI, models: Any,
+def run_llm_prompt_with_fallback(prompt: str, system: str, client: object, models: Any,
                                  temperature: float = TEMPERATURE) -> str:
     """Run a filter prompt, skipping stale/invalid model ids when possible."""
     last_exception = None
@@ -591,7 +611,7 @@ def run_llm_prompt_with_fallback(prompt: str, system: str, client: OpenAI, model
     raise RuntimeError(f"没有可用的筛选模型，已尝试: {', '.join(attempted) or '<none>'}")
 
 
-def query_topic_llm(title: str, summary: str, client: OpenAI, model: Any,
+def query_topic_llm(title: str, summary: str, client: object, model: Any,
                     temperature: float = TEMPERATURE) -> Tuple[bool, str]:
     """使用主题筛选 prompt 判断论文是否相关。"""
     response_text = run_llm_prompt_with_fallback(
@@ -604,7 +624,7 @@ def query_topic_llm(title: str, summary: str, client: OpenAI, model: Any,
     return parse_llm_response(response_text)
 
 
-def query_prestige_llm(title: str, authors: str, affiliations: str, client: OpenAI,
+def query_prestige_llm(title: str, authors: str, affiliations: str, client: object,
                        model: Any, temperature: float = TEMPERATURE,
                        cache_manager: Optional[CacheManager] = None) -> Tuple[bool, str]:
     """使用 prestige prompt 判断论文是否命中大牛/顶级机构。"""
@@ -742,7 +762,7 @@ def resolve_missing_affiliations_prestige(
     authors: str,
     fetch_reason: str,
     paper_with_reason: dict,
-    client: OpenAI,
+    client: object,
     model: Any,
     temperature: float,
     cache_manager: Optional[CacheManager] = None,
@@ -803,7 +823,7 @@ def get_affiliation_context(paper_content: str) -> str:
     return paper_content[:PRESTIGE_CONTEXT_CHARS]
 
 
-def query_affiliations_llm(paper_content: str, authors: str, client: OpenAI, model: Any,
+def query_affiliations_llm(paper_content: str, authors: str, client: object, model: Any,
                            temperature: float, paper_title: str = "",
                            cache_manager: Optional[CacheManager] = None) -> str:
     """Extract affiliation JSON with the bounded non-streaming filter client."""
@@ -862,7 +882,7 @@ def query_affiliations_llm(paper_content: str, authors: str, client: OpenAI, mod
     return response_text.strip()
 
 
-def fetch_affiliations_for_prestige(paper: dict, client: OpenAI, model: Any, temperature: float,
+def fetch_affiliations_for_prestige(paper: dict, client: object, model: Any, temperature: float,
                                     cache_manager: Optional[CacheManager] = None,
                                     document_extractor: Optional[ExtractionManager] = None,
                                     api_key: str = API_KEY,
@@ -995,7 +1015,7 @@ def main() -> int:
 
     os.makedirs(args.output_dir, exist_ok=True)
 
-    client = OpenAI(
+    client = create_openai_client(
         api_key=args.api_key,
         base_url=args.base_url,
         timeout=FILTER_LLM_TIMEOUT,
@@ -1482,7 +1502,12 @@ def main() -> int:
             print(f"❌ 保存被排除论文时出错: {e}")
             return 1
 
-    fatal_zero_result = error_count > 0 and len(filtered_papers) == 0
+    anomalous_zero_result = is_suspicious_zero_result(
+        original_paper_count,
+        prefiltered_count,
+        len(all_filtered_papers),
+    )
+    fatal_zero_result = (error_count > 0 and len(all_filtered_papers) == 0) or anomalous_zero_result
     status_payload = {
         "status": "failed" if fatal_zero_result else "ok",
         "input_file": args.input_file,
@@ -1500,12 +1525,23 @@ def main() -> int:
         "selection_cap_excluded": selection_cap_excluded_count,
         "error_count": error_count,
         "timed_out_count": timed_out_count,
+        "suspicious_zero_result": anomalous_zero_result,
+        "suspicious_zero_min_input": FILTER_SUSPICIOUS_ZERO_MIN_INPUT,
+        "suspicious_zero_min_prefiltered": FILTER_SUSPICIOUS_ZERO_MIN_PREFILTERED,
         "fatal_zero_result": fatal_zero_result,
     }
     if fatal_zero_result:
-        status_payload["failure_reason"] = (
-            f"筛选阶段 {error_count} 个错误且本轮筛选结果为 0，拒绝发布疑似异常空结果"
-        )
+        if error_count > 0:
+            status_payload["failure_reason"] = (
+                f"筛选阶段 {error_count} 个错误且本轮筛选结果为 0，拒绝发布疑似异常空结果"
+            )
+        else:
+            status_payload["failure_reason"] = (
+                "筛选阶段源论文和关键词候选很多但最终入选 0 篇，拒绝静默跳过疑似异常空结果 "
+                f"(total_input={original_paper_count}, prefiltered={prefiltered_count}, "
+                f"thresholds={FILTER_SUSPICIOUS_ZERO_MIN_INPUT}/"
+                f"{FILTER_SUSPICIOUS_ZERO_MIN_PREFILTERED})"
+            )
     write_status_file(args.status_file, status_payload)
 
     if fatal_zero_result:

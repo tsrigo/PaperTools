@@ -26,6 +26,32 @@ def test_prestige_defaults_do_not_bypass_hard_filter():
     assert paper_filter.PRESTIGE_AFFILIATION_FETCH_ENABLED is True
 
 
+def test_large_zero_filter_result_is_suspicious():
+    assert paper_filter.is_suspicious_zero_result(
+        total_input=1280,
+        prefiltered_count=550,
+        filtered_total=0,
+    )
+
+
+def test_small_or_keyword_empty_zero_filter_result_can_be_normal_skip():
+    assert not paper_filter.is_suspicious_zero_result(
+        total_input=1280,
+        prefiltered_count=0,
+        filtered_total=0,
+    )
+    assert not paper_filter.is_suspicious_zero_result(
+        total_input=100,
+        prefiltered_count=80,
+        filtered_total=0,
+    )
+    assert not paper_filter.is_suspicious_zero_result(
+        total_input=1280,
+        prefiltered_count=550,
+        filtered_total=1,
+    )
+
+
 def test_filter_model_fallback_skips_invalid_model(monkeypatch):
     calls = []
 

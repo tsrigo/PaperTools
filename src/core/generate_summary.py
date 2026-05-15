@@ -23,7 +23,7 @@ warnings.filterwarnings(
 
 import requests
 from tqdm import tqdm
-from openai import OpenAI, OpenAIError
+from openai import OpenAIError
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from functools import wraps
 
@@ -60,6 +60,7 @@ from src.utils.cache_manager import CacheManager  # noqa: E402
 from src.utils.exceptions import ValidationError  # noqa: E402
 from src.utils.io import save_json, save_text  # noqa: E402
 from src.utils.notify import notify_failures  # noqa: E402
+from src.utils.openai_client import create_openai_client  # noqa: E402
 from src.utils.publish_quality import missing_publish_fields  # noqa: E402
 from src.utils.validation import validate_non_negative_int, validate_positive_int  # noqa: E402
 
@@ -191,7 +192,7 @@ class SummaryProvider:
     rate_window_seconds: int = 0
     rate_window_safety_requests: int = 0
     rate_limit_cooldown_seconds: int = 0
-    client: OpenAI = field(init=False)
+    client: object = field(init=False)
     disabled: bool = False
     disable_reason: str = ""
     _rate_lock: threading.Lock = field(default_factory=threading.Lock, init=False, repr=False)
@@ -200,7 +201,7 @@ class SummaryProvider:
     _cooldown_until: float = field(default=0.0, init=False, repr=False)
 
     def __post_init__(self):
-        self.client = OpenAI(
+        self.client = create_openai_client(
             api_key=self.api_key,
             base_url=self.base_url,
             timeout=180.0,
@@ -841,7 +842,7 @@ ArXiv ID：{arxiv_id}
 # Legacy functions kept for backward compatibility (not called by pipeline)
 # ---------------------------------------------------------------------------
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
-def generate_inspiration_trace(paper_content: str, client: OpenAI, model: str, temperature: float, paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
+def generate_inspiration_trace(paper_content: str, client: object, model: str, temperature: float, paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
     """
     生成论文的灵感溯源分析
     
@@ -913,7 +914,7 @@ def generate_inspiration_trace(paper_content: str, client: OpenAI, model: str, t
 
 
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
-def generate_research_insights(paper_content: str, client: OpenAI, model: str, temperature: float, paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
+def generate_research_insights(paper_content: str, client: object, model: str, temperature: float, paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
     """
     生成研究洞察：核心贡献 + 研究动机 + 设计亮点（合并为1次API调用）
     """
@@ -974,7 +975,7 @@ def generate_research_insights(paper_content: str, client: OpenAI, model: str, t
 
 
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
-def generate_critical_evaluation(paper_content: str, client: OpenAI, model: str, temperature: float, paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
+def generate_critical_evaluation(paper_content: str, client: object, model: str, temperature: float, paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
     """
     生成批判性评估：批判性分析 + 潜力评估（合并为1次API调用）
     """

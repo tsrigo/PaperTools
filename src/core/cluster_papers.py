@@ -26,6 +26,7 @@ from src.utils.config import (
     TEMPERATURE,
     DOMAIN_PAPER_DIR,
 )
+from src.utils.openai_client import create_openai_client
 from src.utils.retry import retry_with_backoff
 
 # ---------------------------------------------------------------------------
@@ -305,7 +306,7 @@ def main():
         sys.exit(0)
 
     # Initialise OpenAI client
-    client = OpenAI(
+    client = create_openai_client(
         api_key=args.api_key,
         base_url=args.base_url,
         timeout=180.0,

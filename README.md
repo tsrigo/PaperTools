@@ -41,6 +41,9 @@ papertools run
 | `FILTER_MAX_WORKERS` | 筛选阶段并发上限，默认 5 | 否 |
 | `PAPERTOOLS_FILTER_LLM_TIMEOUT` | 筛选阶段单次 LLM 请求超时秒数，默认 45 | 否 |
 | `PAPERTOOLS_FILTER_LLM_MAX_RETRIES` | 筛选阶段 LLM 重试次数，默认 1 | 否 |
+| `PAPERTOOLS_FILTER_SUSPICIOUS_ZERO_MIN_INPUT` | 可疑零结果源论文阈值，默认 500 | 否 |
+| `PAPERTOOLS_FILTER_SUSPICIOUS_ZERO_MIN_PREFILTERED` | 可疑零结果关键词候选阈值，默认 100 | 否 |
+| `PAPERTOOLS_OPENAI_TRUST_ENV` | OpenAI-compatible API 是否继承系统代理环境，默认 `false` | 否 |
 | `WEBHOOK_URL` | 失败/完成通知 webhook | 否 |
 | `PAPERTOOLS_DAILY_WINDOW_DAYS` | 每日任务滚动补抓天数，默认 4 | 否 |
 | `JINA_API_TOKEN` | Jina Reader API（全文获取）| 否 |

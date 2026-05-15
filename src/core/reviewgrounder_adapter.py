@@ -12,8 +12,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import requests
-from openai import OpenAI
 
+from src.utils.openai_client import create_openai_client
 from src.utils.config import (
     REVIEWGROUNDER_API_KEY,
     REVIEWGROUNDER_BASE_URL,
@@ -428,7 +428,7 @@ def _build_openai_compatible_llm(llm_base_cls: Any, chat_message_cls: Any) -> An
             self.reasoning_effort = REVIEWGROUNDER_REASONING_EFFORT
             self.base_url = REVIEWGROUNDER_BASE_URL
             self.call_count = 0
-            self.client = OpenAI(
+            self.client = create_openai_client(
                 api_key=REVIEWGROUNDER_API_KEY,
                 base_url=REVIEWGROUNDER_BASE_URL,
                 timeout=float(REVIEWGROUNDER_TIMEOUT_SECONDS),
