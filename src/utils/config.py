@@ -55,19 +55,63 @@ def _get_env_bool(name: str, default: bool) -> bool:
 
 
 def _normalize_model_alias(model: str) -> str:
+    """Normalize model display names to API model_id values.
+
+    Important: do not silently downgrade valid SJTU IDs.  The SJTU endpoint
+    advertises short IDs such as minimax, glm, qwen, deepseek-chat and
+    deepseek-reasoner.  Older code mapped MiniMax and deepseek-reasoner to
+    qwen/deepseek-chat, which made runs brittle when the operator selected a
+    specific available model.
+    """
+    if model in (None, ""):
+        return model
+
+    raw = str(model).strip()
+    if not raw:
+        return raw
+
+    key = (
+        raw.lower()
+        .replace("（", "(")
+        .replace("）", ")")
+        .replace("_", "-")
+        .strip()
+    )
+    key = " ".join(key.split())
+
     aliases = {
-        "minimax-m2": "qwen",
-        "minimax-m2.5": "qwen",
-        "minimax-m2.7": "qwen",
-        "minimax/minimax-m2": "qwen",
-        "minimax/minimax-m2.5": "qwen",
-        "minimax/minimax-m2.7": "qwen",
-        "deepseek-reasoner": "deepseek-chat",
+        # SJTU short IDs
+        "minimax": "minimax",
+        "glm": "glm",
+        "qwen": "qwen",
+        "deepseek-chat": "deepseek-chat",
+        "deepseek-reasoner": "deepseek-reasoner",
+
+        # Human/display names commonly copied from model lists
+        "minimax-m2": "minimax",
+        "minimax-m2.5": "minimax",
+        "minimax-m2.7": "minimax",
+        "minimax/m2.7": "minimax",
+        "minimax/minimax-m2": "minimax",
+        "minimax/minimax-m2.5": "minimax",
+        "minimax/minimax-m2.7": "minimax",
+        "glm-5.1": "glm",
+        "glm5.1": "glm",
+        "qwen3.5-27b": "qwen",
+        "qwen-3.5-27b": "qwen",
+        "qwen/qwen3.5-27b": "qwen",
+        "deepseek v3.2(常规模式)": "deepseek-chat",
+        "deepseek-v3.2(常规模式)": "deepseek-chat",
+        "deepseek v3.2 chat": "deepseek-chat",
+        "deepseek v3.2(思考模式)": "deepseek-reasoner",
+        "deepseek-v3.2(思考模式)": "deepseek-reasoner",
+        "deepseek r1": "deepseek-reasoner",
+        "deepseek-r1": "deepseek-reasoner",
+        "deepseek/deepseek-r1": "deepseek-reasoner",
         "deepseek/deepseek-chat": "deepseek-chat",
-        "deepseek/deepseek-r1": "deepseek-chat",
-        "deepseek-r1": "deepseek-chat",
+        "deepseek/deepseek-chat-v3-0324": "deepseek-chat",
     }
-    return aliases.get(model, model)
+    return aliases.get(key, raw)
 
 # API 配置 - 从.env文件中读取
 API_KEY = _get_env_str("OPENAI_API_KEY")
@@ -79,15 +123,11 @@ FILTER_MODEL = _normalize_model_alias(
 CLUSTER_API_KEY = _get_env_str("CLUSTER_OPENAI_API_KEY", API_KEY)
 CLUSTER_BASE_URL = _get_env_str("CLUSTER_OPENAI_BASE_URL", BASE_URL)
 CLUSTER_MODEL = _normalize_model_alias(_get_env_str("CLUSTER_MODEL", FILTER_MODEL or MODEL))
-DEFAULT_SUMMARY_BASE_URL = "https://api-inference.modelscope.cn/v1"
-DEFAULT_SUMMARY_MODEL = "minimax"
-DEFAULT_SUMMARY_MODEL_CHAIN = (
-    "prism:gpt-5.5,"
-    "sjtu:minimax,"
-    "sjtu:glm,"
-    "sjtu:qwen,"
-    "sjtu:deepseek-reasoner,"
-    "sjtu:deepseek-chat"
+DEFAULT_SUMMARY_BASE_URL = BASE_URL or "https://models.sjtu.edu.cn/api/v1/"
+DEFAULT_SUMMARY_MODEL = _normalize_model_alias(MODEL or "minimax")
+DEFAULT_SUMMARY_MODEL_CHAIN = _get_env_str(
+    "PAPERTOOLS_DEFAULT_SUMMARY_MODEL_CHAIN",
+    "sjtu:minimax,sjtu:glm,sjtu:qwen,sjtu:deepseek-chat,sjtu:deepseek-reasoner",
 )
 SUMMARY_API_KEY = _get_env_str("SUMMARY_OPENAI_API_KEY", API_KEY)
 SUMMARY_BASE_URL = _get_env_str("SUMMARY_OPENAI_BASE_URL", DEFAULT_SUMMARY_BASE_URL)

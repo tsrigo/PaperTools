@@ -110,7 +110,7 @@ def env_bool(name: str, default: bool) -> bool:
     return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
-FILTER_LLM_TIMEOUT = env_float("PAPERTOOLS_FILTER_LLM_TIMEOUT", 45, minimum=1)
+FILTER_LLM_TIMEOUT = env_float("PAPERTOOLS_FILTER_LLM_TIMEOUT", 120, minimum=1)
 FILTER_LLM_MAX_RETRIES = env_int("PAPERTOOLS_FILTER_LLM_MAX_RETRIES", 1, minimum=0)
 FILTER_PAPER_TIMEOUT = env_float("PAPERTOOLS_FILTER_PAPER_TIMEOUT", 180, minimum=1)
 FILTER_EXTRACT_CHAIN = os.getenv("PAPERTOOLS_FILTER_EXTRACT_CHAIN", "jina")
