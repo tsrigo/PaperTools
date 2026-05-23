@@ -151,8 +151,7 @@ def cluster_batch(client: OpenAI, model: str, papers: list, temperature: float) 
             result[name] = result.get(name, []) + indices
         return result
     except Exception as exc:
-        print(f"Warning: clustering batch failed ({exc}). Assigning to 'Other'.")
-        return {"Other": list(range(len(papers)))}
+        raise RuntimeError(f"clustering batch failed: {exc}") from exc
 
 
 def merge_cluster_names(
@@ -177,8 +176,7 @@ def merge_cluster_names(
         # Ensure every known name is covered (fall back to original if missing)
         return {n: mapping.get(n, n) for n in unique_names}
     except Exception as exc:
-        print(f"Warning: merge step failed ({exc}). Skipping merge.")
-        return {n: n for n in unique_names}
+        raise RuntimeError(f"cluster merge failed: {exc}") from exc
 
 
 def cluster_papers(

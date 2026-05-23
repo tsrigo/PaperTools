@@ -26,6 +26,7 @@ def run_runtime_dump(
     env = {
         "HOME": str(tmp_path),
         "PATH": os.environ.get("PATH", "/usr/local/bin:/usr/bin:/bin"),
+        "OPENAI_BASE_URL": "https://openrouter.ai/api/v1/",
         "PAPERTOOLS_DAILY_ENV_FILE": str(env_file),
         "PAPERTOOLS_DAILY_LOCK_FILE": str(tmp_path / "daily.lock"),
         "PAPERTOOLS_DAILY_PRINT_RUNTIME_CONFIG": "1",
@@ -69,6 +70,7 @@ def test_robust_daily_defaults_override_stale_dotenv_values(tmp_path):
     values = run_runtime_dump(tmp_path, env_file)
 
     assert values["MODEL"] == "deepseek-reasoner"
+    assert values["OPENAI_BASE_URL"] == "https://models.sjtu.edu.cn/api/v1/"
     assert values["FILTER_MODEL"] == "qwen"
     assert values["CLUSTER_MODEL"] == "glm"
     assert values["SUMMARY_MODEL"] == "minimax"
@@ -92,6 +94,7 @@ def test_daily_full_runner_uses_same_daily_defaults(tmp_path):
     )
 
     assert values["FILTER_MODEL"] == "qwen"
+    assert values["OPENAI_BASE_URL"] == "https://models.sjtu.edu.cn/api/v1/"
     assert values["PAPERTOOLS_FILTER_RPM"] == "8"
     assert values["PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE"] == "1"
     assert values["PAPERTOOLS_FILTER_RULE_VERSION"] == "2026-05-24-daily"

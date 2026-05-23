@@ -44,6 +44,7 @@ log() {
 configure_daily_runtime_defaults() {
     # Daily automation owns operational safety defaults. The repository .env
     # still supplies secrets, but should not disable cron recovery behavior.
+    export OPENAI_BASE_URL="${PAPERTOOLS_DAILY_OPENAI_BASE_URL:-https://models.sjtu.edu.cn/api/v1/}"
     export MODEL="${PAPERTOOLS_DAILY_MODEL:-deepseek-reasoner}"
     export FILTER_MODEL="${PAPERTOOLS_DAILY_FILTER_MODEL:-qwen}"
     export CLUSTER_MODEL="${PAPERTOOLS_DAILY_CLUSTER_MODEL:-glm}"
@@ -65,7 +66,7 @@ configure_daily_runtime_defaults() {
 
 print_runtime_config() {
     for key in \
-        MODEL FILTER_MODEL CLUSTER_MODEL SUMMARY_MODEL SUMMARY_MODEL_CHAIN \
+        OPENAI_BASE_URL MODEL FILTER_MODEL CLUSTER_MODEL SUMMARY_MODEL SUMMARY_MODEL_CHAIN \
         FILTER_MAX_WORKERS SUMMARY_MAX_WORKERS PAPERTOOLS_FILTER_RPM \
         PAPERTOOLS_FILTER_LLM_TIMEOUT PAPERTOOLS_FILTER_LLM_MAX_RETRIES \
         PAPERTOOLS_FILTER_EARLY_STOP_AFTER_CAP PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE \
