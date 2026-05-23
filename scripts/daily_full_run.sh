@@ -41,6 +41,15 @@ log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" | tee -a "$LOG_FILE"
 }
 
+load_project_env() {
+    if [ -f "$ROOT_DIR/.env" ]; then
+        set -a
+        # shellcheck disable=SC1091
+        . "$ROOT_DIR/.env"
+        set +a
+    fi
+}
+
 configure_daily_runtime_defaults() {
     # Daily automation owns operational safety defaults. The repository .env
     # still supplies secrets, but should not disable cron recovery behavior.
@@ -78,6 +87,7 @@ print_runtime_config() {
     done
 }
 
+load_project_env
 configure_daily_runtime_defaults
 
 if [ "${PAPERTOOLS_DAILY_PRINT_RUNTIME_CONFIG:-0}" = "1" ]; then
