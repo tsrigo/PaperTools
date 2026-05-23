@@ -48,15 +48,19 @@ export SUMMARY_MAX_WORKERS="${SUMMARY_MAX_WORKERS:-1}"
 export PAPERTOOLS_FILTER_RPM="${PAPERTOOLS_FILTER_RPM:-3}"
 export PAPERTOOLS_FILTER_LLM_TIMEOUT="${PAPERTOOLS_FILTER_LLM_TIMEOUT:-120}"
 export PAPERTOOLS_FILTER_LLM_MAX_RETRIES="${PAPERTOOLS_FILTER_LLM_MAX_RETRIES:-3}"
+export PAPERTOOLS_FILTER_EARLY_STOP_AFTER_CAP="${PAPERTOOLS_FILTER_EARLY_STOP_AFTER_CAP:-1}"
+export PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE="${PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE:-1}"
 export PAPERTOOLS_OPENAI_TIMEOUT="${PAPERTOOLS_OPENAI_TIMEOUT:-120}"
 export PAPERTOOLS_OPENAI_SDK_MAX_RETRIES="${PAPERTOOLS_OPENAI_SDK_MAX_RETRIES:-2}"
 export PAPERTOOLS_RETRY_MAX_DELAY_SECONDS="${PAPERTOOLS_RETRY_MAX_DELAY_SECONDS:-60}"
 export PAPERTOOLS_OPENAI_TRUST_ENV="${PAPERTOOLS_OPENAI_TRUST_ENV:-false}"
 export PAPERTOOLS_DAILY_WINDOW_DAYS="${PAPERTOOLS_DAILY_WINDOW_DAYS:-4}"
+export PAPERTOOLS_DAILY_MAX_CATCHUP_DAYS="${PAPERTOOLS_DAILY_MAX_CATCHUP_DAYS:-7}"
 
 DATE_RANGE="$(
 python - <<'PY_DAILY_DATE'
 from datetime import datetime, timedelta
+from pathlib import Path
 import os
 try:
     from zoneinfo import ZoneInfo
@@ -64,8 +68,27 @@ try:
 except Exception:
     now = datetime.now()
 window = int(os.getenv("PAPERTOOLS_DAILY_WINDOW_DAYS", "4") or "4")
-start = os.getenv("PAPERTOOLS_DAILY_START_DATE") or (now.date() - timedelta(days=max(0, window - 1))).isoformat()
-end = os.getenv("PAPERTOOLS_DAILY_END_DATE") or now.date().isoformat()
+max_catchup = int(os.getenv("PAPERTOOLS_DAILY_MAX_CATCHUP_DAYS", "7") or "7")
+end_date = now.date()
+default_start = end_date - timedelta(days=max(0, window - 1))
+start_date = default_start
+
+if not os.getenv("PAPERTOOLS_DAILY_START_DATE"):
+    published_dates = []
+    data_dir = Path("webpages/data")
+    for path in data_dir.glob("????-??-??.json"):
+        try:
+            published_dates.append(datetime.strptime(path.stem, "%Y-%m-%d").date())
+        except ValueError:
+            pass
+    if published_dates:
+        gap_start = max(published_dates) + timedelta(days=1)
+        if gap_start < start_date:
+            catchup_floor = end_date - timedelta(days=max(0, max_catchup - 1))
+            start_date = max(gap_start, catchup_floor)
+
+start = os.getenv("PAPERTOOLS_DAILY_START_DATE") or start_date.isoformat()
+end = os.getenv("PAPERTOOLS_DAILY_END_DATE") or end_date.isoformat()
 print(start + " " + end)
 PY_DAILY_DATE
 )"
@@ -73,9 +96,6 @@ START_DATE="${DATE_RANGE% *}"
 END_DATE="${DATE_RANGE#* }"
 
 run_cmd=(python papertools.py run --start-date "$START_DATE" --end-date "$END_DATE" --skip-serve --status-file "$STATUS_FILE")
-if command -v papertools >/dev/null 2>&1; then
-  run_cmd=(papertools run --start-date "$START_DATE" --end-date "$END_DATE" --skip-serve --status-file "$STATUS_FILE")
-fi
 
 log "PaperTools robust daily run: $START_DATE to $END_DATE"
 python scripts/preflight_check.py --offline-ok 2>&1 | tee -a "$LOG_FILE" || {
@@ -84,7 +104,10 @@ python scripts/preflight_check.py --offline-ok 2>&1 | tee -a "$LOG_FILE" || {
 }
 
 is_permanent_failure() {
-  grep -Eiq 'invalid_api_key|unauthorized|forbidden|401|403|not a valid model|invalid model|model not found|insufficient balance|quota' "$LOG_FILE"
+  python scripts/classify_pipeline_failure.py \
+    --status-file "$STATUS_FILE" \
+    --log-file "$LOG_FILE" \
+    --permanent >/dev/null 2>&1
 }
 
 next_start_from() {

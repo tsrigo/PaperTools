@@ -7,9 +7,9 @@ import os
 import warnings
 from dotenv import load_dotenv
 
-# 加载环境变量。日跑脚本会把生产 .env 复制到临时 worktree；
-# 这里显式让 .env 覆盖外部 shell 环境，避免调试环境里的 OPENAI_* 泄漏进生产流水线。
-load_dotenv(override=True)
+# 加载 .env 作为默认值。显式传入的 shell/cron 环境变量优先级更高，
+# 这样日跑脚本可以用环境变量做安全热修和运行时兜底。
+load_dotenv(override=False)
 
 
 def _get_env_str(name: str, default: str = "") -> str:

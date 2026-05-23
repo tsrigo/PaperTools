@@ -119,12 +119,14 @@ FILTER_RPM = env_int("PAPERTOOLS_FILTER_RPM", 8, minimum=0)
 FILTER_RATE_WINDOW_SECONDS = env_float("PAPERTOOLS_FILTER_RATE_WINDOW_SECONDS", 60, minimum=1)
 FILTER_RATE_LIMIT_COOLDOWN_SECONDS = env_float("PAPERTOOLS_FILTER_429_COOLDOWN_SECONDS", 65, minimum=0)
 FILTER_MAX_OUTPUT_PAPERS = env_int("PAPERTOOLS_FILTER_MAX_OUTPUT_PAPERS", 15, minimum=0)
+FILTER_EARLY_STOP_AFTER_CAP = env_bool("PAPERTOOLS_FILTER_EARLY_STOP_AFTER_CAP", False)
 FILTER_SUSPICIOUS_ZERO_MIN_INPUT = env_int("PAPERTOOLS_FILTER_SUSPICIOUS_ZERO_MIN_INPUT", 500, minimum=0)
 FILTER_SUSPICIOUS_ZERO_MIN_PREFILTERED = env_int(
     "PAPERTOOLS_FILTER_SUSPICIOUS_ZERO_MIN_PREFILTERED",
     100,
     minimum=0,
 )
+FILTER_RULE_VERSION = os.getenv("PAPERTOOLS_FILTER_RULE_VERSION", "2026-05-23")
 FILTER_MODEL_CHAIN_ENV = (
     os.getenv("PAPERTOOLS_FILTER_MODEL_CHAIN")
     or os.getenv("FILTER_MODEL_CHAIN")
@@ -413,6 +415,29 @@ def apply_output_cap(filtered_papers: List[dict], max_papers: int) -> Tuple[List
     return selected, overflow
 
 
+def should_stop_filter_after_cap(
+    existing_filtered_count: int,
+    new_filtered_count: int,
+    max_papers: int,
+    early_stop_enabled: bool,
+) -> bool:
+    """Return True when enough publishable papers have been found for this run."""
+    return (
+        early_stop_enabled
+        and max_papers > 0
+        and existing_filtered_count + new_filtered_count >= max_papers
+    )
+
+
+def has_blocking_filter_failures(
+    error_count: int,
+    timed_out_count: int,
+    fatal_zero_result: bool,
+) -> bool:
+    """Filtering is publish-blocking if any candidate failed to classify cleanly."""
+    return error_count > 0 or timed_out_count > 0 or fatal_zero_result
+
+
 def is_filter_rate_limit_error(exc: Exception) -> bool:
     message = str(exc).lower()
     return any(token in message for token in ("429", "rate limit", "too many requests", "rpm limit"))
@@ -535,18 +560,70 @@ def repair_paper_metadata_from_source(paper: dict, source_paper: Optional[dict])
     return repaired, changed
 
 
+def parse_llm_bool(value: Any) -> Optional[bool]:
+    """Coerce common LLM boolean spellings into a strict bool."""
+    if isinstance(value, bool):
+        return value
+    if value is None:
+        return None
+
+    token = str(value).strip().strip(" \t\r\n\"'`*_")
+    normalized = token.lower()
+    truthy = {"true", "yes", "y", "1", "是", "对", "保留", "通过", "include", "included", "keep"}
+    falsy = {"false", "no", "n", "0", "否", "不", "排除", "拒绝", "exclude", "excluded", "reject"}
+    if normalized in truthy:
+        return True
+    if normalized in falsy:
+        return False
+    return None
+
+
 def parse_llm_response(response_text: str) -> Tuple[bool, str]:
     """解析 LLM 响应中的结果和理由。"""
     response_text = strip_think_tags(response_text).strip()
 
-    result_match = re.search(r'结果[:：]\s*(True|False)', response_text, flags=re.IGNORECASE)
-    reason_match = re.search(r'理由[:：]\s*(.*)', response_text, flags=re.DOTALL)
+    if response_text.startswith("{"):
+        try:
+            payload = json.loads(response_text)
+            if isinstance(payload, dict):
+                for key in ("结果", "result", "include", "included", "keep", "decision"):
+                    if key in payload:
+                        parsed = parse_llm_bool(payload.get(key))
+                        if parsed is not None:
+                            reason = (
+                                payload.get("理由")
+                                or payload.get("原因")
+                                or payload.get("reason")
+                                or payload.get("rationale")
+                                or response_text
+                            )
+                            return parsed, str(reason).strip()
+        except json.JSONDecodeError:
+            pass
+
+    # Model outputs often markdown-bold labels, e.g. "**结果**: False".
+    normalized_text = re.sub(r'[*_`]+', '', response_text)
+    label_pattern = (
+        r'(?:^|\n)\s*'
+        r'(?:结果|判断结果|是否保留|result|decision|include|included|keep)'
+        r'\s*[:：\-]\s*'
+        r'(true|false|yes|no|是|否|保留|排除|通过|拒绝|include|exclude|included|excluded|keep|reject)\b'
+    )
+    result_match = re.search(label_pattern, normalized_text, flags=re.IGNORECASE)
+    reason_match = re.search(
+        r'(?:^|\n)\s*(?:理由|原因|reason|rationale)\s*[:：\-]\s*(.*)',
+        normalized_text,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
 
     if not result_match:
         preview = response_text[:500] if response_text else "<empty response>"
         raise LLMResponseParseError(f"无法解析 LLM 筛选结果字段: {preview}")
 
-    result = result_match.group(1).lower() == 'true'
+    result = parse_llm_bool(result_match.group(1))
+    if result is None:
+        preview = response_text[:500] if response_text else "<empty response>"
+        raise LLMResponseParseError(f"无法解析 LLM 筛选结果字段: {preview}")
     reason = ""
 
     if reason_match:
@@ -927,9 +1004,20 @@ def fetch_affiliations_for_prestige(paper: dict, client: object, model: Any, tem
 def compact_excluded_paper(paper: dict) -> dict:
     """精简被排除论文的冗余字段。"""
     excluded_paper = paper.copy()
+    excluded_paper.setdefault('filter_rule_version', FILTER_RULE_VERSION)
     excluded_paper.pop('summary', None)
     excluded_paper.pop('abstract', None)
     return excluded_paper
+
+
+def estimate_existing_prefiltered_count(existing_filtered: List[dict], existing_excluded: List[dict]) -> int:
+    """Estimate how many already-processed papers reached the LLM/prestige filter."""
+    non_keyword_excluded = sum(
+        1
+        for paper in existing_excluded
+        if paper.get('exclude_stage') != 'keyword'
+    )
+    return len(existing_filtered) + non_keyword_excluded
 
 
 def extract_date_part_from_filename(filename: str, fallback: str) -> str:
@@ -949,6 +1037,8 @@ def is_current_filtered_schema(paper: dict) -> bool:
     """判断保留结果是否符合当前筛选结构。"""
     if 'filter_reason' not in paper:
         return False
+    if paper.get('filter_rule_version') != FILTER_RULE_VERSION:
+        return False
     if not PRESTIGE_ENABLED:
         return True
     if paper.get('prestige_rule_version') != PRESTIGE_RULE_VERSION:
@@ -965,9 +1055,13 @@ def is_current_excluded_schema(paper: dict) -> bool:
     """判断排除结果是否符合当前筛选结构。"""
     if 'filter_reason' not in paper:
         return False
+    if paper.get('filter_rule_version') != FILTER_RULE_VERSION:
+        return False
     if not PRESTIGE_ENABLED:
         return True
     stage = paper.get('exclude_stage')
+    if stage == 'filter_timeout':
+        return False
     if stage in {'keyword', 'topic', 'selection_cap'}:
         return True
     if stage != 'prestige' or paper.get('prestige_rule_version') != PRESTIGE_RULE_VERSION:
@@ -1036,10 +1130,12 @@ def main() -> int:
     print(f"🚦 Filter RPM 限速: {FILTER_RPM if FILTER_RPM > 0 else 'disabled'}/{FILTER_RATE_WINDOW_SECONDS:.0f}s")
     print(f"⏱️ 单篇筛选 watchdog: {FILTER_PAPER_TIMEOUT}s")
     print(f"📌 每日发布上限: {FILTER_MAX_OUTPUT_PAPERS if FILTER_MAX_OUTPUT_PAPERS > 0 else 'disabled'}")
+    print(f"📌 达到发布上限后提前停止: {'启用' if FILTER_EARLY_STOP_AFTER_CAP else '关闭'}")
     print(f"🏛️ Prestige 硬筛: {'启用' if PRESTIGE_ENABLED else '关闭'}")
     if PRESTIGE_ENABLED:
         print(f"🏛️ Prestige 机构在线提取: {'启用' if PRESTIGE_AFFILIATION_FETCH_ENABLED else '关闭'}")
         print(f"🏛️ Prestige LLM 兜底判断: {'启用' if PRESTIGE_LLM_ENABLED else '关闭'}")
+        print(f"🏛️ 强主题确定性保留跳过 Prestige: {'启用' if TOPIC_HEURISTIC_BYPASS_PRESTIGE else '关闭'}")
         print(f"📄 Prestige 上下文截断长度: {PRESTIGE_CONTEXT_CHARS} 字符")
         print(f"📄 Prestige 文档提取链: {FILTER_EXTRACT_CHAIN} (timeout={FILTER_EXTRACT_TIMEOUT}s)")
     print("=" * 50)
@@ -1137,6 +1233,13 @@ def main() -> int:
 
     if not papers:
         print("✅ 所有论文都已处理完成！")
+        prefiltered_count = estimate_existing_prefiltered_count(existing_filtered, existing_excluded)
+        anomalous_zero_result = is_suspicious_zero_result(
+            original_paper_count,
+            prefiltered_count,
+            len(existing_filtered),
+        )
+        fatal_zero_result = anomalous_zero_result
         try:
             if not save_json(output_filepath, existing_filtered, indent=4, ensure_ascii=False):
                 raise IOError(output_filepath)
@@ -1156,17 +1259,28 @@ def main() -> int:
             })
             return 1
         write_status_file(args.status_file, {
-            "status": "ok",
+            "status": "failed" if fatal_zero_result else "ok",
             "input_file": args.input_file,
+            "output_file": output_filepath,
+            "excluded_file": excluded_filepath,
             "total_input": original_paper_count,
             "processed_existing": len(processed_arxiv_ids),
-            "prefiltered_count": 0,
+            "prefiltered_count": prefiltered_count,
             "filtered_new": 0,
             "filtered_total": len(existing_filtered),
             "error_count": 0,
-            "fatal_zero_result": False,
+            "suspicious_zero_result": anomalous_zero_result,
+            "suspicious_zero_min_input": FILTER_SUSPICIOUS_ZERO_MIN_INPUT,
+            "suspicious_zero_min_prefiltered": FILTER_SUSPICIOUS_ZERO_MIN_PREFILTERED,
+            "fatal_zero_result": fatal_zero_result,
+            **({
+                "failure_reason": (
+                    "已有筛选缓存显示源论文和关键词候选很多但最终入选 0 篇，"
+                    "拒绝把异常空缓存当作完成结果"
+                )
+            } if fatal_zero_result else {}),
         })
-        return 0
+        return 1 if fatal_zero_result else 0
 
     if args.max_papers > 0:
         papers = papers[:args.max_papers]
@@ -1183,6 +1297,7 @@ def main() -> int:
             p = paper.copy()
             p['filter_reason'] = f'关键词预筛排除：标题和摘要中未包含 {required_keywords} 中的任一关键词'
             p['exclude_stage'] = 'keyword'
+            p['filter_rule_version'] = FILTER_RULE_VERSION
             keyword_excluded.append(compact_excluded_paper(p))
 
     print(f"🔑 关键词预筛: {len(pre_filtered)} 篇通过, {len(keyword_excluded)} 篇排除")
@@ -1190,6 +1305,9 @@ def main() -> int:
     existing_excluded.extend(keyword_excluded)
     prefiltered_count = len(pre_filtered)
     papers = pre_filtered
+    if FILTER_EARLY_STOP_AFTER_CAP and FILTER_MAX_OUTPUT_PAPERS > 0:
+        papers.sort(key=score_filtered_paper_for_selection, reverse=True)
+        print("📌 已按候选相关性排序，达到发布上限后将停止继续筛选")
 
     if not papers:
         print("✅ 关键词预筛后无论文需要 LLM 筛选")
@@ -1228,6 +1346,7 @@ def main() -> int:
             paper_with_reason = paper.copy()
             paper_with_reason['filter_reason'] = topic_reason
             paper_with_reason['topic_source'] = topic_source
+            paper_with_reason['filter_rule_version'] = FILTER_RULE_VERSION
 
             if not topic_match:
                 paper_with_reason['exclude_stage'] = 'topic'
@@ -1333,10 +1452,12 @@ def main() -> int:
         except OpenAIError as e:
             if "timed out" in str(e).lower():
                 paper_with_reason = paper.copy()
-                timeout_reason = f"单篇主题筛选 API 超时，按主题排除: {e}"
+                timeout_reason = f"单篇筛选 API 超时，待后续重试: {e}"
                 paper_with_reason['filter_reason'] = timeout_reason
-                paper_with_reason['exclude_stage'] = 'topic'
-                return 'exclude_topic', paper_with_reason, f"⏱️ 主题筛选超时: {title[:50]}...", timeout_reason
+                paper_with_reason['exclude_stage'] = 'filter_timeout'
+                paper_with_reason['filter_transient_failure'] = True
+                paper_with_reason['filter_rule_version'] = FILTER_RULE_VERSION
+                return 'timeout', paper_with_reason, f"⏱️ 筛选超时: {title[:50]}...", timeout_reason
             return 'error', paper, f"❌ API 调用失败: {e}", f"处理错误: {e}"
         except Exception as e:
             return 'error', paper, f"❌ 处理论文时出错: {e}", f"处理错误: {e}"
@@ -1350,6 +1471,8 @@ def main() -> int:
     prestige_excluded_count = 0
     error_count = 0
     timed_out_count = 0
+    early_stopped_after_cap = False
+    early_stop_unprocessed_count = 0
 
     def save_progress() -> None:
         try:
@@ -1364,12 +1487,24 @@ def main() -> int:
     paper_iter = iter(papers)
     future_metadata = {}
     pending = set()
+    submitted_count = 0
 
     def submit_next_paper() -> bool:
+        nonlocal submitted_count, early_stopped_after_cap, early_stop_unprocessed_count
+        if should_stop_filter_after_cap(
+            len(existing_filtered),
+            len(filtered_papers),
+            FILTER_MAX_OUTPUT_PAPERS,
+            FILTER_EARLY_STOP_AFTER_CAP,
+        ):
+            early_stopped_after_cap = True
+            early_stop_unprocessed_count = max(0, len(papers) - submitted_count)
+            return False
         try:
             paper = next(paper_iter)
         except StopIteration:
             return False
+        submitted_count += 1
         future = executor.submit(filter_paper_wrapper, paper)
         future_metadata[future] = (paper, time.monotonic())
         pending.add(future)
@@ -1404,11 +1539,13 @@ def main() -> int:
                 timeout_seconds = now - started_at
                 paper_with_reason['filter_reason'] = (
                     f"单篇筛选超过 {FILTER_PAPER_TIMEOUT:.0f}s 未返回，"
-                    f"本轮按主题筛选超时排除，实际等待 {timeout_seconds:.1f}s"
+                    f"本轮标记为可重试超时，实际等待 {timeout_seconds:.1f}s"
                 )
-                paper_with_reason['exclude_stage'] = 'topic'
+                paper_with_reason['exclude_stage'] = 'filter_timeout'
+                paper_with_reason['filter_transient_failure'] = True
+                paper_with_reason['filter_rule_version'] = FILTER_RULE_VERSION
                 excluded_papers.append(compact_excluded_paper(paper_with_reason))
-                print(f"⏱️ 单篇筛选超时，按主题排除: {original_paper.get('title', '')[:50]}...")
+                print(f"⏱️ 单篇筛选超时，标记为可重试: {original_paper.get('title', '')[:50]}...")
                 save_progress()
                 progress.update(1)
                 submit_next_paper()
@@ -1430,6 +1567,9 @@ def main() -> int:
                     elif status == 'exclude_prestige':
                         excluded_papers.append(compact_excluded_paper(paper))
                         prestige_excluded_count += 1
+                    elif status == 'timeout':
+                        excluded_papers.append(compact_excluded_paper(paper))
+                        timed_out_count += 1
                     elif status == 'skip':
                         pass
                     else:
@@ -1461,6 +1601,11 @@ def main() -> int:
         print(f"⚠️ 处理错误数: {error_count}")
     if timed_out_count:
         print(f"⏱️ 单篇筛选超时数: {timed_out_count}")
+    if early_stopped_after_cap:
+        print(
+            f"📌 已达到发布上限，提前停止筛选；"
+            f"未继续处理候选数: {early_stop_unprocessed_count}"
+        )
 
     if filtered_papers:
         print("\n📋 筛选出的论文:")
@@ -1508,8 +1653,13 @@ def main() -> int:
         len(all_filtered_papers),
     )
     fatal_zero_result = (error_count > 0 and len(all_filtered_papers) == 0) or anomalous_zero_result
+    blocking_filter_failure = has_blocking_filter_failures(
+        error_count,
+        timed_out_count,
+        fatal_zero_result,
+    )
     status_payload = {
-        "status": "failed" if fatal_zero_result else "ok",
+        "status": "failed" if blocking_filter_failure else "ok",
         "input_file": args.input_file,
         "output_file": output_filepath,
         "excluded_file": excluded_filepath,
@@ -1525,26 +1675,31 @@ def main() -> int:
         "selection_cap_excluded": selection_cap_excluded_count,
         "error_count": error_count,
         "timed_out_count": timed_out_count,
+        "early_stopped_after_cap": early_stopped_after_cap,
+        "early_stop_unprocessed_count": early_stop_unprocessed_count,
         "suspicious_zero_result": anomalous_zero_result,
         "suspicious_zero_min_input": FILTER_SUSPICIOUS_ZERO_MIN_INPUT,
         "suspicious_zero_min_prefiltered": FILTER_SUSPICIOUS_ZERO_MIN_PREFILTERED,
         "fatal_zero_result": fatal_zero_result,
     }
-    if fatal_zero_result:
-        if error_count > 0:
-            status_payload["failure_reason"] = (
-                f"筛选阶段 {error_count} 个错误且本轮筛选结果为 0，拒绝发布疑似异常空结果"
-            )
-        else:
-            status_payload["failure_reason"] = (
-                "筛选阶段源论文和关键词候选很多但最终入选 0 篇，拒绝静默跳过疑似异常空结果 "
-                f"(total_input={original_paper_count}, prefiltered={prefiltered_count}, "
-                f"thresholds={FILTER_SUSPICIOUS_ZERO_MIN_INPUT}/"
-                f"{FILTER_SUSPICIOUS_ZERO_MIN_PREFILTERED})"
-            )
+    if error_count > 0:
+        status_payload["failure_reason"] = (
+            f"筛选阶段存在 {error_count} 个 LLM/API/解析错误，拒绝发布不完整筛选结果"
+        )
+    elif timed_out_count > 0:
+        status_payload["failure_reason"] = (
+            f"筛选阶段存在 {timed_out_count} 个单篇超时，拒绝发布不完整筛选结果"
+        )
+    elif fatal_zero_result:
+        status_payload["failure_reason"] = (
+            "筛选阶段源论文和关键词候选很多但最终入选 0 篇，拒绝静默跳过疑似异常空结果 "
+            f"(total_input={original_paper_count}, prefiltered={prefiltered_count}, "
+            f"thresholds={FILTER_SUSPICIOUS_ZERO_MIN_INPUT}/"
+            f"{FILTER_SUSPICIOUS_ZERO_MIN_PREFILTERED})"
+        )
     write_status_file(args.status_file, status_payload)
 
-    if fatal_zero_result:
+    if blocking_filter_failure:
         print(f"❌ {status_payload['failure_reason']}")
         if timed_out_count:
             sys.stdout.flush()

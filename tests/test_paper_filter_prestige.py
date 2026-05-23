@@ -52,6 +52,95 @@ def test_small_or_keyword_empty_zero_filter_result_can_be_normal_skip():
     )
 
 
+def test_parse_llm_response_accepts_markdown_bold_result_label():
+    result, reason = paper_filter.parse_llm_response(
+        "**结果**: False\n\n**理由**:\n不符合主题。"
+    )
+
+    assert result is False
+    assert reason == "不符合主题。"
+
+
+def test_parse_llm_response_accepts_json_boolean_result():
+    result, reason = paper_filter.parse_llm_response(
+        '{"result": true, "reason": "strong agent paper"}'
+    )
+
+    assert result is True
+    assert reason == "strong agent paper"
+
+
+def test_timeout_exclusion_is_not_treated_as_current_schema():
+    assert not paper_filter.is_current_excluded_schema(
+        {
+            "title": "Timed out paper",
+            "filter_reason": "单篇筛选 API 超时",
+            "exclude_stage": "filter_timeout",
+            "filter_rule_version": paper_filter.FILTER_RULE_VERSION,
+        }
+    )
+
+
+def test_existing_large_zero_filter_cache_is_still_suspicious():
+    existing_filtered = []
+    existing_excluded = [
+        {"exclude_stage": "keyword"} for _ in range(400)
+    ] + [
+        {"exclude_stage": "topic"} for _ in range(150)
+    ]
+
+    prefiltered = paper_filter.estimate_existing_prefiltered_count(
+        existing_filtered,
+        existing_excluded,
+    )
+
+    assert prefiltered == 150
+    assert paper_filter.is_suspicious_zero_result(
+        total_input=550,
+        prefiltered_count=prefiltered,
+        filtered_total=0,
+    )
+
+
+def test_filter_early_stop_after_publish_cap_is_opt_in():
+    assert paper_filter.should_stop_filter_after_cap(
+        existing_filtered_count=10,
+        new_filtered_count=5,
+        max_papers=15,
+        early_stop_enabled=True,
+    )
+    assert not paper_filter.should_stop_filter_after_cap(
+        existing_filtered_count=10,
+        new_filtered_count=5,
+        max_papers=15,
+        early_stop_enabled=False,
+    )
+    assert not paper_filter.should_stop_filter_after_cap(
+        existing_filtered_count=10,
+        new_filtered_count=5,
+        max_papers=0,
+        early_stop_enabled=True,
+    )
+
+
+def test_filter_errors_are_publish_blocking_even_with_selected_papers():
+    assert paper_filter.has_blocking_filter_failures(
+        error_count=1,
+        timed_out_count=0,
+        fatal_zero_result=False,
+    )
+    assert paper_filter.has_blocking_filter_failures(
+        error_count=0,
+        timed_out_count=1,
+        fatal_zero_result=False,
+    )
+    assert not paper_filter.has_blocking_filter_failures(
+        error_count=0,
+        timed_out_count=0,
+        fatal_zero_result=False,
+    )
+
+
 def test_filter_model_fallback_skips_invalid_model(monkeypatch):
     calls = []
 
