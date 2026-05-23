@@ -80,6 +80,7 @@ def test_robust_daily_defaults_override_stale_dotenv_values(tmp_path):
     assert values["PAPERTOOLS_FILTER_EARLY_STOP_AFTER_CAP"] == "1"
     assert values["PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE"] == "1"
     assert values["PAPERTOOLS_FILTER_RULE_VERSION"] == "2026-05-24-daily"
+    assert values["PAPERTOOLS_SUMMARY_OPENAI_TIMEOUT"] == "60"
     assert values["DOCUMENT_EXTRACTOR_CHAIN"] == "jina,pymupdf4llm"
     assert values["JINA_MAX_RETRIES"] == "2"
 
@@ -100,6 +101,7 @@ def test_daily_full_runner_uses_same_daily_defaults(tmp_path):
     assert values["PAPERTOOLS_FILTER_RPM"] == "8"
     assert values["PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE"] == "1"
     assert values["PAPERTOOLS_FILTER_RULE_VERSION"] == "2026-05-24-daily"
+    assert values["PAPERTOOLS_SUMMARY_OPENAI_TIMEOUT"] == "60"
     assert values["DOCUMENT_EXTRACTOR_CHAIN"] == "jina,pymupdf4llm"
 
 

@@ -69,3 +69,26 @@ def test_collect_streaming_completion_skips_cooled_down_provider_when_fallback_e
 
     assert result == "fallback ok"
     assert provider is fallback
+
+
+def test_summary_provider_timeout_can_be_lowered_by_environment(monkeypatch):
+    captured = {}
+
+    def fake_create_openai_client(**kwargs):
+        captured["timeout"] = kwargs["timeout"]
+        return _FakeClient()
+
+    monkeypatch.setenv("PAPERTOOLS_SUMMARY_OPENAI_TIMEOUT", "12.5")
+    monkeypatch.setattr(
+        "src.core.generate_summary.create_openai_client",
+        fake_create_openai_client,
+    )
+
+    SummaryProvider(
+        name="sjtu",
+        base_url="https://example.test/v1",
+        api_key="test-key",
+        model="test-model",
+    )
+
+    assert captured["timeout"] == 12.5

@@ -201,10 +201,14 @@ class SummaryProvider:
     _cooldown_until: float = field(default=0.0, init=False, repr=False)
 
     def __post_init__(self):
+        try:
+            timeout = float(os.getenv("PAPERTOOLS_SUMMARY_OPENAI_TIMEOUT", "180") or "180")
+        except ValueError:
+            timeout = 180.0
         self.client = create_openai_client(
             api_key=self.api_key,
             base_url=self.base_url,
-            timeout=180.0,
+            timeout=timeout,
             max_retries=0,
         )
 
