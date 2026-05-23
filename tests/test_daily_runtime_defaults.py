@@ -80,6 +80,7 @@ def test_robust_daily_defaults_override_stale_dotenv_values(tmp_path):
     assert values["PAPERTOOLS_FILTER_LLM_MAX_RETRIES"] == "1"
     assert values["PAPERTOOLS_FILTER_EARLY_STOP_AFTER_CAP"] == "1"
     assert values["PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE"] == "1"
+    assert values["PAPERTOOLS_FILTER_MAX_OUTPUT_PAPERS"] == "5"
     assert values["PAPERTOOLS_FILTER_RULE_VERSION"] == "2026-05-24-daily"
     assert values["PAPERTOOLS_SUMMARY_OPENAI_TIMEOUT"] == "60"
     assert values["DOCUMENT_EXTRACTOR_CHAIN"] == "jina,pymupdf4llm"
@@ -101,6 +102,7 @@ def test_daily_full_runner_uses_same_daily_defaults(tmp_path):
     assert values["OPENAI_BASE_URL"] == "https://models.sjtu.edu.cn/api/v1/"
     assert values["PAPERTOOLS_FILTER_RPM"] == "8"
     assert values["PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE"] == "1"
+    assert values["PAPERTOOLS_FILTER_MAX_OUTPUT_PAPERS"] == "5"
     assert values["PAPERTOOLS_FILTER_RULE_VERSION"] == "2026-05-24-daily"
     assert values["PAPERTOOLS_SUMMARY_OPENAI_TIMEOUT"] == "60"
     assert values["DOCUMENT_EXTRACTOR_CHAIN"] == "jina,pymupdf4llm"
@@ -116,12 +118,14 @@ def test_robust_daily_allows_explicit_daily_overrides(tmp_path):
         PAPERTOOLS_DAILY_FILTER_MODEL="minimax",
         PAPERTOOLS_DAILY_FILTER_RPM="12",
         PAPERTOOLS_DAILY_TOPIC_HEURISTIC_BYPASS_PRESTIGE="0",
+        PAPERTOOLS_DAILY_FILTER_MAX_OUTPUT_PAPERS="2",
         PAPERTOOLS_DAILY_FILTER_RULE_VERSION="test-rule",
     )
 
     assert values["FILTER_MODEL"] == "minimax"
     assert values["PAPERTOOLS_FILTER_RPM"] == "12"
     assert values["PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE"] == "0"
+    assert values["PAPERTOOLS_FILTER_MAX_OUTPUT_PAPERS"] == "2"
     assert values["PAPERTOOLS_FILTER_RULE_VERSION"] == "test-rule"
 
 
