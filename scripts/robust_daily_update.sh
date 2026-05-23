@@ -39,12 +39,12 @@ export OPENAI_BASE_URL="${PAPERTOOLS_DAILY_OPENAI_BASE_URL:-https://models.sjtu.
 export MODEL="${PAPERTOOLS_DAILY_MODEL:-deepseek-reasoner}"
 export FILTER_MODEL="${PAPERTOOLS_DAILY_FILTER_MODEL:-qwen}"
 export CLUSTER_MODEL="${PAPERTOOLS_DAILY_CLUSTER_MODEL:-glm}"
-export SUMMARY_MODEL_CHAIN="${PAPERTOOLS_DAILY_SUMMARY_MODEL_CHAIN:-sjtu:minimax,sjtu:glm,sjtu:qwen,sjtu:deepseek-chat,sjtu:deepseek-reasoner}"
+export SUMMARY_MODEL_CHAIN="${PAPERTOOLS_DAILY_SUMMARY_MODEL_CHAIN:-sjtu:qwen,sjtu:deepseek-chat,sjtu:minimax,sjtu:glm,sjtu:deepseek-reasoner}"
 export SUMMARY_SJTU_OPENAI_API_KEY="${SUMMARY_SJTU_OPENAI_API_KEY:-${OPENAI_API_KEY:-}}"
 export SUMMARY_SJTU_OPENAI_BASE_URL="${SUMMARY_SJTU_OPENAI_BASE_URL:-$OPENAI_BASE_URL}"
 export SUMMARY_OPENAI_API_KEY="${SUMMARY_OPENAI_API_KEY:-${OPENAI_API_KEY:-}}"
 export SUMMARY_OPENAI_BASE_URL="${SUMMARY_OPENAI_BASE_URL:-$OPENAI_BASE_URL}"
-export SUMMARY_MODEL="${PAPERTOOLS_DAILY_SUMMARY_MODEL:-minimax}"
+export SUMMARY_MODEL="${PAPERTOOLS_DAILY_SUMMARY_MODEL:-qwen}"
 
 # Conservative concurrency is usually more stable on shared OpenAI-compatible gateways.
 export FILTER_MAX_WORKERS="${PAPERTOOLS_DAILY_FILTER_MAX_WORKERS:-1}"

@@ -73,7 +73,8 @@ def test_robust_daily_defaults_override_stale_dotenv_values(tmp_path):
     assert values["OPENAI_BASE_URL"] == "https://models.sjtu.edu.cn/api/v1/"
     assert values["FILTER_MODEL"] == "qwen"
     assert values["CLUSTER_MODEL"] == "glm"
-    assert values["SUMMARY_MODEL"] == "minimax"
+    assert values["SUMMARY_MODEL"] == "qwen"
+    assert values["SUMMARY_MODEL_CHAIN"].startswith("sjtu:qwen")
     assert values["PAPERTOOLS_FILTER_RPM"] == "8"
     assert values["PAPERTOOLS_FILTER_LLM_TIMEOUT"] == "60"
     assert values["PAPERTOOLS_FILTER_LLM_MAX_RETRIES"] == "1"
