@@ -76,7 +76,7 @@ def main() -> int:
 
     root = Path.cwd()
     if load_dotenv is not None:
-        load_dotenv(root / ".env", override=True)
+        load_dotenv(root / ".env", override=False)
 
     required = ["OPENAI_API_KEY", "OPENAI_BASE_URL"]
     missing = [name for name in required if not os.getenv(name)]

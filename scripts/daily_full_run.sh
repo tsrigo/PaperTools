@@ -24,6 +24,9 @@ RUN_ID="$(date '+%Y%m%d-%H%M%S')"
 WORKTREE_DIR="${PAPERTOOLS_DAILY_WORKTREE:-/tmp/papertools-daily-${RUN_ID}}"
 BOOTSTRAP_WORKTREE_DIR="${PAPERTOOLS_DAILY_BOOTSTRAP_WORKTREE:-/tmp/papertools-daily-bootstrap-${RUN_ID}}"
 DAILY_WINDOW_DAYS="${PAPERTOOLS_DAILY_WINDOW_DAYS:-4}"
+DAILY_MAX_CATCHUP_DAYS="${PAPERTOOLS_DAILY_MAX_CATCHUP_DAYS:-7}"
+export PAPERTOOLS_DAILY_WINDOW_DAYS="$DAILY_WINDOW_DAYS"
+export PAPERTOOLS_DAILY_MAX_CATCHUP_DAYS="$DAILY_MAX_CATCHUP_DAYS"
 REPROCESS_EXISTING_DATES="${PAPERTOOLS_DAILY_REPROCESS_EXISTING:-0}"
 SELF_REFRESH="${PAPERTOOLS_DAILY_SELF_REFRESH:-1}"
 SELF_REFRESHED="${PAPERTOOLS_DAILY_SELF_REFRESHED:-0}"
@@ -37,6 +40,49 @@ FAILURE_NOTIFIED=0
 log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" | tee -a "$LOG_FILE"
 }
+
+configure_daily_runtime_defaults() {
+    # Daily automation owns operational safety defaults. The repository .env
+    # still supplies secrets, but should not disable cron recovery behavior.
+    export MODEL="${PAPERTOOLS_DAILY_MODEL:-deepseek-reasoner}"
+    export FILTER_MODEL="${PAPERTOOLS_DAILY_FILTER_MODEL:-qwen}"
+    export CLUSTER_MODEL="${PAPERTOOLS_DAILY_CLUSTER_MODEL:-glm}"
+    export SUMMARY_MODEL="${PAPERTOOLS_DAILY_SUMMARY_MODEL:-minimax}"
+    export SUMMARY_MODEL_CHAIN="${PAPERTOOLS_DAILY_SUMMARY_MODEL_CHAIN:-sjtu:minimax,sjtu:glm,sjtu:qwen,sjtu:deepseek-chat,sjtu:deepseek-reasoner}"
+    export FILTER_MAX_WORKERS="${PAPERTOOLS_DAILY_FILTER_MAX_WORKERS:-1}"
+    export SUMMARY_MAX_WORKERS="${PAPERTOOLS_DAILY_SUMMARY_MAX_WORKERS:-1}"
+    export PAPERTOOLS_FILTER_RPM="${PAPERTOOLS_DAILY_FILTER_RPM:-8}"
+    export PAPERTOOLS_FILTER_LLM_TIMEOUT="${PAPERTOOLS_DAILY_FILTER_LLM_TIMEOUT:-60}"
+    export PAPERTOOLS_FILTER_LLM_MAX_RETRIES="${PAPERTOOLS_DAILY_FILTER_LLM_MAX_RETRIES:-1}"
+    export PAPERTOOLS_FILTER_EARLY_STOP_AFTER_CAP="${PAPERTOOLS_DAILY_FILTER_EARLY_STOP_AFTER_CAP:-1}"
+    export PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE="${PAPERTOOLS_DAILY_TOPIC_HEURISTIC_BYPASS_PRESTIGE:-1}"
+    export PAPERTOOLS_FILTER_RULE_VERSION="${PAPERTOOLS_DAILY_FILTER_RULE_VERSION:-2026-05-24-daily}"
+    export PAPERTOOLS_OPENAI_TIMEOUT="${PAPERTOOLS_DAILY_OPENAI_TIMEOUT:-120}"
+    export PAPERTOOLS_OPENAI_SDK_MAX_RETRIES="${PAPERTOOLS_DAILY_OPENAI_SDK_MAX_RETRIES:-2}"
+    export PAPERTOOLS_RETRY_MAX_DELAY_SECONDS="${PAPERTOOLS_DAILY_RETRY_MAX_DELAY_SECONDS:-60}"
+    export PAPERTOOLS_OPENAI_TRUST_ENV="${PAPERTOOLS_DAILY_OPENAI_TRUST_ENV:-false}"
+}
+
+print_runtime_config() {
+    for key in \
+        MODEL FILTER_MODEL CLUSTER_MODEL SUMMARY_MODEL SUMMARY_MODEL_CHAIN \
+        FILTER_MAX_WORKERS SUMMARY_MAX_WORKERS PAPERTOOLS_FILTER_RPM \
+        PAPERTOOLS_FILTER_LLM_TIMEOUT PAPERTOOLS_FILTER_LLM_MAX_RETRIES \
+        PAPERTOOLS_FILTER_EARLY_STOP_AFTER_CAP PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE \
+        PAPERTOOLS_FILTER_RULE_VERSION PAPERTOOLS_OPENAI_TIMEOUT \
+        PAPERTOOLS_OPENAI_SDK_MAX_RETRIES PAPERTOOLS_RETRY_MAX_DELAY_SECONDS \
+        PAPERTOOLS_OPENAI_TRUST_ENV PAPERTOOLS_DAILY_WINDOW_DAYS \
+        PAPERTOOLS_DAILY_MAX_CATCHUP_DAYS; do
+        printf '%s=%s\n' "$key" "${!key:-}"
+    done
+}
+
+configure_daily_runtime_defaults
+
+if [ "${PAPERTOOLS_DAILY_PRINT_RUNTIME_CONFIG:-0}" = "1" ]; then
+    print_runtime_config
+    exit 0
+fi
 
 run_logged() {
     log "▶ $*"
@@ -218,9 +264,48 @@ if ! [[ "$DAILY_WINDOW_DAYS" =~ ^[0-9]+$ ]] || [ "$DAILY_WINDOW_DAYS" -lt 1 ]; t
     log "⚠️ Invalid PAPERTOOLS_DAILY_WINDOW_DAYS=$DAILY_WINDOW_DAYS; falling back to 4"
     DAILY_WINDOW_DAYS=4
 fi
-DAILY_END_DATE="${PAPERTOOLS_DAILY_END_DATE:-$(date '+%Y-%m-%d')}"
-DAILY_START_DATE="${PAPERTOOLS_DAILY_START_DATE:-$(date -d "$((DAILY_WINDOW_DAYS - 1)) days ago" '+%Y-%m-%d')}"
+if ! [[ "$DAILY_MAX_CATCHUP_DAYS" =~ ^[0-9]+$ ]] || [ "$DAILY_MAX_CATCHUP_DAYS" -lt 1 ]; then
+    log "⚠️ Invalid PAPERTOOLS_DAILY_MAX_CATCHUP_DAYS=$DAILY_MAX_CATCHUP_DAYS; falling back to 7"
+    DAILY_MAX_CATCHUP_DAYS=7
+fi
+DATE_RANGE="$(
+    "$PYTHON_BIN" - "$DAILY_WINDOW_DAYS" "$DAILY_MAX_CATCHUP_DAYS" <<'PY'
+import os
+import sys
+from datetime import date, datetime, timedelta
+from pathlib import Path
+
+window = int(sys.argv[1])
+max_catchup = int(sys.argv[2])
+end_date = datetime.strptime(
+    os.getenv("PAPERTOOLS_DAILY_END_DATE") or date.today().isoformat(),
+    "%Y-%m-%d",
+).date()
+
+default_start = end_date - timedelta(days=max(0, window - 1))
+start_date = default_start
+
+if not os.getenv("PAPERTOOLS_DAILY_START_DATE"):
+    published_dates = []
+    for path in (Path.cwd() / "webpages" / "data").glob("????-??-??.json"):
+        try:
+            published_dates.append(datetime.strptime(path.stem, "%Y-%m-%d").date())
+        except ValueError:
+            pass
+    if published_dates:
+        gap_start = max(published_dates) + timedelta(days=1)
+        if gap_start < start_date:
+            catchup_floor = end_date - timedelta(days=max(0, max_catchup - 1))
+            start_date = max(gap_start, catchup_floor)
+
+start = os.getenv("PAPERTOOLS_DAILY_START_DATE") or start_date.isoformat()
+print(start + " " + end_date.isoformat())
+PY
+)"
+DAILY_START_DATE="${DATE_RANGE% *}"
+DAILY_END_DATE="${DATE_RANGE#* }"
 log "📅 Daily crawl window: $DAILY_START_DATE to $DAILY_END_DATE"
+log "⚙️ Runtime defaults: FILTER_MODEL=$FILTER_MODEL CLUSTER_MODEL=$CLUSTER_MODEL SUMMARY_MODEL=$SUMMARY_MODEL FILTER_RPM=$PAPERTOOLS_FILTER_RPM HEURISTIC_BYPASS_PRESTIGE=$PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE"
 if [ "$REPROCESS_EXISTING_DATES" = "1" ]; then
     log "♻️ Existing published dates will be reprocessed"
 else
