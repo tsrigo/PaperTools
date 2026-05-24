@@ -81,6 +81,77 @@ def test_repair_missing_additional_insights_uses_focused_prompt_after_invalid_de
     assert generate_summary.missing_publish_fields(paper) == []
 
 
+def test_repair_missing_methodology_uses_focused_prompt_after_invalid_default(monkeypatch):
+    paper = _paper(methodology="", additional_insights="已有额外洞察。")
+    calls = []
+
+    def invalid_default(*_args, **_kwargs):
+        calls.append("default")
+        return "生成失败"
+
+    def focused_repair(*_args, **_kwargs):
+        calls.append("focused")
+        return "聚焦修复后的方法论。"
+
+    monkeypatch.setattr(generate_summary, "generate_methodology", invalid_default)
+    monkeypatch.setattr(
+        generate_summary,
+        "repair_methodology_with_focused_prompt",
+        focused_repair,
+    )
+
+    generate_summary.repair_missing_summary_fields(
+        paper,
+        ["methodology"],
+        "paper content",
+        providers=[],
+        temperature=0.1,
+        paper_title="Repairable Paper",
+        cache_manager=None,
+    )
+
+    assert calls == ["default", "focused"]
+    assert paper["methodology"] == "聚焦修复后的方法论。"
+    assert generate_summary.missing_publish_fields(paper) == []
+
+
+def test_repair_missing_fields_use_grounded_fallback_when_llm_repairs_invalid(monkeypatch):
+    paper = _paper(
+        summary="The paper studies persistent memory for long-horizon agents.",
+        intro_logic="长程 agent 容易遗忘早期状态并重复犯错。",
+        core_insight="作者把经验组织成可复用记忆，而不是只延长上下文。",
+        methodology="",
+        additional_insights="",
+    )
+
+    monkeypatch.setattr(generate_summary, "generate_methodology", lambda *_args, **_kwargs: "生成失败")
+    monkeypatch.setattr(
+        generate_summary,
+        "repair_methodology_with_focused_prompt",
+        lambda *_args, **_kwargs: "生成失败",
+    )
+    monkeypatch.setattr(generate_summary, "generate_additional_insights", lambda *_args, **_kwargs: "生成失败")
+    monkeypatch.setattr(
+        generate_summary,
+        "repair_additional_insights_with_focused_prompt",
+        lambda *_args, **_kwargs: "生成失败",
+    )
+
+    generate_summary.repair_missing_summary_fields(
+        paper,
+        ["methodology", "additional_insights"],
+        "The method stores trajectories as reusable evidence for later decisions.",
+        providers=[],
+        temperature=0.1,
+        paper_title="Repairable Paper",
+        cache_manager=None,
+    )
+
+    assert "可提取文本" in paper["methodology"]
+    assert "额外价值" in paper["additional_insights"]
+    assert generate_summary.missing_publish_fields(paper) == []
+
+
 def test_repair_missing_summary_fields_replaces_failed_research_value(monkeypatch):
     paper = _paper(
         methodology="方法论。",

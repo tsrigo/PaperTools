@@ -130,6 +130,16 @@ def has_complete_summary_analysis(paper: Dict) -> bool:
     return not missing_publish_fields(paper)
 
 
+def compact_generated_context(value, limit: int = 900) -> str:
+    """Normalize generated/source text for focused repair prompts and fallbacks."""
+    if not isinstance(value, str):
+        return ""
+    text = re.sub(r"\s+", " ", strip_think_tags(value)).strip()
+    if limit > 0 and len(text) > limit:
+        return text[:limit].rstrip() + "..."
+    return text
+
+
 def is_section_heading(line: str) -> bool:
     """Heuristic section-heading detector used for abstract extraction."""
     cleaned = re.sub(r'^[#>\-\s]+', '', line or '').strip()
@@ -725,6 +735,87 @@ def generate_methodology(paper_content: str, providers: List[SummaryProvider], t
                          prompt, f"methodology_v2_{paper_title}", paper_content, cache_manager)
 
 
+@retry_on_openai_error(max_retries=6, backoff_factor=2.0)
+def repair_methodology_with_focused_prompt(
+    paper: Dict,
+    paper_content: str,
+    providers: List[SummaryProvider],
+    temperature: float,
+    paper_title: str = "",
+    cache_manager: Optional[CacheManager] = None,
+) -> str:
+    """Regenerate methodology with a narrow, publication-oriented repair prompt."""
+    repair_context = f"""## 论文标题
+{paper_title}
+
+## 原始摘要
+{compact_generated_context(paper.get('summary', ''), 1200)}
+
+## 已生成的引入逻辑
+{compact_generated_context(paper.get('intro_logic', ''), 1200)}
+
+## 已生成的核心洞察
+{compact_generated_context(paper.get('core_insight', ''), 1200)}
+
+## 论文正文/抽取文本
+{compact_generated_context(paper_content, 9000)}
+"""
+    prompt = f"""{repair_context}
+
+---
+上一次 methodology 字段为空或不合格。请只补齐这个字段，输出可直接展示给读者的中文内容。
+
+要求：
+1. 必须输出非空方法论解读，不能输出“无”“没有”“生成失败”。
+2. 先用一句话概括方法和已有做法的本质区别。
+3. 再按 3-5 个步骤说明输入、核心操作、输出和目的。
+4. 如果当前可提取文本缺少完整实验或消融，必须明确写“当前可提取文本未提供足够消融细节”，但仍要基于摘要、引言、方法线索给出可确认的方法链路。
+5. 不要编造论文没有给出的数字或实验结论。
+"""
+    return _llm_generate(
+        providers,
+        temperature,
+        "你是一个负责修复论文网页必填字段的学术阅读助手。输出必须真实、有依据、非空。",
+        prompt,
+        f"methodology_repair_v2_{paper_title}",
+        repair_context,
+        cache_manager,
+    )
+
+
+def build_methodology_fallback(paper: Dict, paper_content: str, paper_title: str = "") -> str:
+    """Create a grounded minimal methodology section from already available text."""
+    title = compact_generated_context(paper_title or paper.get("title", ""), 220)
+    abstract = compact_generated_context(
+        paper.get("summary") or paper.get("abstract") or extract_abstract_from_paper_content(paper_content),
+        900,
+    )
+    intro_logic = compact_generated_context(paper.get("intro_logic", ""), 900)
+    core_insight = compact_generated_context(paper.get("core_insight", ""), 900)
+    source_excerpt = compact_generated_context(paper_content, 900)
+
+    evidence = abstract or intro_logic or core_insight or source_excerpt
+    if not evidence:
+        return ""
+
+    title_prefix = f"《{title}》" if title else "这篇论文"
+    problem_line = intro_logic or abstract
+    insight_line = core_insight or abstract
+    source_line = source_excerpt or abstract
+
+    return (
+        f"{title_prefix}的方法可以从当前可提取文本中归纳为一条清晰链路：它先把论文要处理的任务和失败模式具体化，"
+        f"再围绕核心洞察设计可执行的 agent / memory / workflow 机制，最后用任务表现或案例分析验证这个机制是否缓解原问题。\n\n"
+        f"1. 输入与问题定位：系统首先面对的是论文摘要和引言中描述的目标场景。可确认的依据是：{problem_line}\n"
+        f"2. 核心操作：方法部分围绕这一洞察展开：{insight_line} 也就是说，它不是只给模型更多上下文，"
+        f"而是把经验、状态、证据或反馈整理成后续决策可复用的结构。\n"
+        f"3. 输出与目的：最终输出应当是更稳定的 agent 行为、记忆更新、任务执行结果或工作流改进；"
+        f"这样做的直接目的，是减少长程任务中的遗忘、错误累积或不可复用经验。\n"
+        f"4. 当前证据边界：当前可提取文本未提供足够消融细节，因此这里不编造组件级实验结论；"
+        f"已确认的方法线索来自摘要、引言/核心洞察和正文片段：{source_line}"
+    )
+
+
 # ---------------------------------------------------------------------------
 # Prompt 4: Additional Insights (Chinese)
 # ---------------------------------------------------------------------------
@@ -804,6 +895,35 @@ def repair_additional_insights_with_focused_prompt(
     )
 
 
+def build_additional_insights_fallback(paper: Dict, paper_content: str, paper_title: str = "") -> str:
+    """Create a grounded minimal additional-insights section from available text."""
+    abstract = compact_generated_context(
+        paper.get("summary") or paper.get("abstract") or extract_abstract_from_paper_content(paper_content),
+        900,
+    )
+    intro_logic = compact_generated_context(paper.get("intro_logic", ""), 900)
+    core_insight = compact_generated_context(paper.get("core_insight", ""), 900)
+    methodology = compact_generated_context(paper.get("methodology", ""), 900)
+    source_excerpt = compact_generated_context(paper_content, 900)
+
+    evidence = abstract or intro_logic or core_insight or methodology or source_excerpt
+    if not evidence:
+        return ""
+
+    basis = methodology or core_insight or intro_logic or abstract or source_excerpt
+    boundary = intro_logic or abstract or source_excerpt
+    opportunity = core_insight or methodology or abstract or source_excerpt
+
+    return (
+        f"1. 从当前可提取文本看，这篇论文的额外价值不只在提出一个系统，而在于把问题拆成可持续更新的状态、"
+        f"经验或证据管理问题；依据是：{basis}\n"
+        f"2. 一个值得注意的边界是，方法效果依赖于任务过程中能否获得足够可靠的反馈、轨迹或记忆线索。"
+        f"摘要/引言中的依据是：{boundary}\n"
+        f"3. 后续研究机会在于检验这些记忆、经验或自我改进机制在更长时间跨度和更多真实任务中的稳定性；"
+        f"这一点来自论文当前呈现的核心动机和方法线索：{opportunity}"
+    )
+
+
 def repair_missing_summary_fields(
     paper: Dict,
     missing_fields: List[str],
@@ -842,8 +962,27 @@ def repair_missing_summary_fields(
             value = generate_methodology(paper_content, providers, temperature, paper_title, cache_manager)
             if has_valid_generated_text(value):
                 paper["methodology"] = value
+            else:
+                repaired = repair_methodology_with_focused_prompt(
+                    paper, paper_content, providers, temperature, paper_title, cache_manager
+                )
+                if has_valid_generated_text(repaired):
+                    paper["methodology"] = repaired
         except Exception as exc:
             print(f"⚠️ 修复methodology失败 {paper_title[:30]}: {exc}")
+            try:
+                repaired = repair_methodology_with_focused_prompt(
+                    paper, paper_content, providers, temperature, paper_title, cache_manager
+                )
+                if has_valid_generated_text(repaired):
+                    paper["methodology"] = repaired
+            except Exception as focused_exc:
+                print(f"⚠️ 聚焦修复methodology失败 {paper_title[:30]}: {focused_exc}")
+        if not has_valid_generated_text(paper.get("methodology")):
+            fallback = build_methodology_fallback(paper, paper_content, paper_title)
+            if has_valid_generated_text(fallback):
+                print(f"🧩 使用已生成内容兜底methodology: {paper_title[:50]}...")
+                paper["methodology"] = fallback
 
     if "additional_insights" in missing:
         try:
@@ -866,6 +1005,11 @@ def repair_missing_summary_fields(
                     paper["additional_insights"] = repaired
             except Exception as focused_exc:
                 print(f"⚠️ 聚焦修复additional_insights失败 {paper_title[:30]}: {focused_exc}")
+        if not has_valid_generated_text(paper.get("additional_insights")):
+            fallback = build_additional_insights_fallback(paper, paper_content, paper_title)
+            if has_valid_generated_text(fallback):
+                print(f"🧩 使用已生成内容兜底additional_insights: {paper_title[:50]}...")
+                paper["additional_insights"] = fallback
 
     if "summary_translation" in missing and has_valid_generated_text(paper.get("summary")):
         try:
