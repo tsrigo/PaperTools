@@ -110,6 +110,21 @@ SUMMARY_ANALYSIS_FIELDS = (
 )
 
 
+def env_int(name: str, default: int, minimum: int = 0) -> int:
+    """Read a bounded integer from the environment."""
+    raw = os.getenv(name)
+    if raw is None or raw == "":
+        return default
+    try:
+        value = int(raw)
+    except ValueError:
+        return default
+    return max(minimum, value)
+
+
+SUMMARY_FIELD_REPAIR_ATTEMPTS = env_int("PAPERTOOLS_SUMMARY_FIELD_REPAIR_ATTEMPTS", 2, minimum=0)
+
+
 def has_complete_summary_analysis(paper: Dict) -> bool:
     """Return True only when a paper has all fields needed by the web UI."""
     return not missing_publish_fields(paper)
@@ -736,6 +751,87 @@ def generate_additional_insights(paper_content: str, providers: List[SummaryProv
     return _llm_generate(providers, temperature,
                          "你是一个善于从论文中榨取最大价值的研究助手。",
                          prompt, f"additional_insights_{paper_title}", paper_content, cache_manager)
+
+
+def repair_missing_summary_fields(
+    paper: Dict,
+    missing_fields: List[str],
+    paper_content: str,
+    providers: List[SummaryProvider],
+    temperature: float,
+    paper_title: str,
+    cache_manager: Optional[CacheManager] = None,
+) -> None:
+    """Best-effort targeted retry for required publish fields that came back empty."""
+    missing = set(missing_fields)
+
+    if "summary" in missing:
+        recovered_summary = extract_abstract_from_paper_content(paper_content)
+        if has_valid_generated_text(recovered_summary):
+            paper["summary"] = recovered_summary
+
+    if "intro_logic" in missing:
+        try:
+            value = generate_intro_logic(paper_content, providers, temperature, paper_title, cache_manager)
+            if has_valid_generated_text(value):
+                paper["intro_logic"] = value
+        except Exception as exc:
+            print(f"⚠️ 修复intro_logic失败 {paper_title[:30]}: {exc}")
+
+    if "core_insight" in missing:
+        try:
+            value = generate_core_insight(paper_content, providers, temperature, paper_title, cache_manager)
+            if has_valid_generated_text(value):
+                paper["core_insight"] = value
+        except Exception as exc:
+            print(f"⚠️ 修复core_insight失败 {paper_title[:30]}: {exc}")
+
+    if "methodology" in missing:
+        try:
+            value = generate_methodology(paper_content, providers, temperature, paper_title, cache_manager)
+            if has_valid_generated_text(value):
+                paper["methodology"] = value
+        except Exception as exc:
+            print(f"⚠️ 修复methodology失败 {paper_title[:30]}: {exc}")
+
+    if "additional_insights" in missing:
+        try:
+            value = generate_additional_insights(paper_content, providers, temperature, paper_title, cache_manager)
+            if has_valid_generated_text(value):
+                paper["additional_insights"] = value
+        except Exception as exc:
+            print(f"⚠️ 修复additional_insights失败 {paper_title[:30]}: {exc}")
+
+    if "summary_translation" in missing and has_valid_generated_text(paper.get("summary")):
+        try:
+            value = translate_summary(paper["summary"], providers, temperature, paper_title, cache_manager)
+            if has_valid_generated_text(value):
+                paper["summary_translation"] = value
+        except Exception as exc:
+            print(f"⚠️ 修复summary_translation失败 {paper_title[:30]}: {exc}")
+
+    if "research_value" in missing or "reviewgrounder_review" in missing:
+        try:
+            value = generate_research_value(
+                providers,
+                temperature,
+                paper_title,
+                paper.get("arxiv_id", ""),
+                paper.get("source_date") or paper.get("date", ""),
+                paper.get("intro_logic", ""),
+                paper.get("methodology", ""),
+                paper.get("additional_insights", ""),
+                paper.get("summary", ""),
+                cache_manager,
+            )
+            if has_valid_generated_text(value):
+                paper["research_value"] = value
+                paper["reviewgrounder_review"] = {"source": "summary_field_repair_fallback"}
+                paper["research_value_source"] = "summary_field_repair_fallback"
+                paper["research_value_model"] = ",".join(provider.label for provider in providers)
+                paper["research_value_reasoning_effort"] = ""
+        except Exception as exc:
+            print(f"⚠️ 修复research_value失败 {paper_title[:30]}: {exc}")
 
 
 # ---------------------------------------------------------------------------
@@ -1658,6 +1754,27 @@ def main() -> int:
             paper_copy['summary_model'] = ",".join(provider.label for provider in providers)
 
             missing_fields = missing_publish_fields(paper_copy)
+            for repair_attempt in range(1, SUMMARY_FIELD_REPAIR_ATTEMPTS + 1):
+                if not missing_fields:
+                    break
+                print(
+                    f"🔁 修复缺失总结字段 {paper_title[:50]}... "
+                    f"({repair_attempt}/{SUMMARY_FIELD_REPAIR_ATTEMPTS}) "
+                    f"missing={', '.join(missing_fields)}"
+                )
+                repair_missing_summary_fields(
+                    paper_copy,
+                    missing_fields,
+                    paper_content,
+                    providers,
+                    args.temperature,
+                    paper_title,
+                    cache_manager,
+                )
+                paper_copy['summary_generated_time'] = time.strftime('%Y-%m-%d %H:%M:%S')
+                paper_copy['summary_model'] = ",".join(provider.label for provider in providers)
+                missing_fields = missing_publish_fields(paper_copy)
+
             if missing_fields:
                 return (
                     'partial_failed',
