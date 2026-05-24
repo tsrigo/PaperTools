@@ -141,6 +141,49 @@ def test_filter_errors_are_publish_blocking_even_with_selected_papers():
     )
 
 
+def test_topic_heuristic_does_not_keep_bare_agentic_cross_domain_paper():
+    matched, _reason = paper_filter.evaluate_topic_heuristic(
+        "Agentic Pipeline for Self-Synchronized Multiview Joint Angle Monitoring",
+        "We propose an agentic pipeline for physical AI monitoring in uncalibrated environments.",
+    )
+
+    assert matched is False
+
+
+def test_topic_heuristic_keeps_explicit_llm_agent_memory_paper():
+    matched, reason = paper_filter.evaluate_topic_heuristic(
+        "LongMINT: Evaluating Memory under Multi-Target Interference in Long-Horizon Agent Systems",
+        "We benchmark memory-augmented LLM agents in long-horizon settings with interference.",
+    )
+
+    assert matched is True
+    assert "Long-Horizon Agents" in reason or "LLM Agents" in reason
+
+
+def test_topic_heuristic_keeps_agentic_paper_with_llm_context():
+    matched, reason = paper_filter.evaluate_topic_heuristic(
+        "Agentic Code Review for Large Language Model Software Agents",
+        "This work studies agentic tool use, planning, and evaluation for LLM software agents.",
+    )
+
+    assert matched is True
+    assert "Agentic" in reason
+
+
+def test_topic_heuristic_bypass_requires_high_selection_score():
+    strong_paper = {
+        "title": "LongMINT: Evaluating Memory under Multi-Target Interference in Long-Horizon Agent Systems",
+        "summary": "We benchmark memory-augmented LLM agents in long-horizon settings with interference.",
+    }
+    broad_paper = {
+        "title": "Visual Agentic Memory for Online Long Video Understanding",
+        "summary": "We study agentic retrieval and memory for multimodal video systems.",
+    }
+
+    assert paper_filter.should_bypass_prestige_for_topic_heuristic(strong_paper)
+    assert not paper_filter.should_bypass_prestige_for_topic_heuristic(broad_paper)
+
+
 def test_filter_model_fallback_skips_invalid_model(monkeypatch):
     calls = []
 

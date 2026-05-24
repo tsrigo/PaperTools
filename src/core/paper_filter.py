@@ -140,6 +140,7 @@ PRESTIGE_LLM_ENABLED = os.getenv("PAPERTOOLS_PRESTIGE_LLM_ENABLED", "0").lower()
 }
 TOPIC_HEURISTIC_KEEP_ENABLED = env_bool("PAPERTOOLS_TOPIC_HEURISTIC_KEEP_ENABLED", True)
 TOPIC_HEURISTIC_BYPASS_PRESTIGE = env_bool("PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE", False)
+TOPIC_HEURISTIC_BYPASS_MIN_SCORE = env_int("PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_MIN_SCORE", 60)
 PRESTIGE_AFFILIATION_FETCH_ENABLED = os.getenv(
     "PAPERTOOLS_PRESTIGE_AFFILIATION_FETCH_ENABLED",
     "1",
@@ -276,9 +277,11 @@ def evaluate_topic_heuristic(title: str, summary: str) -> Tuple[bool, str]:
     def has(pattern: str) -> bool:
         return re.search(pattern, compact_text, flags=re.IGNORECASE) is not None
 
-    llm_context = has(r"\b(?:llm|large language model|language model|small language model|foundation model|agentic)\b")
+    llm_context = has(r"\b(?:llm|large language model|language model|small language model|foundation model)\b")
 
-    if has(r"\bagentic\b"):
+    if llm_context and has(r"\bagentic\b") and has(
+        r"\b(?:agents?|tool[-\s]?use|tool[-\s]?calling|workflow|planning|memory|coding|software|benchmark|evaluation)\b"
+    ):
         signals.append("Agentic")
     if has(r"\bllms?\s+improv(?:e|ing|es)\s+llms?\b"):
         signals.append("LLMs improving LLMs")
@@ -427,6 +430,16 @@ def should_stop_filter_after_cap(
         and max_papers > 0
         and existing_filtered_count + new_filtered_count >= max_papers
     )
+
+
+def topic_heuristic_bypass_score(paper: dict) -> int:
+    """Return the quality score used to decide whether heuristic topic hits may skip prestige."""
+    return score_filtered_paper_for_selection(paper)
+
+
+def should_bypass_prestige_for_topic_heuristic(paper: dict) -> bool:
+    """Only very high-confidence heuristic hits may bypass the prestige gate."""
+    return topic_heuristic_bypass_score(paper) >= TOPIC_HEURISTIC_BYPASS_MIN_SCORE
 
 
 def has_blocking_filter_failures(
@@ -1136,6 +1149,8 @@ def main() -> int:
         print(f"🏛️ Prestige 机构在线提取: {'启用' if PRESTIGE_AFFILIATION_FETCH_ENABLED else '关闭'}")
         print(f"🏛️ Prestige LLM 兜底判断: {'启用' if PRESTIGE_LLM_ENABLED else '关闭'}")
         print(f"🏛️ 强主题确定性保留跳过 Prestige: {'启用' if TOPIC_HEURISTIC_BYPASS_PRESTIGE else '关闭'}")
+        if TOPIC_HEURISTIC_BYPASS_PRESTIGE:
+            print(f"🏛️ 强主题跳过 Prestige 最低分: {TOPIC_HEURISTIC_BYPASS_MIN_SCORE}")
         print(f"📄 Prestige 上下文截断长度: {PRESTIGE_CONTEXT_CHARS} 字符")
         print(f"📄 Prestige 文档提取链: {FILTER_EXTRACT_CHAIN} (timeout={FILTER_EXTRACT_TIMEOUT}s)")
     print("=" * 50)
@@ -1356,18 +1371,25 @@ def main() -> int:
                 return 'include', paper_with_reason, f"✅ 匹配: {title[:50]}...", topic_reason
 
             if topic_source == 'heuristic' and TOPIC_HEURISTIC_BYPASS_PRESTIGE:
-                paper_with_reason['prestige_result'] = True
-                paper_with_reason['prestige_reason'] = "主题强相关确定性保留，跳过 prestige 硬筛"
-                paper_with_reason['prestige_source'] = 'topic_heuristic_bypass'
-                paper_with_reason['prestige_status'] = 'bypassed'
-                paper_with_reason['prestige_matches'] = {
-                    'authors': [],
-                    'institutions': [],
-                    'companies': [],
-                    'institution_names': [],
-                }
-                paper_with_reason['prestige_rule_version'] = PRESTIGE_RULE_VERSION
-                return 'include', paper_with_reason, f"✅ 主题强相关保留: {title[:50]}...", topic_reason
+                heuristic_score = topic_heuristic_bypass_score(paper_with_reason)
+                paper_with_reason['selection_score'] = heuristic_score
+                if should_bypass_prestige_for_topic_heuristic(paper_with_reason):
+                    paper_with_reason['prestige_result'] = True
+                    paper_with_reason['prestige_reason'] = "主题强相关确定性保留，跳过 prestige 硬筛"
+                    paper_with_reason['prestige_source'] = 'topic_heuristic_bypass'
+                    paper_with_reason['prestige_status'] = 'bypassed'
+                    paper_with_reason['prestige_matches'] = {
+                        'authors': [],
+                        'institutions': [],
+                        'companies': [],
+                        'institution_names': [],
+                    }
+                    paper_with_reason['prestige_rule_version'] = PRESTIGE_RULE_VERSION
+                    return 'include', paper_with_reason, f"✅ 主题强相关保留: {title[:50]}...", topic_reason
+                paper_with_reason['filter_reason'] = (
+                    f"{topic_reason} 但 selection_score={heuristic_score} "
+                    f"低于强主题旁路阈值 {TOPIC_HEURISTIC_BYPASS_MIN_SCORE}，继续执行 prestige 硬筛。"
+                )
 
             if PRESTIGE_AFFILIATION_FETCH_ENABLED:
                 try:
