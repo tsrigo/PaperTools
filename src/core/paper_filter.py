@@ -1356,12 +1356,31 @@ def main() -> int:
         try:
             topic_match, topic_reason = evaluate_topic_heuristic(title, summary)
             topic_source = 'heuristic' if topic_match else 'llm'
-            if not topic_match:
-                topic_match, topic_reason = query_topic_llm(title, summary, client, filter_model_chain, args.temperature)
             paper_with_reason = paper.copy()
+            heuristic_score = None
+            heuristic_reason = ""
+            if topic_match:
+                paper_with_reason['filter_reason'] = topic_reason
+                heuristic_score = topic_heuristic_bypass_score(paper_with_reason)
+                paper_with_reason['selection_score'] = heuristic_score
+                if heuristic_score < TOPIC_HEURISTIC_BYPASS_MIN_SCORE:
+                    heuristic_reason = (
+                        f"{topic_reason} 但 selection_score={heuristic_score} "
+                        f"低于强主题旁路阈值 {TOPIC_HEURISTIC_BYPASS_MIN_SCORE}，转交 LLM 细筛。"
+                    )
+                    topic_match = False
+                    topic_source = 'llm'
+            if not topic_match:
+                topic_match, llm_reason = query_topic_llm(title, summary, client, filter_model_chain, args.temperature)
+                topic_reason = (
+                    f"{heuristic_reason} LLM 细筛结果: {llm_reason}"
+                    if heuristic_reason else llm_reason
+                )
             paper_with_reason['filter_reason'] = topic_reason
             paper_with_reason['topic_source'] = topic_source
             paper_with_reason['filter_rule_version'] = FILTER_RULE_VERSION
+            if heuristic_score is not None:
+                paper_with_reason['selection_score'] = heuristic_score
 
             if not topic_match:
                 paper_with_reason['exclude_stage'] = 'topic'
@@ -1371,8 +1390,6 @@ def main() -> int:
                 return 'include', paper_with_reason, f"✅ 匹配: {title[:50]}...", topic_reason
 
             if topic_source == 'heuristic' and TOPIC_HEURISTIC_BYPASS_PRESTIGE:
-                heuristic_score = topic_heuristic_bypass_score(paper_with_reason)
-                paper_with_reason['selection_score'] = heuristic_score
                 if should_bypass_prestige_for_topic_heuristic(paper_with_reason):
                     paper_with_reason['prestige_result'] = True
                     paper_with_reason['prestige_reason'] = "主题强相关确定性保留，跳过 prestige 硬筛"
@@ -1386,10 +1403,6 @@ def main() -> int:
                     }
                     paper_with_reason['prestige_rule_version'] = PRESTIGE_RULE_VERSION
                     return 'include', paper_with_reason, f"✅ 主题强相关保留: {title[:50]}...", topic_reason
-                paper_with_reason['filter_reason'] = (
-                    f"{topic_reason} 但 selection_score={heuristic_score} "
-                    f"低于强主题旁路阈值 {TOPIC_HEURISTIC_BYPASS_MIN_SCORE}，继续执行 prestige 硬筛。"
-                )
 
             if PRESTIGE_AFFILIATION_FETCH_ENABLED:
                 try:
