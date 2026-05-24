@@ -47,6 +47,40 @@ def test_repair_missing_summary_fields_backfills_methodology_and_insights(monkey
     assert generate_summary.missing_publish_fields(paper) == []
 
 
+def test_repair_missing_additional_insights_uses_focused_prompt_after_invalid_default(monkeypatch):
+    paper = _paper(methodology="方法论。", additional_insights="")
+    calls = []
+
+    def invalid_default(*_args, **_kwargs):
+        calls.append("default")
+        return "生成失败"
+
+    def focused_repair(*_args, **_kwargs):
+        calls.append("focused")
+        return "聚焦修复后的额外洞察。"
+
+    monkeypatch.setattr(generate_summary, "generate_additional_insights", invalid_default)
+    monkeypatch.setattr(
+        generate_summary,
+        "repair_additional_insights_with_focused_prompt",
+        focused_repair,
+    )
+
+    generate_summary.repair_missing_summary_fields(
+        paper,
+        ["additional_insights"],
+        "paper content",
+        providers=[],
+        temperature=0.1,
+        paper_title="Repairable Paper",
+        cache_manager=None,
+    )
+
+    assert calls == ["default", "focused"]
+    assert paper["additional_insights"] == "聚焦修复后的额外洞察。"
+    assert generate_summary.missing_publish_fields(paper) == []
+
+
 def test_repair_missing_summary_fields_replaces_failed_research_value(monkeypatch):
     paper = _paper(
         methodology="方法论。",

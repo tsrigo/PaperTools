@@ -746,11 +746,62 @@ def generate_additional_insights(paper_content: str, providers: List[SummaryProv
 
 5. **局限性中的机会**：作者承认的局限性中，哪些暗示了有价值的未来研究方向？
 
-请只输出有实质内容的条目，没有就不写。每条用1-2句话概括，附上论文中的依据。用中文回复，专业术语保持英文。"""
+请只输出有实质内容的条目。必须至少输出 1 条；如果论文没有清晰的实验、ablation 或工程 trick，不要留空，而是从论文的分析、适用边界、局限性或未来机会中提炼有依据的补充洞察，并明确说明依据来自当前可提取文本。不要输出“无”“没有”“生成失败”这类空结论。每条用1-2句话概括，附上论文中的依据。用中文回复，专业术语保持英文。"""
 
     return _llm_generate(providers, temperature,
                          "你是一个善于从论文中榨取最大价值的研究助手。",
                          prompt, f"additional_insights_{paper_title}", paper_content, cache_manager)
+
+
+@retry_on_openai_error(max_retries=6, backoff_factor=2.0)
+def repair_additional_insights_with_focused_prompt(
+    paper: Dict,
+    paper_content: str,
+    providers: List[SummaryProvider],
+    temperature: float,
+    paper_title: str = "",
+    cache_manager: Optional[CacheManager] = None,
+) -> str:
+    """Regenerate additional_insights with a stricter non-empty repair prompt."""
+    repair_context = f"""## 论文标题
+{paper_title}
+
+## 原始摘要
+{paper.get('summary', '')}
+
+## 已生成的引入逻辑
+{paper.get('intro_logic', '')}
+
+## 已生成的核心洞察
+{paper.get('core_insight', '')}
+
+## 已生成的方法分析
+{paper.get('methodology', '')}
+
+## 论文正文/抽取文本
+{paper_content}
+"""
+    prompt = f"""{repair_context}
+
+---
+上一次 additional_insights 字段为空或不合格。请只补齐这个字段，输出可直接展示给读者的中文内容。
+
+要求：
+1. 必须输出至少 1 条有信息量的补充洞察，不能留空。
+2. 优先写实验中的反直觉发现、ablation、实用经验、适用边界或局限性机会。
+3. 如果当前文本没有足够实验细节，不要编造数字；请基于摘要、引言、方法或局限性写出“从当前可提取文本看”的可靠启发。
+4. 不要输出“无”“没有额外洞察”“生成失败”等占位结论。
+5. 每条 1-2 句话，必须说明依据来自论文的哪个内容线索。
+"""
+    return _llm_generate(
+        providers,
+        temperature,
+        "你是一个负责修复论文网页必填字段的学术阅读助手。输出必须真实、有依据、非空。",
+        prompt,
+        f"additional_insights_repair_v2_{paper_title}",
+        repair_context,
+        cache_manager,
+    )
 
 
 def repair_missing_summary_fields(
@@ -799,8 +850,22 @@ def repair_missing_summary_fields(
             value = generate_additional_insights(paper_content, providers, temperature, paper_title, cache_manager)
             if has_valid_generated_text(value):
                 paper["additional_insights"] = value
+            else:
+                repaired = repair_additional_insights_with_focused_prompt(
+                    paper, paper_content, providers, temperature, paper_title, cache_manager
+                )
+                if has_valid_generated_text(repaired):
+                    paper["additional_insights"] = repaired
         except Exception as exc:
-            print(f"⚠️ 修复additional_insights失败 {paper_title[:30]}: {exc}")
+            print(f"⚠️ 常规修复additional_insights失败 {paper_title[:30]}: {exc}")
+            try:
+                repaired = repair_additional_insights_with_focused_prompt(
+                    paper, paper_content, providers, temperature, paper_title, cache_manager
+                )
+                if has_valid_generated_text(repaired):
+                    paper["additional_insights"] = repaired
+            except Exception as focused_exc:
+                print(f"⚠️ 聚焦修复additional_insights失败 {paper_title[:30]}: {focused_exc}")
 
     if "summary_translation" in missing and has_valid_generated_text(paper.get("summary")):
         try:
