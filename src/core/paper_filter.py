@@ -129,7 +129,7 @@ FILTER_SUSPICIOUS_ZERO_MIN_PREFILTERED = env_int(
     100,
     minimum=0,
 )
-FILTER_RULE_VERSION = os.getenv("PAPERTOOLS_FILTER_RULE_VERSION", "2026-05-31")
+FILTER_RULE_VERSION = os.getenv("PAPERTOOLS_FILTER_RULE_VERSION", "2026-05-31-topic-post-v2")
 FILTER_MODEL_CHAIN_ENV = (
     os.getenv("PAPERTOOLS_FILTER_MODEL_CHAIN")
     or os.getenv("FILTER_MODEL_CHAIN")
@@ -466,10 +466,133 @@ def has_hard_topic_exclusion_terms(title: str, summary: str) -> bool:
         r"\b(?:security|cyber|jailbreak|prompt injection|poison(?:ing)?|attack(?:s|er)?|"
         r"safety|alignment|interpretability|explainability|watermark(?:ing)?|hallucination|"
         r"vision|video|multimodal|vlm|mllm|diffusion|knowledge graph|graph neural|"
-        r"graph reasoning|graph rag)\b",
+        r"graph reasoning|graph[-\s]?rag|graphrag)\b",
         text,
         flags=re.IGNORECASE,
     ) is not None
+
+
+def has_strong_agent_topic_signal(title: str, summary: str) -> bool:
+    """Return True when title/abstract explicitly make agent mechanisms the object."""
+    title_text = (title or "").lower()
+    text = f"{title}\n{summary}".lower()
+    compact_text = re.sub(r"\s+", " ", text)
+
+    strong_patterns = [
+        r"\b(?:llm|large language model|language model)s?\s+agents?\b",
+        r"\bagentic\s+(?:ai|llms?|workflow|workflows|harness|search|discovery)\b",
+        r"\b(?:deep research|computer-use|gui|terminal|coding|software|web|role-playing)\s+agents?\b",
+        r"\b(?:long[-\s]?horizon|long[-\s]?term)\s+(?:llm\s+)?agents?\b",
+        r"\bagents?\s+(?:memory|tool|tools|planning|workflow|harness|scaffold|runtime|trajectory|trajectories)\b",
+        r"\b(?:tool[-\s]?use|tool[-\s]?using|tool[-\s]?calling)\s+(?:agents?|llms?)\b",
+        r"\b(?:self[-\s]?(?:evolving|evolution|improving|improvement)|co[-\s]?evolution)\b.*\b(?:agents?|llms?|language models?|skills?|harness|reasoning)\b",
+        r"\b(?:agents?|llms?|language models?|skills?|harness|reasoning)\b.*\b(?:self[-\s]?(?:evolving|evolution|improving|improvement)|co[-\s]?evolution)\b",
+        r"\bllms?\s+teach\s+themselves\b",
+        r"\binteractive\s+(?:environment|benchmark).*\b(?:agents?|ai scientists?)\b",
+        r"\b(?:agents?|ai scientists?)\b.*\binteractive\s+(?:environment|benchmark)\b",
+    ]
+    if any(re.search(pattern, compact_text, flags=re.IGNORECASE) for pattern in strong_patterns):
+        return True
+
+    title_strong_patterns = [
+        r"\bagents?\b",
+        r"\bagentic\b",
+        r"\bdeep research\b",
+        r"\btool registr(?:y|ies)\b",
+        r"\btrajectory[-\s]?level\b",
+    ]
+    return any(re.search(pattern, title_text, flags=re.IGNORECASE) for pattern in title_strong_patterns)
+
+
+def deterministic_topic_rejection_reason(title: str, summary: str) -> str:
+    """Catch high-confidence topic drift after a permissive LLM include.
+
+    The LLM topic judge is intentionally recall-oriented, but production pages
+    need a deterministic backstop for repeated false-positive families.  Keep
+    this function narrow: ambiguous agent papers should still be judged by the
+    model and human review, while obvious Graph-RAG, generic RLVR, non-LLM MARL,
+    and domain-application drift should fail closed.
+    """
+    title = title or ""
+    summary = summary or ""
+    title_text = title.lower()
+    text = f"{title}\n{summary}".lower()
+    compact_text = re.sub(r"\s+", " ", text)
+
+    if re.search(
+        r"(?:\befficientgraph[-\s]?rag\b|\bgraph[-\s]?rag\b|\bgraphrag\b|"
+        r"\bknowledge graph\b|\bgraph neural\b|\bgraph reasoning\b|\bgraph representation\b)",
+        title_text,
+        flags=re.IGNORECASE,
+    ):
+        return "图/RAG 技术是标题层面的核心贡献，属于主题排除项"
+
+    llm_context = re.search(
+        r"\b(?:llms?|large language models?|language models?|foundation models?|transformers?)\b",
+        compact_text,
+        flags=re.IGNORECASE,
+    ) is not None
+    strong_agent_signal = has_strong_agent_topic_signal(title, summary)
+
+    if not llm_context and not strong_agent_signal and re.search(
+        r"\b(?:ad[-\s]?hoc teamwork|mixed[-\s]?motive|public goods?|"
+        r"sequential social dilemmas?|marl)\b",
+        compact_text,
+        flags=re.IGNORECASE,
+    ):
+        return "多智能体/RL 语境未明确指向 LLM agents，属于非 LLM-agent 范围"
+
+    if re.search(
+        r"\bcausal methods?\s+for\s+llm\s+development\s+and\s+evaluation\b",
+        title_text,
+        flags=re.IGNORECASE,
+    ):
+        return "宽泛的 LLM 开发/评估方法综述，agent workflow 只是应用场景之一"
+
+    if llm_context and not strong_agent_signal and re.search(
+        r"\b(?:rlvr|grpo|reinforcement learning with verifiable rewards|preference aggregation|"
+        r"fine[-\s]?tuning|long[-\s]?context|transformer|memory transformer|causal methods?|"
+        r"premature confidence|algorithm design|operations research|optimization)\b",
+        compact_text,
+        flags=re.IGNORECASE,
+    ):
+        return "核心是通用 LLM 训练/推理/评测方法，标题摘要未把 agent 机制作为研究对象"
+
+    domain_application_patterns = [
+        (
+            r"\b(?:delusion|clinical|medical|audio diaries|persecutory ideation)\b",
+            "医疗/临床领域应用使用 multi-agent LLM 作为工具，不是 agent 机制研究",
+        ),
+        (
+            r"\b(?:quantum|coherent ising machine|cim|qubo|ising model)\b",
+            "量子/优化建模领域集成现有 agent 框架，缺少新的 agent 机制贡献",
+        ),
+        (
+            r"\b(?:mobile crowdsourcing|strategic mobile workers|traffic condition predictions)\b",
+            "众包偏好聚合/LLM 微调应用，multi-agent 指人群博弈而非 LLM agents",
+        ),
+    ]
+    for pattern, reason in domain_application_patterns:
+        if re.search(pattern, compact_text, flags=re.IGNORECASE) and not re.search(
+            r"\b(?:self[-\s]?(?:evolving|improving)|agentic harness|harness evolution|"
+            r"agent memory|tool[-\s]?use|long[-\s]?horizon agents?)\b",
+            compact_text,
+            flags=re.IGNORECASE,
+        ):
+            return reason
+
+    if re.search(r"\b(?:atomistic|materials science|chemistry|drug discovery)\b", compact_text) and re.search(
+        r"\bhuman[-\s]?curated\b",
+        compact_text,
+        flags=re.IGNORECASE,
+    ) and not re.search(
+        r"\b(?:self[-\s]?(?:evolving|improving)|feedback[-\s]?driven|rl[-\s]?trained|benchmark)\b",
+        compact_text,
+        flags=re.IGNORECASE,
+    ):
+        return "材料/化学领域的人类整理技能工具箱，偏领域应用基础设施而非自演化 agent 机制"
+
+    return ""
 
 
 def should_accept_topic_heuristic_without_llm(
@@ -1496,6 +1619,23 @@ def main() -> int:
             paper_with_reason['filter_rule_version'] = FILTER_RULE_VERSION
             if heuristic_score is not None:
                 paper_with_reason['selection_score'] = heuristic_score
+
+            deterministic_reject_reason = (
+                deterministic_topic_rejection_reason(title, summary)
+                if topic_match else ""
+            )
+            if deterministic_reject_reason:
+                paper_with_reason['filter_reason'] = (
+                    f"{topic_reason}\n\n"
+                    f"确定性主题后验排除: {deterministic_reject_reason}"
+                ).strip()
+                paper_with_reason['exclude_stage'] = 'topic'
+                return (
+                    'exclude_topic',
+                    paper_with_reason,
+                    f"⏭️ 主题后验排除: {title[:50]}...",
+                    deterministic_reject_reason,
+                )
 
             if not topic_match:
                 paper_with_reason['exclude_stage'] = 'topic'

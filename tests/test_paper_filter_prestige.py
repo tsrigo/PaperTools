@@ -259,6 +259,71 @@ def test_security_topic_heuristic_still_requires_llm_adjudication():
     )
 
 
+def test_topic_post_filter_rejects_title_level_graph_rag():
+    reason = paper_filter.deterministic_topic_rejection_reason(
+        "EfficientGraph-RAG: Structured Retrieval-State Management for Cross-Task RAG",
+        "We improve retrieval augmented generation with graph retrieval state management.",
+    )
+
+    assert "图/RAG" in reason
+
+
+def test_topic_post_filter_keeps_agent_native_self_evolving_retrieval():
+    reason = paper_filter.deterministic_topic_rejection_reason(
+        "Retrieval as Reasoning: Self-Evolving Agent-Native Retrieval via LLM-Wiki",
+        "LLM agents use search, read, link-following tools, and a self-evolving Error Book.",
+    )
+
+    assert reason == ""
+
+
+def test_topic_post_filter_rejects_non_llm_marl_paper():
+    reason = paper_filter.deterministic_topic_rejection_reason(
+        "Adaptive Punishment for Cooperation in Mixed-Motive Games",
+        "We study multi-agent reinforcement learning in public goods games and social dilemmas.",
+    )
+
+    assert "非 LLM-agent" in reason
+
+
+def test_topic_post_filter_rejects_generic_rlvr_without_agent_mechanism():
+    reason = paper_filter.deterministic_topic_rejection_reason(
+        "Not only where, But when: Temporal Scheduling for RLVR",
+        "Reinforcement learning with verifiable rewards improves Large Language Models "
+        "by scheduling token credit allocation during training.",
+    )
+
+    assert "通用 LLM" in reason
+
+
+def test_topic_post_filter_rejects_clinical_multi_agent_application():
+    reason = paper_filter.deterministic_topic_rejection_reason(
+        "Automated Detection and Classification of Delusion-related Content in Audio Diaries",
+        "We use a multi-agent LLM pipeline for clinical delusion detection in naturalistic audio diaries.",
+    )
+
+    assert "医疗/临床" in reason
+
+
+def test_topic_post_filter_rejects_broad_causal_methods_survey():
+    reason = paper_filter.deterministic_topic_rejection_reason(
+        "Causal methods for LLM development and evaluation",
+        "We map causal methods for pretraining, alignment, routing, agent workflows, and evaluation.",
+    )
+
+    assert "LLM 开发/评估" in reason
+
+
+def test_topic_post_filter_keeps_coding_agent_system_synthesis():
+    reason = paper_filter.deterministic_topic_rejection_reason(
+        "The Time is Here for Just-in-Time Systems: Challenges and Opportunities",
+        "LLM-based coding agents synthesize systems from scratch and iteratively refine "
+        "implementations against an evolving evaluation test suite.",
+    )
+
+    assert reason == ""
+
+
 def test_topic_heuristic_bypass_requires_high_selection_score():
     strong_paper = {
         "title": "LongMINT: Evaluating Memory under Multi-Target Interference in Long-Horizon Agent Systems",
