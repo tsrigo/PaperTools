@@ -142,8 +142,9 @@ def get_paper_content_issue(content: Optional[str]) -> Optional[str]:
         return "内容为空"
 
     lowered = normalized.lower()
+    error_page_window = lowered[:2000]
     for pattern in INVALID_PAPER_CONTENT_PATTERNS:
-        if pattern in lowered:
+        if pattern in error_page_window and len(normalized) < 10000:
             return f"命中错误页特征: {pattern}"
 
     if len(normalized) < 10000:

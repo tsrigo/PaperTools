@@ -26,6 +26,20 @@ def test_prestige_defaults_do_not_bypass_hard_filter():
     assert paper_filter.PRESTIGE_AFFILIATION_FETCH_ENABLED is True
 
 
+def test_topic_bypass_filtered_cache_is_stale_when_bypass_disabled(monkeypatch):
+    monkeypatch.setattr(paper_filter, "TOPIC_HEURISTIC_BYPASS_PRESTIGE", False)
+
+    cached = {
+        "filter_reason": "确定性主题保留",
+        "filter_rule_version": paper_filter.FILTER_RULE_VERSION,
+        "prestige_result": True,
+        "prestige_source": "topic_heuristic_bypass",
+        "prestige_rule_version": paper_filter.PRESTIGE_RULE_VERSION,
+    }
+
+    assert paper_filter.is_current_filtered_schema(cached) is False
+
+
 def test_large_zero_filter_result_is_suspicious():
     assert paper_filter.is_suspicious_zero_result(
         total_input=1280,
@@ -76,6 +90,33 @@ def test_timeout_exclusion_is_not_treated_as_current_schema():
             "title": "Timed out paper",
             "filter_reason": "单篇筛选 API 超时",
             "exclude_stage": "filter_timeout",
+            "filter_rule_version": paper_filter.FILTER_RULE_VERSION,
+        }
+    )
+
+
+def test_legacy_topic_timeout_exclusion_is_not_treated_as_current_schema():
+    assert not paper_filter.is_current_excluded_schema(
+        {
+            "title": "Legacy timed out paper",
+            "filter_reason": "单篇筛选超过 180s 未返回，本轮按主题筛选超时排除",
+            "exclude_stage": "topic",
+            "filter_rule_version": paper_filter.FILTER_RULE_VERSION,
+        }
+    )
+
+
+def test_legacy_prestige_extraction_failure_is_not_treated_as_current_schema():
+    assert not paper_filter.is_current_excluded_schema(
+        {
+            "title": "Legacy extraction failure",
+            "filter_reason": "确定性主题保留",
+            "prestige_reason": "机构信息缺失且未命中确定性白名单，按 prestige 硬筛排除: "
+            "无法获取论文前置内容，待后续重试机构提取: 所有文档提取 provider 均失败",
+            "prestige_result": False,
+            "prestige_source": "deterministic_missing_affiliations",
+            "prestige_rule_version": paper_filter.PRESTIGE_RULE_VERSION,
+            "exclude_stage": "prestige",
             "filter_rule_version": paper_filter.FILTER_RULE_VERSION,
         }
     )
@@ -168,6 +209,54 @@ def test_topic_heuristic_keeps_agentic_paper_with_llm_context():
 
     assert matched is True
     assert "Agentic" in reason
+
+
+def test_topic_heuristic_keeps_coding_agent_harness_paper():
+    matched, reason = paper_filter.evaluate_topic_heuristic(
+        "Effective Harness Engineering for Algorithm Discovery with Coding Agents",
+        "We study how harness design changes automated algorithm discovery for coding agents.",
+    )
+
+    assert matched is True
+    assert "Coding Agents" in reason
+
+
+def test_topic_heuristic_keeps_evolutionary_coding_agent_analysis():
+    matched, reason = paper_filter.evaluate_topic_heuristic(
+        "What Do Evolutionary Coding Agents Evolve?",
+        "Recent work pairs LLMs with evolutionary search to iteratively generate, modify, and select code using feedback.",
+    )
+
+    assert matched is True
+    assert "Coding Agents" in reason
+
+
+def test_strong_topic_heuristic_can_skip_llm_without_prestige_bypass():
+    paper = {
+        "title": "Harnessing LLM Agents with Skill Programs",
+        "summary": "Reusable skills from past experience improve long-horizon LLM agents.",
+        "topic_source": "heuristic",
+    }
+
+    assert paper_filter.should_accept_topic_heuristic_without_llm(
+        paper["title"],
+        paper["summary"],
+        paper,
+    )
+
+
+def test_security_topic_heuristic_still_requires_llm_adjudication():
+    paper = {
+        "title": "IterInject: Indirect Prompt Injection Against LLM Agents",
+        "summary": "We study prompt injection attacks against tool-using LLM agents.",
+        "topic_source": "heuristic",
+    }
+
+    assert not paper_filter.should_accept_topic_heuristic_without_llm(
+        paper["title"],
+        paper["summary"],
+        paper,
+    )
 
 
 def test_topic_heuristic_bypass_requires_high_selection_score():

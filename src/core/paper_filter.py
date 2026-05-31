@@ -113,7 +113,10 @@ def env_bool(name: str, default: bool) -> bool:
 FILTER_LLM_TIMEOUT = env_float("PAPERTOOLS_FILTER_LLM_TIMEOUT", 120, minimum=1)
 FILTER_LLM_MAX_RETRIES = env_int("PAPERTOOLS_FILTER_LLM_MAX_RETRIES", 1, minimum=0)
 FILTER_PAPER_TIMEOUT = env_float("PAPERTOOLS_FILTER_PAPER_TIMEOUT", 180, minimum=1)
-FILTER_EXTRACT_CHAIN = os.getenv("PAPERTOOLS_FILTER_EXTRACT_CHAIN", "jina")
+FILTER_EXTRACT_CHAIN = os.getenv(
+    "PAPERTOOLS_FILTER_EXTRACT_CHAIN",
+    "docling,pymupdf4llm,jina",
+)
 FILTER_EXTRACT_TIMEOUT = env_int("PAPERTOOLS_FILTER_EXTRACT_TIMEOUT", 45, minimum=1)
 FILTER_RPM = env_int("PAPERTOOLS_FILTER_RPM", 8, minimum=0)
 FILTER_RATE_WINDOW_SECONDS = env_float("PAPERTOOLS_FILTER_RATE_WINDOW_SECONDS", 60, minimum=1)
@@ -126,7 +129,7 @@ FILTER_SUSPICIOUS_ZERO_MIN_PREFILTERED = env_int(
     100,
     minimum=0,
 )
-FILTER_RULE_VERSION = os.getenv("PAPERTOOLS_FILTER_RULE_VERSION", "2026-05-23")
+FILTER_RULE_VERSION = os.getenv("PAPERTOOLS_FILTER_RULE_VERSION", "2026-05-31")
 FILTER_MODEL_CHAIN_ENV = (
     os.getenv("PAPERTOOLS_FILTER_MODEL_CHAIN")
     or os.getenv("FILTER_MODEL_CHAIN")
@@ -141,6 +144,10 @@ PRESTIGE_LLM_ENABLED = os.getenv("PAPERTOOLS_PRESTIGE_LLM_ENABLED", "0").lower()
 TOPIC_HEURISTIC_KEEP_ENABLED = env_bool("PAPERTOOLS_TOPIC_HEURISTIC_KEEP_ENABLED", True)
 TOPIC_HEURISTIC_BYPASS_PRESTIGE = env_bool("PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE", False)
 TOPIC_HEURISTIC_BYPASS_MIN_SCORE = env_int("PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_MIN_SCORE", 60)
+TOPIC_HEURISTIC_TOPIC_BYPASS_MIN_SCORE = env_int(
+    "PAPERTOOLS_TOPIC_HEURISTIC_TOPIC_BYPASS_MIN_SCORE",
+    30,
+)
 PRESTIGE_AFFILIATION_FETCH_ENABLED = os.getenv(
     "PAPERTOOLS_PRESTIGE_AFFILIATION_FETCH_ENABLED",
     "1",
@@ -283,6 +290,8 @@ def evaluate_topic_heuristic(title: str, summary: str) -> Tuple[bool, str]:
         r"\b(?:agents?|tool[-\s]?use|tool[-\s]?calling|workflow|planning|memory|coding|software|benchmark|evaluation)\b"
     ):
         signals.append("Agentic")
+    if has(r"\bagentic\s+llms?\b"):
+        signals.append("Agentic LLMs")
     if has(r"\bllms?\s+improv(?:e|ing|es)\s+llms?\b"):
         signals.append("LLMs improving LLMs")
     if has(r"\bself[-\s]?(?:evolving|evolution|improving|improvement|refine|refinement)\b"):
@@ -302,6 +311,14 @@ def evaluate_topic_heuristic(title: str, summary: str) -> Tuple[bool, str]:
         signals.append("Multi-Agent")
     if has(r"\btest[-\s]?time scaling\b") and has(r"\b(?:agentic|agent|self[-\s]?improv|llms?\s+improv)\b"):
         signals.append("Agentic test-time scaling")
+    if has(r"\bcoding agents?\b") and has(
+        r"\b(?:evolutionary|evolve|evolving|harness|benchmark|evaluation|repository|software|debugging)\b"
+    ):
+        signals.append("Coding Agents")
+    if has(r"\bautonomous research\b") and has(
+        r"\b(?:self[-\s]?evolving|trial[-\s]?and[-\s]?error|harness|agents?)\b"
+    ):
+        signals.append("Autonomous Research Agents")
 
     if not signals:
         return False, ""
@@ -371,7 +388,7 @@ def score_filtered_paper_for_selection(paper: dict) -> int:
             score -= penalty
 
     if not re.search(
-        r"\b(?:agent|agentic|tool[-\s]?calling|tool[-\s]?use|llms?\s+improv|self[-\s]?(?:evolving|improving))\b",
+        r"\b(?:agents?|agentic|tool[-\s]?calling|tool[-\s]?use|llms?\s+improv|self[-\s]?(?:evolving|improving))\b",
         title_text,
         flags=re.IGNORECASE,
     ):
@@ -442,6 +459,47 @@ def should_bypass_prestige_for_topic_heuristic(paper: dict) -> bool:
     return topic_heuristic_bypass_score(paper) >= TOPIC_HEURISTIC_BYPASS_MIN_SCORE
 
 
+def has_hard_topic_exclusion_terms(title: str, summary: str) -> bool:
+    """Return True for explicit exclusion domains that still need LLM adjudication."""
+    text = f"{title}\n{summary}".lower()
+    return re.search(
+        r"\b(?:security|cyber|jailbreak|prompt injection|poison(?:ing)?|attack(?:s|er)?|"
+        r"safety|alignment|interpretability|explainability|watermark(?:ing)?|hallucination|"
+        r"vision|video|multimodal|vlm|mllm|diffusion|knowledge graph|graph neural|"
+        r"graph reasoning|graph rag)\b",
+        text,
+        flags=re.IGNORECASE,
+    ) is not None
+
+
+def should_accept_topic_heuristic_without_llm(
+    title: str,
+    summary: str,
+    paper: dict,
+) -> bool:
+    """Keep strong deterministic topic hits without a brittle second LLM pass."""
+    if has_hard_topic_exclusion_terms(title, summary):
+        return False
+    score = topic_heuristic_bypass_score(paper)
+    if score >= TOPIC_HEURISTIC_BYPASS_MIN_SCORE:
+        return True
+    if score < TOPIC_HEURISTIC_TOPIC_BYPASS_MIN_SCORE:
+        return False
+
+    title_text = title.lower()
+    strong_title_patterns = [
+        r"\bllm\s+agents?\b",
+        r"\blanguage model(?:-based)?\s+agents?\b",
+        r"\bagentic\s+llms?\b",
+        r"\bself[-\s]?evolving\s+agents?\b",
+        r"\blong[-\s]?horizon\s+(?:llm\s+)?agents?\b",
+        r"\bcoding agents?\b.*\b(?:harness|evolv|benchmark|evaluation|repository|software)\b",
+        r"\b(?:harness|evolv|benchmark|evaluation|repository|software)\b.*\bcoding agents?\b",
+        r"\bautonomous research\b.*\b(?:self[-\s]?evolving|harness|agents?)\b",
+    ]
+    return any(re.search(pattern, title_text, flags=re.IGNORECASE) for pattern in strong_title_patterns)
+
+
 def has_blocking_filter_failures(
     error_count: int,
     timed_out_count: int,
@@ -449,6 +507,54 @@ def has_blocking_filter_failures(
 ) -> bool:
     """Filtering is publish-blocking if any candidate failed to classify cleanly."""
     return error_count > 0 or timed_out_count > 0 or fatal_zero_result
+
+
+def is_transient_affiliation_fetch_failure(fetch_reason: str) -> bool:
+    """Detect affiliation extraction failures that should be retried, not hard-excluded."""
+    reason = (fetch_reason or "").lower()
+    return any(
+        token in reason
+        for token in (
+            "待后续重试",
+            "provider 均失败",
+            "max retries exceeded",
+            "connectionerror",
+            "newconnectionerror",
+            "read timed out",
+            "timed out",
+            "timeout",
+            "429",
+            "rate limit",
+        )
+    )
+
+
+def is_transient_filter_exclusion(paper: dict) -> bool:
+    """Return True when an excluded cache entry represents a retryable failure."""
+    if paper.get('filter_transient_failure') is True:
+        return True
+    if paper.get('exclude_stage') in {'filter_timeout', 'filter_transient_failure'}:
+        return True
+
+    text = "\n".join(
+        str(paper.get(field) or "")
+        for field in ('filter_reason', 'prestige_reason', 'failure_reason')
+    ).lower()
+    return any(
+        token in text
+        for token in (
+            "单篇筛选超过",
+            "筛选超时",
+            "超时",
+            "timed out",
+            "timeout",
+            "待后续重试",
+            "provider 均失败",
+            "max retries exceeded",
+            "connectionerror",
+            "newconnectionerror",
+        )
+    )
 
 
 def is_filter_rate_limit_error(exc: Exception) -> bool:
@@ -1059,6 +1165,11 @@ def is_current_filtered_schema(paper: dict) -> bool:
 
     prestige_result = paper.get('prestige_result')
     if prestige_result is True:
+        if (
+            paper.get('prestige_source') == 'topic_heuristic_bypass'
+            and not TOPIC_HEURISTIC_BYPASS_PRESTIGE
+        ):
+            return False
         return True
 
     return False
@@ -1070,11 +1181,11 @@ def is_current_excluded_schema(paper: dict) -> bool:
         return False
     if paper.get('filter_rule_version') != FILTER_RULE_VERSION:
         return False
+    if is_transient_filter_exclusion(paper):
+        return False
     if not PRESTIGE_ENABLED:
         return True
     stage = paper.get('exclude_stage')
-    if stage == 'filter_timeout':
-        return False
     if stage in {'keyword', 'topic', 'selection_cap'}:
         return True
     if stage != 'prestige' or paper.get('prestige_rule_version') != PRESTIGE_RULE_VERSION:
@@ -1363,10 +1474,14 @@ def main() -> int:
                 paper_with_reason['filter_reason'] = topic_reason
                 heuristic_score = topic_heuristic_bypass_score(paper_with_reason)
                 paper_with_reason['selection_score'] = heuristic_score
-                if heuristic_score < TOPIC_HEURISTIC_BYPASS_MIN_SCORE:
+                if not should_accept_topic_heuristic_without_llm(
+                    title,
+                    summary,
+                    paper_with_reason,
+                ):
                     heuristic_reason = (
                         f"{topic_reason} 但 selection_score={heuristic_score} "
-                        f"低于强主题旁路阈值 {TOPIC_HEURISTIC_BYPASS_MIN_SCORE}，转交 LLM 细筛。"
+                        "需要 LLM 细筛确认边界排除项。"
                     )
                     topic_match = False
                     topic_source = 'llm'
@@ -1429,6 +1544,27 @@ def main() -> int:
             paper_with_reason['affiliations'] = affiliations or ""
 
             if not affiliations:
+                if (
+                    PRESTIGE_AFFILIATION_FETCH_ENABLED
+                    and is_transient_affiliation_fetch_failure(fetch_reason)
+                ):
+                    paper_with_reason['prestige_result'] = None
+                    paper_with_reason['prestige_reason'] = fetch_reason
+                    paper_with_reason['prestige_source'] = 'affiliation_extraction_failure'
+                    paper_with_reason['prestige_status'] = 'retryable_failure'
+                    paper_with_reason['prestige_rule_version'] = PRESTIGE_RULE_VERSION
+                    paper_with_reason['filter_reason'] = (
+                        f"{paper_with_reason.get('filter_reason', '')}\n\n"
+                        f"Prestige 机构提取失败，按可重试筛选失败处理: {fetch_reason}"
+                    ).strip()
+                    paper_with_reason['exclude_stage'] = 'filter_transient_failure'
+                    paper_with_reason['filter_transient_failure'] = True
+                    return (
+                        'transient_failure',
+                        paper_with_reason,
+                        f"⏱️ Prestige 机构提取失败，待重试: {title[:50]}...",
+                        fetch_reason,
+                    )
                 prestige_match, paper_with_reason, prestige_reason = resolve_missing_affiliations_prestige(
                     title,
                     authors,
@@ -1506,6 +1642,7 @@ def main() -> int:
     prestige_excluded_count = 0
     error_count = 0
     timed_out_count = 0
+    transient_failure_count = 0
     early_stopped_after_cap = False
     early_stop_unprocessed_count = 0
 
@@ -1605,6 +1742,11 @@ def main() -> int:
                     elif status == 'timeout':
                         excluded_papers.append(compact_excluded_paper(paper))
                         timed_out_count += 1
+                    elif status == 'transient_failure':
+                        excluded_papers.append(compact_excluded_paper(paper))
+                        transient_failure_count += 1
+                        error_count += 1
+                        print(f"⏱️ [{matched_count}/{processed_count}] {message}")
                     elif status == 'skip':
                         pass
                     else:
@@ -1636,6 +1778,8 @@ def main() -> int:
         print(f"⚠️ 处理错误数: {error_count}")
     if timed_out_count:
         print(f"⏱️ 单篇筛选超时数: {timed_out_count}")
+    if transient_failure_count:
+        print(f"⏱️ 可重试筛选失败数: {transient_failure_count}")
     if early_stopped_after_cap:
         print(
             f"📌 已达到发布上限，提前停止筛选；"
@@ -1710,6 +1854,7 @@ def main() -> int:
         "selection_cap_excluded": selection_cap_excluded_count,
         "error_count": error_count,
         "timed_out_count": timed_out_count,
+        "transient_failure_count": transient_failure_count,
         "early_stopped_after_cap": early_stopped_after_cap,
         "early_stop_unprocessed_count": early_stop_unprocessed_count,
         "suspicious_zero_result": anomalous_zero_result,

@@ -24,9 +24,11 @@ papertools run
 | `OPENAI_API_KEY` | API 密钥 | 是 |
 | `MODEL` | 模型名 | 是 |
 | `CLUSTER_MODEL` | 聚类阶段模型，默认跟随 `FILTER_MODEL` | 否 |
+| `PAPERTOOLS_CLUSTER_MODEL_CHAIN` | 聚类模型回退链；OpenRouter 下自动把短别名归一化为 provider-prefixed ID | 否 |
 | `SUMMARY_MODEL_CHAIN` | 总结/翻译模型回退链，默认 `prism:gpt-5.5,sjtu:minimax,sjtu:glm,sjtu:qwen,sjtu:deepseek-reasoner,sjtu:deepseek-chat` | 否 |
 | `SUMMARY_SJTU_OPENAI_API_KEY` | 致远一号总结/翻译 API，不用于筛选 | 否 |
 | `SUMMARY_PRISM_OPENAI_API_KEY` | Prism 总结/翻译 API，不用于筛选 | 否 |
+| `SUMMARY_SJTU_RPM` | SJTU 总结 provider 的共享 RPM 限制，默认 2；同一 key/base URL 下多个模型共用冷却 | 否 |
 | `SUMMARY_PRISM_RPM` | Prism 每分钟请求上限，默认 5 | 否 |
 | `SUMMARY_PRISM_REASONING_EFFORT` | Prism `reasoning_effort`，默认 `xhigh` | 否 |
 | `SUMMARY_PRISM_WINDOW_SECONDS` | Prism 滚动限额窗口秒数，默认 300 | 否 |
@@ -41,6 +43,8 @@ papertools run
 | `FILTER_MAX_WORKERS` | 筛选阶段并发上限，默认 5 | 否 |
 | `PAPERTOOLS_FILTER_LLM_TIMEOUT` | 筛选阶段单次 LLM 请求超时秒数，默认 45 | 否 |
 | `PAPERTOOLS_FILTER_LLM_MAX_RETRIES` | 筛选阶段 LLM 重试次数，默认 1 | 否 |
+| `PAPERTOOLS_FILTER_EXTRACT_CHAIN` | 筛选阶段 prestige 机构抽取链，默认 `docling,pymupdf4llm,jina` | 否 |
+| `PAPERTOOLS_TOPIC_HEURISTIC_TOPIC_BYPASS_MIN_SCORE` | 强主题确定性命中的 LLM 细筛旁路最低分，默认 30；硬排除风险仍交给 LLM | 否 |
 | `PAPERTOOLS_FILTER_SUSPICIOUS_ZERO_MIN_INPUT` | 可疑零结果源论文阈值，默认 500 | 否 |
 | `PAPERTOOLS_FILTER_SUSPICIOUS_ZERO_MIN_PREFILTERED` | 可疑零结果关键词候选阈值，默认 100 | 否 |
 | `PAPERTOOLS_OPENAI_TRUST_ENV` | OpenAI-compatible API 是否继承系统代理环境，默认 `false` | 否 |

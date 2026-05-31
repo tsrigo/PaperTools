@@ -65,9 +65,9 @@ configure_daily_runtime_defaults() {
     export PAPERTOOLS_FILTER_LLM_TIMEOUT="${PAPERTOOLS_DAILY_FILTER_LLM_TIMEOUT:-60}"
     export PAPERTOOLS_FILTER_LLM_MAX_RETRIES="${PAPERTOOLS_DAILY_FILTER_LLM_MAX_RETRIES:-1}"
     export PAPERTOOLS_FILTER_EARLY_STOP_AFTER_CAP="${PAPERTOOLS_DAILY_FILTER_EARLY_STOP_AFTER_CAP:-1}"
-    export PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE="${PAPERTOOLS_DAILY_TOPIC_HEURISTIC_BYPASS_PRESTIGE:-1}"
+    export PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE="${PAPERTOOLS_DAILY_TOPIC_HEURISTIC_BYPASS_PRESTIGE:-0}"
     export PAPERTOOLS_FILTER_MAX_OUTPUT_PAPERS="${PAPERTOOLS_DAILY_FILTER_MAX_OUTPUT_PAPERS:-0}"
-    export PAPERTOOLS_FILTER_RULE_VERSION="${PAPERTOOLS_DAILY_FILTER_RULE_VERSION:-2026-05-24-daily}"
+    export PAPERTOOLS_FILTER_RULE_VERSION="${PAPERTOOLS_DAILY_FILTER_RULE_VERSION:-2026-05-31-daily}"
     export PAPERTOOLS_OPENAI_TIMEOUT="${PAPERTOOLS_DAILY_OPENAI_TIMEOUT:-120}"
     export PAPERTOOLS_SUMMARY_OPENAI_TIMEOUT="${PAPERTOOLS_DAILY_SUMMARY_OPENAI_TIMEOUT:-60}"
     export PAPERTOOLS_SUMMARY_FIELD_REPAIR_ATTEMPTS="${PAPERTOOLS_DAILY_SUMMARY_FIELD_REPAIR_ATTEMPTS:-2}"
@@ -277,6 +277,17 @@ if command -v nc >/dev/null 2>&1 && nc -z "$PROXY_HOST" "$PROXY_PORT" >/dev/null
     set_proxy_env
 else
     clear_proxy_env
+fi
+
+# Disk space pre-check: fail fast if critically low
+DISK_FREE_GB="$(df --output=avail -BG "$ROOT_DIR" 2>/dev/null | tail -1 | tr -dc '0-9')"
+if [ -n "$DISK_FREE_GB" ] && [ "$DISK_FREE_GB" -lt 5 ]; then
+    log "❌ CRITICAL: only ${DISK_FREE_GB}GB disk free; refusing to run pipeline"
+    notify_failure "$(printf '❌ PaperTools daily blocked\n  • reason: disk full (%sGB free, need 5GB+)\n  • run_id: %s' "$DISK_FREE_GB" "$RUN_ID")"
+    exit 2
+fi
+if [ -n "$DISK_FREE_GB" ] && [ "$DISK_FREE_GB" -lt 10 ]; then
+    log "⚠️ WARNING: only ${DISK_FREE_GB}GB disk free; pipeline may fail mid-run"
 fi
 
 log "🚀 Starting daily full pipeline"

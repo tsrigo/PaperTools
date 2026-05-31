@@ -22,6 +22,10 @@ PERMANENT_TEXT_PATTERNS = [
         r"\binsufficient balance\b",
         r"\binsufficient quota\b",
         r"\bquota exceeded\b",
+        r"\bno space left on device\b",
+        r"\bdisk full\b",
+        r"\beros[_\s-]*28\b",
+        r"\berrno[_\s-]*28\b",
     )
 ]
 
@@ -86,6 +90,8 @@ def is_permanent_failure(status_file: str | None, log_file: str | None) -> bool:
                         "quota",
                         "model",
                         "http",
+                        "disk",
+                        "space left",
                     )
                 ):
                     texts.append(line)

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import shutil
 import sys
 from pathlib import Path
 
@@ -69,6 +70,20 @@ def split_models(value: str | None) -> list[str]:
     return models
 
 
+def check_disk_space(min_gb: float = 5.0) -> tuple[bool, str]:
+    """Check if enough disk space is available. Returns (ok, message)."""
+    try:
+        usage = shutil.disk_usage("/")
+        free_gb = usage.free / (1024 ** 3)
+        if free_gb < min_gb:
+            return False, f"CRITICAL: only {free_gb:.1f}GB free (need {min_gb:.0f}GB minimum)"
+        if free_gb < min_gb * 2:
+            return True, f"WARNING: only {free_gb:.1f}GB free (recommend {min_gb * 2:.0f}GB+)"
+        return True, f"Disk space OK: {free_gb:.1f}GB free"
+    except Exception as exc:
+        return True, f"Disk check skipped: {exc}"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--offline-ok", action="store_true", help="Do not call the remote /models endpoint.")
@@ -77,6 +92,12 @@ def main() -> int:
     root = Path.cwd()
     if load_dotenv is not None:
         load_dotenv(root / ".env", override=False)
+
+    # Disk space pre-check
+    disk_ok, disk_msg = check_disk_space()
+    print(f"💾 {disk_msg}")
+    if not disk_ok:
+        return 2
 
     required = ["OPENAI_API_KEY", "OPENAI_BASE_URL"]
     missing = [name for name in required if not os.getenv(name)]

@@ -1,5 +1,6 @@
 import time
 
+from src.core import generate_summary as summary_module
 from src.core.generate_summary import SummaryProvider, collect_streaming_completion
 
 
@@ -69,6 +70,23 @@ def test_collect_streaming_completion_skips_cooled_down_provider_when_fallback_e
 
     assert result == "fallback ok"
     assert provider is fallback
+
+
+def test_same_summary_provider_quota_bucket_shares_cooldown():
+    summary_module._SUMMARY_RATE_STATES.clear()
+    first = _provider("sjtu")
+    second = SummaryProvider(
+        name="sjtu",
+        base_url=first.base_url,
+        api_key=first.api_key,
+        model="fallback-model",
+    )
+    first.rate_limit_cooldown_seconds = 60
+
+    first.note_rate_limit_error()
+
+    assert first._rate_lock is second._rate_lock
+    assert second.cooldown_remaining() > 0
 
 
 def test_summary_provider_timeout_can_be_lowered_by_environment(monkeypatch):

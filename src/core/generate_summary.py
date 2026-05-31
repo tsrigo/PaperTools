@@ -36,6 +36,8 @@ if project_root not in sys.path:
 from src.utils.config import (  # noqa: E402
     SUMMARY_API_KEY, SUMMARY_BASE_URL, SUMMARY_MODEL, SUMMARY_MODEL_CHAIN,
     SUMMARY_SJTU_API_KEY, SUMMARY_SJTU_BASE_URL,
+    SUMMARY_SJTU_RPM, SUMMARY_SJTU_WINDOW_SECONDS,
+    SUMMARY_SJTU_WINDOW_SAFETY_REQUESTS, SUMMARY_SJTU_429_COOLDOWN_SECONDS,
     SUMMARY_PRISM_API_KEY, SUMMARY_PRISM_BASE_URL, SUMMARY_PRISM_RPM,
     SUMMARY_PRISM_REASONING_EFFORT, SUMMARY_PRISM_WINDOW_SECONDS,
     SUMMARY_PRISM_WINDOW_SAFETY_REQUESTS, SUMMARY_PRISM_429_COOLDOWN_SECONDS,
@@ -66,6 +68,19 @@ from src.utils.validation import validate_non_negative_int, validate_positive_in
 
 
 ensure_valid_paper_content = ensure_valid_extraction_content
+
+
+@dataclass
+class SummaryRateState:
+    """Shared request state for one provider quota bucket."""
+    lock: threading.Lock = field(default_factory=threading.Lock)
+    next_request_at: float = 0.0
+    request_timestamps: Deque[float] = field(default_factory=deque)
+    cooldown_until: float = 0.0
+
+
+_SUMMARY_RATE_STATES: Dict[Tuple[str, str, str], SummaryRateState] = {}
+_SUMMARY_RATE_STATES_LOCK = threading.Lock()
 
 
 def strip_think_tags(text: str) -> str:
@@ -220,12 +235,16 @@ class SummaryProvider:
     client: object = field(init=False)
     disabled: bool = False
     disable_reason: str = ""
-    _rate_lock: threading.Lock = field(default_factory=threading.Lock, init=False, repr=False)
-    _next_request_at: float = field(default=0.0, init=False, repr=False)
-    _request_timestamps: Deque[float] = field(default_factory=deque, init=False, repr=False)
-    _cooldown_until: float = field(default=0.0, init=False, repr=False)
+    _rate_key: Tuple[str, str, str] = field(default=(), init=False, repr=False)
+    _rate_state: SummaryRateState = field(init=False, repr=False)
 
     def __post_init__(self):
+        self._rate_key = (self.name, self.base_url, self.api_key)
+        with _SUMMARY_RATE_STATES_LOCK:
+            self._rate_state = _SUMMARY_RATE_STATES.setdefault(
+                self._rate_key,
+                SummaryRateState(),
+            )
         try:
             timeout = float(os.getenv("PAPERTOOLS_SUMMARY_OPENAI_TIMEOUT", "180") or "180")
         except ValueError:
@@ -246,6 +265,30 @@ class SummaryProvider:
     def cache_label(self) -> str:
         suffix = f":reasoning={self.reasoning_effort}" if self.reasoning_effort else ""
         return f"{self.base_url}:{self.model}{suffix}"
+
+    @property
+    def _rate_lock(self) -> threading.Lock:
+        return self._rate_state.lock
+
+    @property
+    def _next_request_at(self) -> float:
+        return self._rate_state.next_request_at
+
+    @_next_request_at.setter
+    def _next_request_at(self, value: float) -> None:
+        self._rate_state.next_request_at = value
+
+    @property
+    def _request_timestamps(self) -> Deque[float]:
+        return self._rate_state.request_timestamps
+
+    @property
+    def _cooldown_until(self) -> float:
+        return self._rate_state.cooldown_until
+
+    @_cooldown_until.setter
+    def _cooldown_until(self, value: float) -> None:
+        self._rate_state.cooldown_until = value
 
     def wait_for_rate_limit(self) -> None:
         """Throttle request starts for low-RPM providers across worker threads."""
@@ -329,7 +372,15 @@ def build_summary_providers(
     }
     provider_config = {
         "modelscope": (modelscope_api_key, modelscope_base_url, 0, "", 0, 0, 0),
-        "sjtu": (sjtu_api_key, sjtu_base_url, 0, "", 0, 0, 0),
+        "sjtu": (
+            sjtu_api_key,
+            sjtu_base_url,
+            SUMMARY_SJTU_RPM,
+            "",
+            SUMMARY_SJTU_WINDOW_SECONDS,
+            SUMMARY_SJTU_WINDOW_SAFETY_REQUESTS,
+            SUMMARY_SJTU_429_COOLDOWN_SECONDS,
+        ),
         "prism": (
             prism_api_key,
             prism_base_url,

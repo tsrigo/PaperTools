@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from typing import Any, Dict, Iterable, List, Tuple
 
 
@@ -62,6 +63,24 @@ def _reviewgrounder_failed(paper: Dict[str, Any]) -> bool:
     return False
 
 
+def _env_bool(name: str, default: bool) -> bool:
+    value = os.getenv(name)
+    if value in (None, ""):
+        return default
+    return value.lower() in {"1", "true", "yes", "on"}
+
+
+def _prestige_bypass_disallowed(paper: Dict[str, Any]) -> bool:
+    """Reject legacy topic-only prestige bypasses when the hard gate is active."""
+    prestige_enabled = _env_bool("PRESTIGE_ENABLED", True)
+    bypass_enabled = _env_bool("PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE", False)
+    return (
+        prestige_enabled
+        and not bypass_enabled
+        and paper.get("prestige_source") == "topic_heuristic_bypass"
+    )
+
+
 def missing_publish_fields(paper: Dict[str, Any]) -> List[str]:
     """List missing or invalid fields for a paper that is about to be published."""
     missing = [
@@ -72,6 +91,9 @@ def missing_publish_fields(paper: Dict[str, Any]) -> List[str]:
 
     if _reviewgrounder_failed(paper):
         missing.append("reviewgrounder_review")
+
+    if _prestige_bypass_disallowed(paper):
+        missing.append("prestige_verification")
 
     seen = set()
     return [field for field in missing if not (field in seen or seen.add(field))]

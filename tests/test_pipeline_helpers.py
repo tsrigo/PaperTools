@@ -135,3 +135,41 @@ def test_cluster_batch_failure_is_publish_blocking(monkeypatch) -> None:
             papers=[{"title": "Paper", "summary": "Abstract"}],
             temperature=0.1,
         )
+
+
+def test_cluster_model_chain_normalizes_openrouter_aliases(monkeypatch) -> None:
+    monkeypatch.setattr(cluster_module, "CLUSTER_MODEL_CHAIN_ENV", "")
+
+    chain = cluster_module.build_cluster_model_chain(
+        "minimax",
+        "https://openrouter.ai/api/v1/",
+    )
+
+    assert chain == [
+        "qwen/qwen3-30b-a3b",
+        "deepseek/deepseek-chat-v3-0324",
+    ]
+
+
+def test_cluster_model_fallback_skips_invalid_model(monkeypatch) -> None:
+    calls = []
+
+    def fake_call(_client, model, _prompt, _temperature):
+        calls.append(model)
+        if model == "bad-model":
+            raise RuntimeError("bad-model is not a valid model ID")
+        return '{"clusters": [{"name": "Agents", "paper_indices": [0]}]}'
+
+    monkeypatch.setattr(cluster_module, "call_llm_for_clustering", fake_call)
+    cluster_module._DISABLED_CLUSTER_MODELS.clear()
+
+    clustered = cluster_module.cluster_batch(
+        client=None,
+        model=["bad-model", "good-model"],
+        papers=[{"title": "Paper", "summary": "Abstract"}],
+        temperature=0.1,
+    )
+
+    assert clustered == {"Agents": [0]}
+    assert calls == ["bad-model", "good-model"]
+    assert "bad-model" in cluster_module._DISABLED_CLUSTER_MODELS

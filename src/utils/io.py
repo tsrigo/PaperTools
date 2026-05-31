@@ -39,6 +39,16 @@ def load_json(filepath: str, default: Optional[Any] = None) -> Optional[Any]:
         return default
 
 
+def _check_disk_space(min_bytes: int = 100 * 1024 * 1024) -> bool:
+    """Check if at least min_bytes (default 100MB) free on the target partition."""
+    try:
+        import shutil
+        usage = shutil.disk_usage("/")
+        return usage.free >= min_bytes
+    except Exception:
+        return True  # If check fails, don't block writes
+
+
 def save_json(
     filepath: str,
     data: Any,
@@ -57,6 +67,9 @@ def save_json(
     Returns:
         是否保存成功
     """
+    if not _check_disk_space():
+        logger.error(f"磁盘空间不足，无法保存文件: {filepath}")
+        return False
     try:
         # 确保目录存在
         dir_path = os.path.dirname(filepath)
@@ -91,6 +104,9 @@ def save_json(
 
 def save_text(filepath: str, content: str) -> bool:
     """Atomically save plain text content."""
+    if not _check_disk_space():
+        logger.error(f"磁盘空间不足，无法保存文件: {filepath}")
+        return False
     try:
         dir_path = os.path.dirname(filepath)
         if dir_path:

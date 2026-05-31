@@ -10,7 +10,7 @@ import os
 import re
 import sys
 import argparse
-from typing import Dict, List, Optional
+from typing import Any, Dict, List
 
 # Add project root to Python path
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -34,6 +34,12 @@ from src.utils.retry import retry_with_backoff
 # ---------------------------------------------------------------------------
 
 BATCH_SIZE = 60  # Maximum papers per clustering request
+CLUSTER_MODEL_CHAIN_ENV = (
+    os.getenv("PAPERTOOLS_CLUSTER_MODEL_CHAIN")
+    or os.getenv("CLUSTER_MODEL_CHAIN")
+    or ""
+)
+_DISABLED_CLUSTER_MODELS = set()
 
 CLUSTER_PROMPT = """You are an expert researcher helping to organise a set of academic papers into meaningful research clusters.
 
@@ -76,6 +82,121 @@ Cluster names to merge:
 # LLM helpers
 # ---------------------------------------------------------------------------
 
+def split_csv(value: str) -> List[str]:
+    return [item.strip() for item in (value or "").split(",") if item.strip()]
+
+
+def is_openrouter_base_url(base_url: str) -> bool:
+    return "openrouter.ai" in (base_url or "").lower()
+
+
+def normalize_cluster_model(model: str, base_url: str = "") -> str:
+    """Translate stale local aliases to model ids accepted by the active router."""
+    model = (model or "").strip()
+    if not model:
+        return model
+
+    key = (
+        model.lower()
+        .replace("（", "(")
+        .replace("）", ")")
+        .replace("_", "-")
+        .strip()
+    )
+    key = " ".join(key.split())
+
+    if is_openrouter_base_url(base_url):
+        aliases = {
+            "qwen": "qwen/qwen3-30b-a3b",
+            "qwen3-30b-a3b": "qwen/qwen3-30b-a3b",
+            "minimax": "qwen/qwen3-30b-a3b",
+            "minimax-m2": "qwen/qwen3-30b-a3b",
+            "minimax-m2.5": "qwen/qwen3-30b-a3b",
+            "minimax-m2.7": "qwen/qwen3-30b-a3b",
+            "minimax/minimax-m2": "qwen/qwen3-30b-a3b",
+            "minimax/minimax-m2.5": "qwen/qwen3-30b-a3b",
+            "minimax/minimax-m2.7": "qwen/qwen3-30b-a3b",
+            "deepseek-chat": "deepseek/deepseek-chat-v3-0324",
+            "deepseek-reasoner": "deepseek/deepseek-chat-v3-0324",
+            "deepseek/deepseek-chat": "deepseek/deepseek-chat-v3-0324",
+            "deepseek/deepseek-r1": "deepseek/deepseek-chat-v3-0324",
+            "deepseek-r1": "deepseek/deepseek-chat-v3-0324",
+        }
+        return aliases.get(key, model)
+
+    aliases = {
+        "minimax-m2": "qwen",
+        "minimax-m2.5": "qwen",
+        "minimax-m2.7": "qwen",
+        "minimax/minimax-m2": "qwen",
+        "minimax/minimax-m2.5": "qwen",
+        "minimax/minimax-m2.7": "qwen",
+        "deepseek-reasoner": "deepseek-chat",
+        "deepseek/deepseek-chat": "deepseek-chat",
+        "deepseek/deepseek-r1": "deepseek-chat",
+        "deepseek-r1": "deepseek-chat",
+    }
+    return aliases.get(key, model)
+
+
+def build_cluster_model_chain(primary_model: str, base_url: str = "") -> List[str]:
+    """Build a de-duplicated clustering model fallback chain."""
+    configured = split_csv(CLUSTER_MODEL_CHAIN_ENV)
+    raw_models = [primary_model]
+    if configured:
+        raw_models.extend(configured)
+    elif is_openrouter_base_url(base_url):
+        raw_models.extend([
+            "qwen/qwen3-30b-a3b",
+            "deepseek/deepseek-chat-v3-0324",
+        ])
+    else:
+        raw_models.extend([
+            "qwen",
+            "deepseek-chat",
+            "minimax",
+        ])
+
+    chain = []
+    seen = set()
+    for raw_model in raw_models:
+        model = normalize_cluster_model(raw_model, base_url)
+        if not model or model in seen:
+            continue
+        seen.add(model)
+        chain.append(model)
+    return chain
+
+
+def coerce_cluster_model_chain(models: Any) -> List[str]:
+    if isinstance(models, (list, tuple)):
+        raw_models = [str(model) for model in models]
+    else:
+        raw_models = [str(models)]
+
+    chain = []
+    seen = set()
+    for raw_model in raw_models:
+        model = raw_model.strip()
+        if model and model not in seen:
+            seen.add(model)
+            chain.append(model)
+    return chain
+
+
+def is_invalid_cluster_model_error(exc: Exception) -> bool:
+    message = str(exc).lower()
+    return any(
+        marker in message
+        for marker in (
+            "invalid model",
+            "invalid model name",
+            "not a valid model id",
+            "model not found",
+            "does not exist",
+        )
+    )
+
 @retry_with_backoff(max_retries=3)
 def call_llm_for_clustering(client: OpenAI, model: str, prompt: str, temperature: float) -> str:
     """Call the LLM and return the full response text. Decorated with retry."""
@@ -99,6 +220,31 @@ def call_llm_for_clustering(client: OpenAI, model: str, prompt: str, temperature
         if chunk.choices and chunk.choices[0].delta and chunk.choices[0].delta.content:
             text += chunk.choices[0].delta.content
     return text.strip()
+
+
+def call_llm_for_clustering_with_fallback(
+    client: OpenAI, models: Any, prompt: str, temperature: float
+) -> str:
+    """Call clustering LLM, disabling invalid model ids after the first provider error."""
+    last_exception = None
+    attempted = []
+    for model in coerce_cluster_model_chain(models):
+        if model in _DISABLED_CLUSTER_MODELS:
+            continue
+        attempted.append(model)
+        try:
+            return call_llm_for_clustering(client, model, prompt, temperature)
+        except Exception as exc:
+            last_exception = exc
+            if is_invalid_cluster_model_error(exc):
+                _DISABLED_CLUSTER_MODELS.add(model)
+                print(f"⚠️ 聚类模型不可用，跳过: {model}: {str(exc)[:240]}")
+                continue
+            raise
+
+    if last_exception:
+        raise last_exception
+    raise RuntimeError(f"没有可用的聚类模型，已尝试: {', '.join(attempted) or '<none>'}")
 
 
 def parse_json_response(text: str) -> dict:
@@ -136,13 +282,13 @@ def _build_papers_text(papers: list, offset: int = 0) -> str:
     return "\n".join(lines)
 
 
-def cluster_batch(client: OpenAI, model: str, papers: list, temperature: float) -> Dict[str, List[int]]:
+def cluster_batch(client: OpenAI, model: Any, papers: list, temperature: float) -> Dict[str, List[int]]:
     """Cluster one batch of papers. Returns a dict mapping cluster name -> list of indices."""
     papers_text = _build_papers_text(papers)
     prompt = CLUSTER_PROMPT.format(papers_text=papers_text)
 
     try:
-        raw = call_llm_for_clustering(client, model, prompt, temperature)
+        raw = call_llm_for_clustering_with_fallback(client, model, prompt, temperature)
         data = parse_json_response(raw)
         result: Dict[str, List[int]] = {}
         for cluster in data.get("clusters", []):
@@ -155,7 +301,7 @@ def cluster_batch(client: OpenAI, model: str, papers: list, temperature: float) 
 
 
 def merge_cluster_names(
-    client: OpenAI, model: str, cluster_names: List[str], temperature: float
+    client: OpenAI, model: Any, cluster_names: List[str], temperature: float
 ) -> Dict[str, str]:
     """Ask the LLM to merge semantically similar cluster names.
 
@@ -170,7 +316,7 @@ def merge_cluster_names(
     prompt = MERGE_PROMPT.format(names_text=names_text)
 
     try:
-        raw = call_llm_for_clustering(client, model, prompt, temperature)
+        raw = call_llm_for_clustering_with_fallback(client, model, prompt, temperature)
         data = parse_json_response(raw)
         mapping = data.get("mapping", {})
         # Ensure every known name is covered (fall back to original if missing)
@@ -182,7 +328,7 @@ def merge_cluster_names(
 def cluster_papers(
     papers: list,
     client: OpenAI,
-    model: str,
+    model: Any,
     temperature: float,
 ) -> list:
     """Main clustering function.
@@ -310,10 +456,15 @@ def main():
         timeout=180.0,
     )
 
-    print(f"Clustering {len(papers)} papers using model: {args.model}")
+    model_chain = build_cluster_model_chain(args.model, args.base_url)
+    if not model_chain:
+        print("Error: no clustering model configured")
+        sys.exit(1)
+
+    print(f"Clustering {len(papers)} papers using model chain: {', '.join(model_chain)}")
     print(f"Batch size: {BATCH_SIZE}, batches: {(len(papers) + BATCH_SIZE - 1) // BATCH_SIZE}")
 
-    clustered = cluster_papers(papers, client, args.model, args.temperature)
+    clustered = cluster_papers(papers, client, model_chain, args.temperature)
 
     # Show cluster summary
     from collections import Counter

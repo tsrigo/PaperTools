@@ -17,9 +17,14 @@ cp .env.example .env
 | `CLUSTER_MODEL` | 否 | 聚类阶段模型，默认跟随 `FILTER_MODEL` |
 | `CLUSTER_OPENAI_API_KEY` | 否 | 聚类阶段 API 密钥；不填则使用 `OPENAI_API_KEY` |
 | `CLUSTER_OPENAI_BASE_URL` | 否 | 聚类阶段 API 端点；不填则使用 `OPENAI_BASE_URL` |
+| `PAPERTOOLS_CLUSTER_MODEL_CHAIN` | 否 | 聚类模型回退链；OpenRouter 下自动把 `qwen`、`minimax`、`deepseek-chat` 等短别名归一化为 provider-prefixed ID |
 | `SUMMARY_MODEL_CHAIN` | 否 | 总结/翻译阶段模型回退链，默认 `prism:gpt-5.5,sjtu:minimax,sjtu:glm,sjtu:qwen,sjtu:deepseek-reasoner,sjtu:deepseek-chat` |
 | `SUMMARY_SJTU_OPENAI_API_KEY` | 否 | 致远一号总结/翻译 API 密钥，只用于筛选后的内容生成 |
 | `SUMMARY_SJTU_OPENAI_BASE_URL` | 否 | 致远一号 OpenAI-compatible base URL，默认 `https://models.sjtu.edu.cn/api/v1/` |
+| `SUMMARY_SJTU_RPM` | 否 | SJTU 总结 provider 的共享 RPM 限制，默认 `2`；同一 key/base URL 下多个模型共用节流和 429 冷却状态 |
+| `SUMMARY_SJTU_WINDOW_SECONDS` | 否 | SJTU 总结 provider 的滚动窗口秒数，默认 `300` |
+| `SUMMARY_SJTU_WINDOW_SAFETY_REQUESTS` | 否 | SJTU 总结 provider 的滚动窗口安全余量，默认 `1` |
+| `SUMMARY_SJTU_429_COOLDOWN_SECONDS` | 否 | SJTU 429 后冷却秒数，默认 `300` |
 | `SUMMARY_PRISM_OPENAI_API_KEY` | 否 | Prism 总结/翻译 API 密钥，只用于筛选后的内容生成 |
 | `SUMMARY_PRISM_OPENAI_BASE_URL` | 否 | Prism OpenAI-compatible base URL，默认 `https://ai.prism.uno/v1` |
 | `SUMMARY_PRISM_RPM` | 否 | Prism provider 每分钟请求上限，默认 `5` |
@@ -36,6 +41,8 @@ cp .env.example .env
 | `FILTER_MAX_WORKERS` | 否 | 筛选阶段最大并发，默认 `5`，用于降低筛选模型尾延迟和限流风险 |
 | `PAPERTOOLS_FILTER_LLM_TIMEOUT` | 否 | 筛选阶段单次 LLM 请求超时秒数，默认 `45` |
 | `PAPERTOOLS_FILTER_LLM_MAX_RETRIES` | 否 | 筛选阶段 LLM 重试次数，默认 `1` |
+| `PAPERTOOLS_FILTER_EXTRACT_CHAIN` | 否 | 筛选阶段 prestige 机构抽取链，默认 `docling,pymupdf4llm,jina`，优先本地抽取，远程兜底 |
+| `PAPERTOOLS_TOPIC_HEURISTIC_TOPIC_BYPASS_MIN_SCORE` | 否 | 强主题确定性命中的 LLM 细筛旁路最低分，默认 `30`；安全/图/视觉等硬排除风险仍交给 LLM 判定 |
 | `WEBHOOK_URL` | 否 | 流水线完成或失败时推送通知的 webhook 地址 |
 | `PAPERTOOLS_DAILY_WINDOW_DAYS` | 否 | 每日 cron wrapper 默认滚动补抓天数，默认 `4` |
 | `PAPERTOOLS_DAILY_START_DATE` | 否 | 手动覆盖每日 cron wrapper 的补抓起始日期 |
