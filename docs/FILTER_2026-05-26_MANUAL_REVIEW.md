@@ -7,12 +7,12 @@
 - Topic excluded: 262
 - Prestige excluded: 61
 - Published before review: 61
-- Manual review result: 35 KEEP, 11 BORDERLINE, 15 DROP
-- Published after correction: 46
+- Manual review result after policy correction: 39 KEEP, 11 BORDERLINE, 11 DROP
+- Published after correction: 50
 
 Root cause: the date did not fail the prestige gate. All 61 published papers had whitelist prestige evidence. The over-inclusion came from the topic stage: 56 of 61 were accepted by the LLM topic judge, which was too permissive around generic LLM RL/training/evaluation, Graph-RAG, non-LLM MARL, and domain applications that merely used agent frameworks.
 
-DROP papers were removed from the 2026-05-26 published page. BORDERLINE papers remain published because they have plausible agent-system value but should be watched when tightening future policy.
+Policy correction: generic LLM training/RLVR work such as GRPO/DAPO-style optimization remains in scope. DROP papers were removed from the 2026-05-26 published page. BORDERLINE papers remain published because they have plausible agent-system value but should be watched when tightening future policy.
 
 ## Paper-Level Review
 
@@ -38,11 +38,11 @@ DROP papers were removed from the 2026-05-26 published page. BORDERLINE papers r
 | 18 | 2605.24423 | DROP | Removed | Ad-hoc teamwork / ICRL benchmark not clearly about LLM agents. |
 | 19 | 2605.24197 | BORDERLINE | Keep | Agentic workflow failure analysis, but alignment/misalignment framing. |
 | 20 | 2605.24516 | DROP | Removed | Generic MARL / game-theoretic cooperation, not LLM agents. |
-| 21 | 2605.25604 | DROP | Removed | Generic multi-reward LLM RL optimization; tool use is incidental. |
+| 21 | 2605.25604 | KEEP | Restored | Generic LLM RL/training optimization is in scope under the corrected GRPO/DAPO-style policy. |
 | 22 | 2605.25511 | BORDERLINE | Keep | Role-playing agents, but mostly persona-style RL rather than core agent mechanism. |
-| 23 | 2605.25381 | DROP | Removed | Generic RLVR temporal scheduling. |
+| 23 | 2605.25381 | KEEP | Restored | Generic RLVR training optimization is in scope under the corrected policy. |
 | 24 | 2605.25198 | BORDERLINE | Keep | Generic RLVR method with agentic search as one evaluation setting. |
-| 25 | 2605.24547 | DROP | Removed | Generic LLM reasoning RL with learnable textual feedback. |
+| 25 | 2605.24547 | KEEP | Restored | LLM RL with learnable textual feedback is in scope as LLM training optimization. |
 | 26 | 2605.25624 | KEEP | Keep | Verifiable RL environments and tasks for computer-use agents. |
 | 27 | 2605.24539 | KEEP | Keep | Agentic harness evolution with demonstrations. |
 | 28 | 2605.24052 | DROP | Removed | Crowdsourcing preference aggregation; multi-agent refers to strategic workers. |
@@ -76,6 +76,6 @@ DROP papers were removed from the 2026-05-26 published page. BORDERLINE papers r
 | 56 | 2605.25998 | DROP | Removed | Broad causal methods for LLM development/evaluation; agent workflow only one application. |
 | 57 | 2605.24828 | KEEP | Keep | Thinker-actor test-time exploration for agents in implicit-rule environments. |
 | 58 | 2605.24598 | KEEP | Keep | Long-horizon device-cloud coordination for LLM agents. |
-| 59 | 2605.24396 | DROP | Removed | General LLM reasoning confidence shaping, not agent-specific. |
+| 59 | 2605.24396 | KEEP | Restored | LLM reasoning/RL confidence shaping is retained as generic LLM training work. |
 | 60 | 2605.24219 | KEEP | Keep | Trajectory-level hallucination auditing for multi-agent workflows. |
 | 61 | 2605.24755 | DROP | Removed | Clinical NLP application using multi-agent LLM adjudication. |

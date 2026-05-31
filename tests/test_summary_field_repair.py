@@ -47,6 +47,29 @@ def test_repair_missing_summary_fields_backfills_methodology_and_insights(monkey
     assert generate_summary.missing_publish_fields(paper) == []
 
 
+def test_translate_summary_prompt_preserves_terms_without_parenthetical_gloss(monkeypatch):
+    captured = {}
+
+    def fake_collect(_providers, messages, _temperature, _cache_key):
+        captured["messages"] = messages
+        return "本文提出 GRPO-style RLVR 方法。", object()
+
+    monkeypatch.setattr(generate_summary, "collect_streaming_completion", fake_collect)
+
+    result = generate_summary.translate_summary(
+        "We propose a GRPO-style RLVR method.",
+        providers=[],
+        temperature=0.1,
+        paper_title="Prompt Style",
+        cache_manager=None,
+    )
+
+    prompt = captured["messages"][1]["content"]
+    assert result == "本文提出 GRPO-style RLVR 方法。"
+    assert "不要用括号为英文专有名词添加中文解释" in prompt
+    assert "标注中文解释" not in prompt
+
+
 def test_repair_missing_additional_insights_uses_focused_prompt_after_invalid_default(monkeypatch):
     paper = _paper(methodology="方法论。", additional_insights="")
     calls = []

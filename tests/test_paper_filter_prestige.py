@@ -286,14 +286,24 @@ def test_topic_post_filter_rejects_non_llm_marl_paper():
     assert "非 LLM-agent" in reason
 
 
-def test_topic_post_filter_rejects_generic_rlvr_without_agent_mechanism():
+def test_topic_post_filter_keeps_generic_rlvr_llm_training():
     reason = paper_filter.deterministic_topic_rejection_reason(
         "Not only where, But when: Temporal Scheduling for RLVR",
         "Reinforcement learning with verifiable rewards improves Large Language Models "
         "by scheduling token credit allocation during training.",
     )
 
-    assert "通用 LLM" in reason
+    assert reason == ""
+
+
+def test_topic_post_filter_keeps_grpo_style_llm_training():
+    reason = paper_filter.deterministic_topic_rejection_reason(
+        "DAPO: An Open-Source LLM Reinforcement Learning System at Scale",
+        "We improve GRPO-style reinforcement learning for Large Language Models "
+        "with stable rollout filtering and advantage normalization.",
+    )
+
+    assert reason == ""
 
 
 def test_topic_post_filter_rejects_clinical_multi_agent_application():

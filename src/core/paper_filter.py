@@ -510,8 +510,10 @@ def deterministic_topic_rejection_reason(title: str, summary: str) -> str:
     The LLM topic judge is intentionally recall-oriented, but production pages
     need a deterministic backstop for repeated false-positive families.  Keep
     this function narrow: ambiguous agent papers should still be judged by the
-    model and human review, while obvious Graph-RAG, generic RLVR, non-LLM MARL,
-    and domain-application drift should fail closed.
+    model and human review, while obvious Graph-RAG, non-LLM MARL, and
+    domain-application drift should fail closed. Generic LLM training/RLVR
+    papers stay eligible because GRPO/DAPO-style work is part of the tracked
+    research frontier.
     """
     title = title or ""
     summary = summary or ""
@@ -528,7 +530,7 @@ def deterministic_topic_rejection_reason(title: str, summary: str) -> str:
         return "图/RAG 技术是标题层面的核心贡献，属于主题排除项"
 
     llm_context = re.search(
-        r"\b(?:llms?|large language models?|language models?|foundation models?|transformers?)\b",
+        r"\b(?:llms?|large language models?|language models?|foundation models?)\b",
         compact_text,
         flags=re.IGNORECASE,
     ) is not None
@@ -550,13 +552,11 @@ def deterministic_topic_rejection_reason(title: str, summary: str) -> str:
         return "宽泛的 LLM 开发/评估方法综述，agent workflow 只是应用场景之一"
 
     if llm_context and not strong_agent_signal and re.search(
-        r"\b(?:rlvr|grpo|reinforcement learning with verifiable rewards|preference aggregation|"
-        r"fine[-\s]?tuning|long[-\s]?context|transformer|memory transformer|causal methods?|"
-        r"premature confidence|algorithm design|operations research|optimization)\b",
+        r"\b(?:causal methods?|algorithm design|operations research)\b",
         compact_text,
         flags=re.IGNORECASE,
     ):
-        return "核心是通用 LLM 训练/推理/评测方法，标题摘要未把 agent 机制作为研究对象"
+        return "核心是宽泛 LLM 应用/评估方法，标题摘要未把 agent 或训练优化机制作为研究对象"
 
     domain_application_patterns = [
         (

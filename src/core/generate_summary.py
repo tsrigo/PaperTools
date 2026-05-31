@@ -629,8 +629,9 @@ def translate_summary(summary: str, providers: List[SummaryProvider], temperatur
         中文翻译
     """
     # 尝试从缓存获取
+    translation_cache_version = "translation_v2_term_preserve"
     if cache_manager and ENABLE_CACHE:
-        cache_key = f"translation_{paper_title}_{summary[:100]}"
+        cache_key = f"{translation_cache_version}_{paper_title}_{summary[:100]}"
         for provider in providers:
             cached_translation = cache_manager.get_summary_cache(f"{provider.cache_label}:{cache_key}", summary)
             if cached_translation and has_valid_generated_text(cached_translation):
@@ -639,20 +640,24 @@ def translate_summary(summary: str, providers: List[SummaryProvider], temperatur
     # 构建翻译prompt
     prompt = f"""请将以下英文学术论文摘要翻译成中文，要求：
 
-1. 保持学术性和准确性
-2. 专业术语保持英文原文，用括号标注中文解释
-3. 语言流畅自然，符合中文学术表达习惯
-4. 保持原文的逻辑结构和重点
+1. 准确保留原文的信息、逻辑顺序和关键限定。
+2. 专有名词、方法名、模型名、数据集名、benchmark 名、算法名、缩写和指标名保留英文原文。
+3. 不要用括号为英文专有名词添加中文解释；不要写成 "RLVR（可验证奖励强化学习）" 这类格式。
+4. 普通英文动词或形容词可以自然翻译成中文，但 technical terms 应优先保留英文。
+5. 语言要自然清楚，段落结构尽量贴近原摘要。
 
 英文摘要：
 {summary}
 
-请提供中文翻译："""
+请只输出中文翻译："""
 
     messages = [
             {
                 "role": "system",
-                "content": "你是一个专业的学术论文翻译助手，擅长将英文学术论文摘要准确翻译成中文。"
+                "content": (
+                    "你是一个专业的学术论文翻译助手。请准确翻译摘要，"
+                    "保留英文专有名词和技术术语，不用括号添加中文解释。"
+                )
             },
             {
                 "role": "user",
@@ -665,7 +670,7 @@ def translate_summary(summary: str, providers: List[SummaryProvider], temperatur
 
     # 保存到缓存
     if cache_manager and ENABLE_CACHE:
-        cache_key = f"translation_{paper_title}_{summary[:100]}"
+        cache_key = f"{translation_cache_version}_{paper_title}_{summary[:100]}"
         cache_manager.set_summary_cache(f"{provider.cache_label}:{cache_key}", summary, translation)
 
     return translation
@@ -1740,7 +1745,7 @@ def main() -> int:
                             cached_additional_insights = None
 
                     if original_summary:
-                        cache_key = f"translation_{paper_title}_{original_summary[:100]}"
+                        cache_key = f"translation_v2_term_preserve_{paper_title}_{original_summary[:100]}"
                         cached_translation = cache_manager.get_summary_cache(cache_key, original_summary)
                         if not has_valid_generated_text(cached_translation):
                             cached_translation = None
