@@ -2,8 +2,8 @@
 # Daily full run + conditional commit/push.
 #
 # The cron entry lives in a development checkout that can be dirty or behind
-# origin/master. Run the pipeline from a fresh temporary worktree instead, so
-# publishing is not blocked by local commits or manual debugging edits.
+# the publish branch. Run the pipeline from a fresh temporary worktree instead,
+# so publishing is not blocked by local commits or manual debugging edits.
 set -euo pipefail
 
 export HOME="${HOME:-/home/weikaihuang}"
@@ -17,7 +17,8 @@ mkdir -p "$LOG_DIR"
 LOG_FILE="$LOG_DIR/daily_pipeline.log"
 LOCK_DIR="${PAPERTOOLS_DAILY_LOCK_DIR:-$LOG_DIR}"
 mkdir -p "$LOCK_DIR"
-LOCK_FILE="$LOCK_DIR/daily_full_run.lock"
+LOCK_FILE="${PAPERTOOLS_PUBLISH_LOCK_FILE:-${PAPERTOOLS_DAILY_LOCK_FILE:-$LOCK_DIR/papertools_publish.lock}}"
+mkdir -p "$(dirname "$LOCK_FILE")"
 
 PYTHON_BIN="${PYTHON_BIN:-/opt/miniconda3/bin/python3}"
 RUN_ID="$(date '+%Y%m%d-%H%M%S')"
@@ -30,6 +31,7 @@ export PAPERTOOLS_DAILY_MAX_CATCHUP_DAYS="$DAILY_MAX_CATCHUP_DAYS"
 REPROCESS_EXISTING_DATES="${PAPERTOOLS_DAILY_REPROCESS_EXISTING:-0}"
 SELF_REFRESH="${PAPERTOOLS_DAILY_SELF_REFRESH:-1}"
 SELF_REFRESHED="${PAPERTOOLS_DAILY_SELF_REFRESHED:-0}"
+PUBLISH_BRANCH="${PAPERTOOLS_GIT_BRANCH:-}"
 PROXY_HOST="${PAPERTOOLS_PROXY_HOST:-127.0.0.1}"
 PROXY_PORT="${PAPERTOOLS_PROXY_PORT:-7897}"
 PROXY_URL="${PAPERTOOLS_PROXY_URL:-http://${PROXY_HOST}:${PROXY_PORT}}"
@@ -55,14 +57,18 @@ configure_daily_runtime_defaults() {
     # still supplies secrets, but should not disable cron recovery behavior.
     export OPENAI_BASE_URL="${PAPERTOOLS_DAILY_OPENAI_BASE_URL:-https://models.sjtu.edu.cn/api/v1/}"
     export MODEL="${PAPERTOOLS_DAILY_MODEL:-deepseek-reasoner}"
-    export FILTER_MODEL="${PAPERTOOLS_DAILY_FILTER_MODEL:-qwen}"
+    export FILTER_MODEL="${PAPERTOOLS_DAILY_FILTER_MODEL:-deepseek-chat}"
+    export PAPERTOOLS_FILTER_MODEL_CHAIN="${PAPERTOOLS_DAILY_FILTER_MODEL_CHAIN:-deepseek-chat,minimax,qwen}"
     export CLUSTER_MODEL="${PAPERTOOLS_DAILY_CLUSTER_MODEL:-glm}"
+    export PAPERTOOLS_CLUSTER_MODEL_CHAIN="${PAPERTOOLS_DAILY_CLUSTER_MODEL_CHAIN:-qwen,deepseek-chat,minimax}"
     export SUMMARY_MODEL="${PAPERTOOLS_DAILY_SUMMARY_MODEL:-qwen}"
     export SUMMARY_MODEL_CHAIN="${PAPERTOOLS_DAILY_SUMMARY_MODEL_CHAIN:-sjtu:qwen,sjtu:deepseek-chat,sjtu:minimax,sjtu:glm,sjtu:deepseek-reasoner}"
     export FILTER_MAX_WORKERS="${PAPERTOOLS_DAILY_FILTER_MAX_WORKERS:-1}"
     export SUMMARY_MAX_WORKERS="${PAPERTOOLS_DAILY_SUMMARY_MAX_WORKERS:-1}"
-    export PAPERTOOLS_FILTER_RPM="${PAPERTOOLS_DAILY_FILTER_RPM:-4}"
+    export PAPERTOOLS_FILTER_RPM="${PAPERTOOLS_DAILY_FILTER_RPM:-2}"
     export PAPERTOOLS_FILTER_LLM_TIMEOUT="${PAPERTOOLS_DAILY_FILTER_LLM_TIMEOUT:-60}"
+    export PAPERTOOLS_FILTER_429_COOLDOWN_SECONDS="${PAPERTOOLS_DAILY_FILTER_429_COOLDOWN_SECONDS:-300}"
+    export PAPERTOOLS_FILTER_ERROR_TOLERANCE_PERCENT="${PAPERTOOLS_DAILY_FILTER_ERROR_TOLERANCE_PERCENT:-5}"
     export PAPERTOOLS_FILTER_LLM_MAX_RETRIES="${PAPERTOOLS_DAILY_FILTER_LLM_MAX_RETRIES:-1}"
     export PAPERTOOLS_FILTER_EARLY_STOP_AFTER_CAP="${PAPERTOOLS_DAILY_FILTER_EARLY_STOP_AFTER_CAP:-1}"
     export PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE="${PAPERTOOLS_DAILY_TOPIC_HEURISTIC_BYPASS_PRESTIGE:-0}"
@@ -78,11 +84,14 @@ configure_daily_runtime_defaults() {
     export DOCUMENT_EXTRACT_TIMEOUT="${PAPERTOOLS_DAILY_DOCUMENT_EXTRACT_TIMEOUT:-60}"
     export JINA_REQUEST_TIMEOUT="${PAPERTOOLS_DAILY_JINA_REQUEST_TIMEOUT:-45}"
     export JINA_MAX_RETRIES="${PAPERTOOLS_DAILY_JINA_MAX_RETRIES:-2}"
+    export PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS="${PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS:-21600}"
+    export PAPERTOOLS_DAILY_PREFLIGHT_OFFLINE_OK="${PAPERTOOLS_DAILY_PREFLIGHT_OFFLINE_OK:-0}"
 }
 
 print_runtime_config() {
     for key in \
         OPENAI_BASE_URL MODEL FILTER_MODEL CLUSTER_MODEL SUMMARY_MODEL SUMMARY_MODEL_CHAIN \
+        PAPERTOOLS_FILTER_MODEL_CHAIN PAPERTOOLS_CLUSTER_MODEL_CHAIN \
         FILTER_MAX_WORKERS SUMMARY_MAX_WORKERS PAPERTOOLS_FILTER_RPM \
         PAPERTOOLS_FILTER_LLM_TIMEOUT PAPERTOOLS_FILTER_LLM_MAX_RETRIES \
         PAPERTOOLS_FILTER_EARLY_STOP_AFTER_CAP PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE \
@@ -91,7 +100,8 @@ print_runtime_config() {
         PAPERTOOLS_OPENAI_SDK_MAX_RETRIES PAPERTOOLS_RETRY_MAX_DELAY_SECONDS \
         PAPERTOOLS_OPENAI_TRUST_ENV DOCUMENT_EXTRACTOR_CHAIN DOCUMENT_EXTRACT_TIMEOUT \
         JINA_REQUEST_TIMEOUT JINA_MAX_RETRIES PAPERTOOLS_DAILY_WINDOW_DAYS \
-        PAPERTOOLS_DAILY_MAX_CATCHUP_DAYS; do
+        PAPERTOOLS_DAILY_MAX_CATCHUP_DAYS PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS \
+        PAPERTOOLS_DAILY_PREFLIGHT_OFFLINE_OK; do
         printf '%s=%s\n' "$key" "${!key:-}"
     done
 }
@@ -109,8 +119,38 @@ run_logged() {
     "$@" >>"$LOG_FILE" 2>&1
 }
 
-fetch_origin_master() {
-    run_logged git fetch origin +refs/heads/master:refs/remotes/origin/master
+run_preflight_check() {
+    local preflight_cmd=("$PYTHON_BIN" scripts/preflight_check.py)
+    if [ "${PAPERTOOLS_DAILY_PREFLIGHT_OFFLINE_OK}" = "1" ]; then
+        preflight_cmd+=(--offline-ok)
+        log "Remote /models preflight disabled by PAPERTOOLS_DAILY_PREFLIGHT_OFFLINE_OK=1"
+    fi
+
+    run_logged "${preflight_cmd[@]}"
+}
+
+fetch_origin_branch() {
+    local branch
+
+    if [ -n "$PUBLISH_BRANCH" ]; then
+        export PAPERTOOLS_GIT_BRANCH="$PUBLISH_BRANCH"
+        run_logged git fetch origin "+refs/heads/${PUBLISH_BRANCH}:refs/remotes/origin/${PUBLISH_BRANCH}"
+        return
+    fi
+
+    for branch in master main; do
+        if run_logged git fetch origin "+refs/heads/${branch}:refs/remotes/origin/${branch}"; then
+            PUBLISH_BRANCH="$branch"
+            export PAPERTOOLS_GIT_BRANCH="$PUBLISH_BRANCH"
+            return 0
+        fi
+    done
+
+    return 1
+}
+
+origin_ref() {
+    printf 'origin/%s' "$PUBLISH_BRANCH"
 }
 
 set_proxy_env() {
@@ -215,16 +255,16 @@ cleanup_bootstrap_worktree() {
 }
 
 run_latest_wrapper() {
-    CURRENT_STAGE="self_refresh_fetch_origin_master"
-    log "🔄 Refreshing daily wrapper from origin/master"
-    if ! fetch_origin_master; then
+    CURRENT_STAGE="self_refresh_fetch_origin"
+    log "🔄 Refreshing daily wrapper from publish branch"
+    if ! fetch_origin_branch; then
         notify_failure "$(printf '❌ PaperTools daily wrapper failed\n  • stage: %s\n  • exit_code: %s\n  • run_id: %s' "$CURRENT_STAGE" "1" "$RUN_ID")"
         exit 1
     fi
 
     CURRENT_STAGE="self_refresh_create_worktree"
     cleanup_bootstrap_worktree
-    if ! run_logged git worktree add --detach "$BOOTSTRAP_WORKTREE_DIR" origin/master; then
+    if ! run_logged git worktree add --detach "$BOOTSTRAP_WORKTREE_DIR" "$(origin_ref)"; then
         notify_failure "$(printf '❌ PaperTools daily wrapper failed\n  • stage: %s\n  • exit_code: %s\n  • run_id: %s' "$CURRENT_STAGE" "1" "$RUN_ID")"
         exit 1
     fi
@@ -233,11 +273,12 @@ run_latest_wrapper() {
         cp "$ROOT_DIR/.env" "$BOOTSTRAP_WORKTREE_DIR/.env"
     fi
 
-    log "🔁 Delegating to latest origin/master daily wrapper"
+    log "🔁 Delegating to latest $(origin_ref) daily wrapper"
     set +e
     PAPERTOOLS_DAILY_SELF_REFRESHED=1 \
         PAPERTOOLS_DAILY_LOG_DIR="$LOG_DIR" \
         PAPERTOOLS_DAILY_LOCK_DIR="$LOCK_DIR" \
+        PAPERTOOLS_GIT_BRANCH="$PUBLISH_BRANCH" \
         "$BOOTSTRAP_WORKTREE_DIR/scripts/daily_full_run.sh"
     local status=$?
     set -e
@@ -358,10 +399,10 @@ else
     log "ℹ️ Skipping global process cleanup; lock file protects scheduled runs"
 fi
 
-CURRENT_STAGE="fetch_origin_master"
-fetch_origin_master
+CURRENT_STAGE="fetch_origin"
+fetch_origin_branch
 CURRENT_STAGE="create_worktree"
-run_logged git worktree add --detach "$WORKTREE_DIR" origin/master
+run_logged git worktree add --detach "$WORKTREE_DIR" "$(origin_ref)"
 
 if [ -f "$ROOT_DIR/.env" ]; then
     cp "$ROOT_DIR/.env" "$WORKTREE_DIR/.env"
@@ -369,12 +410,15 @@ fi
 
 cd "$WORKTREE_DIR"
 BASE_SHA="$(git rev-parse --short HEAD)"
-log "📌 Running from clean origin/master worktree at $BASE_SHA"
+log "📌 Running from clean $(origin_ref) worktree at $BASE_SHA"
 CURRENT_STAGE="init_submodules"
 SUBMODULE_TIMEOUT_SECONDS="${PAPERTOOLS_DAILY_SUBMODULE_TIMEOUT_SECONDS:-30}"
 if ! run_logged timeout "$SUBMODULE_TIMEOUT_SECONDS" git submodule update --init --recursive; then
     log "⚠️ Submodule init failed; continuing because summary generation has a non-ReviewGrounder fallback"
 fi
+
+CURRENT_STAGE="preflight"
+run_preflight_check
 
 build_date_list() {
     local current="$DAILY_START_DATE"
@@ -428,6 +472,10 @@ print(f"validated generated output for {run_date}")
 PY
 }
 
+validate_published_webpages() {
+    run_logged "$PYTHON_BIN" scripts/validate_published_payloads.py --webpages-dir webpages
+}
+
 read_pipeline_status() {
     local status_file="$1"
     "$PYTHON_BIN" - "$status_file" <<'PY'
@@ -470,18 +518,15 @@ while IFS= read -r RUN_DATE; do
     log "📅 Running daily pipeline for $RUN_DATE"
 
     set +e
-    "$PYTHON_BIN" papertools.py run --mode full --skip-serve --date "$RUN_DATE" --status-file "$STATUS_FILE" >>"$LOG_FILE" 2>&1
+    timeout "$PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS" "$PYTHON_BIN" papertools.py run --mode full --skip-serve --date "$RUN_DATE" --status-file "$STATUS_FILE" >>"$LOG_FILE" 2>&1
     PIPELINE_EXIT=$?
     set -e
 
     if [ "$PIPELINE_EXIT" -ne 0 ]; then
         log "⚠️ Pipeline for $RUN_DATE exited with code $PIPELINE_EXIT"
         notify_failure "$(printf '❌ PaperTools pipeline failed\n  • date: %s\n  • exit_code: %s\n  • base: %s\n  • run_id: %s' "$RUN_DATE" "$PIPELINE_EXIT" "$BASE_SHA" "$RUN_ID")"
-        if [ "${PAPERTOOLS_COMMIT_ON_PIPELINE_FAILURE:-0}" != "1" ]; then
-            log "⏭️ Not committing generated output after pipeline failure"
-            exit "$PIPELINE_EXIT"
-        fi
-        log "⚠️ PAPERTOOLS_COMMIT_ON_PIPELINE_FAILURE=1; continuing with generated partial output"
+        log "⏭️ Not committing generated output after pipeline failure"
+        exit "$PIPELINE_EXIT"
     else
         PIPELINE_STATUS_VALUE="$(read_pipeline_status "$STATUS_FILE")"
         case "$PIPELINE_STATUS_VALUE" in
@@ -507,6 +552,9 @@ done < <(build_date_list)
 
 # arxiv_paper/domain_paper/summary are local cache/state directories and are
 # intentionally gitignored. The published artifact is webpages/.
+CURRENT_STAGE="validate_published_webpages"
+validate_published_webpages
+
 CURRENT_STAGE="stage_generated_webpages"
 git add webpages/
 if git diff --cached --quiet; then
@@ -523,18 +571,20 @@ log "📝 Created daily commit $COMMIT_SHA"
 
 set +e
 CURRENT_STAGE="push_generated_webpages"
-git push origin HEAD:master >>"$LOG_FILE" 2>&1
+git push origin "HEAD:$PUBLISH_BRANCH" >>"$LOG_FILE" 2>&1
 PUSH_EXIT=$?
 set -e
 
 if [ "$PUSH_EXIT" -ne 0 ]; then
-    log "⚠️ Initial push failed; rebasing on latest origin/master and retrying"
+    log "⚠️ Initial push failed; rebasing on latest $(origin_ref) and retrying"
     CURRENT_STAGE="rebase_generated_webpages"
-    fetch_origin_master
-    if git rebase origin/master >>"$LOG_FILE" 2>&1; then
+    fetch_origin_branch
+    if git rebase "$(origin_ref)" >>"$LOG_FILE" 2>&1; then
+        CURRENT_STAGE="validate_published_webpages_after_rebase"
+        validate_published_webpages
         set +e
         CURRENT_STAGE="push_generated_webpages_after_rebase"
-        git push origin HEAD:master >>"$LOG_FILE" 2>&1
+        git push origin "HEAD:$PUBLISH_BRANCH" >>"$LOG_FILE" 2>&1
         PUSH_EXIT=$?
         set -e
     else

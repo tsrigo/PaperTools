@@ -19,7 +19,7 @@ from openai import OpenAIError
 from tqdm import tqdm
 
 # 添加项目根目录到Python路径
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
@@ -59,19 +59,20 @@ from src.utils.validation import validate_non_negative_int, validate_positive_in
 
 
 SOURCE_METADATA_FIELDS = (
-    'index',
-    'title',
-    'link',
-    'arxiv_id',
-    'authors',
-    'summary',
-    'abstract',
-    'subjects',
-    'date',
-    'source_date',
-    'category',
-    'crawl_time',
+    "index",
+    "title",
+    "link",
+    "arxiv_id",
+    "authors",
+    "summary",
+    "abstract",
+    "subjects",
+    "date",
+    "source_date",
+    "category",
+    "crawl_time",
 )
+
 
 def env_int(name: str, default: int, minimum: Optional[int] = None) -> int:
     value = os.getenv(name)
@@ -119,21 +120,30 @@ FILTER_EXTRACT_CHAIN = os.getenv(
 )
 FILTER_EXTRACT_TIMEOUT = env_int("PAPERTOOLS_FILTER_EXTRACT_TIMEOUT", 45, minimum=1)
 FILTER_RPM = env_int("PAPERTOOLS_FILTER_RPM", 8, minimum=0)
-FILTER_RATE_WINDOW_SECONDS = env_float("PAPERTOOLS_FILTER_RATE_WINDOW_SECONDS", 60, minimum=1)
-FILTER_RATE_LIMIT_COOLDOWN_SECONDS = env_float("PAPERTOOLS_FILTER_429_COOLDOWN_SECONDS", 65, minimum=0)
+FILTER_RATE_WINDOW_SECONDS = env_float(
+    "PAPERTOOLS_FILTER_RATE_WINDOW_SECONDS", 60, minimum=1
+)
+FILTER_RATE_LIMIT_COOLDOWN_SECONDS = env_float(
+    "PAPERTOOLS_FILTER_429_COOLDOWN_SECONDS", 65, minimum=0
+)
 FILTER_MAX_OUTPUT_PAPERS = env_int("PAPERTOOLS_FILTER_MAX_OUTPUT_PAPERS", 0, minimum=0)
 FILTER_EARLY_STOP_AFTER_CAP = env_bool("PAPERTOOLS_FILTER_EARLY_STOP_AFTER_CAP", False)
-FILTER_SUSPICIOUS_ZERO_MIN_INPUT = env_int("PAPERTOOLS_FILTER_SUSPICIOUS_ZERO_MIN_INPUT", 500, minimum=0)
+FILTER_ERROR_TOLERANCE_PERCENT = env_float(
+    "PAPERTOOLS_FILTER_ERROR_TOLERANCE_PERCENT", 0, minimum=0
+)
+FILTER_SUSPICIOUS_ZERO_MIN_INPUT = env_int(
+    "PAPERTOOLS_FILTER_SUSPICIOUS_ZERO_MIN_INPUT", 500, minimum=0
+)
 FILTER_SUSPICIOUS_ZERO_MIN_PREFILTERED = env_int(
     "PAPERTOOLS_FILTER_SUSPICIOUS_ZERO_MIN_PREFILTERED",
     100,
     minimum=0,
 )
-FILTER_RULE_VERSION = os.getenv("PAPERTOOLS_FILTER_RULE_VERSION", "2026-05-31-topic-post-v2")
+FILTER_RULE_VERSION = os.getenv(
+    "PAPERTOOLS_FILTER_RULE_VERSION", "2026-05-31-topic-post-v2"
+)
 FILTER_MODEL_CHAIN_ENV = (
-    os.getenv("PAPERTOOLS_FILTER_MODEL_CHAIN")
-    or os.getenv("FILTER_MODEL_CHAIN")
-    or ""
+    os.getenv("PAPERTOOLS_FILTER_MODEL_CHAIN") or os.getenv("FILTER_MODEL_CHAIN") or ""
 )
 PRESTIGE_LLM_ENABLED = os.getenv("PAPERTOOLS_PRESTIGE_LLM_ENABLED", "0").lower() in {
     "1",
@@ -142,8 +152,12 @@ PRESTIGE_LLM_ENABLED = os.getenv("PAPERTOOLS_PRESTIGE_LLM_ENABLED", "0").lower()
     "on",
 }
 TOPIC_HEURISTIC_KEEP_ENABLED = env_bool("PAPERTOOLS_TOPIC_HEURISTIC_KEEP_ENABLED", True)
-TOPIC_HEURISTIC_BYPASS_PRESTIGE = env_bool("PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE", False)
-TOPIC_HEURISTIC_BYPASS_MIN_SCORE = env_int("PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_MIN_SCORE", 60)
+TOPIC_HEURISTIC_BYPASS_PRESTIGE = env_bool(
+    "PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE", False
+)
+TOPIC_HEURISTIC_BYPASS_MIN_SCORE = env_int(
+    "PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_MIN_SCORE", 60
+)
 TOPIC_HEURISTIC_TOPIC_BYPASS_MIN_SCORE = env_int(
     "PAPERTOOLS_TOPIC_HEURISTIC_TOPIC_BYPASS_MIN_SCORE",
     30,
@@ -233,16 +247,20 @@ def build_filter_model_chain(primary_model: str, base_url: str = "") -> List[str
     if configured:
         raw_models.extend(configured)
     elif is_openrouter_base_url(base_url):
-        raw_models.extend([
-            "qwen/qwen3-30b-a3b",
-            "deepseek/deepseek-chat-v3-0324",
-        ])
+        raw_models.extend(
+            [
+                "qwen/qwen3-30b-a3b",
+                "deepseek/deepseek-chat-v3-0324",
+            ]
+        )
     else:
-        raw_models.extend([
-            "qwen",
-            "deepseek-chat",
-            "minimax",
-        ])
+        raw_models.extend(
+            [
+                "qwen",
+                "deepseek-chat",
+                "minimax",
+            ]
+        )
 
     chain = []
     seen = set()
@@ -284,32 +302,54 @@ def evaluate_topic_heuristic(title: str, summary: str) -> Tuple[bool, str]:
     def has(pattern: str) -> bool:
         return re.search(pattern, compact_text, flags=re.IGNORECASE) is not None
 
-    llm_context = has(r"\b(?:llm|large language model|language model|small language model|foundation model)\b")
+    llm_context = has(
+        r"\b(?:llm|large language model|language model|small language model|foundation model)\b"
+    )
 
-    if llm_context and has(r"\bagentic\b") and has(
-        r"\b(?:agents?|tool[-\s]?use|tool[-\s]?calling|workflow|planning|memory|coding|software|benchmark|evaluation)\b"
+    if (
+        llm_context
+        and has(r"\bagentic\b")
+        and has(
+            r"\b(?:agents?|tool[-\s]?use|tool[-\s]?calling|workflow|planning|memory|coding|software|benchmark|evaluation)\b"
+        )
     ):
         signals.append("Agentic")
     if has(r"\bagentic\s+llms?\b"):
         signals.append("Agentic LLMs")
     if has(r"\bllms?\s+improv(?:e|ing|es)\s+llms?\b"):
         signals.append("LLMs improving LLMs")
-    if has(r"\bself[-\s]?(?:evolving|evolution|improving|improvement|refine|refinement)\b"):
-        if has(r"\b(?:llm|large language model|language model|instruction following|reinforcement learning|agent)\b"):
+    if has(
+        r"\bself[-\s]?(?:evolving|evolution|improving|improvement|refine|refinement)\b"
+    ):
+        if has(
+            r"\b(?:llm|large language model|language model|instruction following|reinforcement learning|agent)\b"
+        ):
             signals.append("Self-Evolving/Self-Improving")
-    if has(r"\b(?:llm|large language model|language model|small language model)s?\s+agents?\b"):
+    if has(
+        r"\b(?:llm|large language model|language model|small language model)s?\s+agents?\b"
+    ):
         signals.append("LLM Agents")
     if has(r"\blong[-\s]?horizon agents?\b"):
         signals.append("Long-Horizon Agents")
-    if llm_context and has(r"\bagents?\b") and has(
-        r"\b(?:memory|clarification|long[-\s]?horizon|cooperative|cooperation|tool[-\s]?use|"
-        r"tool[-\s]?using|distillation|on[-\s]?policy|verification|elaboration|planning|"
-        r"runtime|harness|scaffold|test[-\s]?time)\b"
+    if (
+        llm_context
+        and has(r"\bagents?\b")
+        and has(
+            r"\b(?:memory|clarification|long[-\s]?horizon|cooperative|cooperation|tool[-\s]?use|"
+            r"tool[-\s]?using|distillation|on[-\s]?policy|verification|elaboration|planning|"
+            r"runtime|harness|scaffold|test[-\s]?time)\b"
+        )
     ):
         signals.append("Agent capability/behavior")
-    if llm_context and has(r"\bmulti[-\s]?agent\b") and not has(r"\b(?:topology|message routing|communication protocol)\b"):
+    if (
+        llm_context
+        and has(r"\bmulti[-\s]?agent\b")
+        and not has(r"\b(?:topology|message routing|communication protocol)\b")
+    ):
         signals.append("Multi-Agent")
-    if has(r"\btest[-\s]?time scaling\b") and has(r"\b(?:agentic|agent|self[-\s]?improv|llms?\s+improv)\b"):
+    if has(r"\btest[-\s]?time scaling\b") and has(
+        r"\b(?:agentic|agent|self[-\s]?improv|llms?\s+improv)\b"
+    ):
         signals.append("Agentic test-time scaling")
     if has(r"\bcoding agents?\b") and has(
         r"\b(?:evolutionary|evolve|evolving|harness|benchmark|evaluation|repository|software|debugging)\b"
@@ -339,26 +379,38 @@ def evaluate_topic_heuristic(title: str, summary: str) -> Tuple[bool, str]:
 
 def score_filtered_paper_for_selection(paper: dict) -> int:
     """Rank included papers so the daily page stays readable."""
-    title = paper.get('title', '') or ''
-    summary = paper.get('summary', '') or paper.get('abstract', '') or ''
+    title = paper.get("title", "") or ""
+    summary = paper.get("summary", "") or paper.get("abstract", "") or ""
     title_text = title.lower()
     text = f"{title}\n{summary}".lower()
     score = 0
 
-    prestige_source = paper.get('prestige_source', '')
-    if paper.get('prestige_result') is True and prestige_source != 'topic_heuristic_bypass':
+    prestige_source = paper.get("prestige_source", "")
+    if (
+        paper.get("prestige_result") is True
+        and prestige_source != "topic_heuristic_bypass"
+    ):
         score += 100
-    if paper.get('topic_source') == 'heuristic':
+    if paper.get("topic_source") == "heuristic":
         score += 10
 
     title_patterns = [
         (r"\bllms?\s+improv(?:e|ing|es)\s+llms?\b", 70),
-        (r"\bself[-\s]?(?:evolving|evolution|improving|improvement|refine|refinement)\b", 65),
-        (r"\b(?:llm|large language model|language model|small language model)s?\s+agents?\b", 60),
+        (
+            r"\bself[-\s]?(?:evolving|evolution|improving|improvement|refine|refinement)\b",
+            65,
+        ),
+        (
+            r"\b(?:llm|large language model|language model|small language model)s?\s+agents?\b",
+            60,
+        ),
         (r"\blong[-\s]?horizon agents?\b", 85),
         (r"\bagentic\b", 45),
         (r"\btool[-\s]?(?:use|using|calling|augmentation)\b", 38),
-        (r"\b(?:memory|experience)\b.*\bagents?\b|\bagents?\b.*\b(?:memory|experience)\b", 35),
+        (
+            r"\b(?:memory|experience)\b.*\bagents?\b|\bagents?\b.*\b(?:memory|experience)\b",
+            35,
+        ),
         (r"\b(?:coding|code repair|cli agents?|sre agents?|web agents?)\b", 25),
     ]
     for pattern, weight in title_patterns:
@@ -366,8 +418,14 @@ def score_filtered_paper_for_selection(paper: dict) -> int:
             score += weight
 
     supporting_patterns = [
-        (r"\bself[-\s]?(?:evolving|evolution|improving|improvement|refine|refinement)\b", 18),
-        (r"\b(?:llm|large language model|language model|small language model)s?\s+agents?\b", 18),
+        (
+            r"\bself[-\s]?(?:evolving|evolution|improving|improvement|refine|refinement)\b",
+            18,
+        ),
+        (
+            r"\b(?:llm|large language model|language model|small language model)s?\s+agents?\b",
+            18,
+        ),
         (r"\bagentic\b", 12),
         (r"\btool[-\s]?(?:use|using|calling|augmentation)\b", 10),
         (r"\bbenchmark(?:ing)?\b|\bevaluat(?:e|ing|ion)\b", 6),
@@ -377,10 +435,19 @@ def score_filtered_paper_for_selection(paper: dict) -> int:
             score += weight
 
     penalty_patterns = [
-        (r"\b(?:security|cyber|safety|alignment|interpretability|explainability|watermark|hallucination)\b", 90),
-        (r"\b(?:medical|clinical|chemical|reaction|biological|biomedical|financial|trading|flight|weather|recommendation|physics)\b", 75),
+        (
+            r"\b(?:security|cyber|safety|alignment|interpretability|explainability|watermark|hallucination)\b",
+            90,
+        ),
+        (
+            r"\b(?:medical|clinical|chemical|reaction|biological|biomedical|financial|trading|flight|weather|recommendation|physics)\b",
+            75,
+        ),
         (r"\b(?:vision|multimodal|video|vlm|mllm|diffusion|ocr)\b", 80),
-        (r"\b(?:knowledge graph|graph neural|graph representation|graph-accelerated|graph reasoning)\b", 60),
+        (
+            r"\b(?:knowledge graph|graph neural|graph representation|graph-accelerated|graph reasoning)\b",
+            60,
+        ),
         (r"\bsurvey\b", 30),
     ]
     for pattern, penalty in penalty_patterns:
@@ -397,10 +464,12 @@ def score_filtered_paper_for_selection(paper: dict) -> int:
     return score
 
 
-def apply_output_cap(filtered_papers: List[dict], max_papers: int) -> Tuple[List[dict], List[dict]]:
+def apply_output_cap(
+    filtered_papers: List[dict], max_papers: int
+) -> Tuple[List[dict], List[dict]]:
     """Keep the published set capped while preserving overflow as exclusions."""
     for paper in filtered_papers:
-        paper['selection_score'] = score_filtered_paper_for_selection(paper)
+        paper["selection_score"] = score_filtered_paper_for_selection(paper)
 
     if max_papers <= 0 or len(filtered_papers) <= max_papers:
         return filtered_papers, []
@@ -408,9 +477,9 @@ def apply_output_cap(filtered_papers: List[dict], max_papers: int) -> Tuple[List
     ranked = sorted(
         enumerate(filtered_papers),
         key=lambda item: (
-            item[1].get('selection_score', 0),
-            item[1].get('prestige_source') != 'topic_heuristic_bypass',
-            item[1].get('source_date') or item[1].get('date') or '',
+            item[1].get("selection_score", 0),
+            item[1].get("prestige_source") != "topic_heuristic_bypass",
+            item[1].get("source_date") or item[1].get("date") or "",
             item[0] * -1,
         ),
         reverse=True,
@@ -424,14 +493,14 @@ def apply_output_cap(filtered_papers: List[dict], max_papers: int) -> Tuple[List
             selected.append(paper)
             continue
         excluded = compact_excluded_paper(paper)
-        excluded['exclude_stage'] = 'selection_cap'
-        excluded['filter_reason'] = (
+        excluded["exclude_stage"] = "selection_cap"
+        excluded["filter_reason"] = (
             f"主题相关但超过每日发布上限 {max_papers}，"
             f"按可读性排序压缩；selection_score={paper.get('selection_score', 0)}"
         )
         overflow.append(excluded)
 
-    selected.sort(key=lambda paper: paper.get('selection_score', 0), reverse=True)
+    selected.sort(key=lambda paper: paper.get("selection_score", 0), reverse=True)
     return selected, overflow
 
 
@@ -462,14 +531,17 @@ def should_bypass_prestige_for_topic_heuristic(paper: dict) -> bool:
 def has_hard_topic_exclusion_terms(title: str, summary: str) -> bool:
     """Return True for explicit exclusion domains that still need LLM adjudication."""
     text = f"{title}\n{summary}".lower()
-    return re.search(
-        r"\b(?:security|cyber|jailbreak|prompt injection|poison(?:ing)?|attack(?:s|er)?|"
-        r"safety|alignment|interpretability|explainability|watermark(?:ing)?|hallucination|"
-        r"vision|video|multimodal|vlm|mllm|diffusion|knowledge graph|graph neural|"
-        r"graph reasoning|graph[-\s]?rag|graphrag)\b",
-        text,
-        flags=re.IGNORECASE,
-    ) is not None
+    return (
+        re.search(
+            r"\b(?:security|cyber|jailbreak|prompt injection|poison(?:ing)?|attack(?:s|er)?|"
+            r"safety|alignment|interpretability|explainability|watermark(?:ing)?|hallucination|"
+            r"vision|video|multimodal|vlm|mllm|diffusion|knowledge graph|graph neural|"
+            r"graph reasoning|graph[-\s]?rag|graphrag)\b",
+            text,
+            flags=re.IGNORECASE,
+        )
+        is not None
+    )
 
 
 def has_strong_agent_topic_signal(title: str, summary: str) -> bool:
@@ -491,7 +563,10 @@ def has_strong_agent_topic_signal(title: str, summary: str) -> bool:
         r"\binteractive\s+(?:environment|benchmark).*\b(?:agents?|ai scientists?)\b",
         r"\b(?:agents?|ai scientists?)\b.*\binteractive\s+(?:environment|benchmark)\b",
     ]
-    if any(re.search(pattern, compact_text, flags=re.IGNORECASE) for pattern in strong_patterns):
+    if any(
+        re.search(pattern, compact_text, flags=re.IGNORECASE)
+        for pattern in strong_patterns
+    ):
         return True
 
     title_strong_patterns = [
@@ -501,7 +576,10 @@ def has_strong_agent_topic_signal(title: str, summary: str) -> bool:
         r"\btool registr(?:y|ies)\b",
         r"\btrajectory[-\s]?level\b",
     ]
-    return any(re.search(pattern, title_text, flags=re.IGNORECASE) for pattern in title_strong_patterns)
+    return any(
+        re.search(pattern, title_text, flags=re.IGNORECASE)
+        for pattern in title_strong_patterns
+    )
 
 
 def deterministic_topic_rejection_reason(title: str, summary: str) -> str:
@@ -529,18 +607,25 @@ def deterministic_topic_rejection_reason(title: str, summary: str) -> str:
     ):
         return "图/RAG 技术是标题层面的核心贡献，属于主题排除项"
 
-    llm_context = re.search(
-        r"\b(?:llms?|large language models?|language models?|foundation models?)\b",
-        compact_text,
-        flags=re.IGNORECASE,
-    ) is not None
+    llm_context = (
+        re.search(
+            r"\b(?:llms?|large language models?|language models?|foundation models?)\b",
+            compact_text,
+            flags=re.IGNORECASE,
+        )
+        is not None
+    )
     strong_agent_signal = has_strong_agent_topic_signal(title, summary)
 
-    if not llm_context and not strong_agent_signal and re.search(
-        r"\b(?:ad[-\s]?hoc teamwork|mixed[-\s]?motive|public goods?|"
-        r"sequential social dilemmas?|marl)\b",
-        compact_text,
-        flags=re.IGNORECASE,
+    if (
+        not llm_context
+        and not strong_agent_signal
+        and re.search(
+            r"\b(?:ad[-\s]?hoc teamwork|mixed[-\s]?motive|public goods?|"
+            r"sequential social dilemmas?|marl)\b",
+            compact_text,
+            flags=re.IGNORECASE,
+        )
     ):
         return "多智能体/RL 语境未明确指向 LLM agents，属于非 LLM-agent 范围"
 
@@ -551,10 +636,14 @@ def deterministic_topic_rejection_reason(title: str, summary: str) -> str:
     ):
         return "宽泛的 LLM 开发/评估方法综述，agent workflow 只是应用场景之一"
 
-    if llm_context and not strong_agent_signal and re.search(
-        r"\b(?:causal methods?|algorithm design|operations research)\b",
-        compact_text,
-        flags=re.IGNORECASE,
+    if (
+        llm_context
+        and not strong_agent_signal
+        and re.search(
+            r"\b(?:causal methods?|algorithm design|operations research)\b",
+            compact_text,
+            flags=re.IGNORECASE,
+        )
     ):
         return "核心是宽泛 LLM 应用/评估方法，标题摘要未把 agent 或训练优化机制作为研究对象"
 
@@ -581,16 +670,25 @@ def deterministic_topic_rejection_reason(title: str, summary: str) -> str:
         ):
             return reason
 
-    if re.search(r"\b(?:atomistic|materials science|chemistry|drug discovery)\b", compact_text) and re.search(
-        r"\bhuman[-\s]?curated\b",
-        compact_text,
-        flags=re.IGNORECASE,
-    ) and not re.search(
-        r"\b(?:self[-\s]?(?:evolving|improving)|feedback[-\s]?driven|rl[-\s]?trained|benchmark)\b",
-        compact_text,
-        flags=re.IGNORECASE,
+    if (
+        re.search(
+            r"\b(?:atomistic|materials science|chemistry|drug discovery)\b",
+            compact_text,
+        )
+        and re.search(
+            r"\bhuman[-\s]?curated\b",
+            compact_text,
+            flags=re.IGNORECASE,
+        )
+        and not re.search(
+            r"\b(?:self[-\s]?(?:evolving|improving)|feedback[-\s]?driven|rl[-\s]?trained|benchmark)\b",
+            compact_text,
+            flags=re.IGNORECASE,
+        )
     ):
-        return "材料/化学领域的人类整理技能工具箱，偏领域应用基础设施而非自演化 agent 机制"
+        return (
+            "材料/化学领域的人类整理技能工具箱，偏领域应用基础设施而非自演化 agent 机制"
+        )
 
     return ""
 
@@ -620,15 +718,27 @@ def should_accept_topic_heuristic_without_llm(
         r"\b(?:harness|evolv|benchmark|evaluation|repository|software)\b.*\bcoding agents?\b",
         r"\bautonomous research\b.*\b(?:self[-\s]?evolving|harness|agents?)\b",
     ]
-    return any(re.search(pattern, title_text, flags=re.IGNORECASE) for pattern in strong_title_patterns)
+    return any(
+        re.search(pattern, title_text, flags=re.IGNORECASE)
+        for pattern in strong_title_patterns
+    )
 
 
 def has_blocking_filter_failures(
     error_count: int,
     timed_out_count: int,
     fatal_zero_result: bool,
+    total_processed: int = 0,
 ) -> bool:
-    """Filtering is publish-blocking if any candidate failed to classify cleanly."""
+    """Filtering is publish-blocking if any candidate failed to classify cleanly.
+
+    If FILTER_ERROR_TOLERANCE_PERCENT > 0 and total_processed > 0, allow up to
+    that percentage of errors before blocking publication.
+    """
+    if FILTER_ERROR_TOLERANCE_PERCENT > 0 and total_processed > 0:
+        error_rate = (error_count / total_processed) * 100
+        if error_rate <= FILTER_ERROR_TOLERANCE_PERCENT:
+            return timed_out_count > 0 or fatal_zero_result
     return error_count > 0 or timed_out_count > 0 or fatal_zero_result
 
 
@@ -654,14 +764,14 @@ def is_transient_affiliation_fetch_failure(fetch_reason: str) -> bool:
 
 def is_transient_filter_exclusion(paper: dict) -> bool:
     """Return True when an excluded cache entry represents a retryable failure."""
-    if paper.get('filter_transient_failure') is True:
+    if paper.get("filter_transient_failure") is True:
         return True
-    if paper.get('exclude_stage') in {'filter_timeout', 'filter_transient_failure'}:
+    if paper.get("exclude_stage") in {"filter_timeout", "filter_transient_failure"}:
         return True
 
     text = "\n".join(
         str(paper.get(field) or "")
-        for field in ('filter_reason', 'prestige_reason', 'failure_reason')
+        for field in ("filter_reason", "prestige_reason", "failure_reason")
     ).lower()
     return any(
         token in text
@@ -682,25 +792,25 @@ def is_transient_filter_exclusion(paper: dict) -> bool:
 
 def is_filter_rate_limit_error(exc: Exception) -> bool:
     message = str(exc).lower()
-    return any(token in message for token in ("429", "rate limit", "too many requests", "rpm limit"))
+    return any(
+        token in message
+        for token in ("429", "rate limit", "too many requests", "rpm limit")
+    )
 
 
 def is_invalid_filter_model_error(exc: Exception) -> bool:
     message = str(exc).lower()
-    return (
-        "model" in message
-        and any(
-            token in message
-            for token in (
-                "invalid model",
-                "invalid model id",
-                "invalid model name",
-                "not a valid model",
-                "not a valid model id",
-                "model_not_found",
-                "does not exist",
-                "not found",
-            )
+    return "model" in message and any(
+        token in message
+        for token in (
+            "invalid model",
+            "invalid model id",
+            "invalid model name",
+            "not a valid model",
+            "not a valid model id",
+            "model_not_found",
+            "does not exist",
+            "not found",
         )
     )
 
@@ -720,7 +830,10 @@ def wait_for_filter_rate_slot() -> None:
                 wait_seconds = _FILTER_RATE_COOLDOWN_UNTIL - now
             else:
                 cutoff = now - FILTER_RATE_WINDOW_SECONDS
-                while _FILTER_REQUEST_TIMESTAMPS and _FILTER_REQUEST_TIMESTAMPS[0] <= cutoff:
+                while (
+                    _FILTER_REQUEST_TIMESTAMPS
+                    and _FILTER_REQUEST_TIMESTAMPS[0] <= cutoff
+                ):
                     _FILTER_REQUEST_TIMESTAMPS.pop(0)
 
                 if len(_FILTER_REQUEST_TIMESTAMPS) < FILTER_RPM:
@@ -728,7 +841,9 @@ def wait_for_filter_rate_slot() -> None:
                     return
 
                 oldest = _FILTER_REQUEST_TIMESTAMPS[0]
-                wait_seconds = max(0.1, FILTER_RATE_WINDOW_SECONDS - (now - oldest) + 0.1)
+                wait_seconds = max(
+                    0.1, FILTER_RATE_WINDOW_SECONDS - (now - oldest) + 0.1
+                )
 
         time.sleep(wait_seconds)
 
@@ -744,7 +859,9 @@ def note_filter_rate_limit_error() -> None:
             time.monotonic() + FILTER_RATE_LIMIT_COOLDOWN_SECONDS,
         )
         _FILTER_REQUEST_TIMESTAMPS.clear()
-    print(f"⏳ 筛选 API 触发 429，冷却 {FILTER_RATE_LIMIT_COOLDOWN_SECONDS:.0f}s 后重试")
+    print(
+        f"⏳ 筛选 API 触发 429，冷却 {FILTER_RATE_LIMIT_COOLDOWN_SECONDS:.0f}s 后重试"
+    )
 
 
 def has_non_empty_text(value: Any) -> bool:
@@ -752,31 +869,79 @@ def has_non_empty_text(value: Any) -> bool:
     return isinstance(value, str) and bool(value.strip())
 
 
-def write_status_file(status_file: Optional[str], payload: Dict[str, Any]) -> None:
-    """Best-effort structured status for the pipeline wrapper."""
+def write_status_file(status_file: Optional[str], payload: Dict[str, Any]) -> bool:
+    """Write structured filter status for the pipeline wrapper."""
     if not status_file:
-        return
+        return True
     try:
-        status_dir = os.path.dirname(status_file)
-        if status_dir:
-            os.makedirs(status_dir, exist_ok=True)
-        with open(status_file, 'w', encoding='utf-8') as f:
-            json.dump(payload, f, ensure_ascii=False, indent=2)
+        if not save_json(status_file, payload, indent=2, ensure_ascii=False):
+            print(f"⚠️ 写入状态文件失败: {status_file}")
+            return False
+        return True
     except Exception as exc:
         print(f"⚠️ 写入状态文件失败: {exc}")
+        return False
+
+
+def finalize_filter_status(
+    status_file: Optional[str],
+    payload: Dict[str, Any],
+    exit_code: int,
+) -> int:
+    """Persist filter status and fail closed when requested status evidence is lost."""
+    if not write_status_file(status_file, payload):
+        print("❌ 筛选状态文件写入失败，拒绝把本次筛选视为成功或可跳过")
+        return exit_code if exit_code != 0 else 1
+    return exit_code
+
+
+def save_filter_progress(
+    output_filepath: str,
+    excluded_filepath: str,
+    existing_filtered: List[dict],
+    filtered_papers: List[dict],
+    existing_excluded: List[dict],
+    excluded_papers: List[dict],
+) -> bool:
+    """Best-effort checkpoint save for long-running filter jobs."""
+    try:
+        filtered_saved = save_json(
+            output_filepath,
+            existing_filtered + filtered_papers,
+            indent=4,
+            ensure_ascii=False,
+        )
+        excluded_saved = save_json(
+            excluded_filepath,
+            existing_excluded + excluded_papers,
+            indent=4,
+            ensure_ascii=False,
+        )
+        if not filtered_saved or not excluded_saved:
+            print(
+                "⚠️ 保存筛选进度失败: "
+                f"filtered={filtered_saved}, excluded={excluded_saved}"
+            )
+            return False
+        return True
+    except Exception as exc:
+        print(f"⚠️ 保存筛选进度失败: {exc}")
+        return False
 
 
 def build_source_paper_index(papers: List[dict]) -> Dict[str, dict]:
     """Index freshly crawled papers by arXiv id for repairing resumed results."""
     source_by_id: Dict[str, dict] = {}
     for paper in papers:
-        arxiv_id = (paper.get('arxiv_id') or '').strip()
+        arxiv_id = (paper.get("arxiv_id") or "").strip()
         if arxiv_id:
             source_by_id[arxiv_id] = paper
     return source_by_id
 
 
-def repair_paper_metadata_from_source(paper: dict, source_paper: Optional[dict]) -> Tuple[dict, bool]:
+def repair_paper_metadata_from_source(
+    paper: dict, source_paper: Optional[dict]
+) -> Tuple[dict, bool]:
     """Backfill metadata that older filter outputs may have dropped."""
     if not source_paper:
         return paper, False
@@ -790,10 +955,15 @@ def repair_paper_metadata_from_source(paper: dict, source_paper: Optional[dict])
             continue
 
         current_value = repaired.get(field)
-        if field in {'summary', 'abstract'}:
-            should_repair = has_non_empty_text(source_value) and not has_non_empty_text(current_value)
+        if field in {"summary", "abstract"}:
+            should_repair = has_non_empty_text(source_value) and not has_non_empty_text(
+                current_value
+            )
         else:
-            should_repair = current_value in (None, '') and source_value not in (None, '')
+            should_repair = current_value in (None, "") and source_value not in (
+                None,
+                "",
+            )
 
         if should_repair:
             repaired[field] = source_value
@@ -811,8 +981,32 @@ def parse_llm_bool(value: Any) -> Optional[bool]:
 
     token = str(value).strip().strip(" \t\r\n\"'`*_")
     normalized = token.lower()
-    truthy = {"true", "yes", "y", "1", "是", "对", "保留", "通过", "include", "included", "keep"}
-    falsy = {"false", "no", "n", "0", "否", "不", "排除", "拒绝", "exclude", "excluded", "reject"}
+    truthy = {
+        "true",
+        "yes",
+        "y",
+        "1",
+        "是",
+        "对",
+        "保留",
+        "通过",
+        "include",
+        "included",
+        "keep",
+    }
+    falsy = {
+        "false",
+        "no",
+        "n",
+        "0",
+        "否",
+        "不",
+        "排除",
+        "拒绝",
+        "exclude",
+        "excluded",
+        "reject",
+    }
     if normalized in truthy:
         return True
     if normalized in falsy:
@@ -828,7 +1022,14 @@ def parse_llm_response(response_text: str) -> Tuple[bool, str]:
         try:
             payload = json.loads(response_text)
             if isinstance(payload, dict):
-                for key in ("结果", "result", "include", "included", "keep", "decision"):
+                for key in (
+                    "结果",
+                    "result",
+                    "include",
+                    "included",
+                    "keep",
+                    "decision",
+                ):
                     if key in payload:
                         parsed = parse_llm_bool(payload.get(key))
                         if parsed is not None:
@@ -844,16 +1045,16 @@ def parse_llm_response(response_text: str) -> Tuple[bool, str]:
             pass
 
     # Model outputs often markdown-bold labels, e.g. "**结果**: False".
-    normalized_text = re.sub(r'[*_`]+', '', response_text)
+    normalized_text = re.sub(r"[*_`]+", "", response_text)
     label_pattern = (
-        r'(?:^|\n)\s*'
-        r'(?:结果|判断结果|是否保留|result|decision|include|included|keep)'
-        r'\s*[:：\-]\s*'
-        r'(true|false|yes|no|是|否|保留|排除|通过|拒绝|include|exclude|included|excluded|keep|reject)\b'
+        r"(?:^|\n)\s*"
+        r"(?:结果|判断结果|是否保留|result|decision|include|included|keep)"
+        r"\s*[:：\-]\s*"
+        r"(true|false|yes|no|是|否|保留|排除|通过|拒绝|include|exclude|included|excluded|keep|reject)\b"
     )
     result_match = re.search(label_pattern, normalized_text, flags=re.IGNORECASE)
     reason_match = re.search(
-        r'(?:^|\n)\s*(?:理由|原因|reason|rationale)\s*[:：\-]\s*(.*)',
+        r"(?:^|\n)\s*(?:理由|原因|reason|rationale)\s*[:：\-]\s*(.*)",
         normalized_text,
         flags=re.IGNORECASE | re.DOTALL,
     )
@@ -876,9 +1077,16 @@ def parse_llm_response(response_text: str) -> Tuple[bool, str]:
     return result, reason
 
 
-@retry_with_backoff(max_retries=FILTER_LLM_MAX_RETRIES, initial_delay=2.0, max_delay=8.0)
-def run_llm_prompt(prompt: str, system: str, client: object, model: str,
-                   temperature: float = TEMPERATURE) -> str:
+@retry_with_backoff(
+    max_retries=FILTER_LLM_MAX_RETRIES, initial_delay=2.0, max_delay=8.0
+)
+def run_llm_prompt(
+    prompt: str,
+    system: str,
+    client: object,
+    model: str,
+    temperature: float = TEMPERATURE,
+) -> str:
     """执行 LLM prompt，并返回原始文本。"""
     wait_for_filter_rate_slot()
     try:
@@ -906,8 +1114,13 @@ def run_llm_prompt(prompt: str, system: str, client: object, model: str,
     return strip_think_tags(response_text)
 
 
-def run_llm_prompt_with_fallback(prompt: str, system: str, client: object, models: Any,
-                                 temperature: float = TEMPERATURE) -> str:
+def run_llm_prompt_with_fallback(
+    prompt: str,
+    system: str,
+    client: object,
+    models: Any,
+    temperature: float = TEMPERATURE,
+) -> str:
     """Run a filter prompt, skipping stale/invalid model ids when possible."""
     last_exception = None
     attempted = []
@@ -927,11 +1140,18 @@ def run_llm_prompt_with_fallback(prompt: str, system: str, client: object, model
 
     if last_exception:
         raise last_exception
-    raise RuntimeError(f"没有可用的筛选模型，已尝试: {', '.join(attempted) or '<none>'}")
+    raise RuntimeError(
+        f"没有可用的筛选模型，已尝试: {', '.join(attempted) or '<none>'}"
+    )
 
 
-def query_topic_llm(title: str, summary: str, client: object, model: Any,
-                    temperature: float = TEMPERATURE) -> Tuple[bool, str]:
+def query_topic_llm(
+    title: str,
+    summary: str,
+    client: object,
+    model: Any,
+    temperature: float = TEMPERATURE,
+) -> Tuple[bool, str]:
     """使用主题筛选 prompt 判断论文是否相关。"""
     response_text = run_llm_prompt_with_fallback(
         PAPER_FILTER_PROMPT.format(title=title, summary=summary),
@@ -943,9 +1163,15 @@ def query_topic_llm(title: str, summary: str, client: object, model: Any,
     return parse_llm_response(response_text)
 
 
-def query_prestige_llm(title: str, authors: str, affiliations: str, client: object,
-                       model: Any, temperature: float = TEMPERATURE,
-                       cache_manager: Optional[CacheManager] = None) -> Tuple[bool, str]:
+def query_prestige_llm(
+    title: str,
+    authors: str,
+    affiliations: str,
+    client: object,
+    model: Any,
+    temperature: float = TEMPERATURE,
+    cache_manager: Optional[CacheManager] = None,
+) -> Tuple[bool, str]:
     """使用 prestige prompt 判断论文是否命中大牛/顶级机构。"""
     cache_key = f"prestige_filter_v3_{title}"
     cache_content = f"{authors}\n{affiliations}"
@@ -978,8 +1204,8 @@ def normalize_text(text: str) -> str:
     if not text:
         return ""
     text = text.lower()
-    text = re.sub(r'[^a-z0-9]+', ' ', text)
-    return re.sub(r'\s+', ' ', text).strip()
+    text = re.sub(r"[^a-z0-9]+", " ", text)
+    return re.sub(r"\s+", " ", text).strip()
 
 
 def extract_institution_names(affiliations: str) -> List[str]:
@@ -988,7 +1214,7 @@ def extract_institution_names(affiliations: str) -> List[str]:
         return []
 
     cleaned = strip_think_tags(affiliations).strip()
-    fence_match = re.search(r'```(?:json)?\s*([\s\S]*?)```', cleaned)
+    fence_match = re.search(r"```(?:json)?\s*([\s\S]*?)```", cleaned)
     if fence_match:
         cleaned = fence_match.group(1).strip()
 
@@ -1002,17 +1228,19 @@ def extract_institution_names(affiliations: str) -> List[str]:
 
     names = []
     seen = set()
-    for inst in data.get('institutions', []):
+    for inst in data.get("institutions", []):
         if not isinstance(inst, dict):
             continue
-        name = (inst.get('name') or '').strip()
+        name = (inst.get("name") or "").strip()
         if name and name not in seen:
             names.append(name)
             seen.add(name)
     return names
 
 
-def find_whitelist_matches(values: List[str], whitelist: Dict[str, List[str]]) -> List[Dict[str, str]]:
+def find_whitelist_matches(
+    values: List[str], whitelist: Dict[str, List[str]]
+) -> List[Dict[str, str]]:
     """在给定文本列表中查找白名单命中项。"""
     matches = []
     seen = set()
@@ -1030,50 +1258,66 @@ def find_whitelist_matches(values: List[str], whitelist: Dict[str, List[str]]) -
                 if f" {normalized_alias} " in normalized_value:
                     key = (canonical, value)
                     if key not in seen:
-                        matches.append({
-                            'canonical': canonical,
-                            'matched_text': value,
-                            'alias': alias,
-                        })
+                        matches.append(
+                            {
+                                "canonical": canonical,
+                                "matched_text": value,
+                                "alias": alias,
+                            }
+                        )
                         seen.add(key)
                     break
 
     return matches
 
 
-def evaluate_prestige_whitelist(authors: str, affiliations: str) -> Tuple[bool, str, str, dict]:
+def evaluate_prestige_whitelist(
+    authors: str, affiliations: str
+) -> Tuple[bool, str, str, dict]:
     """先用白名单做确定性筛选，未命中时再回退到 LLM。"""
     institution_names = extract_institution_names(affiliations)
     author_matches = find_whitelist_matches([authors], PRESTIGE_AUTHOR_WHITELIST)
-    institution_matches = find_whitelist_matches(institution_names, PRESTIGE_INSTITUTION_WHITELIST)
-    company_matches = find_whitelist_matches(institution_names, PRESTIGE_COMPANY_WHITELIST)
+    institution_matches = find_whitelist_matches(
+        institution_names, PRESTIGE_INSTITUTION_WHITELIST
+    )
+    company_matches = find_whitelist_matches(
+        institution_names, PRESTIGE_COMPANY_WHITELIST
+    )
 
     match_payload = {
-        'authors': [m['canonical'] for m in author_matches],
-        'institutions': [m['canonical'] for m in institution_matches],
-        'companies': [m['canonical'] for m in company_matches],
-        'institution_names': institution_names,
+        "authors": [m["canonical"] for m in author_matches],
+        "institutions": [m["canonical"] for m in institution_matches],
+        "companies": [m["canonical"] for m in company_matches],
+        "institution_names": institution_names,
     }
 
     reasons = []
     if author_matches:
-        reasons.append("白名单命中大牛作者: " + ", ".join(m['canonical'] for m in author_matches))
+        reasons.append(
+            "白名单命中大牛作者: " + ", ".join(m["canonical"] for m in author_matches)
+        )
     if institution_matches:
-        reasons.append("白名单命中顶级学术机构: " + ", ".join(m['canonical'] for m in institution_matches))
+        reasons.append(
+            "白名单命中顶级学术机构: "
+            + ", ".join(m["canonical"] for m in institution_matches)
+        )
     if company_matches:
-        reasons.append("白名单命中知名公司/研究机构: " + ", ".join(m['canonical'] for m in company_matches))
+        reasons.append(
+            "白名单命中知名公司/研究机构: "
+            + ", ".join(m["canonical"] for m in company_matches)
+        )
 
     if reasons:
-        source = 'whitelist'
+        source = "whitelist"
         if author_matches and not institution_matches and not company_matches:
-            source = 'whitelist_author'
+            source = "whitelist_author"
         elif company_matches and not author_matches and not institution_matches:
-            source = 'whitelist_company'
+            source = "whitelist_company"
         elif institution_matches and not author_matches and not company_matches:
-            source = 'whitelist_institution'
+            source = "whitelist_institution"
         return True, "；".join(reasons), source, match_payload
 
-    return False, "", 'llm', match_payload
+    return False, "", "llm", match_payload
 
 
 def resolve_missing_affiliations_prestige(
@@ -1087,28 +1331,34 @@ def resolve_missing_affiliations_prestige(
     cache_manager: Optional[CacheManager] = None,
 ) -> Tuple[bool, dict, str]:
     """Apply the prestige hard filter when affiliation extraction is unavailable."""
-    whitelist_match, whitelist_reason, whitelist_source, whitelist_matches = evaluate_prestige_whitelist(
-        authors,
-        "",
+    whitelist_match, whitelist_reason, whitelist_source, whitelist_matches = (
+        evaluate_prestige_whitelist(
+            authors,
+            "",
+        )
     )
-    paper_with_reason['affiliations'] = ""
-    paper_with_reason['prestige_matches'] = whitelist_matches
-    paper_with_reason['prestige_rule_version'] = PRESTIGE_RULE_VERSION
+    paper_with_reason["affiliations"] = ""
+    paper_with_reason["prestige_matches"] = whitelist_matches
+    paper_with_reason["prestige_rule_version"] = PRESTIGE_RULE_VERSION
 
     if whitelist_match:
-        paper_with_reason['prestige_result'] = True
-        paper_with_reason['prestige_reason'] = f"{whitelist_reason}；机构信息缺失: {fetch_reason}"
-        paper_with_reason['prestige_source'] = whitelist_source
-        paper_with_reason['prestige_status'] = 'verified'
-        return True, paper_with_reason, paper_with_reason['prestige_reason']
+        paper_with_reason["prestige_result"] = True
+        paper_with_reason["prestige_reason"] = (
+            f"{whitelist_reason}；机构信息缺失: {fetch_reason}"
+        )
+        paper_with_reason["prestige_source"] = whitelist_source
+        paper_with_reason["prestige_status"] = "verified"
+        return True, paper_with_reason, paper_with_reason["prestige_reason"]
 
     if not PRESTIGE_LLM_ENABLED:
-        prestige_reason = f"机构信息缺失且未命中确定性白名单，按 prestige 硬筛排除: {fetch_reason}"
-        paper_with_reason['prestige_result'] = False
-        paper_with_reason['prestige_reason'] = prestige_reason
-        paper_with_reason['prestige_source'] = 'deterministic_missing_affiliations'
-        paper_with_reason['prestige_status'] = 'rejected'
-        paper_with_reason['exclude_stage'] = 'prestige'
+        prestige_reason = (
+            f"机构信息缺失且未命中确定性白名单，按 prestige 硬筛排除: {fetch_reason}"
+        )
+        paper_with_reason["prestige_result"] = False
+        paper_with_reason["prestige_reason"] = prestige_reason
+        paper_with_reason["prestige_source"] = "deterministic_missing_affiliations"
+        paper_with_reason["prestige_status"] = "rejected"
+        paper_with_reason["exclude_stage"] = "prestige"
         return False, paper_with_reason, prestige_reason
 
     missing_affiliations_context = f"机构信息缺失。提取失败原因: {fetch_reason}"
@@ -1126,15 +1376,17 @@ def resolve_missing_affiliations_prestige(
         prestige_match = False
         prestige_reason = f"机构信息缺失且声望 LLM 判断失败，按硬筛排除: {exc}"
 
-    paper_with_reason['prestige_result'] = prestige_match
-    paper_with_reason['prestige_reason'] = f"{prestige_reason}\n\n机构提取状态: {fetch_reason}"
-    paper_with_reason['prestige_source'] = 'llm_missing_affiliations'
-    paper_with_reason['prestige_status'] = 'verified' if prestige_match else 'rejected'
+    paper_with_reason["prestige_result"] = prestige_match
+    paper_with_reason["prestige_reason"] = (
+        f"{prestige_reason}\n\n机构提取状态: {fetch_reason}"
+    )
+    paper_with_reason["prestige_source"] = "llm_missing_affiliations"
+    paper_with_reason["prestige_status"] = "verified" if prestige_match else "rejected"
 
     if not prestige_match:
-        paper_with_reason['exclude_stage'] = 'prestige'
+        paper_with_reason["exclude_stage"] = "prestige"
 
-    return prestige_match, paper_with_reason, paper_with_reason['prestige_reason']
+    return prestige_match, paper_with_reason, paper_with_reason["prestige_reason"]
 
 
 def get_affiliation_context(paper_content: str) -> str:
@@ -1142,9 +1394,15 @@ def get_affiliation_context(paper_content: str) -> str:
     return paper_content[:PRESTIGE_CONTEXT_CHARS]
 
 
-def query_affiliations_llm(paper_content: str, authors: str, client: object, model: Any,
-                           temperature: float, paper_title: str = "",
-                           cache_manager: Optional[CacheManager] = None) -> str:
+def query_affiliations_llm(
+    paper_content: str,
+    authors: str,
+    client: object,
+    model: Any,
+    temperature: float,
+    paper_title: str = "",
+    cache_manager: Optional[CacheManager] = None,
+) -> str:
     """Extract affiliation JSON with the bounded non-streaming filter client."""
     cache_key = f"filter_affiliations_v1_{paper_title}"
 
@@ -1201,15 +1459,20 @@ def query_affiliations_llm(paper_content: str, authors: str, client: object, mod
     return response_text.strip()
 
 
-def fetch_affiliations_for_prestige(paper: dict, client: object, model: Any, temperature: float,
-                                    cache_manager: Optional[CacheManager] = None,
-                                    document_extractor: Optional[ExtractionManager] = None,
-                                    api_key: str = API_KEY,
-                                    base_url: str = BASE_URL) -> Tuple[Optional[str], str]:
+def fetch_affiliations_for_prestige(
+    paper: dict,
+    client: object,
+    model: Any,
+    temperature: float,
+    cache_manager: Optional[CacheManager] = None,
+    document_extractor: Optional[ExtractionManager] = None,
+    api_key: str = API_KEY,
+    base_url: str = BASE_URL,
+) -> Tuple[Optional[str], str]:
     """为 prestige 筛选提取机构信息。"""
-    paper_link = paper.get('link') or paper.get('arxiv_id', '')
-    paper_title = paper.get('title', '')
-    authors = paper.get('authors', '')
+    paper_link = paper.get("link") or paper.get("arxiv_id", "")
+    paper_title = paper.get("title", "")
+    authors = paper.get("authors", "")
 
     if not paper_link:
         return None, "缺少论文链接，无法获取机构信息"
@@ -1246,29 +1509,29 @@ def fetch_affiliations_for_prestige(paper: dict, client: object, model: Any, tem
 def compact_excluded_paper(paper: dict) -> dict:
     """精简被排除论文的冗余字段。"""
     excluded_paper = paper.copy()
-    excluded_paper.setdefault('filter_rule_version', FILTER_RULE_VERSION)
-    excluded_paper.pop('summary', None)
-    excluded_paper.pop('abstract', None)
+    excluded_paper.setdefault("filter_rule_version", FILTER_RULE_VERSION)
+    excluded_paper.pop("summary", None)
+    excluded_paper.pop("abstract", None)
     return excluded_paper
 
 
-def estimate_existing_prefiltered_count(existing_filtered: List[dict], existing_excluded: List[dict]) -> int:
+def estimate_existing_prefiltered_count(
+    existing_filtered: List[dict], existing_excluded: List[dict]
+) -> int:
     """Estimate how many already-processed papers reached the LLM/prestige filter."""
     non_keyword_excluded = sum(
-        1
-        for paper in existing_excluded
-        if paper.get('exclude_stage') != 'keyword'
+        1 for paper in existing_excluded if paper.get("exclude_stage") != "keyword"
     )
     return len(existing_filtered) + non_keyword_excluded
 
 
 def extract_date_part_from_filename(filename: str, fallback: str) -> str:
     """Preserve full YYYY-MM-DD_to_YYYY-MM-DD range labels from upstream files."""
-    range_match = re.search(r'(\d{4}-\d{2}-\d{2}_to_\d{4}-\d{2}-\d{2})', filename)
+    range_match = re.search(r"(\d{4}-\d{2}-\d{2}_to_\d{4}-\d{2}-\d{2})", filename)
     if range_match:
         return range_match.group(1)
 
-    date_match = re.search(r'(\d{4}-\d{2}-\d{2})', filename)
+    date_match = re.search(r"(\d{4}-\d{2}-\d{2})", filename)
     if date_match:
         return date_match.group(1)
 
@@ -1277,19 +1540,19 @@ def extract_date_part_from_filename(filename: str, fallback: str) -> str:
 
 def is_current_filtered_schema(paper: dict) -> bool:
     """判断保留结果是否符合当前筛选结构。"""
-    if 'filter_reason' not in paper:
+    if "filter_reason" not in paper:
         return False
-    if paper.get('filter_rule_version') != FILTER_RULE_VERSION:
+    if paper.get("filter_rule_version") != FILTER_RULE_VERSION:
         return False
     if not PRESTIGE_ENABLED:
         return True
-    if paper.get('prestige_rule_version') != PRESTIGE_RULE_VERSION:
+    if paper.get("prestige_rule_version") != PRESTIGE_RULE_VERSION:
         return False
 
-    prestige_result = paper.get('prestige_result')
+    prestige_result = paper.get("prestige_result")
     if prestige_result is True:
         if (
-            paper.get('prestige_source') == 'topic_heuristic_bypass'
+            paper.get("prestige_source") == "topic_heuristic_bypass"
             and not TOPIC_HEURISTIC_BYPASS_PRESTIGE
         ):
             return False
@@ -1300,36 +1563,52 @@ def is_current_filtered_schema(paper: dict) -> bool:
 
 def is_current_excluded_schema(paper: dict) -> bool:
     """判断排除结果是否符合当前筛选结构。"""
-    if 'filter_reason' not in paper:
+    if "filter_reason" not in paper:
         return False
-    if paper.get('filter_rule_version') != FILTER_RULE_VERSION:
+    if paper.get("filter_rule_version") != FILTER_RULE_VERSION:
         return False
     if is_transient_filter_exclusion(paper):
         return False
     if not PRESTIGE_ENABLED:
         return True
-    stage = paper.get('exclude_stage')
-    if stage in {'keyword', 'topic', 'selection_cap'}:
+    stage = paper.get("exclude_stage")
+    if stage in {"keyword", "topic", "selection_cap"}:
         return True
-    if stage != 'prestige' or paper.get('prestige_rule_version') != PRESTIGE_RULE_VERSION:
+    if (
+        stage != "prestige"
+        or paper.get("prestige_rule_version") != PRESTIGE_RULE_VERSION
+    ):
         return False
-    if paper.get('prestige_source') == 'missing_affiliations':
+    if paper.get("prestige_source") == "missing_affiliations":
         return False
-    return paper.get('prestige_result') is False
+    return paper.get("prestige_result") is False
 
 
 def main() -> int:
     """主函数"""
-    parser = argparse.ArgumentParser(description='增强版论文筛选工具')
-    parser.add_argument('--input-file', required=True, help='输入的 JSON 文件路径')
-    parser.add_argument('--output-dir', default=DOMAIN_PAPER_DIR, help=f'输出目录 (默认: {DOMAIN_PAPER_DIR})')
-    parser.add_argument('--api-key', default=API_KEY, help='API 密钥')
-    parser.add_argument('--base-url', default=BASE_URL, help='API 基础 URL')
-    parser.add_argument('--model', default=FILTER_MODEL, help='使用的筛选模型')
-    parser.add_argument('--temperature', type=float, default=TEMPERATURE, help='生成温度')
-    parser.add_argument('--max-papers', type=int, default=0, help='最大处理论文数量，0 表示处理所有')
-    parser.add_argument('--max-workers', type=int, default=MAX_WORKERS, help=f'最大线程数 (默认: {MAX_WORKERS})')
-    parser.add_argument('--status-file', default=None, help='写入结构化筛选状态 JSON')
+    parser = argparse.ArgumentParser(description="增强版论文筛选工具")
+    parser.add_argument("--input-file", required=True, help="输入的 JSON 文件路径")
+    parser.add_argument(
+        "--output-dir",
+        default=DOMAIN_PAPER_DIR,
+        help=f"输出目录 (默认: {DOMAIN_PAPER_DIR})",
+    )
+    parser.add_argument("--api-key", default=API_KEY, help="API 密钥")
+    parser.add_argument("--base-url", default=BASE_URL, help="API 基础 URL")
+    parser.add_argument("--model", default=FILTER_MODEL, help="使用的筛选模型")
+    parser.add_argument(
+        "--temperature", type=float, default=TEMPERATURE, help="生成温度"
+    )
+    parser.add_argument(
+        "--max-papers", type=int, default=0, help="最大处理论文数量，0 表示处理所有"
+    )
+    parser.add_argument(
+        "--max-workers",
+        type=int,
+        default=MAX_WORKERS,
+        help=f"最大线程数 (默认: {MAX_WORKERS})",
+    )
+    parser.add_argument("--status-file", default=None, help="写入结构化筛选状态 JSON")
 
     args = parser.parse_args()
 
@@ -1338,20 +1617,26 @@ def main() -> int:
         validate_positive_int(args.max_workers, "--max-workers")
     except ValidationError as exc:
         print(f"❌ 参数校验失败: {exc}")
-        write_status_file(args.status_file, {
-            "status": "failed",
-            "input_file": args.input_file,
-            "failure_reason": f"参数校验失败: {exc}",
-        })
+        write_status_file(
+            args.status_file,
+            {
+                "status": "failed",
+                "input_file": args.input_file,
+                "failure_reason": f"参数校验失败: {exc}",
+            },
+        )
         return 2
 
     if not os.path.exists(args.input_file):
         print(f"❌ 输入文件未找到: {args.input_file}")
-        write_status_file(args.status_file, {
-            "status": "failed",
-            "input_file": args.input_file,
-            "failure_reason": "输入文件未找到",
-        })
+        write_status_file(
+            args.status_file,
+            {
+                "status": "failed",
+                "input_file": args.input_file,
+                "failure_reason": "输入文件未找到",
+            },
+        )
         return 1
 
     os.makedirs(args.output_dir, exist_ok=True)
@@ -1373,46 +1658,65 @@ def main() -> int:
     print("🔍 开始论文筛选")
     print(f"📁 输入文件: {args.input_file}")
     print(f"🤖 使用模型链: {', '.join(filter_model_chain)}")
-    print(f"⏱️ Filter LLM timeout: {FILTER_LLM_TIMEOUT}s, retries: {FILTER_LLM_MAX_RETRIES}")
-    print(f"🚦 Filter RPM 限速: {FILTER_RPM if FILTER_RPM > 0 else 'disabled'}/{FILTER_RATE_WINDOW_SECONDS:.0f}s")
+    print(
+        f"⏱️ Filter LLM timeout: {FILTER_LLM_TIMEOUT}s, retries: {FILTER_LLM_MAX_RETRIES}"
+    )
+    print(
+        f"🚦 Filter RPM 限速: {FILTER_RPM if FILTER_RPM > 0 else 'disabled'}/{FILTER_RATE_WINDOW_SECONDS:.0f}s"
+    )
     print(f"⏱️ 单篇筛选 watchdog: {FILTER_PAPER_TIMEOUT}s")
-    print(f"📌 每日发布上限: {FILTER_MAX_OUTPUT_PAPERS if FILTER_MAX_OUTPUT_PAPERS > 0 else 'disabled'}")
-    print(f"📌 达到发布上限后提前停止: {'启用' if FILTER_EARLY_STOP_AFTER_CAP else '关闭'}")
+    print(
+        f"📌 每日发布上限: {FILTER_MAX_OUTPUT_PAPERS if FILTER_MAX_OUTPUT_PAPERS > 0 else 'disabled'}"
+    )
+    print(
+        f"📌 达到发布上限后提前停止: {'启用' if FILTER_EARLY_STOP_AFTER_CAP else '关闭'}"
+    )
     print(f"🏛️ Prestige 硬筛: {'启用' if PRESTIGE_ENABLED else '关闭'}")
     if PRESTIGE_ENABLED:
-        print(f"🏛️ Prestige 机构在线提取: {'启用' if PRESTIGE_AFFILIATION_FETCH_ENABLED else '关闭'}")
+        print(
+            f"🏛️ Prestige 机构在线提取: {'启用' if PRESTIGE_AFFILIATION_FETCH_ENABLED else '关闭'}"
+        )
         print(f"🏛️ Prestige LLM 兜底判断: {'启用' if PRESTIGE_LLM_ENABLED else '关闭'}")
-        print(f"🏛️ 强主题确定性保留跳过 Prestige: {'启用' if TOPIC_HEURISTIC_BYPASS_PRESTIGE else '关闭'}")
+        print(
+            f"🏛️ 强主题确定性保留跳过 Prestige: {'启用' if TOPIC_HEURISTIC_BYPASS_PRESTIGE else '关闭'}"
+        )
         if TOPIC_HEURISTIC_BYPASS_PRESTIGE:
             print(f"🏛️ 强主题跳过 Prestige 最低分: {TOPIC_HEURISTIC_BYPASS_MIN_SCORE}")
         print(f"📄 Prestige 上下文截断长度: {PRESTIGE_CONTEXT_CHARS} 字符")
-        print(f"📄 Prestige 文档提取链: {FILTER_EXTRACT_CHAIN} (timeout={FILTER_EXTRACT_TIMEOUT}s)")
+        print(
+            f"📄 Prestige 文档提取链: {FILTER_EXTRACT_CHAIN} (timeout={FILTER_EXTRACT_TIMEOUT}s)"
+        )
     print("=" * 50)
 
     try:
-        with open(args.input_file, 'r', encoding='utf-8') as f:
+        with open(args.input_file, "r", encoding="utf-8") as f:
             papers = json.load(f)
         print(f"📚 成功加载 {len(papers)} 篇论文")
     except Exception as e:
         print(f"❌ 读取文件时出错: {e}")
-        write_status_file(args.status_file, {
-            "status": "failed",
-            "input_file": args.input_file,
-            "failure_reason": f"读取文件时出错: {e}",
-        })
+        write_status_file(
+            args.status_file,
+            {
+                "status": "failed",
+                "input_file": args.input_file,
+                "failure_reason": f"读取文件时出错: {e}",
+            },
+        )
         return 1
 
     summary_available_count = sum(
         1
         for paper in papers
-        if (paper.get('summary') or paper.get('abstract') or '').strip()
+        if (paper.get("summary") or paper.get("abstract") or "").strip()
     )
-    print(f"🧾 摘要字段可用: {summary_available_count}/{len(papers)} 篇；主题模型输入为标题 + 摘要")
+    print(
+        f"🧾 摘要字段可用: {summary_available_count}/{len(papers)} 篇；主题模型输入为标题 + 摘要"
+    )
 
     source_papers_by_id = build_source_paper_index(papers)
     original_paper_count = len(papers)
 
-    current_date = datetime.now().strftime('%Y%m%d')
+    current_date = datetime.now().strftime("%Y%m%d")
     input_filename = os.path.basename(args.input_file)
     date_part = extract_date_part_from_filename(input_filename, current_date)
 
@@ -1430,18 +1734,18 @@ def main() -> int:
 
     if os.path.exists(output_filepath):
         try:
-            with open(output_filepath, 'r', encoding='utf-8') as f:
+            with open(output_filepath, "r", encoding="utf-8") as f:
                 loaded_filtered = json.load(f)
             for paper in loaded_filtered:
                 paper, repaired = repair_paper_metadata_from_source(
                     paper,
-                    source_papers_by_id.get(paper.get('arxiv_id', '')),
+                    source_papers_by_id.get(paper.get("arxiv_id", "")),
                 )
                 if repaired:
                     repaired_filtered_count += 1
                 if is_current_filtered_schema(paper):
                     existing_filtered.append(paper)
-                    processed_arxiv_ids.add(paper.get('arxiv_id', ''))
+                    processed_arxiv_ids.add(paper.get("arxiv_id", ""))
                 else:
                     stale_filtered_count += 1
             print(f"🔄 发现已筛选结果: {len(existing_filtered)} 篇论文")
@@ -1450,12 +1754,12 @@ def main() -> int:
 
     if os.path.exists(excluded_filepath):
         try:
-            with open(excluded_filepath, 'r', encoding='utf-8') as f:
+            with open(excluded_filepath, "r", encoding="utf-8") as f:
                 loaded_excluded = json.load(f)
             for paper in loaded_excluded:
                 if is_current_excluded_schema(paper):
                     existing_excluded.append(paper)
-                    processed_arxiv_ids.add(paper.get('arxiv_id', ''))
+                    processed_arxiv_ids.add(paper.get("arxiv_id", ""))
                 else:
                     stale_excluded_count += 1
             print(f"🔄 发现已排除结果: {len(existing_excluded)} 篇论文")
@@ -1472,17 +1776,21 @@ def main() -> int:
 
     unprocessed_papers = []
     for paper in papers:
-        arxiv_id = paper.get('arxiv_id', '')
+        arxiv_id = paper.get("arxiv_id", "")
         if arxiv_id not in processed_arxiv_ids:
             unprocessed_papers.append(paper)
 
     if processed_arxiv_ids:
-        print(f"📊 断点续传: 跳过已处理的 {len(processed_arxiv_ids)} 篇，处理剩余 {len(unprocessed_papers)} 篇")
+        print(
+            f"📊 断点续传: 跳过已处理的 {len(processed_arxiv_ids)} 篇，处理剩余 {len(unprocessed_papers)} 篇"
+        )
         papers = unprocessed_papers
 
     if not papers:
         print("✅ 所有论文都已处理完成！")
-        prefiltered_count = estimate_existing_prefiltered_count(existing_filtered, existing_excluded)
+        prefiltered_count = estimate_existing_prefiltered_count(
+            existing_filtered, existing_excluded
+        )
         anomalous_zero_result = is_suspicious_zero_result(
             original_paper_count,
             prefiltered_count,
@@ -1490,9 +1798,13 @@ def main() -> int:
         )
         fatal_zero_result = anomalous_zero_result
         try:
-            if not save_json(output_filepath, existing_filtered, indent=4, ensure_ascii=False):
+            if not save_json(
+                output_filepath, existing_filtered, indent=4, ensure_ascii=False
+            ):
                 raise IOError(output_filepath)
-            if not save_json(excluded_filepath, existing_excluded, indent=4, ensure_ascii=False):
+            if not save_json(
+                excluded_filepath, existing_excluded, indent=4, ensure_ascii=False
+            ):
                 raise IOError(excluded_filepath)
             if repaired_filtered_count:
                 print(f"💾 已保存回填后的筛选结果: {output_filepath}")
@@ -1500,14 +1812,17 @@ def main() -> int:
                 print(f"💾 已保存空筛选结果: {output_filepath}")
         except Exception as e:
             print(f"❌ 保存筛选结果时出错: {e}")
-            write_status_file(args.status_file, {
-                "status": "failed",
-                "input_file": args.input_file,
-                "total_input": original_paper_count,
-                "failure_reason": f"保存筛选结果时出错: {e}",
-            })
+            write_status_file(
+                args.status_file,
+                {
+                    "status": "failed",
+                    "input_file": args.input_file,
+                    "total_input": original_paper_count,
+                    "failure_reason": f"保存筛选结果时出错: {e}",
+                },
+            )
             return 1
-        write_status_file(args.status_file, {
+        status_payload = {
             "status": "failed" if fatal_zero_result else "ok",
             "input_file": args.input_file,
             "output_file": output_filepath,
@@ -1522,31 +1837,40 @@ def main() -> int:
             "suspicious_zero_min_input": FILTER_SUSPICIOUS_ZERO_MIN_INPUT,
             "suspicious_zero_min_prefiltered": FILTER_SUSPICIOUS_ZERO_MIN_PREFILTERED,
             "fatal_zero_result": fatal_zero_result,
-            **({
-                "failure_reason": (
-                    "已有筛选缓存显示源论文和关键词候选很多但最终入选 0 篇，"
-                    "拒绝把异常空缓存当作完成结果"
-                )
-            } if fatal_zero_result else {}),
-        })
-        return 1 if fatal_zero_result else 0
+        }
+        if fatal_zero_result:
+            status_payload["failure_reason"] = (
+                "已有筛选缓存显示源论文和关键词候选很多但最终入选 0 篇，"
+                "拒绝把异常空缓存当作完成结果"
+            )
+        return finalize_filter_status(
+            args.status_file,
+            status_payload,
+            1 if fatal_zero_result else 0,
+        )
 
     if args.max_papers > 0:
-        papers = papers[:args.max_papers]
+        papers = papers[: args.max_papers]
         print(f"🔢 限制处理数量为: {args.max_papers}")
 
-    required_keywords = ['llm', 'large language model', 'agent']
+    required_keywords = ["llm", "large language model", "agent"]
     pre_filtered = []
     keyword_excluded = []
     for paper in papers:
-        text = (paper.get('title', '') + ' ' + (paper.get('summary', '') or paper.get('abstract', ''))).lower()
+        text = (
+            paper.get("title", "")
+            + " "
+            + (paper.get("summary", "") or paper.get("abstract", ""))
+        ).lower()
         if any(kw in text for kw in required_keywords):
             pre_filtered.append(paper)
         else:
             p = paper.copy()
-            p['filter_reason'] = f'关键词预筛排除：标题和摘要中未包含 {required_keywords} 中的任一关键词'
-            p['exclude_stage'] = 'keyword'
-            p['filter_rule_version'] = FILTER_RULE_VERSION
+            p["filter_reason"] = (
+                f"关键词预筛排除：标题和摘要中未包含 {required_keywords} 中的任一关键词"
+            )
+            p["exclude_stage"] = "keyword"
+            p["filter_rule_version"] = FILTER_RULE_VERSION
             keyword_excluded.append(compact_excluded_paper(p))
 
     print(f"🔑 关键词预筛: {len(pre_filtered)} 篇通过, {len(keyword_excluded)} 篇排除")
@@ -1560,9 +1884,13 @@ def main() -> int:
 
     if not papers:
         print("✅ 关键词预筛后无论文需要 LLM 筛选")
-        excluded_saved = save_json(excluded_filepath, existing_excluded, indent=2, ensure_ascii=False)
-        filtered_saved = save_json(output_filepath, existing_filtered, indent=2, ensure_ascii=False)
-        write_status_file(args.status_file, {
+        excluded_saved = save_json(
+            excluded_filepath, existing_excluded, indent=2, ensure_ascii=False
+        )
+        filtered_saved = save_json(
+            output_filepath, existing_filtered, indent=2, ensure_ascii=False
+        )
+        status_payload = {
             "status": "ok" if excluded_saved and filtered_saved else "failed",
             "input_file": args.input_file,
             "total_input": original_paper_count,
@@ -1575,28 +1903,37 @@ def main() -> int:
             "prestige_excluded": 0,
             "error_count": 0,
             "fatal_zero_result": False,
-        })
-        return 0 if excluded_saved and filtered_saved else 1
+        }
+        return finalize_filter_status(
+            args.status_file,
+            status_payload,
+            0 if excluded_saved and filtered_saved else 1,
+        )
 
     def filter_paper_wrapper(paper: dict):
         """包装函数，用于多线程筛选。"""
-        title = paper.get('title', '').strip()
-        summary = paper.get('summary', '') or paper.get('abstract', '')
-        authors = paper.get('authors', '')
+        title = paper.get("title", "").strip()
+        summary = paper.get("summary", "") or paper.get("abstract", "")
+        authors = paper.get("authors", "")
 
         if not title or not summary:
-            return 'skip', paper, f"跳过论文 (缺少标题或摘要): {title[:50]}...", "缺少标题或摘要"
+            return (
+                "skip",
+                paper,
+                f"跳过论文 (缺少标题或摘要): {title[:50]}...",
+                "缺少标题或摘要",
+            )
 
         try:
             topic_match, topic_reason = evaluate_topic_heuristic(title, summary)
-            topic_source = 'heuristic' if topic_match else 'llm'
+            topic_source = "heuristic" if topic_match else "llm"
             paper_with_reason = paper.copy()
             heuristic_score = None
             heuristic_reason = ""
             if topic_match:
-                paper_with_reason['filter_reason'] = topic_reason
+                paper_with_reason["filter_reason"] = topic_reason
                 heuristic_score = topic_heuristic_bypass_score(paper_with_reason)
-                paper_with_reason['selection_score'] = heuristic_score
+                paper_with_reason["selection_score"] = heuristic_score
                 if not should_accept_topic_heuristic_without_llm(
                     title,
                     summary,
@@ -1607,57 +1944,78 @@ def main() -> int:
                         "需要 LLM 细筛确认边界排除项。"
                     )
                     topic_match = False
-                    topic_source = 'llm'
+                    topic_source = "llm"
             if not topic_match:
-                topic_match, llm_reason = query_topic_llm(title, summary, client, filter_model_chain, args.temperature)
+                topic_match, llm_reason = query_topic_llm(
+                    title, summary, client, filter_model_chain, args.temperature
+                )
                 topic_reason = (
                     f"{heuristic_reason} LLM 细筛结果: {llm_reason}"
-                    if heuristic_reason else llm_reason
+                    if heuristic_reason
+                    else llm_reason
                 )
-            paper_with_reason['filter_reason'] = topic_reason
-            paper_with_reason['topic_source'] = topic_source
-            paper_with_reason['filter_rule_version'] = FILTER_RULE_VERSION
+            paper_with_reason["filter_reason"] = topic_reason
+            paper_with_reason["topic_source"] = topic_source
+            paper_with_reason["filter_rule_version"] = FILTER_RULE_VERSION
             if heuristic_score is not None:
-                paper_with_reason['selection_score'] = heuristic_score
+                paper_with_reason["selection_score"] = heuristic_score
 
             deterministic_reject_reason = (
                 deterministic_topic_rejection_reason(title, summary)
-                if topic_match else ""
+                if topic_match
+                else ""
             )
             if deterministic_reject_reason:
-                paper_with_reason['filter_reason'] = (
+                paper_with_reason["filter_reason"] = (
                     f"{topic_reason}\n\n"
                     f"确定性主题后验排除: {deterministic_reject_reason}"
                 ).strip()
-                paper_with_reason['exclude_stage'] = 'topic'
+                paper_with_reason["exclude_stage"] = "topic"
                 return (
-                    'exclude_topic',
+                    "exclude_topic",
                     paper_with_reason,
                     f"⏭️ 主题后验排除: {title[:50]}...",
                     deterministic_reject_reason,
                 )
 
             if not topic_match:
-                paper_with_reason['exclude_stage'] = 'topic'
-                return 'exclude_topic', paper_with_reason, f"⏭️ 主题不匹配: {title[:50]}...", topic_reason
+                paper_with_reason["exclude_stage"] = "topic"
+                return (
+                    "exclude_topic",
+                    paper_with_reason,
+                    f"⏭️ 主题不匹配: {title[:50]}...",
+                    topic_reason,
+                )
 
             if not PRESTIGE_ENABLED:
-                return 'include', paper_with_reason, f"✅ 匹配: {title[:50]}...", topic_reason
+                return (
+                    "include",
+                    paper_with_reason,
+                    f"✅ 匹配: {title[:50]}...",
+                    topic_reason,
+                )
 
-            if topic_source == 'heuristic' and TOPIC_HEURISTIC_BYPASS_PRESTIGE:
+            if topic_source == "heuristic" and TOPIC_HEURISTIC_BYPASS_PRESTIGE:
                 if should_bypass_prestige_for_topic_heuristic(paper_with_reason):
-                    paper_with_reason['prestige_result'] = True
-                    paper_with_reason['prestige_reason'] = "主题强相关确定性保留，跳过 prestige 硬筛"
-                    paper_with_reason['prestige_source'] = 'topic_heuristic_bypass'
-                    paper_with_reason['prestige_status'] = 'bypassed'
-                    paper_with_reason['prestige_matches'] = {
-                        'authors': [],
-                        'institutions': [],
-                        'companies': [],
-                        'institution_names': [],
+                    paper_with_reason["prestige_result"] = True
+                    paper_with_reason["prestige_reason"] = (
+                        "主题强相关确定性保留，跳过 prestige 硬筛"
+                    )
+                    paper_with_reason["prestige_source"] = "topic_heuristic_bypass"
+                    paper_with_reason["prestige_status"] = "bypassed"
+                    paper_with_reason["prestige_matches"] = {
+                        "authors": [],
+                        "institutions": [],
+                        "companies": [],
+                        "institution_names": [],
                     }
-                    paper_with_reason['prestige_rule_version'] = PRESTIGE_RULE_VERSION
-                    return 'include', paper_with_reason, f"✅ 主题强相关保留: {title[:50]}...", topic_reason
+                    paper_with_reason["prestige_rule_version"] = PRESTIGE_RULE_VERSION
+                    return (
+                        "include",
+                        paper_with_reason,
+                        f"✅ 主题强相关保留: {title[:50]}...",
+                        topic_reason,
+                    )
 
             if PRESTIGE_AFFILIATION_FETCH_ENABLED:
                 try:
@@ -1681,65 +2039,91 @@ def main() -> int:
                     "如需启用请设置 PAPERTOOLS_PRESTIGE_AFFILIATION_FETCH_ENABLED=1"
                 )
 
-            paper_with_reason['affiliations'] = affiliations or ""
+            paper_with_reason["affiliations"] = affiliations or ""
 
             if not affiliations:
                 if (
                     PRESTIGE_AFFILIATION_FETCH_ENABLED
                     and is_transient_affiliation_fetch_failure(fetch_reason)
                 ):
-                    paper_with_reason['prestige_result'] = None
-                    paper_with_reason['prestige_reason'] = fetch_reason
-                    paper_with_reason['prestige_source'] = 'affiliation_extraction_failure'
-                    paper_with_reason['prestige_status'] = 'retryable_failure'
-                    paper_with_reason['prestige_rule_version'] = PRESTIGE_RULE_VERSION
-                    paper_with_reason['filter_reason'] = (
+                    paper_with_reason["prestige_result"] = None
+                    paper_with_reason["prestige_reason"] = fetch_reason
+                    paper_with_reason["prestige_source"] = (
+                        "affiliation_extraction_failure"
+                    )
+                    paper_with_reason["prestige_status"] = "retryable_failure"
+                    paper_with_reason["prestige_rule_version"] = PRESTIGE_RULE_VERSION
+                    paper_with_reason["filter_reason"] = (
                         f"{paper_with_reason.get('filter_reason', '')}\n\n"
                         f"Prestige 机构提取失败，按可重试筛选失败处理: {fetch_reason}"
                     ).strip()
-                    paper_with_reason['exclude_stage'] = 'filter_transient_failure'
-                    paper_with_reason['filter_transient_failure'] = True
+                    paper_with_reason["exclude_stage"] = "filter_transient_failure"
+                    paper_with_reason["filter_transient_failure"] = True
                     return (
-                        'transient_failure',
+                        "transient_failure",
                         paper_with_reason,
                         f"⏱️ Prestige 机构提取失败，待重试: {title[:50]}...",
                         fetch_reason,
                     )
-                prestige_match, paper_with_reason, prestige_reason = resolve_missing_affiliations_prestige(
-                    title,
-                    authors,
-                    fetch_reason,
-                    paper_with_reason,
-                    client,
-                    filter_model_chain,
-                    args.temperature,
-                    cache_manager,
+                prestige_match, paper_with_reason, prestige_reason = (
+                    resolve_missing_affiliations_prestige(
+                        title,
+                        authors,
+                        fetch_reason,
+                        paper_with_reason,
+                        client,
+                        filter_model_chain,
+                        args.temperature,
+                        cache_manager,
+                    )
                 )
                 if prestige_match:
-                    return 'include', paper_with_reason, f"✅ Prestige 作者命中: {title[:50]}...", prestige_reason
-                return 'exclude_prestige', paper_with_reason, f"🚫 Prestige 信息缺失且未命中: {title[:50]}...", prestige_reason
+                    return (
+                        "include",
+                        paper_with_reason,
+                        f"✅ Prestige 作者命中: {title[:50]}...",
+                        prestige_reason,
+                    )
+                return (
+                    "exclude_prestige",
+                    paper_with_reason,
+                    f"🚫 Prestige 信息缺失且未命中: {title[:50]}...",
+                    prestige_reason,
+                )
 
-            whitelist_match, whitelist_reason, whitelist_source, whitelist_matches = evaluate_prestige_whitelist(
-                authors,
-                affiliations,
+            whitelist_match, whitelist_reason, whitelist_source, whitelist_matches = (
+                evaluate_prestige_whitelist(
+                    authors,
+                    affiliations,
+                )
             )
-            paper_with_reason['prestige_matches'] = whitelist_matches
-            paper_with_reason['prestige_rule_version'] = PRESTIGE_RULE_VERSION
+            paper_with_reason["prestige_matches"] = whitelist_matches
+            paper_with_reason["prestige_rule_version"] = PRESTIGE_RULE_VERSION
 
             if whitelist_match:
-                paper_with_reason['prestige_result'] = True
-                paper_with_reason['prestige_reason'] = whitelist_reason
-                paper_with_reason['prestige_source'] = whitelist_source
-                return 'include', paper_with_reason, f"✅ 白名单命中: {title[:50]}...", whitelist_reason
+                paper_with_reason["prestige_result"] = True
+                paper_with_reason["prestige_reason"] = whitelist_reason
+                paper_with_reason["prestige_source"] = whitelist_source
+                return (
+                    "include",
+                    paper_with_reason,
+                    f"✅ 白名单命中: {title[:50]}...",
+                    whitelist_reason,
+                )
 
             if not PRESTIGE_LLM_ENABLED:
                 prestige_reason = "未命中确定性 prestige 白名单，跳过不稳定的 prestige LLM 判断并按硬筛排除"
-                paper_with_reason['prestige_result'] = False
-                paper_with_reason['prestige_reason'] = prestige_reason
-                paper_with_reason['prestige_source'] = 'deterministic_whitelist'
-                paper_with_reason['prestige_status'] = 'rejected'
-                paper_with_reason['exclude_stage'] = 'prestige'
-                return 'exclude_prestige', paper_with_reason, f"🚫 Prestige 未命中: {title[:50]}...", prestige_reason
+                paper_with_reason["prestige_result"] = False
+                paper_with_reason["prestige_reason"] = prestige_reason
+                paper_with_reason["prestige_source"] = "deterministic_whitelist"
+                paper_with_reason["prestige_status"] = "rejected"
+                paper_with_reason["exclude_stage"] = "prestige"
+                return (
+                    "exclude_prestige",
+                    paper_with_reason,
+                    f"🚫 Prestige 未命中: {title[:50]}...",
+                    prestige_reason,
+                )
 
             prestige_match, prestige_reason = query_prestige_llm(
                 title,
@@ -1750,28 +2134,43 @@ def main() -> int:
                 args.temperature,
                 cache_manager,
             )
-            paper_with_reason['prestige_result'] = prestige_match
-            paper_with_reason['prestige_reason'] = prestige_reason
-            paper_with_reason['prestige_source'] = 'llm'
+            paper_with_reason["prestige_result"] = prestige_match
+            paper_with_reason["prestige_reason"] = prestige_reason
+            paper_with_reason["prestige_source"] = "llm"
 
             if prestige_match:
-                return 'include', paper_with_reason, f"✅ 通过双重筛选: {title[:50]}...", prestige_reason
+                return (
+                    "include",
+                    paper_with_reason,
+                    f"✅ 通过双重筛选: {title[:50]}...",
+                    prestige_reason,
+                )
 
-            paper_with_reason['exclude_stage'] = 'prestige'
-            return 'exclude_prestige', paper_with_reason, f"🚫 Prestige 未命中: {title[:50]}...", prestige_reason
+            paper_with_reason["exclude_stage"] = "prestige"
+            return (
+                "exclude_prestige",
+                paper_with_reason,
+                f"🚫 Prestige 未命中: {title[:50]}...",
+                prestige_reason,
+            )
 
         except OpenAIError as e:
             if "timed out" in str(e).lower():
                 paper_with_reason = paper.copy()
                 timeout_reason = f"单篇筛选 API 超时，待后续重试: {e}"
-                paper_with_reason['filter_reason'] = timeout_reason
-                paper_with_reason['exclude_stage'] = 'filter_timeout'
-                paper_with_reason['filter_transient_failure'] = True
-                paper_with_reason['filter_rule_version'] = FILTER_RULE_VERSION
-                return 'timeout', paper_with_reason, f"⏱️ 筛选超时: {title[:50]}...", timeout_reason
-            return 'error', paper, f"❌ API 调用失败: {e}", f"处理错误: {e}"
+                paper_with_reason["filter_reason"] = timeout_reason
+                paper_with_reason["exclude_stage"] = "filter_timeout"
+                paper_with_reason["filter_transient_failure"] = True
+                paper_with_reason["filter_rule_version"] = FILTER_RULE_VERSION
+                return (
+                    "timeout",
+                    paper_with_reason,
+                    f"⏱️ 筛选超时: {title[:50]}...",
+                    timeout_reason,
+                )
+            return "error", paper, f"❌ API 调用失败: {e}", f"处理错误: {e}"
         except Exception as e:
-            return 'error', paper, f"❌ 处理论文时出错: {e}", f"处理错误: {e}"
+            return "error", paper, f"❌ 处理论文时出错: {e}", f"处理错误: {e}"
 
     print(f"🔄 使用 {args.max_workers} 个线程并行筛选...")
     print(f"📊 开始处理 {len(papers)} 篇论文...")
@@ -1787,13 +2186,14 @@ def main() -> int:
     early_stop_unprocessed_count = 0
 
     def save_progress() -> None:
-        try:
-            all_filtered = existing_filtered + filtered_papers
-            all_excluded = existing_excluded + excluded_papers
-            save_json(output_filepath, all_filtered, indent=4, ensure_ascii=False)
-            save_json(excluded_filepath, all_excluded, indent=4, ensure_ascii=False)
-        except Exception:
-            pass
+        save_filter_progress(
+            output_filepath,
+            excluded_filepath,
+            existing_filtered,
+            filtered_papers,
+            existing_excluded,
+            excluded_papers,
+        )
 
     executor = ThreadPoolExecutor(max_workers=args.max_workers)
     paper_iter = iter(papers)
@@ -1836,7 +2236,8 @@ def main() -> int:
             timed_out = [
                 future
                 for future in pending
-                if future not in done and now - future_metadata[future][1] > FILTER_PAPER_TIMEOUT
+                if future not in done
+                and now - future_metadata[future][1] > FILTER_PAPER_TIMEOUT
             ]
 
             for future in timed_out:
@@ -1849,15 +2250,17 @@ def main() -> int:
 
                 paper_with_reason = original_paper.copy()
                 timeout_seconds = now - started_at
-                paper_with_reason['filter_reason'] = (
+                paper_with_reason["filter_reason"] = (
                     f"单篇筛选超过 {FILTER_PAPER_TIMEOUT:.0f}s 未返回，"
                     f"本轮标记为可重试超时，实际等待 {timeout_seconds:.1f}s"
                 )
-                paper_with_reason['exclude_stage'] = 'filter_timeout'
-                paper_with_reason['filter_transient_failure'] = True
-                paper_with_reason['filter_rule_version'] = FILTER_RULE_VERSION
+                paper_with_reason["exclude_stage"] = "filter_timeout"
+                paper_with_reason["filter_transient_failure"] = True
+                paper_with_reason["filter_rule_version"] = FILTER_RULE_VERSION
                 excluded_papers.append(compact_excluded_paper(paper_with_reason))
-                print(f"⏱️ 单篇筛选超时，标记为可重试: {original_paper.get('title', '')[:50]}...")
+                print(
+                    f"⏱️ 单篇筛选超时，标记为可重试: {original_paper.get('title', '')[:50]}..."
+                )
                 save_progress()
                 progress.update(1)
                 submit_next_paper()
@@ -1870,24 +2273,24 @@ def main() -> int:
                     status, paper, message, _reason = future.result()
                     processed_count += 1
 
-                    if status == 'include':
+                    if status == "include":
                         filtered_papers.append(paper)
                         matched_count += 1
-                    elif status == 'exclude_topic':
+                    elif status == "exclude_topic":
                         excluded_papers.append(compact_excluded_paper(paper))
                         topic_excluded_count += 1
-                    elif status == 'exclude_prestige':
+                    elif status == "exclude_prestige":
                         excluded_papers.append(compact_excluded_paper(paper))
                         prestige_excluded_count += 1
-                    elif status == 'timeout':
+                    elif status == "timeout":
                         excluded_papers.append(compact_excluded_paper(paper))
                         timed_out_count += 1
-                    elif status == 'transient_failure':
+                    elif status == "transient_failure":
                         excluded_papers.append(compact_excluded_paper(paper))
                         transient_failure_count += 1
                         error_count += 1
                         print(f"⏱️ [{matched_count}/{processed_count}] {message}")
-                    elif status == 'skip':
+                    elif status == "skip":
                         pass
                     else:
                         error_count += 1
@@ -1949,19 +2352,27 @@ def main() -> int:
         )
 
     try:
-        if not save_json(output_filepath, all_filtered_papers, indent=4, ensure_ascii=False):
+        if not save_json(
+            output_filepath, all_filtered_papers, indent=4, ensure_ascii=False
+        ):
             raise IOError(output_filepath)
         print(f"\n💾 筛选结果已保存到: {output_filepath}")
-        print(f"📊 总计: {len(all_filtered_papers)} 篇筛选通过的论文 (本次新增: {len(filtered_papers)} 篇)")
+        print(
+            f"📊 总计: {len(all_filtered_papers)} 篇筛选通过的论文 (本次新增: {len(filtered_papers)} 篇)"
+        )
     except Exception as e:
         print(f"❌ 保存文件时出错: {e}")
         return 1
 
     if all_excluded_papers:
         try:
-            if not save_json(excluded_filepath, all_excluded_papers, indent=4, ensure_ascii=False):
+            if not save_json(
+                excluded_filepath, all_excluded_papers, indent=4, ensure_ascii=False
+            ):
                 raise IOError(excluded_filepath)
-            print(f"🔍 被排除论文已保存到: {excluded_filepath} (总计: {len(all_excluded_papers)} 篇)")
+            print(
+                f"🔍 被排除论文已保存到: {excluded_filepath} (总计: {len(all_excluded_papers)} 篇)"
+            )
         except Exception as e:
             print(f"❌ 保存被排除论文时出错: {e}")
             return 1
@@ -1971,11 +2382,14 @@ def main() -> int:
         prefiltered_count,
         len(all_filtered_papers),
     )
-    fatal_zero_result = (error_count > 0 and len(all_filtered_papers) == 0) or anomalous_zero_result
+    fatal_zero_result = (
+        error_count > 0 and len(all_filtered_papers) == 0
+    ) or anomalous_zero_result
     blocking_filter_failure = has_blocking_filter_failures(
         error_count,
         timed_out_count,
         fatal_zero_result,
+        total_processed=processed_count,
     )
     status_payload = {
         "status": "failed" if blocking_filter_failure else "ok",
@@ -2017,7 +2431,11 @@ def main() -> int:
             f"thresholds={FILTER_SUSPICIOUS_ZERO_MIN_INPUT}/"
             f"{FILTER_SUSPICIOUS_ZERO_MIN_PREFILTERED})"
         )
-    write_status_file(args.status_file, status_payload)
+    status_exit_code = finalize_filter_status(
+        args.status_file,
+        status_payload,
+        1 if blocking_filter_failure else 0,
+    )
 
     if blocking_filter_failure:
         print(f"❌ {status_payload['failure_reason']}")
@@ -2027,6 +2445,8 @@ def main() -> int:
             os._exit(1)
         return 1
 
+    if status_exit_code != 0:
+        return status_exit_code
     print("🎉 筛选完成！")
     if timed_out_count:
         sys.stdout.flush()
