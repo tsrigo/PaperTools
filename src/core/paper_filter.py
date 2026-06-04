@@ -733,12 +733,13 @@ def has_blocking_filter_failures(
     """Filtering is publish-blocking if any candidate failed to classify cleanly.
 
     If FILTER_ERROR_TOLERANCE_PERCENT > 0 and total_processed > 0, allow up to
-    that percentage of errors before blocking publication.
+    that percentage of combined errors+timeouts before blocking publication.
     """
     if FILTER_ERROR_TOLERANCE_PERCENT > 0 and total_processed > 0:
-        error_rate = (error_count / total_processed) * 100
-        if error_rate <= FILTER_ERROR_TOLERANCE_PERCENT:
-            return timed_out_count > 0 or fatal_zero_result
+        failure_count = error_count + timed_out_count
+        failure_rate = (failure_count / total_processed) * 100
+        if failure_rate <= FILTER_ERROR_TOLERANCE_PERCENT:
+            return fatal_zero_result
     return error_count > 0 or timed_out_count > 0 or fatal_zero_result
 
 
@@ -811,6 +812,24 @@ def is_invalid_filter_model_error(exc: Exception) -> bool:
             "model_not_found",
             "does not exist",
             "not found",
+        )
+    )
+
+
+def _is_server_error(exc: Exception) -> bool:
+    """Detect 5xx server errors that should trigger fallback to next model."""
+    status_code = getattr(exc, "status_code", None)
+    if status_code is not None and int(status_code) >= 500:
+        return True
+    message = str(exc).lower()
+    return any(
+        token in message
+        for token in (
+            "500",
+            "internalservererror",
+            "internal server error",
+            "connection error",
+            "no fallback model group",
         )
     )
 
@@ -1135,6 +1154,10 @@ def run_llm_prompt_with_fallback(
             if is_invalid_filter_model_error(exc):
                 _DISABLED_FILTER_MODELS.add(model)
                 print(f"⚠️ 筛选模型不可用，跳过: {model}: {str(exc)[:240]}")
+                continue
+            if _is_server_error(exc):
+                _DISABLED_FILTER_MODELS.add(model)
+                print(f"⚠️ 筛选模型服务错误，跳过: {model}: {str(exc)[:240]}")
                 continue
             raise
 
