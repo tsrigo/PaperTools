@@ -2412,7 +2412,7 @@ def main() -> int:
         error_count,
         timed_out_count,
         fatal_zero_result,
-        total_processed=prefiltered_count or original_paper_count,
+        total_processed=original_paper_count,
     )
     status_payload = {
         "status": "failed" if blocking_filter_failure else "ok",
