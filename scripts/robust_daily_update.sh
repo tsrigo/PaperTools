@@ -37,6 +37,20 @@ fi
 # The daily wrapper intentionally overwrites risky .env values for operational
 # controls. Use PAPERTOOLS_DAILY_* variables for explicit cron-time overrides.
 export OPENAI_BASE_URL="${PAPERTOOLS_DAILY_OPENAI_BASE_URL:-https://models.sjtu.edu.cn/api/v1/}"
+# Force SJTU key for filter/cluster when using SJTU base URL. Shell environment
+# may carry an OpenRouter OPENAI_API_KEY that silently overrides the .env value.
+# Read the SJTU key directly from .env as a reliable fallback.
+if [ -z "${PAPERTOOLS_DAILY_OPENAI_API_KEY:-}" ]; then
+  _SJTU_KEY="${SUMMARY_SJTU_OPENAI_API_KEY:-}"
+  if [ -z "$_SJTU_KEY" ] && [ -f "$ENV_FILE" ]; then
+    _SJTU_KEY="$(grep -m1 '^SUMMARY_SJTU_OPENAI_API_KEY=' "$ENV_FILE" | cut -d= -f2-)"
+  fi
+  if [ -z "$_SJTU_KEY" ] && [ -f "$ENV_FILE" ]; then
+    _SJTU_KEY="$(grep -m1 '^OPENAI_API_KEY=' "$ENV_FILE" | cut -d= -f2-)"
+  fi
+  export OPENAI_API_KEY="${_SJTU_KEY:-$OPENAI_API_KEY}"
+  unset _SJTU_KEY
+fi
 export MODEL="${PAPERTOOLS_DAILY_MODEL:-deepseek-reasoner}"
 export FILTER_MODEL="${PAPERTOOLS_DAILY_FILTER_MODEL:-qwen}"
 export PAPERTOOLS_FILTER_MODEL_CHAIN="${PAPERTOOLS_DAILY_FILTER_MODEL_CHAIN:-qwen,deepseek-chat,minimax}"
