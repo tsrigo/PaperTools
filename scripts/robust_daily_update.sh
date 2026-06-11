@@ -23,44 +23,63 @@ log() {
   printf '[%s] %s\n' "$(TZ=Asia/Tokyo date +'%Y-%m-%d %H:%M:%S %Z')" "$*" | tee -a "$LOG_FILE"
 }
 
-# Load .env without printing secrets. PaperTools itself also loads .env.
+# Load .env as the primary source of truth. Unset key variables first so that
+# stale values in the shell environment (e.g. an OpenRouter key from a parent
+# session) do not silently win over the .env values.
 ENV_FILE="${PAPERTOOLS_DAILY_ENV_FILE:-.env}"
 if [ -f "$ENV_FILE" ]; then
+  # Unset API keys so .env values take precedence over inherited shell env.
+  unset OPENAI_API_KEY OPENAI_BASE_URL MODEL FILTER_MODEL CLUSTER_MODEL
+  unset SUMMARY_MODEL SUMMARY_MODEL_CHAIN SUMMARY_OPENAI_API_KEY SUMMARY_OPENAI_BASE_URL
+  unset SUMMARY_SJTU_OPENAI_API_KEY SUMMARY_SJTU_OPENAI_BASE_URL
+  unset SUMMARY_PRISM_OPENAI_API_KEY SUMMARY_PRISM_OPENAI_BASE_URL
   set -a
   # shellcheck disable=SC1091
   . "$ENV_FILE"
   set +a
 fi
 
-# SJTU-safe daily defaults. Keep the actual API key only in .env / secret manager.
-#
-# The daily wrapper intentionally overwrites risky .env values for operational
-# controls. Use PAPERTOOLS_DAILY_* variables for explicit cron-time overrides.
-export OPENAI_BASE_URL="${PAPERTOOLS_DAILY_OPENAI_BASE_URL:-https://models.sjtu.edu.cn/api/v1/}"
-# Force SJTU key for filter/cluster when using SJTU base URL. Shell environment
-# may carry an OpenRouter OPENAI_API_KEY that silently overrides the .env value.
-# Read the SJTU key directly from .env as a reliable fallback.
-if [ -z "${PAPERTOOLS_DAILY_OPENAI_API_KEY:-}" ]; then
-  _SJTU_KEY="${SUMMARY_SJTU_OPENAI_API_KEY:-}"
-  if [ -z "$_SJTU_KEY" ] && [ -f "$ENV_FILE" ]; then
-    _SJTU_KEY="$(grep -m1 '^SUMMARY_SJTU_OPENAI_API_KEY=' "$ENV_FILE" | cut -d= -f2-)"
+# Read .env values directly for provider-specific keys that must not be
+# overridden by shell environment. This is the authoritative source.
+_env_val() {
+  local key="$1"
+  local val="${!key:-}"
+  if [ -z "$val" ] && [ -f "$ENV_FILE" ]; then
+    val="$(grep -m1 "^${key}=" "$ENV_FILE" | cut -d= -f2-)"
   fi
-  if [ -z "$_SJTU_KEY" ] && [ -f "$ENV_FILE" ]; then
-    _SJTU_KEY="$(grep -m1 '^OPENAI_API_KEY=' "$ENV_FILE" | cut -d= -f2-)"
-  fi
-  export OPENAI_API_KEY="${_SJTU_KEY:-$OPENAI_API_KEY}"
-  unset _SJTU_KEY
-fi
+  printf '%s' "$val"
+}
+
+# SJTU provider: primary gateway for filter/cluster/summary
+_SJTU_KEY="$(_env_val SUMMARY_SJTU_OPENAI_API_KEY)"
+_SJTU_URL="$(_env_val SUMMARY_SJTU_OPENAI_BASE_URL)"
+[ -z "$_SJTU_URL" ] && _SJTU_URL="https://models.sjtu.edu.cn/api/v1/"
+
+# OpenRouter provider: secondary/backup
+_OR_KEY="$(_env_val OPENAI_API_KEY)"
+_OR_URL="$(_env_val OPENAI_BASE_URL)"
+
+# Prism provider: summary fallback
+_PRISM_KEY="$(_env_val SUMMARY_PRISM_OPENAI_API_KEY)"
+_PRISM_URL="$(_env_val SUMMARY_PRISM_OPENAI_BASE_URL)"
+[ -z "$_PRISM_URL" ] && _PRISM_URL="https://ai.prism.uno/v1"
+
+# Daily defaults: use SJTU as the primary gateway for all stages.
+# Use PAPERTOOLS_DAILY_* environment variables for explicit cron-time overrides.
+export OPENAI_BASE_URL="${PAPERTOOLS_DAILY_OPENAI_BASE_URL:-$_SJTU_URL}"
+export OPENAI_API_KEY="${PAPERTOOLS_DAILY_OPENAI_API_KEY:-${_SJTU_KEY:-$_OR_KEY}}"
 export MODEL="${PAPERTOOLS_DAILY_MODEL:-deepseek-reasoner}"
 export FILTER_MODEL="${PAPERTOOLS_DAILY_FILTER_MODEL:-qwen}"
 export PAPERTOOLS_FILTER_MODEL_CHAIN="${PAPERTOOLS_DAILY_FILTER_MODEL_CHAIN:-qwen,deepseek-chat,minimax}"
 export CLUSTER_MODEL="${PAPERTOOLS_DAILY_CLUSTER_MODEL:-glm}"
 export PAPERTOOLS_CLUSTER_MODEL_CHAIN="${PAPERTOOLS_DAILY_CLUSTER_MODEL_CHAIN:-qwen,deepseek-chat,minimax}"
 export SUMMARY_MODEL_CHAIN="${PAPERTOOLS_DAILY_SUMMARY_MODEL_CHAIN:-sjtu:qwen,sjtu:deepseek-chat,sjtu:minimax,sjtu:glm}"
-export SUMMARY_SJTU_OPENAI_API_KEY="${SUMMARY_SJTU_OPENAI_API_KEY:-${OPENAI_API_KEY:-}}"
-export SUMMARY_SJTU_OPENAI_BASE_URL="${SUMMARY_SJTU_OPENAI_BASE_URL:-$OPENAI_BASE_URL}"
-export SUMMARY_OPENAI_API_KEY="${SUMMARY_OPENAI_API_KEY:-${OPENAI_API_KEY:-}}"
-export SUMMARY_OPENAI_BASE_URL="${SUMMARY_OPENAI_BASE_URL:-$OPENAI_BASE_URL}"
+export SUMMARY_SJTU_OPENAI_API_KEY="${PAPERTOOLS_DAILY_SJTU_API_KEY:-${_SJTU_KEY:-$OPENAI_API_KEY}}"
+export SUMMARY_SJTU_OPENAI_BASE_URL="${PAPERTOOLS_DAILY_SJTU_BASE_URL:-$_SJTU_URL}"
+export SUMMARY_OPENAI_API_KEY="${PAPERTOOLS_DAILY_SUMMARY_API_KEY:-${OPENAI_API_KEY:-}}"
+export SUMMARY_OPENAI_BASE_URL="${PAPERTOOLS_DAILY_SUMMARY_BASE_URL:-$OPENAI_BASE_URL}"
+export SUMMARY_PRISM_OPENAI_API_KEY="${PAPERTOOLS_DAILY_PRISM_API_KEY:-${_PRISM_KEY:-}}"
+export SUMMARY_PRISM_OPENAI_BASE_URL="${PAPERTOOLS_DAILY_PRISM_BASE_URL:-$_PRISM_URL}"
 export SUMMARY_MODEL="${PAPERTOOLS_DAILY_SUMMARY_MODEL:-qwen}"
 
 # Conservative concurrency is usually more stable on shared OpenAI-compatible gateways.
@@ -88,6 +107,13 @@ export PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS="${PAPERTOOLS_DAILY_PIPELINE_TI
 export PAPERTOOLS_DAILY_PREFLIGHT_OFFLINE_OK="${PAPERTOOLS_DAILY_PREFLIGHT_OFFLINE_OK:-0}"
 
 print_runtime_config() {
+  # Provider summary (key prefixes only, no secrets)
+  _mask() { local v="${1:-}"; [ -z "$v" ] && printf '<unset>' && return; printf '%s...%s' "${v:0:8}" "${v: -4}"; }
+  printf '# ---- Providers ----\n'
+  printf 'SJTU:       url=%s  key=%s\n' "${SUMMARY_SJTU_OPENAI_BASE_URL:-<unset>}" "$(_mask "$SUMMARY_SJTU_OPENAI_API_KEY")"
+  printf 'OpenRouter: url=%s  key=%s\n' "${OPENAI_BASE_URL:-<unset>}" "$(_mask "$OPENAI_API_KEY")"
+  printf 'Prism:      url=%s  key=%s\n' "${SUMMARY_PRISM_OPENAI_BASE_URL:-<unset>}" "$(_mask "$SUMMARY_PRISM_OPENAI_API_KEY")"
+  printf '# ---- Runtime ----\n'
   for key in \
     OPENAI_BASE_URL MODEL FILTER_MODEL CLUSTER_MODEL SUMMARY_MODEL SUMMARY_MODEL_CHAIN \
     PAPERTOOLS_FILTER_MODEL_CHAIN PAPERTOOLS_CLUSTER_MODEL_CHAIN \
