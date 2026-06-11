@@ -1,0 +1,46 @@
+name: Publication Failure
+description: Report a failed or unsafe daily publication run.
+title: "[Publication]: "
+labels: ["publication", "reliability"]
+body:
+  - type: input
+    id: date
+    attributes:
+      label: Affected date
+      placeholder: "YYYY-MM-DD"
+    validations:
+      required: true
+  - type: dropdown
+    id: stage
+    attributes:
+      label: Failed stage
+      options:
+        - crawl
+        - filter
+        - cluster
+        - summary
+        - overview
+        - webpage
+        - publish
+        - unknown
+    validations:
+      required: true
+  - type: textarea
+    id: status
+    attributes:
+      label: Status file or failure summary
+      description: Paste sanitized status JSON or a concise failure summary.
+      render: text
+    validations:
+      required: true
+  - type: checkboxes
+    id: gates
+    attributes:
+      label: Publication gates
+      options:
+        - label: The date was not published with empty or partial content.
+          required: true
+        - label: I checked `webpages/data/YYYY-MM-DD.json` if a payload was generated.
+          required: true
+        - label: I removed API keys, tokens, and private data.
+          required: true

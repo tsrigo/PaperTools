@@ -18,7 +18,14 @@ import requests
 from typing import List, Optional
 
 logger = logging.getLogger(__name__)
-PROXY_ENV_VARS = ("http_proxy", "https_proxy", "HTTP_PROXY", "HTTPS_PROXY", "all_proxy", "ALL_PROXY")
+PROXY_ENV_VARS = (
+    "http_proxy",
+    "https_proxy",
+    "HTTP_PROXY",
+    "HTTPS_PROXY",
+    "all_proxy",
+    "ALL_PROXY",
+)
 DIRECT_RETRY_EXCEPTIONS = (
     requests.exceptions.ProxyError,
     requests.exceptions.ConnectionError,
@@ -57,13 +64,18 @@ def send_notification(message: str, webhook_url: Optional[str] = None) -> bool:
         return True
     except DIRECT_RETRY_EXCEPTIONS as exc:
         if _has_proxy_env():
-            logger.warning("Webhook notification failed via proxy/env; retrying direct: %s", exc)
+            logger.warning(
+                "Webhook notification failed via proxy/env; retrying direct: %s", exc
+            )
             try:
                 _post_notification(url, message, trust_env=False)
                 logger.info("Webhook notification sent successfully without proxy/env")
                 return True
             except Exception as direct_exc:
-                logger.warning("Failed to send webhook notification without proxy/env: %s", direct_exc)
+                logger.warning(
+                    "Failed to send webhook notification without proxy/env: %s",
+                    direct_exc,
+                )
                 return False
         logger.warning("Failed to send webhook notification: %s", exc)
         return False
@@ -72,7 +84,9 @@ def send_notification(message: str, webhook_url: Optional[str] = None) -> bool:
         return False
 
 
-def notify_failures(stage: str, failures: List[str], webhook_url: Optional[str] = None) -> bool:
+def notify_failures(
+    stage: str, failures: List[str], webhook_url: Optional[str] = None
+) -> bool:
     """Send a batched failure notification for a pipeline stage."""
     if not failures:
         return False

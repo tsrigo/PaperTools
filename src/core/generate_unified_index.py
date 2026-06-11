@@ -5,17 +5,60 @@
 """
 
 import argparse
-import hashlib
 import json
 import os
 import re
+import shutil
 import sys
+import tempfile
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Set
 
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
+
+
+def _atomic_save_text(filepath: str, content: str) -> bool:
+    try:
+        dir_path = os.path.dirname(filepath)
+        if dir_path:
+            os.makedirs(dir_path, exist_ok=True)
+        target_dir = dir_path or "."
+        fd, temp_path = tempfile.mkstemp(
+            prefix=f".{os.path.basename(filepath)}.",
+            suffix=".tmp",
+            dir=target_dir,
+            text=True,
+        )
+        try:
+            with os.fdopen(fd, "w", encoding="utf-8") as handle:
+                handle.write(content)
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(temp_path, filepath)
+        except Exception:
+            try:
+                os.unlink(temp_path)
+            except OSError:
+                pass
+            raise
+        return True
+    except OSError as e:
+        print(f"❌ 保存文本失败 {filepath}: {e}")
+        return False
+
+
+def _atomic_save_json(filepath, data, indent=2, ensure_ascii=False):
+    try:
+        return _atomic_save_text(
+            filepath,
+            json.dumps(data, ensure_ascii=ensure_ascii, indent=indent),
+        )
+    except (TypeError, ValueError) as e:
+        print(f"❌ JSON序列化失败 {filepath}: {e}")
+        return False
+
 
 # 导入配置
 try:
@@ -37,30 +80,40 @@ except ImportError:
 
 try:
     from src.utils.io import save_json, save_text
+except ImportError:
+
+    def save_json(filepath, data, indent=2, ensure_ascii=False):  # type: ignore[no-redef]
+        return _atomic_save_json(
+            filepath, data, indent=indent, ensure_ascii=ensure_ascii
+        )
+
+    def save_text(filepath, content):  # type: ignore[no-redef]
+        return _atomic_save_text(filepath, content)
+
+
+from src.utils.published_data_version import build_published_data_version
+from src.utils.published_webpage_data import project_embedded_clusters
+
+
+try:
     from src.utils.publish_quality import (
-        has_valid_generated_text,
         validate_date_data_payload,
         validate_publishable_papers,
     )
-except ImportError:
-    def save_json(filepath, data, indent=2, ensure_ascii=False):  # type: ignore[no-redef]
-        with open(filepath, "w", encoding="utf-8") as handle:
-            json.dump(data, handle, ensure_ascii=ensure_ascii, indent=indent)
-        return True
-
-    def save_text(filepath, content):  # type: ignore[no-redef]
-        with open(filepath, "w", encoding="utf-8") as handle:
-            handle.write(content)
-        return True
-
-    def has_valid_generated_text(value):  # type: ignore[no-redef]
-        return isinstance(value, str) and bool(value.strip())
+except ImportError as exc:
+    _PUBLISH_QUALITY_IMPORT_ERROR = str(exc)
 
     def validate_publishable_papers(papers, *, context="papers"):  # type: ignore[no-redef]
-        return True, []
+        return False, [
+            f"{context}: publication quality gate unavailable: "
+            f"{_PUBLISH_QUALITY_IMPORT_ERROR}"
+        ]
 
     def validate_date_data_payload(date_data, *, expected_date=""):  # type: ignore[no-redef]
-        return True, []
+        return False, [
+            f"publication quality gate unavailable: {_PUBLISH_QUALITY_IMPORT_ERROR}"
+        ]
+
 
 # 分页配置
 INITIAL_DAYS = 3  # 初始加载的天数（其余通过"加载更多"按需加载）
@@ -180,11 +233,15 @@ def extract_institution_names_from_affiliations(affiliations: Any) -> List[str]:
     return names
 
 
-def find_whitelist_hits(values: List[str], whitelist: Dict[str, List[str]]) -> List[str]:
+def find_whitelist_hits(
+    values: List[str], whitelist: Dict[str, List[str]]
+) -> List[str]:
     """Return canonical whitelist entries present in values."""
     hits = []
     seen = set()
-    normalized_values = [f" {normalize_match_text(value)} " for value in values if value]
+    normalized_values = [
+        f" {normalize_match_text(value)} " for value in values if value
+    ]
     for canonical, aliases in whitelist.items():
         for alias in aliases:
             normalized_alias = normalize_match_text(alias)
@@ -210,7 +267,9 @@ def repair_prestige_from_affiliations(paper: Dict[str, Any]) -> None:
         return
 
     institution_names = extract_institution_names_from_affiliations(affiliations)
-    institution_hits = find_whitelist_hits(institution_names, PRESTIGE_INSTITUTION_WHITELIST)
+    institution_hits = find_whitelist_hits(
+        institution_names, PRESTIGE_INSTITUTION_WHITELIST
+    )
     company_hits = find_whitelist_hits(institution_names, PRESTIGE_COMPANY_WHITELIST)
 
     reasons = []
@@ -239,28 +298,44 @@ def repair_prestige_from_affiliations(paper: Dict[str, Any]) -> None:
     }
 
 
-def merge_paper_fields(base: Dict[str, Any], candidate: Dict[str, Any]) -> Dict[str, Any]:
+def merge_paper_fields(
+    base: Dict[str, Any], candidate: Dict[str, Any]
+) -> Dict[str, Any]:
     """Merge complementary records for the same paper instead of picking one whole file."""
     merged = dict(base)
 
     for field in RICHNESS_FIELDS:
-        if not has_valid_generated_text(merged.get(field)) and has_valid_generated_text(candidate.get(field)):
+        if not has_valid_generated_text(merged.get(field)) and has_valid_generated_text(
+            candidate.get(field)
+        ):
             merged[field] = candidate.get(field)
 
     for field in SOURCE_METADATA_FIELDS:
         if merged.get(field) in (None, "") and candidate.get(field) not in (None, ""):
             merged[field] = candidate.get(field)
 
-    for field in ("filter_reason", "summary_generated_time", "summary_model", "link", *REVIEWGROUNDER_METADATA_FIELDS):
+    for field in (
+        "filter_reason",
+        "summary_generated_time",
+        "summary_model",
+        "link",
+        *REVIEWGROUNDER_METADATA_FIELDS,
+    ):
         if merged.get(field) in (None, "") and candidate.get(field) not in (None, ""):
             merged[field] = candidate.get(field)
 
-    if not has_valid_generated_text(merged.get("affiliations")) and has_valid_generated_text(candidate.get("affiliations")):
+    if not has_valid_generated_text(
+        merged.get("affiliations")
+    ) and has_valid_generated_text(candidate.get("affiliations")):
         merged["affiliations"] = candidate.get("affiliations")
 
     merged_cluster = merged.get("cluster") or ""
     candidate_cluster = candidate.get("cluster") or ""
-    if (not merged_cluster or merged_cluster == "Other") and candidate_cluster and candidate_cluster != "Other":
+    if (
+        (not merged_cluster or merged_cluster == "Other")
+        and candidate_cluster
+        and candidate_cluster != "Other"
+    ):
         merged["cluster"] = candidate_cluster
 
     merged_tags = list(merged.get("tags") or [])
@@ -273,7 +348,13 @@ def merge_paper_fields(base: Dict[str, Any], candidate: Dict[str, Any]) -> Dict[
     candidate_prestige_result = candidate.get("prestige_result")
     merged_prestige_result = merged.get("prestige_result")
     if candidate_prestige_result is True and merged_prestige_result is not True:
-        for field in ("prestige_result", "prestige_reason", "prestige_source", "prestige_status", "prestige_matches"):
+        for field in (
+            "prestige_result",
+            "prestige_reason",
+            "prestige_source",
+            "prestige_status",
+            "prestige_matches",
+        ):
             if field in candidate:
                 merged[field] = candidate[field]
 
@@ -363,9 +444,14 @@ def backfill_paper_metadata(
 
                 current_value = paper_copy.get(field)
                 if field in {"summary", "abstract"}:
-                    should_repair = has_non_empty_text(source_value) and not has_non_empty_text(current_value)
+                    should_repair = has_non_empty_text(
+                        source_value
+                    ) and not has_non_empty_text(current_value)
                 else:
-                    should_repair = current_value in (None, "") and source_value not in (None, "")
+                    should_repair = current_value in (
+                        None,
+                        "",
+                    ) and source_value not in (None, "")
 
                 if should_repair:
                     paper_copy[field] = source_value
@@ -380,7 +466,9 @@ def score_paper_file(json_file: Path, papers: List[Dict[str, Any]]) -> tuple:
     in_summary_dir = json_file.parent.name == Path(SUMMARY_DIR).name
     with_summary_suffix = json_file.name.endswith("_with_summary2.json")
     is_clustered_file = json_file.stem.startswith("clustered_papers_")
-    cluster_non_other = sum(1 for paper in normalized if paper.get("cluster") not in ("", "Other"))
+    cluster_non_other = sum(
+        1 for paper in normalized if paper.get("cluster") not in ("", "Other")
+    )
     tags_present = sum(1 for paper in normalized if paper.get("tags"))
     rich_fields_present = sum(
         1
@@ -412,9 +500,15 @@ def paper_identity(paper: Dict[str, Any]) -> str:
 
 def paper_display_score(paper: Dict[str, Any]) -> tuple:
     """Prefer records with generated analysis, non-Other clusters, and metadata."""
-    rich_fields_present = sum(1 for field in RICHNESS_FIELDS if has_valid_generated_text(paper.get(field)))
-    failed_fields_present = sum(1 for field in RICHNESS_FIELDS if is_failed_generated_text(paper.get(field)))
-    source_fields_present = sum(1 for field in SOURCE_METADATA_FIELDS if paper.get(field) not in (None, ""))
+    rich_fields_present = sum(
+        1 for field in RICHNESS_FIELDS if has_valid_generated_text(paper.get(field))
+    )
+    failed_fields_present = sum(
+        1 for field in RICHNESS_FIELDS if is_failed_generated_text(paper.get(field))
+    )
+    source_fields_present = sum(
+        1 for field in SOURCE_METADATA_FIELDS if paper.get(field) not in (None, "")
+    )
     cluster = paper.get("cluster") or ""
     return (
         rich_fields_present,
@@ -466,7 +560,9 @@ def merge_candidate_papers(candidates: List[tuple]) -> tuple:
     merged_papers = normalize_papers_for_display(best_papers)
 
     for _score, _json_file, candidate_papers in sorted_candidates[1:]:
-        merged_papers = merge_published_papers(merged_papers, normalize_papers_for_display(candidate_papers))
+        merged_papers = merge_published_papers(
+            merged_papers, normalize_papers_for_display(candidate_papers)
+        )
 
     return best_score, best_file, merged_papers
 
@@ -495,7 +591,9 @@ def group_papers_by_source_date(
     return grouped
 
 
-def load_paper_data(replace_dates: Optional[Set[str]] = None) -> Dict[str, List[Dict[str, Any]]]:
+def load_paper_data(
+    replace_dates: Optional[Set[str]] = None,
+) -> Dict[str, List[Dict[str, Any]]]:
     """加载论文数据"""
     replace_dates = replace_dates or set()
     papers_by_date = {}
@@ -510,15 +608,17 @@ def load_paper_data(replace_dates: Optional[Set[str]] = None) -> Dict[str, List[
 
     for json_file in candidate_files:
         try:
-            with open(json_file, 'r', encoding='utf-8') as f:
+            with open(json_file, "r", encoding="utf-8") as f:
                 papers = json.load(f)
 
             if not isinstance(papers, list):
                 continue
 
             filename = json_file.stem
-            range_match = re.search(r'(\d{4}-\d{2}-\d{2})_to_(\d{4}-\d{2}-\d{2})', filename)
-            date_match = re.search(r'(\d{4}-\d{2}-\d{2})', filename)
+            range_match = re.search(
+                r"(\d{4}-\d{2}-\d{2})_to_(\d{4}-\d{2}-\d{2})", filename
+            )
+            date_match = re.search(r"(\d{4}-\d{2}-\d{2})", filename)
             if date_match:
                 backfilled_papers = backfill_paper_metadata(papers, source_by_id)
                 normalized_papers = publishable_papers_or_none(
@@ -549,7 +649,11 @@ def load_paper_data(replace_dates: Optional[Set[str]] = None) -> Dict[str, List[
                 else:
                     date = date_match.group(1)
                     candidates_by_date.setdefault(date, []).append(
-                        (score_paper_file(json_file, normalized_papers), json_file, normalized_papers)
+                        (
+                            score_paper_file(json_file, normalized_papers),
+                            json_file,
+                            normalized_papers,
+                        )
                     )
         except Exception as e:
             print(f"加载文件 {json_file} 时出错: {e}")
@@ -557,7 +661,9 @@ def load_paper_data(replace_dates: Optional[Set[str]] = None) -> Dict[str, List[
     for date, candidates in candidates_by_date.items():
         _, chosen_file, chosen_papers = merge_candidate_papers(candidates)
         papers_by_date[date] = chosen_papers
-        print(f"加载了 {len(chosen_papers)} 篇论文，日期: {date}，来源: {chosen_file.parent.name}/{chosen_file.name}")
+        print(
+            f"加载了 {len(chosen_papers)} 篇论文，日期: {date}，来源: {chosen_file.parent.name}/{chosen_file.name}"
+        )
 
     data_dir = Path(WEBPAGES_DIR) / "data"
     if data_dir.exists():
@@ -575,7 +681,9 @@ def load_paper_data(replace_dates: Optional[Set[str]] = None) -> Dict[str, List[
                     cluster_name = cluster.get("name") or "Other"
                     for paper in cluster.get("papers", []) or []:
                         paper_copy = dict(paper)
-                        paper_copy["cluster"] = paper_copy.get("cluster") or cluster_name
+                        paper_copy["cluster"] = (
+                            paper_copy.get("cluster") or cluster_name
+                        )
                         flattened_papers.append(paper_copy)
 
                 if flattened_papers:
@@ -590,7 +698,9 @@ def load_paper_data(replace_dates: Optional[Set[str]] = None) -> Dict[str, List[
                         continue
                     if date in papers_by_date:
                         before_count = len(papers_by_date[date])
-                        merged_papers = merge_published_papers(papers_by_date[date], published_papers)
+                        merged_papers = merge_published_papers(
+                            papers_by_date[date], published_papers
+                        )
                         papers_by_date[date] = merged_papers
                         if len(merged_papers) > before_count:
                             print(
@@ -599,7 +709,9 @@ def load_paper_data(replace_dates: Optional[Set[str]] = None) -> Dict[str, List[
                             )
                     else:
                         papers_by_date[date] = published_papers
-                        print(f"保留已发布数据 {date}: {len(flattened_papers)} 篇，来源: {date_file}")
+                        print(
+                            f"保留已发布数据 {date}: {len(flattened_papers)} 篇，来源: {date_file}"
+                        )
                 elif date_data.get("date") == date:
                     print(f"跳过已发布空日期 {date}，来源: {date_file}")
             except Exception as e:
@@ -616,12 +728,12 @@ def load_daily_overviews() -> Dict[str, str]:
     # 查找所有的每日速览Markdown文件
     for md_file in summary_dir.glob("daily_overview_*.md"):
         try:
-            with open(md_file, 'r', encoding='utf-8') as f:
+            with open(md_file, "r", encoding="utf-8") as f:
                 content = f.read()
 
             # 从文件名提取日期
             filename = md_file.stem
-            date_match = re.search(r'(\d{4}-\d{2}-\d{2})', filename)
+            date_match = re.search(r"(\d{4}-\d{2}-\d{2})", filename)
             if date_match:
                 date = date_match.group(1)
                 overviews[date] = content
@@ -648,40 +760,77 @@ def load_daily_overviews() -> Dict[str, str]:
     return overviews
 
 
-def build_data_version(papers_by_date: Dict[str, List[Dict[str, Any]]], daily_overviews: Dict[str, str]) -> str:
+def build_data_version(
+    papers_by_date: Dict[str, List[Dict[str, Any]]], daily_overviews: Dict[str, str]
+) -> str:
     """Return a deterministic cache-busting version for published JSON data."""
-    payload = {
+    all_dates = sorted(papers_by_date.keys(), reverse=True)
+    index_data = {
+        "dates": all_dates,
+        "initial_days": INITIAL_DAYS,
+        "load_more_days": LOAD_MORE_DAYS,
+    }
+    date_payloads = {
         date: {
-            "papers": papers_by_date.get(date, []),
+            "date": date,
+            "clusters": organize_papers_by_cluster(papers_by_date.get(date, [])),
+            "tags": collect_all_tags(papers_by_date.get(date, [])),
             "overview": daily_overviews.get(date, ""),
         }
-        for date in sorted(papers_by_date)
+        for date in all_dates
     }
-    encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True, default=str).encode("utf-8")
-    return hashlib.sha1(encoded).hexdigest()[:12]
+    return build_published_data_version(index_data, date_payloads)
+
+
+def escape_script_json_chars(text: str) -> str:
+    """Escape characters that can break out of an HTML script block."""
+    return (
+        text.replace("<", "\\u003C")
+        .replace(">", "\\u003E")
+        .replace("&", "\\u0026")
+        .replace("\u2028", "\\u2028")
+        .replace("\u2029", "\\u2029")
+    )
+
+
+def dumps_js(data: Any) -> str:
+    """JSON dump safe for embedding inside a <script> tag."""
+    return escape_script_json_chars(json.dumps(data, ensure_ascii=False))
+
 
 def escape_js_string(text: str) -> str:
-    """转义JavaScript字符串"""
-    if not text:
+    """Escape one JavaScript double-quoted string inside a script block."""
+    if text in (None, ""):
         return ""
-    return text.replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n').replace('\r', '\\r').replace('\t', '\\t')
+    return escape_script_json_chars(
+        str(text)
+        .replace("\\", "\\\\")
+        .replace('"', '\\"')
+        .replace("\n", "\\n")
+        .replace("\r", "\\r")
+        .replace("\t", "\\t")
+    )
 
 
 def organize_papers_by_cluster(papers: List[Dict]) -> List[Dict]:
     """将论文按聚类组织，按论文数量降序排列"""
     clusters = {}
     for paper in papers:
-        cluster = paper.get('cluster', 'Other')
+        cluster = paper.get("cluster", "Other")
         if cluster not in clusters:
             clusters[cluster] = []
         clusters[cluster].append(paper)
     result = []
-    for cluster_name, cluster_papers in sorted(clusters.items(), key=lambda x: (-len(x[1]), x[0])):
-        result.append({
-            "name": cluster_name,
-            "count": len(cluster_papers),
-            "papers": cluster_papers
-        })
+    for cluster_name, cluster_papers in sorted(
+        clusters.items(), key=lambda x: (-len(x[1]), x[0])
+    ):
+        result.append(
+            {
+                "name": cluster_name,
+                "count": len(cluster_papers),
+                "papers": cluster_papers,
+            }
+        )
     return result
 
 
@@ -691,8 +840,8 @@ def collect_all_tags(papers: List[Dict]) -> List[Dict]:
     arxiv_counts = {}
     cluster_counts = {}
     for paper in papers:
-        tags = paper.get('tags', []) or []
-        cluster = paper.get('cluster', 'Other')
+        tags = paper.get("tags", []) or []
+        cluster = paper.get("cluster", "Other")
         cluster_counts[cluster] = cluster_counts.get(cluster, 0) + 1
         for tag in tags:
             arxiv_counts[tag] = arxiv_counts.get(tag, 0) + 1
@@ -722,14 +871,41 @@ def prune_stale_date_files(data_dir: Path, valid_dates: List[str]) -> None:
             print(f"删除未发布日期数据文件: {date_file}")
 
 
+def stage_date_data_files(
+    data_dir: Path,
+    date_payloads: Dict[str, Dict[str, Any]],
+    index_data: Dict[str, Any],
+) -> Path:
+    """Write candidate published JSON into a staging directory before commit."""
+    data_dir.mkdir(parents=True, exist_ok=True)
+    stage_dir = Path(tempfile.mkdtemp(prefix=".publish-stage-", dir=str(data_dir)))
+    try:
+        for date, date_data in date_payloads.items():
+            staged_date_file = stage_dir / f"{date}.json"
+            if not save_json(
+                str(staged_date_file), date_data, indent=None, ensure_ascii=False
+            ):
+                raise IOError(f"暂存数据文件失败: {staged_date_file}")
+
+        staged_index_file = stage_dir / "index.json"
+        if not save_json(
+            str(staged_index_file), index_data, indent=2, ensure_ascii=False
+        ):
+            raise IOError(f"暂存索引文件失败: {staged_index_file}")
+
+        return stage_dir
+    except Exception:
+        shutil.rmtree(stage_dir, ignore_errors=True)
+        raise
+
+
 def save_date_data_files(papers_by_date: Dict, daily_overviews: Dict) -> List[str]:
     """将每个日期的数据保存为独立的 JSON 文件"""
-    data_dir = Path(WEBPAGES_DIR) / "data"
-    data_dir.mkdir(parents=True, exist_ok=True)
-
     all_dates = sorted(papers_by_date.keys(), reverse=True)
-    prune_stale_date_files(data_dir, all_dates)
+    if not all_dates:
+        raise ValueError("没有可发布日期，拒绝写入空网页数据索引")
 
+    date_payloads: Dict[str, Dict[str, Any]] = {}
     for date in all_dates:
         papers = papers_by_date[date]
         organized = organize_papers_by_cluster(papers)
@@ -739,30 +915,43 @@ def save_date_data_files(papers_by_date: Dict, daily_overviews: Dict) -> List[st
             "date": date,
             "clusters": organized,
             "tags": tags,
-            "overview": daily_overviews.get(date, "")
+            "overview": daily_overviews.get(date, ""),
         }
 
         ok, errors = validate_date_data_payload(date_data, expected_date=date)
         if not ok:
             raise ValueError(f"{date} 未通过发布质量检查: {'; '.join(errors[:5])}")
-
-        date_file = data_dir / f"{date}.json"
-        if not save_json(str(date_file), date_data, indent=None, ensure_ascii=False):
-            raise IOError(f"保存数据文件失败: {date_file}")
-        print(f"保存数据文件: {date_file}")
+        date_payloads[date] = date_data
 
     # 生成日期索引文件
     index_data = {
         "dates": all_dates,
         "initial_days": INITIAL_DAYS,
-        "load_more_days": LOAD_MORE_DAYS
+        "load_more_days": LOAD_MORE_DAYS,
     }
-    index_file = data_dir / "index.json"
-    if not save_json(str(index_file), index_data, indent=2, ensure_ascii=False):
-        raise IOError(f"保存索引文件失败: {index_file}")
-    print(f"保存索引文件: {index_file}")
+    data_dir = Path(WEBPAGES_DIR) / "data"
+    data_snapshot = snapshot_directory(data_dir)
+    stage_dir = stage_date_data_files(data_dir, date_payloads, index_data)
+    try:
+        try:
+            for date in all_dates:
+                date_file = data_dir / f"{date}.json"
+                os.replace(stage_dir / f"{date}.json", date_file)
+                print(f"保存数据文件: {date_file}")
+
+            index_file = data_dir / "index.json"
+            os.replace(stage_dir / "index.json", index_file)
+            print(f"保存索引文件: {index_file}")
+
+            prune_stale_date_files(data_dir, all_dates)
+        except Exception:
+            restore_directory_snapshot(data_dir, data_snapshot)
+            raise
+    finally:
+        shutil.rmtree(stage_dir, ignore_errors=True)
 
     return all_dates
+
 
 def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
     """生成完整的HTML页面"""
@@ -782,68 +971,34 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
     data_version = build_data_version(papers_by_date, daily_overviews)
 
     # 生成JavaScript数据 - 只包含初始数据
-    js_data = "const allPapers = {\n"
+    initial_papers = {}
     for date in initial_dates:
         papers = papers_by_date.get(date, [])
         organized = organize_papers_by_cluster(papers)
+        date_payload = {"clusters": organized}
+        initial_papers[date] = project_embedded_clusters(date_payload)
 
-        js_data += f'    "{date}": [\n'
-        for cluster_info in organized:
-            js_data += "        {\n"
-            js_data += f'            "name": "{escape_js_string(cluster_info["name"])}",\n'
-            js_data += f'            "count": {cluster_info["count"]},\n'
-            js_data += '            "papers": [\n'
-
-            for paper in cluster_info["papers"]:
-                tags_json = json.dumps(paper.get("tags", []), ensure_ascii=False)
-                js_data += "                {\n"
-                js_data += f'                    "title": "{escape_js_string(paper.get("title", ""))}",\n'
-                js_data += f'                    "arxiv_id": "{escape_js_string(paper.get("arxiv_id", ""))}",\n'
-                js_data += f'                    "authors": "{escape_js_string(paper.get("authors", ""))}",\n'
-                js_data += f'                    "summary": "{escape_js_string(paper.get("summary", ""))}",\n'
-                js_data += f'                    "category": "{escape_js_string(paper.get("category", ""))}",\n'
-                js_data += f'                    "cluster": "{escape_js_string(paper.get("cluster", "Other"))}",\n'
-                js_data += f'                    "tags": {tags_json},\n'
-                js_data += f'                    "filter_reason": "{escape_js_string(paper.get("filter_reason", ""))}",\n'
-                js_data += f'                    "intro_logic": "{escape_js_string(paper.get("intro_logic", ""))}",\n'
-                js_data += f'                    "core_insight": "{escape_js_string(paper.get("core_insight", ""))}",\n'
-                js_data += f'                    "methodology": "{escape_js_string(paper.get("methodology", ""))}",\n'
-                js_data += f'                    "additional_insights": "{escape_js_string(paper.get("additional_insights", ""))}",\n'
-                js_data += f'                    "research_value": "{escape_js_string(paper.get("research_value", ""))}",\n'
-                js_data += f'                    "research_value_source": "{escape_js_string(paper.get("research_value_source", ""))}",\n'
-                js_data += f'                    "research_value_model": "{escape_js_string(paper.get("research_value_model", ""))}",\n'
-                js_data += f'                    "research_value_reasoning_effort": "{escape_js_string(paper.get("research_value_reasoning_effort", ""))}",\n'
-                js_data += f'                    "affiliations": "{escape_js_string(paper.get("affiliations", ""))}",\n'
-                js_data += f'                    "summary_translation": "{escape_js_string(paper.get("summary_translation", ""))}"\n'
-                js_data += "                },\n"
-
-            js_data += "            ]\n"
-            js_data += "        },\n"
-        js_data += "    ],\n"
-    js_data += "};\n\n"
+    js_data = f"const allPapers = {dumps_js(initial_papers)};\n\n"
 
     # 生成 allPaperTags 数据
-    js_data += "const allPaperTags = {\n"
-    for date in initial_dates:
-        papers = papers_by_date.get(date, [])
-        tags = collect_all_tags(papers)
-        tags_json = json.dumps(tags, ensure_ascii=False)
-        js_data += f'    "{date}": {tags_json},\n'
-    js_data += "};\n\n"
+    initial_tags = {
+        date: collect_all_tags(papers_by_date.get(date, [])) for date in initial_dates
+    }
+    js_data += f"const allPaperTags = {dumps_js(initial_tags)};\n\n"
 
     # 添加所有可用日期列表（用于按需加载）
-    js_data += f"const availableDates = {json.dumps(all_dates)};\n"
-    js_data += f"const loadedDates = new Set({json.dumps(initial_dates)});\n"
+    js_data += f"const availableDates = {dumps_js(all_dates)};\n"
+    js_data += f"const loadedDates = new Set({dumps_js(initial_dates)});\n"
     js_data += f"const LOAD_MORE_DAYS = {LOAD_MORE_DAYS};\n\n"
-    js_data += f"const DATA_VERSION = {json.dumps(data_version)};\n\n"
+    js_data += f"const DATA_VERSION = {dumps_js(data_version)};\n\n"
 
     # 添加每日速览数据 - 只包含初始数据
-    js_data += "const dailyOverviewsRaw = {\n"
-    for date in initial_dates:
-        overview = daily_overviews.get(date, "")
-        if overview:
-            js_data += f'    "{date}": {json.dumps(overview)},\n'
-    js_data += "};\n"
+    initial_overviews = {
+        date: daily_overviews.get(date, "")
+        for date in initial_dates
+        if daily_overviews.get(date, "")
+    }
+    js_data += f"const dailyOverviewsRaw = {dumps_js(initial_overviews)};\n"
     # 在客户端，我们再将解析后的字符串赋值给 dailyOverviews
     js_data += "const dailyOverviews = {};\n"
     js_data += "for (const date in dailyOverviewsRaw) {\n"
@@ -851,7 +1006,7 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
     js_data += "}\n"
 
     # 完整的HTML模板
-    html_template = f'''<!DOCTYPE html>
+    html_template = f"""<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -1600,7 +1755,7 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
 
         // 删除论文
         function deletePaper(arxivId, title) {{
-            const paperEl = document.querySelector(`[data-arxiv-id="${{arxivId}}"]`);
+            const paperEl = document.querySelector(`[data-arxiv-id="${{cssEscape(arxivId)}}"]`);
             if (!paperEl) return;
             const listItem = paperEl.closest('li');
             const sectionEl = paperEl.closest('section[data-date-section]');
@@ -1645,7 +1800,7 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
                 renderPapers();
             }} else {{
                 // 否则只更新星标按钮状态
-                const starBtn = document.querySelector(`[data-arxiv-id="${{arxivId}}"] .star-button`);
+                const starBtn = document.querySelector(`[data-arxiv-id="${{cssEscape(arxivId)}}"] .star-button`);
                 if (starBtn) {{
                     if (starredPapers.has(arxivId)) {{
                         starBtn.classList.add('starred');
@@ -1658,7 +1813,7 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
 
         // 切换已读状态
         function toggleRead(arxivId) {{
-            const checkbox = document.querySelector(`[data-arxiv-id="${{arxivId}}"] input[type="checkbox"]`);
+            const checkbox = document.querySelector(`[data-arxiv-id="${{cssEscape(arxivId)}}"] input[type="checkbox"]`);
             if (!checkbox) return;
 
             if (checkbox.checked) {{
@@ -1737,12 +1892,65 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
             if (id && content) mdRawContent[id] = content;
         }}
 
+        function escapeHtml(value) {{
+            return String(value ?? '').replace(/[&<>"']/g, ch => ({{
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }}[ch]));
+        }}
+
+        function escapeJsSingleQuotedAttr(value) {{
+            return escapeHtml(String(value ?? '')
+                .replace(/\\/g, '\\\\')
+                .replace(/'/g, "\\'")
+                .replace(/\r/g, '\\r')
+                .replace(/\n/g, '\\n')
+                .replace(/\u2028/g, '\\u2028')
+                .replace(/\u2029/g, '\\u2029'));
+        }}
+
+        function safePathSegment(value) {{
+            return encodeURIComponent(String(value ?? ''));
+        }}
+
+        function cssEscape(value) {{
+            const text = String(value ?? '');
+            if (window.CSS && typeof CSS.escape === 'function') return CSS.escape(text);
+            return text.replace(/["\\]/g, '\\$&');
+        }}
+
+        function escapeMarkdownHtml(value) {{
+            return String(value ?? '').replace(/[&<>]/g, ch => ({{
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;'
+            }}[ch]));
+        }}
+
+        function sanitizeRenderedMarkdown(root) {{
+            root.querySelectorAll('script, style, iframe, object, embed').forEach(el => el.remove());
+            root.querySelectorAll('a[href]').forEach(link => {{
+                const href = link.getAttribute('href') || '';
+                if (!/^(https?:|mailto:|#|[/])/i.test(href)) {{
+                    link.removeAttribute('href');
+                }}
+                link.setAttribute('target', '_blank');
+                link.setAttribute('rel', 'noopener noreferrer');
+            }});
+        }}
+
         // Parse markdown for a single element by id
         function renderMarkdownEl(el) {{
             if (!el || el.getAttribute('data-rendered')) return;
             const raw = mdRawContent[el.id];
             if (raw) {{
-                try {{ el.innerHTML = marked.parse(raw); }} catch (e) {{ el.textContent = raw; }}
+                try {{
+                    el.innerHTML = marked.parse(escapeMarkdownHtml(raw));
+                    sanitizeRenderedMarkdown(el);
+                }} catch (e) {{ el.textContent = raw; }}
                 el.setAttribute('data-rendered', '1');
             }}
         }}
@@ -1771,7 +1979,7 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
 
         // 创建论文HTML
         function formatAuthorsWithAffiliations(authorsStr, affiliationsStr) {{
-            if (!affiliationsStr) return authorsStr;
+            if (!affiliationsStr) return escapeHtml(authorsStr);
             try {{
                 // 解析 JSON（可能被包在 ```json ... ``` 中）
                 let jsonStr = affiliationsStr;
@@ -1788,11 +1996,13 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
                     data.forEach(a => {{ if (a.name && a.affiliation) affMap[a.name.trim().toLowerCase()] = a.affiliation; }});
                     return authors.map(a => {{
                         const aff = affMap[a.trim().toLowerCase()];
-                        return aff ? `${{a.trim()}}<sup class="aff-sup" title="${{aff}}">${{aff}}</sup>` : a.trim();
+                        return aff
+                            ? `${{escapeHtml(a.trim())}}<sup class="aff-sup" title="${{escapeHtml(aff)}}">${{escapeHtml(aff)}}</sup>`
+                            : escapeHtml(a.trim());
                     }}).join(', ');
                 }}
 
-                if (!data.authors || !data.institutions) return authorsStr;
+                if (!data.authors || !data.institutions) return escapeHtml(authorsStr);
 
                 // 新格式：论文式数字角标
                 const instMap = {{}};
@@ -1807,22 +2017,23 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
                     if (a.markers && a.markers.length > 0) {{
                         sups = sups.concat(a.markers);
                     }}
+                    const supValues = sups.map(escapeHtml).join(',');
                     const supStr = sups.length > 0
-                        ? `<sup class="aff-sup">${{sups.join(',')}}</sup>`
+                        ? `<sup class="aff-sup">${{supValues}}</sup>`
                         : '';
-                    return `${{a.name}}${{supStr}}`;
+                    return `${{escapeHtml(a.name)}}${{supStr}}`;
                 }});
 
                 // 渲染机构列表
                 const instLine = data.institutions.map(inst =>
-                    `<sup class="aff-sup">${{inst.id}}</sup>${{inst.name}}`
+                    `<sup class="aff-sup">${{escapeHtml(inst.id)}}</sup>${{escapeHtml(inst.name)}}`
                 ).join('&ensp;');
 
                 // 渲染脚注
                 let footLine = '';
                 if (data.footnotes && data.footnotes.length > 0) {{
                     footLine = data.footnotes.map(fn =>
-                        `<sup class="aff-sup">${{fn.marker}}</sup>${{fn.text}}`
+                        `<sup class="aff-sup">${{escapeHtml(fn.marker)}}</sup>${{escapeHtml(fn.text)}}`
                     ).join('&ensp;');
                 }}
 
@@ -1833,7 +2044,7 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
                 }}
                 return html;
             }} catch (e) {{
-                return authorsStr;
+                return escapeHtml(authorsStr);
             }}
         }}
 
@@ -1841,33 +2052,39 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
         const paperDataMap = {{}};
 
         function createPaperHTML(paper, date) {{
-            const isStarred = starredPapers.has(paper.arxiv_id);
-            const isRead = readPapers.has(paper.arxiv_id);
-            const isDeleted = deletedPapers.has(paper.arxiv_id);
+            const aid = String(paper.arxiv_id ?? '');
+            const aidHtml = escapeHtml(aid);
+            const aidArg = escapeJsSingleQuotedAttr(aid);
+            const titleHtml = escapeHtml(paper.title);
+            const titleAttr = escapeHtml(paper.title);
+            const dateHtml = escapeHtml(date);
+            const isStarred = starredPapers.has(aid);
+            const isRead = readPapers.has(aid);
+            const isDeleted = deletedPapers.has(aid);
 
             if (isDeleted) return '';
             if (showOnlyStarred && !isStarred) return '';
             if (!paperMatchesFilters(paper, date)) return '';
 
             // Store paper data for lazy rendering
-            paperDataMap[paper.arxiv_id] = {{ paper, date }};
+            paperDataMap[aid] = {{ paper, date }};
 
-            const clusterBadge = paper.cluster ? `<span class="tag-badge">${{paper.cluster}}</span>` : '';
-            const tagBadges = (paper.tags || []).map(tag => `<span class="tag-badge tag-arxiv">${{tag}}</span>`).join('');
+            const clusterBadge = paper.cluster ? `<span class="tag-badge">${{escapeHtml(paper.cluster)}}</span>` : '';
+            const tagBadges = (paper.tags || []).map(tag => `<span class="tag-badge tag-arxiv">${{escapeHtml(tag)}}</span>`).join('');
 
             return `
-                <div class="paper-item bg-white dark:bg-slate-800/50 rounded-lg shadow-sm p-4 sm:p-6" data-arxiv-id="${{paper.arxiv_id}}">
+                <div class="paper-item bg-white dark:bg-slate-800/50 rounded-lg shadow-sm p-4 sm:p-6" data-arxiv-id="${{aidHtml}}">
                     <!-- 论文标题和操作按钮 -->
                     <div class="flex items-start justify-between mb-1">
                         <div class="flex items-start space-x-2 sm:space-x-3 flex-1 min-w-0">
-                            <button class="star-button ${{isStarred ? 'starred' : ''}} mt-1 flex-shrink-0" onclick="toggleStar('${{paper.arxiv_id}}')" title="点击收藏">
+                            <button class="star-button ${{isStarred ? 'starred' : ''}} mt-1 flex-shrink-0" onclick="toggleStar('${{aidArg}}')" title="点击收藏">
                                 <svg class="h-5 w-5 sm:h-6 sm:w-6" viewBox="0 0 20 20" fill="currentColor">
                                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                 </svg>
                             </button>
-                            <h3 class="text-base sm:text-lg font-semibold text-black dark:text-white leading-tight break-words cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors" onclick="togglePaperDetail('${{paper.arxiv_id}}')">${{paper.title}}</h3>
+                            <h3 class="text-base sm:text-lg font-semibold text-black dark:text-white leading-tight break-words cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors" onclick="togglePaperDetail('${{aidArg}}')">${{titleHtml}}</h3>
                         </div>
-                        <button class="delete-button text-slate-400 hover:text-red-500 ml-2 sm:ml-4 flex-shrink-0" onclick="deletePaperByButton(this)" data-arxiv-id="${{paper.arxiv_id}}" data-title="${{paper.title.replace(/"/g, '&quot;')}}" title="删除">
+                        <button class="delete-button text-slate-400 hover:text-red-500 ml-2 sm:ml-4 flex-shrink-0" onclick="deletePaperByButton(this)" data-arxiv-id="${{aidHtml}}" data-title="${{titleAttr}}" title="删除">
                             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                             </svg>
@@ -1877,10 +2094,10 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
                     <!-- 论文元信息（始终可见） -->
                     <div class="space-y-1 mb-2">
                         <div class="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-                            <span class="break-all"><strong>ArXiv ID:</strong> ${{paper.arxiv_id}}</span>
+                            <span class="break-all"><strong>ArXiv ID:</strong> ${{aidHtml}}</span>
                             ${{clusterBadge}}
                             ${{tagBadges}}
-                            <span class="whitespace-nowrap">${{date}}</span>
+                            <span class="whitespace-nowrap">${{dateHtml}}</span>
                         </div>
                         <div class="text-xs sm:text-sm text-black dark:text-white break-words">
                             <strong>作者:</strong> ${{formatAuthorsWithAffiliations(paper.authors, paper.affiliations)}}
@@ -1888,12 +2105,12 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
                     </div>
 
                     <!-- 展开/收起指示器 -->
-                    <div class="paper-expand-hint text-xs text-slate-400 dark:text-slate-500 cursor-pointer select-none" onclick="togglePaperDetail('${{paper.arxiv_id}}')" id="expand-hint-${{paper.arxiv_id}}">
+                    <div class="paper-expand-hint text-xs text-slate-400 dark:text-slate-500 cursor-pointer select-none" onclick="togglePaperDetail('${{aidArg}}')" id="expand-hint-${{aidHtml}}">
                         <span class="expand-arrow">▶</span> 点击标题展开详情
                     </div>
 
                     <!-- 懒加载的详情容器 -->
-                    <div class="paper-detail hidden" id="detail-${{paper.arxiv_id}}"></div>
+                    <div class="paper-detail hidden" id="detail-${{aidHtml}}"></div>
                 </div>
             `;
         }}
@@ -1907,7 +2124,10 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
             const {{ paper, date }} = paperDataMap[arxivId];
             if (!paper) return;
 
-            const aid = paper.arxiv_id;
+            const aid = String(paper.arxiv_id ?? '');
+            const aidHtml = escapeHtml(aid);
+            const aidArg = escapeJsSingleQuotedAttr(aid);
+            const aidPath = safePathSegment(aid);
             const isRead = readPapers.has(aid);
 
             // Register all markdown content
@@ -1928,7 +2148,7 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
             html += `
                 <div class="mb-3 sm:mb-4 mt-3">
                     <label class="inline-flex items-center">
-                        <input type="checkbox" ${{isRead ? 'checked' : ''}} onchange="toggleRead('${{aid}}')" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 w-4 h-4">
+                        <input type="checkbox" ${{isRead ? 'checked' : ''}} onchange="toggleRead('${{aidArg}}')" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 w-4 h-4">
                         <span class="ml-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400">已阅读</span>
                     </label>
                 </div>
@@ -1942,10 +2162,10 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
                         <div class="inner">
                             <div class="summary-section bg-green-50/70 dark:bg-green-950/20 border-l-3 border-green-300 p-3 sm:p-4 rounded-r-lg">
                                 ${{hasSummaryEn ? `
-                                <div class="english-summary text-xs sm:text-sm text-black dark:text-white leading-relaxed markdown-content break-words" id="summary-en-${{aid}}" style="display: block;">
+                                <div class="english-summary text-xs sm:text-sm text-black dark:text-white leading-relaxed markdown-content break-words" id="summary-en-${{aidHtml}}" style="display: block;">
                                 </div>` : ''}}
                                 ${{hasSummaryZh ? `
-                                <div class="chinese-summary text-xs sm:text-sm text-black dark:text-white leading-relaxed markdown-content break-words" id="summary-zh-${{aid}}" style="display: ${{hasSummaryEn ? 'none' : 'block'}};">
+                                <div class="chinese-summary text-xs sm:text-sm text-black dark:text-white leading-relaxed markdown-content break-words" id="summary-zh-${{aidHtml}}" style="display: ${{hasSummaryEn ? 'none' : 'block'}};">
                                 </div>` : ''}}
                                 ${{!hasSummaryEn && !hasSummaryZh ? `
                                 <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
@@ -1977,7 +2197,7 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
                             <div class="collapsible-content">
                                 <div class="inner">
                                     <div class="bg-${{s.color}}-50/70 dark:bg-${{s.color}}-950/20 border-l-3 border-${{s.color}}-300 p-3 sm:p-4 rounded-r-lg">
-                                        <div class="text-xs sm:text-sm text-black dark:text-white leading-relaxed markdown-content break-words" id="${{s.id}}">
+                                        <div class="text-xs sm:text-sm text-black dark:text-white leading-relaxed markdown-content break-words" id="${{escapeHtml(s.id)}}">
                                         </div>
                                     </div>
                                 </div>
@@ -2000,15 +2220,15 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
             // 论文链接
             html += `
                 <div class="flex flex-wrap gap-2">
-                    <a href="https://arxiv.org/abs/${{aid}}" target="_blank"
+                    <a href="https://arxiv.org/abs/${{aidPath}}" target="_blank" rel="noopener noreferrer"
                        class="inline-flex items-center px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors whitespace-nowrap">
                         arXiv 原文
                     </a>
-                    <a href="https://arxiv.org/pdf/${{aid}}.pdf" target="_blank"
+                    <a href="https://arxiv.org/pdf/${{aidPath}}.pdf" target="_blank" rel="noopener noreferrer"
                        class="inline-flex items-center px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md transition-colors whitespace-nowrap">
                         PDF 下载
                     </a>
-                    <a href="https://papers.cool/arxiv/${{aid}}" target="_blank"
+                    <a href="https://papers.cool/arxiv/${{aidPath}}" target="_blank" rel="noopener noreferrer"
                        class="inline-flex items-center px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors whitespace-nowrap">
                         Cool Paper
                     </a>
@@ -2081,13 +2301,15 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
         function buildTagFilterBar(date) {{
             const tags = allPaperTags[date];
             if (!tags || tags.length === 0) return '';
+            const dateArg = escapeJsSingleQuotedAttr(date);
             const filters = activeTagFilters[date] || new Set();
             const allActive = filters.size === 0;
             let html = '<div class="flex flex-wrap gap-1.5 mb-3">';
-            html += `<button class="tag-btn ${{allActive ? 'active' : ''}}" onclick="toggleTagFilter('${{date}}','All')">All</button>`;
+            html += `<button class="tag-btn ${{allActive ? 'active' : ''}}" onclick="toggleTagFilter('${{dateArg}}','All')">All</button>`;
             tags.forEach(tag => {{
                 const isActive = filters.has(tag.name);
-                html += `<button class="tag-btn ${{isActive ? 'active' : ''}}" onclick="toggleTagFilter('${{date}}','${{tag.name.replace(/'/g, "\\\\'")}}')">${{tag.name}} &times;${{tag.count}}</button>`;
+                const tagArg = escapeJsSingleQuotedAttr(tag.name);
+                html += `<button class="tag-btn ${{isActive ? 'active' : ''}}" onclick="toggleTagFilter('${{dateArg}}','${{tagArg}}')">${{escapeHtml(tag.name)}} &times;${{escapeHtml(tag.count)}}</button>`;
             }});
             html += '</div>';
             return html;
@@ -2111,12 +2333,13 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
             for (const date in allPapers) {{
                 const clusters = allPapers[date] || [];
                 const {{ html: papersHTML, count: dateVisibleTotal }} = collectPapersForDate(clusters, date);
+                const dateHtml = escapeHtml(date);
 
                 totalPapers += dateVisibleTotal;
 
                 html += `
-                    <section class="mb-6 sm:mb-8" data-date-section="${{date}}">
-                        <h2 class="text-base sm:text-lg font-medium text-slate-500 dark:text-slate-400 mb-3 sm:mb-4" data-date-heading="${{date}}">${{date}} (${{dateVisibleTotal}} 篇论文)</h2>
+                    <section class="mb-6 sm:mb-8" data-date-section="${{dateHtml}}">
+                        <h2 class="text-base sm:text-lg font-medium text-slate-500 dark:text-slate-400 mb-3 sm:mb-4" data-date-heading="${{dateHtml}}">${{dateHtml}} (${{escapeHtml(dateVisibleTotal)}} 篇论文)</h2>
                 `;
 
                 // 添加该日期的AI论文速览（如果存在）
@@ -2305,21 +2528,25 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
 
                 const countLabel = isLoaded ? papers.length : '...';
                 const dimClass = isLoaded ? '' : ' opacity-50';
+                const dateHtml = escapeHtml(date);
+                const dateArg = escapeJsSingleQuotedAttr(date);
 
-                html += `<div class="mb-1" data-toc-date="${{date}}">`;
-                html += `<div class="toc-date${{dimClass}}" onclick="tocToggleDate(this, '${{date}}')" data-toc-date-btn="${{date}}">`;
+                html += `<div class="mb-1" data-toc-date="${{dateHtml}}">`;
+                html += `<div class="toc-date${{dimClass}}" onclick="tocToggleDate(this, '${{dateArg}}')" data-toc-date-btn="${{dateHtml}}">`;
                 html += `<span class="toc-date-arrow">▶</span>`;
-                html += `<span>${{date}}</span>`;
-                html += `<span class="text-xs text-slate-400 ml-auto">${{countLabel}}</span>`;
+                html += `<span>${{dateHtml}}</span>`;
+                html += `<span class="text-xs text-slate-400 ml-auto">${{escapeHtml(countLabel)}}</span>`;
                 html += `</div>`;
-                html += `<div class="toc-papers" data-toc-papers="${{date}}">`;
+                html += `<div class="toc-papers" data-toc-papers="${{dateHtml}}">`;
                 if (isLoaded) {{
                     papers.forEach(paper => {{
                         const title = paper.title.length > 50 ? paper.title.substring(0, 47) + '...' : paper.title;
-                        html += `<div class="toc-paper" onclick="tocScrollToPaper('${{paper.arxiv_id}}')" data-toc-paper="${{paper.arxiv_id}}" title="${{paper.title.replace(/"/g, '&quot;')}}">${{title}}</div>`;
+                        const aidHtml = escapeHtml(paper.arxiv_id);
+                        const aidArg = escapeJsSingleQuotedAttr(paper.arxiv_id);
+                        html += `<div class="toc-paper" onclick="tocScrollToPaper('${{aidArg}}')" data-toc-paper="${{aidHtml}}" title="${{escapeHtml(paper.title)}}">${{escapeHtml(title)}}</div>`;
                     }});
                 }} else {{
-                    html += `<div class="toc-paper opacity-50" onclick="tocLoadAndScrollToDate('${{date}}')">点击加载...</div>`;
+                    html += `<div class="toc-paper opacity-50" onclick="tocLoadAndScrollToDate('${{dateArg}}')">点击加载...</div>`;
                 }}
                 html += `</div></div>`;
             }}
@@ -2358,7 +2585,7 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
                 return;
             }}
             const arrow = el.querySelector('.toc-date-arrow');
-            const papers = document.querySelector(`[data-toc-papers="${{date}}"]`);
+            const papers = document.querySelector(`[data-toc-papers="${{cssEscape(date)}}"]`);
             if (papers) {{
                 papers.classList.toggle('open');
                 arrow.classList.toggle('open');
@@ -2368,7 +2595,7 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
         }}
 
         function tocScrollToPaper(arxivId) {{
-            const el = document.querySelector(`[data-arxiv-id="${{arxivId}}"]`);
+            const el = document.querySelector(`[data-arxiv-id="${{cssEscape(arxivId)}}"]`);
             if (el) {{
                 el.scrollIntoView({{ behavior: 'smooth', block: 'center' }});
                 // 短暂高亮
@@ -2382,7 +2609,7 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
         }}
 
         function tocScrollToDate(date) {{
-            const section = document.querySelector(`[data-date-section="${{date}}"]`);
+            const section = document.querySelector(`[data-date-section="${{cssEscape(date)}}"]`);
             if (section) {{
                 section.scrollIntoView({{ behavior: 'smooth', block: 'start' }});
             }}
@@ -2407,7 +2634,7 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
                     // 更新 TOC 高亮
                     document.querySelectorAll('.toc-date').forEach(el => el.classList.remove('active'));
                     if (currentDate) {{
-                        const activeBtn = document.querySelector(`[data-toc-date-btn="${{currentDate}}"]`);
+                        const activeBtn = document.querySelector(`[data-toc-date-btn="${{cssEscape(currentDate)}}"]`);
                         if (activeBtn) {{
                             activeBtn.classList.add('active');
                             // 确保活跃日期在 TOC 可视区域内
@@ -2444,9 +2671,10 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
         }});
     </script>
 </body>
-</html>'''
+</html>"""
 
     return html_template
+
 
 def validate_required_date(require_date: str) -> None:
     """Ensure a requested date was generated and is ready for publication."""
@@ -2465,6 +2693,106 @@ def validate_required_date(require_date: str) -> None:
         raise ValueError(f"{require_date} 未通过发布质量检查: {'; '.join(errors[:5])}")
 
 
+def validate_generated_webpages_for_publication() -> None:
+    """Run the release validator before reporting successful page generation."""
+    try:
+        from scripts.validate_published_payloads import validate_webpages_data
+    except Exception as exc:  # pragma: no cover - exercised via CLI environments
+        raise RuntimeError(f"发布校验器不可用: {exc}") from exc
+
+    errors = validate_webpages_data(Path(WEBPAGES_DIR))
+    if errors:
+        raise ValueError(f"生成网页未通过发布校验: {'; '.join(errors[:5])}")
+
+
+def snapshot_file(path: Path) -> tuple[bool, bytes]:
+    """Capture a file before replacement so failed generation can roll back."""
+    if not path.exists():
+        return False, b""
+    return True, path.read_bytes()
+
+
+def restore_file_snapshot(path: Path, snapshot: tuple[bool, bytes]) -> None:
+    """Restore or remove a generated file after a failed publish validation."""
+    existed, content = snapshot
+    if not existed:
+        if path.exists():
+            path.unlink()
+        return
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, temp_path = tempfile.mkstemp(
+        prefix=f".{path.name}.rollback.",
+        suffix=".tmp",
+        dir=str(path.parent),
+    )
+    try:
+        with os.fdopen(fd, "wb") as handle:
+            handle.write(content)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temp_path, path)
+    except Exception:
+        try:
+            os.unlink(temp_path)
+        except OSError:
+            pass
+        raise
+
+
+def snapshot_directory(path: Path) -> tuple[bool, Dict[str, bytes]]:
+    """Capture all files below a directory before generation mutates them."""
+    if not path.exists():
+        return False, {}
+    if not path.is_dir():
+        return False, {}
+
+    files: Dict[str, bytes] = {}
+    for file_path in sorted(path.rglob("*")):
+        if file_path.is_file():
+            files[str(file_path.relative_to(path))] = file_path.read_bytes()
+    return True, files
+
+
+def _atomic_write_bytes(path: Path, content: bytes) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, temp_path = tempfile.mkstemp(
+        prefix=f".{path.name}.rollback.",
+        suffix=".tmp",
+        dir=str(path.parent),
+    )
+    try:
+        with os.fdopen(fd, "wb") as handle:
+            handle.write(content)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temp_path, path)
+    except Exception:
+        try:
+            os.unlink(temp_path)
+        except OSError:
+            pass
+        raise
+
+
+def restore_directory_snapshot(
+    path: Path, snapshot: tuple[bool, Dict[str, bytes]]
+) -> None:
+    """Restore or remove a generated data directory after failed validation."""
+    existed, files = snapshot
+    if path.is_dir():
+        shutil.rmtree(path)
+    elif path.exists():
+        path.unlink()
+
+    if not existed:
+        return
+
+    path.mkdir(parents=True, exist_ok=True)
+    for relative_path, content in files.items():
+        _atomic_write_bytes(path / relative_path, content)
+
+
 def main():
     """主函数"""
     parser = argparse.ArgumentParser(description="生成统一 PaperTools 网页")
@@ -2474,29 +2802,42 @@ def main():
         help="要求指定日期必须生成完整、可发布的数据，否则返回非零退出码",
     )
     args = parser.parse_args()
+    webpages_dir = Path(WEBPAGES_DIR)
+    output_path = webpages_dir / "index.html"
+    output_snapshot = snapshot_file(output_path)
+    data_dir = webpages_dir / "data"
+    data_snapshot = snapshot_directory(data_dir)
 
     try:
         replace_dates = {args.require_date} if args.require_date else set()
         html_content = generate_complete_html(replace_dates=replace_dates)
 
         # 确保webpages目录存在
-        webpages_dir = Path(WEBPAGES_DIR)
         webpages_dir.mkdir(exist_ok=True)
 
         # 写入输出文件到webpages目录
-        output_path = webpages_dir / "index.html"
         if not save_text(str(output_path), html_content):
             raise IOError(f"写入统一HTML页面失败: {output_path}")
 
         validate_required_date(args.require_date)
+        validate_generated_webpages_for_publication()
 
         print(f"成功生成统一HTML页面: {output_path}")
 
     except Exception as e:
+        try:
+            restore_directory_snapshot(data_dir, data_snapshot)
+        except Exception as restore_error:
+            print(f"恢复旧网页数据时出错: {restore_error}")
+        try:
+            restore_file_snapshot(output_path, output_snapshot)
+        except Exception as restore_error:
+            print(f"恢复旧HTML页面时出错: {restore_error}")
         print(f"生成HTML页面时出错: {e}")
         return 1
 
     return 0
+
 
 if __name__ == "__main__":
     exit(main())

@@ -49,28 +49,36 @@ class OpenAlexSearchAPI:
 
     base_url = "https://api.openalex.org/works"
 
-    def __init__(self, paper_search_base_cls: Any = object, timeout: float = 20.0) -> None:
+    def __init__(
+        self, paper_search_base_cls: Any = object, timeout: float = 20.0
+    ) -> None:
         self.timeout = timeout
         self._paper_search_base_cls = paper_search_base_cls
 
-    def search_by_query(self, query: str, limit: int = 50, **kwargs: Any) -> List[Dict[str, Any]]:
+    def search_by_query(
+        self, query: str, limit: int = 50, **kwargs: Any
+    ) -> List[Dict[str, Any]]:
         params = {
             "search": query,
             "per-page": max(1, min(limit, 200)),
-            "select": ",".join([
-                "id",
-                "display_name",
-                "abstract_inverted_index",
-                "publication_year",
-                "authorships",
-                "cited_by_count",
-                "primary_location",
-                "doi",
-            ]),
+            "select": ",".join(
+                [
+                    "id",
+                    "display_name",
+                    "abstract_inverted_index",
+                    "publication_year",
+                    "authorships",
+                    "cited_by_count",
+                    "primary_location",
+                    "doi",
+                ]
+            ),
         }
         data = self._get(params)
         results = data.get("results", []) if isinstance(data, dict) else []
-        return [self._normalize_work(work) for work in results if work.get("display_name")]
+        return [
+            self._normalize_work(work) for work in results if work.get("display_name")
+        ]
 
     def search_by_title(self, title: str, **kwargs: Any) -> Optional[Dict[str, Any]]:
         matches = self.search_by_query(title, limit=1, **kwargs)
@@ -104,7 +112,12 @@ class OpenAlexSearchAPI:
                 authors.append(author["display_name"])
 
         abstract = _abstract_from_openalex_index(work.get("abstract_inverted_index"))
-        url = primary_location.get("landing_page_url") or work.get("doi") or work.get("id") or ""
+        url = (
+            primary_location.get("landing_page_url")
+            or work.get("doi")
+            or work.get("id")
+            or ""
+        )
         return {
             "title": work.get("display_name", ""),
             "abstract": abstract,
@@ -127,7 +140,9 @@ class FallbackPaperSearchAPI:
         self.fallback_api = fallback_api
         self.last_source = "primary"
 
-    def search_by_query(self, query: str, limit: int = 50, **kwargs: Any) -> List[Dict[str, Any]]:
+    def search_by_query(
+        self, query: str, limit: int = 50, **kwargs: Any
+    ) -> List[Dict[str, Any]]:
         papers = self._try_primary("search_by_query", query, limit=limit, **kwargs)
         if papers:
             self.last_source = self._primary_source_name()
@@ -237,7 +252,9 @@ def generate_reviewgrounder_review(
         "max_tokens": REVIEWGROUNDER_MAX_OUTPUT_TOKENS,
     }
 
-    related_work_searcher_cls = _build_related_work_searcher_cls(rg["RelatedWorkSearcher"])
+    related_work_searcher_cls = _build_related_work_searcher_cls(
+        rg["RelatedWorkSearcher"]
+    )
     related_work_searcher = related_work_searcher_cls(
         paper_retriever=paper_retriever,
         max_related_papers=REVIEWGROUNDER_MAX_RELATED_PAPERS,
@@ -323,7 +340,9 @@ def _build_related_work_searcher_cls(base_cls: Any) -> Any:
     return PaperToolsRelatedWorkSearcher
 
 
-def reviewgrounder_error_result(exc: Exception, paper_title: str = "") -> Dict[str, Any]:
+def reviewgrounder_error_result(
+    exc: Exception, paper_title: str = ""
+) -> Dict[str, Any]:
     return {
         "error": str(exc),
         "title": paper_title,
@@ -362,13 +381,19 @@ def reviewgrounder_markdown_from_result(review: Dict[str, Any]) -> str:
     if body:
         parts.append(body.strip())
     if review.get("search_keywords"):
-        parts.append("## Search Keywords\n\n" + ", ".join(map(str, review["search_keywords"])))
+        parts.append(
+            "## Search Keywords\n\n" + ", ".join(map(str, review["search_keywords"]))
+        )
     if review.get("refiner_error"):
-        parts.append(f"## Refiner Status\n\nRefiner fallback used: {review['refiner_error']}")
+        parts.append(
+            f"## Refiner Status\n\nRefiner fallback used: {review['refiner_error']}"
+        )
     return "\n\n".join(parts).strip()
 
 
-def _promote_initial_review_on_refiner_failure(review: Dict[str, Any]) -> Dict[str, Any]:
+def _promote_initial_review_on_refiner_failure(
+    review: Dict[str, Any],
+) -> Dict[str, Any]:
     """Use ReviewGrounder's initial review when the optional refiner step fails."""
     if not isinstance(review, dict) or not review.get("error"):
         return review
@@ -406,7 +431,9 @@ def _promote_initial_review_on_refiner_failure(review: Dict[str, Any]) -> Dict[s
     return review
 
 
-def _initial_review_markdown(initial_review: Dict[str, Any]) -> Tuple[str, Dict[str, Any]]:
+def _initial_review_markdown(
+    initial_review: Dict[str, Any],
+) -> Tuple[str, Dict[str, Any]]:
     raw_review = initial_review.get("review")
     if isinstance(raw_review, str) and raw_review.strip():
         parsed = _parse_json_object(raw_review)
@@ -445,7 +472,10 @@ def _build_openai_compatible_llm(llm_base_cls: Any, chat_message_cls: Any) -> An
             **kwargs: Any,
         ) -> str:
             self.call_count += 1
-            if REVIEWGROUNDER_MAX_LLM_CALLS and self.call_count > REVIEWGROUNDER_MAX_LLM_CALLS:
+            if (
+                REVIEWGROUNDER_MAX_LLM_CALLS
+                and self.call_count > REVIEWGROUNDER_MAX_LLM_CALLS
+            ):
                 raise RuntimeError(
                     f"ReviewGrounder LLM call limit exceeded: {REVIEWGROUNDER_MAX_LLM_CALLS}"
                 )
@@ -496,9 +526,14 @@ def _build_openai_compatible_llm(llm_base_cls: Any, chat_message_cls: Any) -> An
                         f"(finish_reason={finish_reason})",
                         flush=True,
                     )
-                raise ValueError(f"ReviewGrounder LLM call returned empty output (finish_reason={finish_reason})")
+                raise ValueError(
+                    f"ReviewGrounder LLM call returned empty output (finish_reason={finish_reason})"
+                )
             if REVIEWGROUNDER_VERBOSE:
-                print(f"ReviewGrounder LLM call {self.call_count}: received {len(text)} chars", flush=True)
+                print(
+                    f"ReviewGrounder LLM call {self.call_count}: received {len(text)} chars",
+                    flush=True,
+                )
             return strip_think_tags(text)
 
         def stream_generate(
@@ -543,7 +578,9 @@ def _wait_for_reviewgrounder_rate_slot() -> float:
                 _REVIEWGROUNDER_CALL_TIMESTAMPS.append(now)
                 return waited
 
-            sleep_for = _RATE_WINDOW_SECONDS - (now - _REVIEWGROUNDER_CALL_TIMESTAMPS[0]) + 0.05
+            sleep_for = (
+                _RATE_WINDOW_SECONDS - (now - _REVIEWGROUNDER_CALL_TIMESTAMPS[0]) + 0.05
+            )
 
         sleep_for = max(0.05, sleep_for)
         if REVIEWGROUNDER_VERBOSE:
@@ -574,12 +611,16 @@ def _build_search_api(rg: Dict[str, Any]) -> Tuple[Any, str]:
             primary_api = None
 
     if primary_api is not None and REVIEWGROUNDER_ENABLE_WEB_FALLBACK:
-        return FallbackPaperSearchAPI(primary_api, fallback_api), f"{primary_source}+openalex_fallback"
+        return FallbackPaperSearchAPI(
+            primary_api, fallback_api
+        ), f"{primary_source}+openalex_fallback"
     if primary_api is not None:
         return primary_api, primary_source
     if REVIEWGROUNDER_ENABLE_WEB_FALLBACK:
         return fallback_api, "openalex"
-    raise ValueError("ReviewGrounder related-work search needs ASTA_API_KEY, S2_API_KEY, or REVIEWGROUNDER_ENABLE_WEB_FALLBACK=true")
+    raise ValueError(
+        "ReviewGrounder related-work search needs ASTA_API_KEY, S2_API_KEY, or REVIEWGROUNDER_ENABLE_WEB_FALLBACK=true"
+    )
 
 
 def _import_reviewgrounder() -> Dict[str, Any]:
@@ -595,17 +636,31 @@ def _import_reviewgrounder() -> Dict[str, Any]:
     try:
         _ensure_namespace_package("reviewgrounder_src", root / "src")
         from shared.utils.llm_service import ChatMessage, LLMService
-        from reviewgrounder_src.reviewer_agent.main_pipeline import review_paper_with_refiner
-        from reviewgrounder_src.reviewer_agent import paper_insight_miner as paper_insight_miner_module
-        from reviewgrounder_src.reviewer_agent import paper_results_analyzer as paper_results_analyzer_module
+        from reviewgrounder_src.reviewer_agent.main_pipeline import (
+            review_paper_with_refiner,
+        )
+        from reviewgrounder_src.reviewer_agent import (
+            paper_insight_miner as paper_insight_miner_module,
+        )
+        from reviewgrounder_src.reviewer_agent import (
+            paper_results_analyzer as paper_results_analyzer_module,
+        )
         from reviewgrounder_src.reviewer_agent.paper_reviewer import PaperReviewer
         from reviewgrounder_src.reviewer_agent.paper_search.asta_api import AstaAPI
-        from reviewgrounder_src.reviewer_agent.paper_search.paper_retriever import PaperRetriever
-        from reviewgrounder_src.reviewer_agent.paper_search.semantic_scholar_api import SemanticScholarAPI
-        from reviewgrounder_src.reviewer_agent.related_work_searcher import RelatedWorkSearcher
+        from reviewgrounder_src.reviewer_agent.paper_search.paper_retriever import (
+            PaperRetriever,
+        )
+        from reviewgrounder_src.reviewer_agent.paper_search.semantic_scholar_api import (
+            SemanticScholarAPI,
+        )
+        from reviewgrounder_src.reviewer_agent.related_work_searcher import (
+            RelatedWorkSearcher,
+        )
         from reviewgrounder_src.reviewer_agent.review_refiner import ReviewRefiner
     except Exception as exc:
-        raise ReviewGrounderDependencyError(f"Unable to import ReviewGrounder from {root}: {exc}") from exc
+        raise ReviewGrounderDependencyError(
+            f"Unable to import ReviewGrounder from {root}: {exc}"
+        ) from exc
 
     paper_insight_miner_module.MAX_JSON_RETRIES = REVIEWGROUNDER_JSON_TOOL_RETRIES
     paper_results_analyzer_module.MAX_JSON_RETRIES = REVIEWGROUNDER_JSON_TOOL_RETRIES
@@ -643,7 +698,9 @@ def _ensure_namespace_package(name: str, path: Path) -> None:
         package.__path__ = [str(path)]
 
 
-def _format_reviewgrounder_messages(messages: List[Any], chat_message_cls: Any) -> List[Dict[str, str]]:
+def _format_reviewgrounder_messages(
+    messages: List[Any], chat_message_cls: Any
+) -> List[Dict[str, str]]:
     formatted = []
     for message in messages:
         if isinstance(message, dict):
@@ -684,7 +741,9 @@ def _abstract_from_openalex_index(index: Any) -> str:
     return " ".join(words)
 
 
-def _tag_search_source(papers: List[Dict[str, Any]], source: str) -> List[Dict[str, Any]]:
+def _tag_search_source(
+    papers: List[Dict[str, Any]], source: str
+) -> List[Dict[str, Any]]:
     for paper in papers:
         if isinstance(paper, dict):
             paper.setdefault("search_source", source)

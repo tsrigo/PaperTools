@@ -100,7 +100,9 @@ def is_permanent_failure(status_file: str | None, log_file: str | None) -> bool:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Classify PaperTools daily pipeline failures.")
+    parser = argparse.ArgumentParser(
+        description="Classify PaperTools daily pipeline failures."
+    )
     parser.add_argument("--status-file")
     parser.add_argument("--log-file")
     parser.add_argument(

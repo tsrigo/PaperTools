@@ -1,0 +1,48 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-added-large-files
+        args: [--maxkb=1024]
+      - id: check-json
+      - id: check-toml
+      - id: check-yaml
+      - id: end-of-file-fixer
+        exclude: ^(webpages/data/|logs/|.*\.jsonl$)
+      - id: trailing-whitespace
+        exclude: ^(webpages/data/|logs/|.*\.jsonl$)
+
+  - repo: local
+    hooks:
+      - id: shell-syntax
+        name: shell syntax
+        entry: bash -n
+        language: system
+        files: \.sh$
+      - id: ruff-check
+        name: ruff check
+        entry: python -m ruff check --force-exclude --output-format=github
+        language: system
+        files: ^(papertools\.py|src/.*\.py|tests/.*\.py|scripts/.*\.py)$
+      - id: ruff-format
+        name: ruff format check
+        entry: python -m ruff format --force-exclude --check
+        language: system
+        files: ^(papertools\.py|src/.*\.py|tests/.*\.py|scripts/.*\.py)$
+      - id: validate-published-payloads
+        name: validate published payloads
+        entry: python scripts/validate_published_payloads.py
+        language: system
+        pass_filenames: false
+        files: ^(webpages/.*\.html|webpages/data/.*\.json|src/core/generate_unified_index\.py|src/utils/publish_quality\.py|scripts/validate_published_payloads\.py)$
+      - id: check-dependency-metadata
+        name: check dependency metadata
+        entry: python scripts/check_dependency_metadata.py
+        language: system
+        pass_filenames: false
+        files: ^(pyproject\.toml|requirements\.txt|scripts/check_dependency_metadata\.py)$
+      - id: check-secrets
+        name: check secrets
+        entry: python scripts/check_secrets.py
+        language: system
+        pass_filenames: false

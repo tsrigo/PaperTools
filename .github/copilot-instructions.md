@@ -15,22 +15,28 @@ PaperTools 是一个学术论文自动化处理流水线，使用 LLM API 进行
 - **优先级**: 命令行参数 > 环境变量 > 代码默认值
 - **关键配置**: API密钥、目录结构、处理限制、缓存策略
 
+### 发布质量不变量
+- 用户可见的 `webpages/` 是生产内容；不要发布空日期或部分生成的论文
+- 发布前必须运行 `scripts/validate_published_payloads.py --webpages-dir webpages`
+- 生产定时任务使用 `./daily_update.sh` 或 `scripts/robust_daily_update.sh`
+- `papertools run --skip-serve` 只适合本地诊断，不要作为生产 cron 发布命令
+
 ### 缓存架构
 - **多层缓存**: `src/utils/cache_manager.py` 管理论文内容、总结、网页缓存
-- **键值生成**: 使用 MD5 哈希(URL/内容) 作为缓存键
+- **键值生成**: 使用 SHA-256 哈希(URL/内容) 作为缓存键
 - **过期机制**: 基于文件时间戳的30天过期策略
 
 ## 开发工作流程
 
 ### 运行模式
 ```bash
-# 完整流程 (推荐用于新功能测试)
+# 完整流程 (用于本地开发验证)
 python papertools.py run --mode quick  # 10篇论文快速测试
-python papertools.py run --mode full   # 1000篇论文完整处理
+python papertools.py run --mode full --skip-serve   # 完整处理但不启动本地服务器
 
 # 独立模块开发/调试
 python src/core/crawl_arxiv.py --categories cs.AI --max-papers 10
-python src/core/select_.py --input-file arxiv_paper/papers.json
+python src/core/paper_filter.py --input-file arxiv_paper/papers.json
 ```
 
 ### 断点续传机制
@@ -40,10 +46,10 @@ python src/core/select_.py --input-file arxiv_paper/papers.json
 
 ### 目录约定
 ```
-arxiv_paper/     # 爬取原始数据 (JSON格式)  
-domain_paper/    # 筛选后数据 (含筛选理由)
-summary/         # 总结数据 (添加summary2字段)
-webpages/        # 生成HTML网页 (支持交互功能)
+arxiv_paper/     # 爬取原始数据 (JSON格式)
+domain_paper/    # 筛选和聚类后的中间数据
+summary/         # 完整论文总结、翻译和研究价值评估
+webpages/        # 已生成并待验证的用户可见网页和 data payload
 cache/           # 三级缓存 papers/summaries/webpages/
 ```
 
@@ -63,8 +69,9 @@ cache/           # 三级缓存 papers/summaries/webpages/
 论文数据在各阶段逐步增强:
 1. `crawl`: 基础字段 (title, summary, arxiv_id, link, date)
 2. `filter`: 添加 `filter_reason` 字段
-3. `summary`: 添加 `summary2` 字段 (中文总结)
-4. `webpage`: 转换为交互式 HTML
+3. `cluster`: 添加主题聚类和标签元数据
+4. `summary`: 添加中文摘要、intro logic、core insight、methodology、additional insights、research value review
+5. `webpage`: 转换为交互式 HTML 和 `webpages/data/*.json`
 
 ### Web服务架构
 - **自定义处理器**: `CustomHTTPRequestHandler` 扩展标准HTTP服务器
@@ -84,9 +91,10 @@ cache/           # 三级缓存 papers/summaries/webpages/
 - 使用带时间戳的 `ProgressTracker` 跟踪执行进度
 - 异常处理包含具体的错误上下文
 
-### 测试策略  
+### 测试策略
 - 优先使用 `--mode quick` 进行快速验证
 - 使用 `--skip-*` 参数测试单个组件
-- 检查各阶段输出文件的数据完整性
+- 修改发布相关逻辑后运行 `make ci`
+- 检查 `webpages/data/*.json`，不要只看日志或命令退出码
 
 当修改核心逻辑时，始终先用小数据集验证，确认数据流转和缓存机制正常工作。

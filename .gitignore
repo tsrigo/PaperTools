@@ -29,6 +29,9 @@ wheels/
 cache/
 *.cache
 .pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
 
 # 日志文件
 *.log
@@ -45,6 +48,13 @@ logs/
 tmp/
 temp/
 *.tmp
+tmp_*_review.jsonl
+
+# 本地热修/调试产物
+.papertools_hotfix_backup/
+.papertools_daily.lock/
+papertools_robust_hotfix.zip
+install_hardening.py
 
 # 根目录下的临时测试文件
 /test_*.py
@@ -63,17 +73,3 @@ domain_paper/
 summary/
 
 # webpages/ 目录需要保留用于 GitHub Pages 部署
-
-# 开发用文件（不上传）
-scripts/
-tests/
-templates/
-*.sh
-ARCHITECTURE.md
-CONTRIBUTING.md
-README_FIX.md
-README_EN.md
-CLAUDE.md
-.pre-commit-config.yaml
-pyproject.toml
-pytest.ini

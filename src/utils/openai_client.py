@@ -56,7 +56,11 @@ def create_openai_client(**kwargs: Any) -> OpenAI:
       PAPERTOOLS_OPENAI_SDK_MAX_RETRIES     default 2 SDK-level retries
       PAPERTOOLS_OPENAI_TRUST_ENV           default false; avoids broken proxy env
     """
-    kwargs.setdefault("timeout", _env_float("PAPERTOOLS_OPENAI_TIMEOUT", 120.0, minimum=5.0))
-    kwargs.setdefault("max_retries", _env_int("PAPERTOOLS_OPENAI_SDK_MAX_RETRIES", 2, minimum=0))
+    kwargs.setdefault(
+        "timeout", _env_float("PAPERTOOLS_OPENAI_TIMEOUT", 120.0, minimum=5.0)
+    )
+    kwargs.setdefault(
+        "max_retries", _env_int("PAPERTOOLS_OPENAI_SDK_MAX_RETRIES", 2, minimum=0)
+    )
     kwargs.setdefault("http_client", DefaultHttpxClient(trust_env=openai_trust_env()))
     return OpenAI(**kwargs)

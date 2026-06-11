@@ -55,7 +55,9 @@ class BaseDocumentExtractor:
             cache_version=self.cache_version,
         )
 
-    def extract(self, context: ExtractionContext, ocr_mode: str = "auto") -> ExtractionResult:
+    def extract(
+        self, context: ExtractionContext, ocr_mode: str = "auto"
+    ) -> ExtractionResult:
         raise NotImplementedError
 
 
@@ -75,7 +77,9 @@ class DoclingExtractor(BaseDocumentExtractor):
             cache_version=self.cache_version,
         )
 
-    def extract(self, context: ExtractionContext, ocr_mode: str = "auto") -> ExtractionResult:
+    def extract(
+        self, context: ExtractionContext, ocr_mode: str = "auto"
+    ) -> ExtractionResult:
         from docling.document_converter import DocumentConverter
 
         if not context.local_path:
@@ -123,7 +127,9 @@ class PyMuPDF4LLMExtractor(BaseDocumentExtractor):
             cache_version=self.cache_version,
         )
 
-    def extract(self, context: ExtractionContext, ocr_mode: str = "auto") -> ExtractionResult:
+    def extract(
+        self, context: ExtractionContext, ocr_mode: str = "auto"
+    ) -> ExtractionResult:
         import pymupdf4llm
 
         if not context.local_path:
@@ -138,7 +144,9 @@ class PyMuPDF4LLMExtractor(BaseDocumentExtractor):
         except TypeError:
             markdown = pymupdf4llm.to_markdown(context.local_path)
             if kwargs:
-                warnings.append("Installed pymupdf4llm does not expose OCR flags; used defaults.")
+                warnings.append(
+                    "Installed pymupdf4llm does not expose OCR flags; used defaults."
+                )
 
         markdown = ensure_valid_extraction_content(
             markdown,
@@ -190,20 +198,28 @@ class JinaExtractor(BaseDocumentExtractor):
             cache_version=self.cache_version,
         )
 
-    def extract(self, context: ExtractionContext, ocr_mode: str = "auto") -> ExtractionResult:
-        if context.local_path and not context.normalized_source.startswith(("http://", "https://")):
+    def extract(
+        self, context: ExtractionContext, ocr_mode: str = "auto"
+    ) -> ExtractionResult:
+        if context.local_path and not context.normalized_source.startswith(
+            ("http://", "https://")
+        ):
             raise RuntimeError("Jina fallback only supports remote URLs")
         if not context.normalized_source.startswith(("http://", "https://")):
             raise RuntimeError("Jina fallback requires a remote URL")
 
         jina_url = f"https://r.jina.ai/{context.normalized_source}"
-        headers = {"Authorization": f"Bearer {JINA_API_TOKEN}"} if JINA_API_TOKEN else None
+        headers = (
+            {"Authorization": f"Bearer {JINA_API_TOKEN}"} if JINA_API_TOKEN else None
+        )
 
         last_exception: Optional[Exception] = None
         for attempt in range(JINA_MAX_RETRIES):
             try:
                 jina_rate_limiter.wait_if_needed()
-                response = requests.get(jina_url, headers=headers, timeout=JINA_REQUEST_TIMEOUT)
+                response = requests.get(
+                    jina_url, headers=headers, timeout=JINA_REQUEST_TIMEOUT
+                )
                 response.raise_for_status()
                 content = ensure_valid_extraction_content(
                     response.content.decode("utf-8", errors="replace"),
@@ -221,7 +237,7 @@ class JinaExtractor(BaseDocumentExtractor):
             except (requests.exceptions.RequestException, ValueError) as exc:
                 last_exception = exc
                 if attempt < JINA_MAX_RETRIES - 1:
-                    time.sleep(JINA_BACKOFF_FACTOR ** attempt)
+                    time.sleep(JINA_BACKOFF_FACTOR**attempt)
                 else:
                     raise
 

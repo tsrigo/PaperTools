@@ -14,11 +14,12 @@ cp .env.example .env
 | `OPENAI_BASE_URL` | 是 | API 端点地址，例如 `https://api.openai.com/v1` |
 | `MODEL` | 是 | 模型名称，例如 `gpt-4o`、`deepseek-chat` |
 | `FILTER_MODEL` | 否 | 筛选阶段模型；不会使用 Prism summary provider |
+| `PAPERTOOLS_FILTER_MODEL_CHAIN` | 否 | 筛选模型回退链；OpenRouter 下自动把 `qwen`、`minimax`、`deepseek-chat` 等短别名归一化为 provider-prefixed ID |
 | `CLUSTER_MODEL` | 否 | 聚类阶段模型，默认跟随 `FILTER_MODEL` |
 | `CLUSTER_OPENAI_API_KEY` | 否 | 聚类阶段 API 密钥；不填则使用 `OPENAI_API_KEY` |
 | `CLUSTER_OPENAI_BASE_URL` | 否 | 聚类阶段 API 端点；不填则使用 `OPENAI_BASE_URL` |
 | `PAPERTOOLS_CLUSTER_MODEL_CHAIN` | 否 | 聚类模型回退链；OpenRouter 下自动把 `qwen`、`minimax`、`deepseek-chat` 等短别名归一化为 provider-prefixed ID |
-| `SUMMARY_MODEL_CHAIN` | 否 | 总结/翻译阶段模型回退链，默认 `prism:gpt-5.5,sjtu:minimax,sjtu:glm,sjtu:qwen,sjtu:deepseek-reasoner,sjtu:deepseek-chat` |
+| `SUMMARY_MODEL_CHAIN` | 否 | 总结/翻译阶段模型回退链，默认 `sjtu:minimax,sjtu:glm,sjtu:qwen,sjtu:deepseek-chat,sjtu:deepseek-reasoner`；可显式加入 `prism:gpt-5.5` |
 | `SUMMARY_SJTU_OPENAI_API_KEY` | 否 | 致远一号总结/翻译 API 密钥，只用于筛选后的内容生成 |
 | `SUMMARY_SJTU_OPENAI_BASE_URL` | 否 | 致远一号 OpenAI-compatible base URL，默认 `https://models.sjtu.edu.cn/api/v1/` |
 | `SUMMARY_SJTU_RPM` | 否 | SJTU 总结 provider 的共享 RPM 限制，默认 `2`；同一 key/base URL 下多个模型共用节流和 429 冷却状态 |
@@ -39,14 +40,17 @@ cp .env.example .env
 | `REVIEWGROUNDER_RPM` | 否 | ReviewGrounder backbone 的进程级滚动 RPM 限制，默认 `5` |
 | `REVIEWGROUNDER_MAX_RELATED_PAPERS` | 否 | 每篇目标论文最多纳入的 related papers，默认 `1`，用于适配 5 RPM 后端 |
 | `FILTER_MAX_WORKERS` | 否 | 筛选阶段最大并发，默认 `5`，用于降低筛选模型尾延迟和限流风险 |
-| `PAPERTOOLS_FILTER_LLM_TIMEOUT` | 否 | 筛选阶段单次 LLM 请求超时秒数，默认 `45` |
+| `PAPERTOOLS_FILTER_LLM_TIMEOUT` | 否 | 筛选阶段单次 LLM 请求超时秒数，默认 `120` |
 | `PAPERTOOLS_FILTER_LLM_MAX_RETRIES` | 否 | 筛选阶段 LLM 重试次数，默认 `1` |
 | `PAPERTOOLS_FILTER_EXTRACT_CHAIN` | 否 | 筛选阶段 prestige 机构抽取链，默认 `docling,pymupdf4llm,jina`，优先本地抽取，远程兜底 |
 | `PAPERTOOLS_TOPIC_HEURISTIC_TOPIC_BYPASS_MIN_SCORE` | 否 | 强主题确定性命中的 LLM 细筛旁路最低分，默认 `30`；安全/图/视觉等硬排除风险仍交给 LLM 判定 |
+| `PAPERTOOLS_PIPELINE_STAGE_TIMEOUT_SECONDS` | 否 | 单个 pipeline 子进程阶段超时秒数，默认 `21600`；设为 `0` 可禁用 |
 | `WEBHOOK_URL` | 否 | 流水线完成或失败时推送通知的 webhook 地址 |
 | `PAPERTOOLS_DAILY_WINDOW_DAYS` | 否 | 每日 cron wrapper 默认滚动补抓天数，默认 `4` |
 | `PAPERTOOLS_DAILY_START_DATE` | 否 | 手动覆盖每日 cron wrapper 的补抓起始日期 |
 | `PAPERTOOLS_DAILY_END_DATE` | 否 | 手动覆盖每日 cron wrapper 的补抓结束日期 |
+| `PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS` | 否 | 每日 cron wrapper 单次 pipeline 超时秒数，默认 `21600`（6 小时）；超时后失败退出且不会发布 |
+| `PAPERTOOLS_DAILY_PREFLIGHT_OFFLINE_OK` | 否 | 设为 `1` 时每日发布 wrapper 跳过远端 `/models` 预检；默认 `0`，预检会按筛选、聚类、总结 provider 的实际 endpoint 分组检查模型，失败会阻断每日发布 |
 | `JINA_API_TOKEN` | 否 | Jina Reader API 令牌，用于获取论文全文。不填则跳过全文拉取 |
 
 ---

@@ -10,8 +10,9 @@ mkdir -p logs
 RUN_ID="$(TZ=Asia/Tokyo date +'%Y%m%d-%H%M%S')"
 LOG_FILE="logs/robust_daily_${RUN_ID}.log"
 STATUS_FILE="logs/robust_daily_status_${RUN_ID}.json"
-LOCK_FILE="${PAPERTOOLS_DAILY_LOCK_FILE:-logs/robust_daily.lock}"
+LOCK_FILE="${PAPERTOOLS_PUBLISH_LOCK_FILE:-${PAPERTOOLS_DAILY_LOCK_FILE:-logs/papertools_publish.lock}}"
 
+mkdir -p "$(dirname "$LOCK_FILE")"
 exec 9>"$LOCK_FILE"
 if ! flock -n 9; then
   echo "Another PaperTools daily run is already active; exiting." | tee -a "$LOG_FILE"
@@ -38,8 +39,10 @@ fi
 export OPENAI_BASE_URL="${PAPERTOOLS_DAILY_OPENAI_BASE_URL:-https://models.sjtu.edu.cn/api/v1/}"
 export MODEL="${PAPERTOOLS_DAILY_MODEL:-deepseek-reasoner}"
 export FILTER_MODEL="${PAPERTOOLS_DAILY_FILTER_MODEL:-qwen}"
+export PAPERTOOLS_FILTER_MODEL_CHAIN="${PAPERTOOLS_DAILY_FILTER_MODEL_CHAIN:-qwen,deepseek-chat,minimax}"
 export CLUSTER_MODEL="${PAPERTOOLS_DAILY_CLUSTER_MODEL:-glm}"
-export SUMMARY_MODEL_CHAIN="${PAPERTOOLS_DAILY_SUMMARY_MODEL_CHAIN:-sjtu:qwen,sjtu:deepseek-chat,sjtu:minimax,sjtu:glm,sjtu:deepseek-reasoner}"
+export PAPERTOOLS_CLUSTER_MODEL_CHAIN="${PAPERTOOLS_DAILY_CLUSTER_MODEL_CHAIN:-qwen,deepseek-chat,minimax}"
+export SUMMARY_MODEL_CHAIN="${PAPERTOOLS_DAILY_SUMMARY_MODEL_CHAIN:-sjtu:qwen,sjtu:deepseek-chat,sjtu:minimax,sjtu:glm}"
 export SUMMARY_SJTU_OPENAI_API_KEY="${SUMMARY_SJTU_OPENAI_API_KEY:-${OPENAI_API_KEY:-}}"
 export SUMMARY_SJTU_OPENAI_BASE_URL="${SUMMARY_SJTU_OPENAI_BASE_URL:-$OPENAI_BASE_URL}"
 export SUMMARY_OPENAI_API_KEY="${SUMMARY_OPENAI_API_KEY:-${OPENAI_API_KEY:-}}"
@@ -47,19 +50,19 @@ export SUMMARY_OPENAI_BASE_URL="${SUMMARY_OPENAI_BASE_URL:-$OPENAI_BASE_URL}"
 export SUMMARY_MODEL="${PAPERTOOLS_DAILY_SUMMARY_MODEL:-qwen}"
 
 # Conservative concurrency is usually more stable on shared OpenAI-compatible gateways.
-export FILTER_MAX_WORKERS="${PAPERTOOLS_DAILY_FILTER_MAX_WORKERS:-1}"
+export FILTER_MAX_WORKERS="${PAPERTOOLS_DAILY_FILTER_MAX_WORKERS:-3}"
 export SUMMARY_MAX_WORKERS="${PAPERTOOLS_DAILY_SUMMARY_MAX_WORKERS:-1}"
-export PAPERTOOLS_FILTER_RPM="${PAPERTOOLS_DAILY_FILTER_RPM:-4}"
-export PAPERTOOLS_FILTER_LLM_TIMEOUT="${PAPERTOOLS_DAILY_FILTER_LLM_TIMEOUT:-60}"
-export PAPERTOOLS_FILTER_LLM_MAX_RETRIES="${PAPERTOOLS_DAILY_FILTER_LLM_MAX_RETRIES:-1}"
+export PAPERTOOLS_FILTER_RPM="${PAPERTOOLS_DAILY_FILTER_RPM:-6}"
+export PAPERTOOLS_FILTER_LLM_TIMEOUT="${PAPERTOOLS_DAILY_FILTER_LLM_TIMEOUT:-90}"
+export PAPERTOOLS_FILTER_LLM_MAX_RETRIES="${PAPERTOOLS_DAILY_FILTER_LLM_MAX_RETRIES:-3}"
 export PAPERTOOLS_FILTER_EARLY_STOP_AFTER_CAP="${PAPERTOOLS_DAILY_FILTER_EARLY_STOP_AFTER_CAP:-1}"
 export PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE="${PAPERTOOLS_DAILY_TOPIC_HEURISTIC_BYPASS_PRESTIGE:-0}"
 export PAPERTOOLS_FILTER_MAX_OUTPUT_PAPERS="${PAPERTOOLS_DAILY_FILTER_MAX_OUTPUT_PAPERS:-0}"
 export PAPERTOOLS_FILTER_RULE_VERSION="${PAPERTOOLS_DAILY_FILTER_RULE_VERSION:-2026-05-31-topic-post-v2-daily}"
 export PAPERTOOLS_OPENAI_TIMEOUT="${PAPERTOOLS_DAILY_OPENAI_TIMEOUT:-120}"
-export PAPERTOOLS_SUMMARY_OPENAI_TIMEOUT="${PAPERTOOLS_DAILY_SUMMARY_OPENAI_TIMEOUT:-60}"
+export PAPERTOOLS_SUMMARY_OPENAI_TIMEOUT="${PAPERTOOLS_DAILY_SUMMARY_OPENAI_TIMEOUT:-90}"
 export PAPERTOOLS_OPENAI_SDK_MAX_RETRIES="${PAPERTOOLS_DAILY_OPENAI_SDK_MAX_RETRIES:-2}"
-export PAPERTOOLS_RETRY_MAX_DELAY_SECONDS="${PAPERTOOLS_DAILY_RETRY_MAX_DELAY_SECONDS:-60}"
+export PAPERTOOLS_RETRY_MAX_DELAY_SECONDS="${PAPERTOOLS_DAILY_RETRY_MAX_DELAY_SECONDS:-120}"
 export PAPERTOOLS_OPENAI_TRUST_ENV="${PAPERTOOLS_DAILY_OPENAI_TRUST_ENV:-false}"
 export DOCUMENT_EXTRACTOR_CHAIN="${PAPERTOOLS_DAILY_DOCUMENT_EXTRACTOR_CHAIN:-jina,pymupdf4llm}"
 export DOCUMENT_EXTRACT_TIMEOUT="${PAPERTOOLS_DAILY_DOCUMENT_EXTRACT_TIMEOUT:-60}"
@@ -67,10 +70,13 @@ export JINA_REQUEST_TIMEOUT="${PAPERTOOLS_DAILY_JINA_REQUEST_TIMEOUT:-45}"
 export JINA_MAX_RETRIES="${PAPERTOOLS_DAILY_JINA_MAX_RETRIES:-2}"
 export PAPERTOOLS_DAILY_WINDOW_DAYS="${PAPERTOOLS_DAILY_WINDOW_DAYS:-4}"
 export PAPERTOOLS_DAILY_MAX_CATCHUP_DAYS="${PAPERTOOLS_DAILY_MAX_CATCHUP_DAYS:-7}"
+export PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS="${PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS:-28800}"
+export PAPERTOOLS_DAILY_PREFLIGHT_OFFLINE_OK="${PAPERTOOLS_DAILY_PREFLIGHT_OFFLINE_OK:-0}"
 
 print_runtime_config() {
   for key in \
     OPENAI_BASE_URL MODEL FILTER_MODEL CLUSTER_MODEL SUMMARY_MODEL SUMMARY_MODEL_CHAIN \
+    PAPERTOOLS_FILTER_MODEL_CHAIN PAPERTOOLS_CLUSTER_MODEL_CHAIN \
     FILTER_MAX_WORKERS SUMMARY_MAX_WORKERS PAPERTOOLS_FILTER_RPM \
     PAPERTOOLS_FILTER_LLM_TIMEOUT PAPERTOOLS_FILTER_LLM_MAX_RETRIES \
     PAPERTOOLS_FILTER_EARLY_STOP_AFTER_CAP PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE \
@@ -78,7 +84,8 @@ print_runtime_config() {
     PAPERTOOLS_SUMMARY_OPENAI_TIMEOUT PAPERTOOLS_OPENAI_SDK_MAX_RETRIES PAPERTOOLS_RETRY_MAX_DELAY_SECONDS \
     PAPERTOOLS_OPENAI_TRUST_ENV DOCUMENT_EXTRACTOR_CHAIN DOCUMENT_EXTRACT_TIMEOUT \
     JINA_REQUEST_TIMEOUT JINA_MAX_RETRIES PAPERTOOLS_DAILY_WINDOW_DAYS \
-    PAPERTOOLS_DAILY_MAX_CATCHUP_DAYS; do
+    PAPERTOOLS_DAILY_MAX_CATCHUP_DAYS PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS \
+    PAPERTOOLS_DAILY_PREFLIGHT_OFFLINE_OK; do
     printf '%s=%s\n' "$key" "${!key:-}"
   done
 }
@@ -87,6 +94,61 @@ if [ "${PAPERTOOLS_DAILY_PRINT_RUNTIME_CONFIG:-0}" = "1" ]; then
   print_runtime_config
   exit 0
 fi
+
+resolve_publish_branch() {
+  local branch="${PAPERTOOLS_GIT_BRANCH:-}"
+  if [ -z "$branch" ]; then
+    branch="$(git symbolic-ref --quiet --short HEAD)" || {
+      log "Not on a git branch; scheduled publishing requires master or main."
+      return 1
+    }
+  fi
+
+  if [ "$branch" != "master" ] && [ "$branch" != "main" ]; then
+    log "Scheduled publishing must use master or main, not $branch."
+    return 1
+  fi
+
+  local current_branch
+  current_branch="$(git symbolic-ref --quiet --short HEAD)" || {
+    log "Not on a git branch; scheduled publishing requires master or main."
+    return 1
+  }
+  if [ "$current_branch" != "$branch" ]; then
+    log "Current branch $current_branch does not match publish branch $branch."
+    return 1
+  fi
+
+  export PAPERTOOLS_GIT_BRANCH="$branch"
+}
+
+require_clean_worktree() {
+  git update-index -q --refresh
+
+  if ! git diff --quiet || ! git diff --cached --quiet; then
+    git status --short
+    log "Worktree has tracked changes; refusing scheduled publication."
+    return 1
+  fi
+
+  if [ -n "$(git ls-files --others --exclude-standard)" ]; then
+    git status --short
+    log "Worktree has untracked files; refusing scheduled publication."
+    return 1
+  fi
+}
+
+sync_publish_branch() {
+  resolve_publish_branch
+  require_clean_worktree
+
+  log "Fetching latest origin/${PAPERTOOLS_GIT_BRANCH}"
+  git fetch origin "$PAPERTOOLS_GIT_BRANCH" 2>&1 | tee -a "$LOG_FILE"
+  git merge --ff-only "origin/${PAPERTOOLS_GIT_BRANCH}" 2>&1 | tee -a "$LOG_FILE"
+  require_clean_worktree
+}
+
+sync_publish_branch
 
 DATE_RANGE="$(
 python - <<'PY_DAILY_DATE'
@@ -126,7 +188,7 @@ PY_DAILY_DATE
 START_DATE="${DATE_RANGE% *}"
 END_DATE="${DATE_RANGE#* }"
 
-run_cmd=(python papertools.py run --start-date "$START_DATE" --end-date "$END_DATE" --skip-serve --status-file "$STATUS_FILE")
+run_cmd=(timeout "$PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS" python papertools.py run --start-date "$START_DATE" --end-date "$END_DATE" --skip-serve --status-file "$STATUS_FILE")
 
 log "PaperTools robust daily run: $START_DATE to $END_DATE"
 
@@ -140,7 +202,13 @@ if [ -n "$DISK_FREE_GB" ] && [ "$DISK_FREE_GB" -lt 10 ]; then
   log "⚠️ WARNING: only ${DISK_FREE_GB}GB disk free; pipeline may fail mid-run"
 fi
 
-python scripts/preflight_check.py --offline-ok 2>&1 | tee -a "$LOG_FILE" || {
+preflight_cmd=(python scripts/preflight_check.py)
+if [ "${PAPERTOOLS_DAILY_PREFLIGHT_OFFLINE_OK}" = "1" ]; then
+  preflight_cmd+=(--offline-ok)
+  log "Remote /models preflight disabled by PAPERTOOLS_DAILY_PREFLIGHT_OFFLINE_OK=1"
+fi
+
+"${preflight_cmd[@]}" 2>&1 | tee -a "$LOG_FILE" || {
   log "Preflight failed; refusing to run the expensive pipeline."
   exit 2
 }
@@ -150,6 +218,52 @@ is_permanent_failure() {
     --status-file "$STATUS_FILE" \
     --log-file "$LOG_FILE" \
     --permanent >/dev/null 2>&1
+}
+
+read_pipeline_status() {
+  python - "$STATUS_FILE" <<'PY_STATUS'
+import json
+import sys
+
+try:
+    with open(sys.argv[1], "r", encoding="utf-8") as handle:
+        status = json.load(handle)
+    print(status.get("status", "missing"))
+except Exception:
+    print("missing")
+PY_STATUS
+}
+
+has_webpage_changes() {
+  [ -n "$(git status --short -- webpages)" ]
+}
+
+handle_successful_pipeline_status() {
+  local pipeline_status
+  pipeline_status="$(read_pipeline_status)"
+  case "$pipeline_status" in
+    ok)
+      return 0
+      ;;
+    skipped_no_source_papers|skipped_no_selected_papers)
+      log "Pipeline skipped without publishable content: $pipeline_status"
+      if ! python scripts/validate_published_payloads.py --webpages-dir webpages 2>&1 | tee -a "$LOG_FILE"; then
+        log "Published payload validation failed after skipped pipeline status."
+        exit 1
+      fi
+      if has_webpage_changes; then
+        git status --short -- webpages 2>&1 | tee -a "$LOG_FILE"
+        log "Pipeline reported $pipeline_status but changed published webpages; refusing to commit."
+        exit 1
+      fi
+      log "No publishable webpage changes to commit."
+      exit 0
+      ;;
+    *)
+      log "Pipeline exited successfully but status file is not healthy: $pipeline_status"
+      exit 1
+      ;;
+  esac
 }
 
 next_start_from() {
@@ -188,15 +302,25 @@ while [ "$attempt" -le "$max_attempts" ]; do
 
   if [ "$rc" -eq 0 ]; then
     log "Pipeline completed with exit code 0."
-    if git diff --quiet -- arxiv_paper domain_paper summary webpages 2>/dev/null; then
-      log "No generated data changes to commit."
+    handle_successful_pipeline_status
+    if ! python scripts/validate_published_payloads.py --webpages-dir webpages 2>&1 | tee -a "$LOG_FILE"; then
+      log "Published payload validation failed; refusing to commit generated output."
+      exit 1
+    fi
+    if ! has_webpage_changes; then
+      log "No publishable webpage changes to commit."
       exit 0
     fi
     if [ "${PAPERTOOLS_AUTO_COMMIT:-1}" = "1" ]; then
-      git add arxiv_paper/ domain_paper/ summary/ webpages/ logs/ 2>/dev/null || true
-      git commit -m "Daily paper update: ${END_DATE}" 2>&1 | tee -a "$LOG_FILE" || true
+      # arxiv_paper/domain_paper/summary/logs are local state; only webpages is published.
+      git add webpages/
+      if git diff --cached --quiet; then
+        log "No staged webpage changes after validation."
+        exit 0
+      fi
+      git commit -m "Daily paper update: ${END_DATE}" 2>&1 | tee -a "$LOG_FILE"
       if [ "${PAPERTOOLS_AUTO_PUSH:-0}" = "1" ]; then
-        git push origin "${PAPERTOOLS_GIT_BRANCH:-master}" 2>&1 | tee -a "$LOG_FILE" || true
+        git push origin "$PAPERTOOLS_GIT_BRANCH" 2>&1 | tee -a "$LOG_FILE"
       fi
     fi
     exit 0

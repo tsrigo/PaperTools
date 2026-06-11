@@ -6,11 +6,13 @@ Custom exception classes for more precise error handling
 
 class PaperToolsError(Exception):
     """PaperTools 基础异常类"""
+
     pass
 
 
 class ConfigurationError(PaperToolsError):
     """配置相关错误"""
+
     pass
 
 
@@ -33,36 +35,43 @@ class RateLimitError(APIError):
 
 class TimeoutError(APIError):
     """API 超时错误"""
+
     pass
 
 
 class CrawlError(PaperToolsError):
     """爬取相关错误"""
+
     pass
 
 
 class FilterError(PaperToolsError):
     """筛选相关错误"""
+
     pass
 
 
 class SummaryError(PaperToolsError):
     """总结生成相关错误"""
+
     pass
 
 
 class CacheError(PaperToolsError):
     """缓存相关错误"""
+
     pass
 
 
 class FileError(PaperToolsError):
     """文件操作相关错误"""
+
     pass
 
 
 class ValidationError(PaperToolsError):
     """数据验证错误"""
+
     pass
 
 

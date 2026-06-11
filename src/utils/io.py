@@ -5,6 +5,7 @@ IO utilities module for common file operations
 
 import json
 import os
+import shutil
 import tempfile
 from typing import Any, Dict, List, Optional
 
@@ -29,7 +30,7 @@ def load_json(filepath: str, default: Optional[Any] = None) -> Optional[Any]:
         return default
 
     try:
-        with open(filepath, 'r', encoding='utf-8') as f:
+        with open(filepath, "r", encoding="utf-8") as f:
             return json.load(f)
     except json.JSONDecodeError as e:
         logger.error(f"JSON 解析错误 {filepath}: {e}")
@@ -39,21 +40,18 @@ def load_json(filepath: str, default: Optional[Any] = None) -> Optional[Any]:
         return default
 
 
-def _check_disk_space(min_bytes: int = 100 * 1024 * 1024) -> bool:
-    """Check if at least min_bytes (default 100MB) free on the target partition."""
+def _check_disk_space(target_dir: str, min_bytes: int = 100 * 1024 * 1024) -> bool:
+    """Check if at least min_bytes free on the target directory's partition."""
     try:
-        import shutil
-        usage = shutil.disk_usage("/")
+        usage = shutil.disk_usage(target_dir)
         return usage.free >= min_bytes
-    except Exception:
-        return True  # If check fails, don't block writes
+    except OSError as exc:
+        logger.error(f"检查磁盘空间失败 {target_dir}: {exc}")
+        return False
 
 
 def save_json(
-    filepath: str,
-    data: Any,
-    indent: int = 2,
-    ensure_ascii: bool = False
+    filepath: str, data: Any, indent: int = 2, ensure_ascii: bool = False
 ) -> bool:
     """
     安全地保存 JSON 文件
@@ -67,22 +65,23 @@ def save_json(
     Returns:
         是否保存成功
     """
-    if not _check_disk_space():
-        logger.error(f"磁盘空间不足，无法保存文件: {filepath}")
-        return False
     try:
         # 确保目录存在
         dir_path = os.path.dirname(filepath)
         if dir_path:
             os.makedirs(dir_path, exist_ok=True)
+        target_dir = dir_path or "."
+        if not _check_disk_space(target_dir):
+            logger.error(f"磁盘空间不足，无法保存文件: {filepath}")
+            return False
         fd, temp_path = tempfile.mkstemp(
             prefix=f".{os.path.basename(filepath)}.",
             suffix=".tmp",
-            dir=dir_path or ".",
+            dir=target_dir,
             text=True,
         )
         try:
-            with os.fdopen(fd, 'w', encoding='utf-8') as f:
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=indent, ensure_ascii=ensure_ascii)
                 f.flush()
                 os.fsync(f.fileno())
@@ -104,22 +103,23 @@ def save_json(
 
 def save_text(filepath: str, content: str) -> bool:
     """Atomically save plain text content."""
-    if not _check_disk_space():
-        logger.error(f"磁盘空间不足，无法保存文件: {filepath}")
-        return False
     try:
         dir_path = os.path.dirname(filepath)
         if dir_path:
             os.makedirs(dir_path, exist_ok=True)
+        target_dir = dir_path or "."
+        if not _check_disk_space(target_dir):
+            logger.error(f"磁盘空间不足，无法保存文件: {filepath}")
+            return False
 
         fd, temp_path = tempfile.mkstemp(
             prefix=f".{os.path.basename(filepath)}.",
             suffix=".tmp",
-            dir=dir_path or ".",
+            dir=target_dir,
             text=True,
         )
         try:
-            with os.fdopen(fd, 'w', encoding='utf-8') as f:
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
                 f.write(content)
                 f.flush()
                 os.fsync(f.fileno())

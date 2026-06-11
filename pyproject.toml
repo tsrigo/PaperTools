@@ -1,0 +1,89 @@
+[build-system]
+requires = ["setuptools>=70.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "papertools"
+version = "0.1.0"
+description = "Academic paper automation pipeline for crawling, filtering, summarizing, and publishing arXiv papers."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "PaperTools Maintainers" }]
+license = { text = "MIT" }
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "requests>=2.28.0",
+    "beautifulsoup4>=4.11.0",
+    "openai>=1.0.0",
+    "tqdm>=4.64.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+extract-docling = [
+    "docling",
+]
+extract-pymupdf = [
+    "pymupdf4llm",
+    "pymupdf",
+]
+extract-all = [
+    "docling",
+    "pymupdf4llm",
+    "pymupdf",
+]
+reviewgrounder = [
+    "pydantic>=2.0.0",
+    "pyyaml>=6.0.0",
+    "pdfminer.six>=20221105",
+]
+security = [
+    "bandit[toml]>=1.7.10",
+]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "ruff>=0.5.7",
+    "mypy>=1.11",
+    "bandit[toml]>=1.7.10",
+    "pre-commit>=3.7",
+    "tomli>=2.0; python_version < '3.11'",
+]
+
+[project.scripts]
+papertools = "papertools:main"
+
+[project.urls]
+Homepage = "https://github.com/tsrigo/PaperTools"
+Repository = "https://github.com/tsrigo/PaperTools"
+Issues = "https://github.com/tsrigo/PaperTools/issues"
+
+[tool.setuptools]
+py-modules = ["papertools"]
+
+[tool.setuptools.packages.find]
+include = ["src*"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 88
+
+[tool.ruff.lint.per-file-ignores]
+# Several modules support direct execution as `python src/.../module.py`.
+# They adjust sys.path before importing project packages, which intentionally
+# violates E402 until the CLIs are fully package-entrypoint-only.
+"src/core/*.py" = ["E402"]
+"src/document_extraction/*.py" = ["E402"]
+"src/utils/notify.py" = ["E402"]
+"src/utils/retry.py" = ["E402"]

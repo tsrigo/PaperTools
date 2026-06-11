@@ -183,11 +183,13 @@ papertools run --start-from unified   # 只重新生成网页
 
 ### `--skip-*` 标志
 
-跳过单个阶段：
+跳过单个阶段。它们只控制流水线执行，不等价于发布控制。生产 cron
+必须使用 `./daily_update.sh` 或 `scripts/robust_daily_update.sh`，以确保发布前
+有最新代码、发布锁、完整 payload 校验和只提交 `webpages/` 的保护。
 
 ```bash
 papertools run --skip-crawl           # 使用已有的爬取结果
-papertools run --skip-serve           # 不启动服务器（适合 cron）
+papertools run --skip-serve           # 不启动服务器（适合本地诊断）
 papertools run --skip-cluster         # 跳过聚类（较快）
 ```
 

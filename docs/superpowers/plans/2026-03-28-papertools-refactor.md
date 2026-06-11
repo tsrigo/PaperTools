@@ -252,12 +252,12 @@ def notify_pipeline_complete(
 Replace entire `.env` content with:
 ```
 # API Configuration
-OPENAI_API_KEY=sk-Oc9HS3jAJ9EY6HTjGycknw
+OPENAI_API_KEY=sk-REPLACE_WITH_YOUR_KEY
 OPENAI_BASE_URL=https://models.sjtu.edu.cn/api/v1/
 MODEL=minimax-m2.5
 
 # Webhook notification (optional)
-WEBHOOK_URL=https://api.pumble.com/workspaces/67a0346a240b8a36fd63b2fa/incomingWebhooks/postMessage/AGzEVNKPaL1aHDu1TJ1GlGLY
+WEBHOOK_URL=https://api.pumble.com/workspaces/<workspace-id>/incomingWebhooks/postMessage/<webhook-token>
 ```
 
 - [ ] **Step 4: Update .env.example**

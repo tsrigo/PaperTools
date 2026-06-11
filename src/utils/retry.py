@@ -20,9 +20,17 @@ import requests
 from openai import OpenAIError
 
 try:  # openai>=1.x typed exceptions
-    from openai import APIConnectionError, APIStatusError, APITimeoutError, InternalServerError, RateLimitError
+    from openai import (
+        APIConnectionError,
+        APIStatusError,
+        APITimeoutError,
+        InternalServerError,
+        RateLimitError,
+    )
 except Exception:  # pragma: no cover - compatibility with older openai packages
-    APIConnectionError = APITimeoutError = RateLimitError = InternalServerError = OpenAIError  # type: ignore
+    APIConnectionError = APITimeoutError = RateLimitError = InternalServerError = (
+        OpenAIError  # type: ignore
+    )
     APIStatusError = OpenAIError  # type: ignore
 
 logger = logging.getLogger(__name__)
@@ -91,7 +99,10 @@ def is_retryable(exc: Exception) -> bool:
         return status_code in RETRYABLE_STATUS_CODES
     if isinstance(exc, OpenAIError):
         message = str(exc).lower()
-        if any(code in message for code in ("401", "403", "invalid_api_key", "unauthorized", "forbidden")):
+        if any(
+            code in message
+            for code in ("401", "403", "invalid_api_key", "unauthorized", "forbidden")
+        ):
             return False
         return any(marker in message for marker in RETRYABLE_ERROR_STRINGS)
     return False
@@ -123,7 +134,9 @@ def retry_with_backoff(
     client-side 4xx errors are raised immediately.  Jitter is important for cron
     jobs because many daily API calls otherwise retry in lock-step.
     """
-    env_max_delay = _env_float("PAPERTOOLS_RETRY_MAX_DELAY_SECONDS", max_delay, minimum=1.0)
+    env_max_delay = _env_float(
+        "PAPERTOOLS_RETRY_MAX_DELAY_SECONDS", max_delay, minimum=1.0
+    )
     max_delay = min(max_delay, env_max_delay) if max_delay else env_max_delay
 
     def decorator(func: F) -> F:
@@ -140,7 +153,9 @@ def retry_with_backoff(
                         raise
                     sleep_for = min(delay, max_delay)
                     if jitter:
-                        sleep_for = sleep_for * random.uniform(max(0.0, 1.0 - jitter), 1.0 + jitter)
+                        sleep_for = sleep_for * random.uniform(
+                            max(0.0, 1.0 - jitter), 1.0 + jitter
+                        )
                     logger.warning(
                         "Retry %d/%d for %s after retryable error: %s; waiting %.1fs",
                         attempt + 1,

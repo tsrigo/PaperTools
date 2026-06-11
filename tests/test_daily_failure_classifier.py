@@ -1,6 +1,9 @@
 import json
 
-from scripts.classify_pipeline_failure import is_permanent_failure, is_permanent_failure_text
+from scripts.classify_pipeline_failure import (
+    is_permanent_failure,
+    is_permanent_failure_text,
+)
 
 
 def test_progress_timestamp_does_not_look_like_http_403(tmp_path):

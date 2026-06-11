@@ -196,9 +196,9 @@ crontab example: 0 8 * * * cd /path/to/PaperTools && papertools run >> logs/cron
 
 ```
 OPENAI_BASE_URL=https://models.sjtu.edu.cn/api/v1/
-OPENAI_API_KEY=sk-Oc9HS3jAJ9EY6HTjGycknw
+OPENAI_API_KEY=sk-REPLACE_WITH_YOUR_KEY
 MODEL=minimax-m2.5
-WEBHOOK_URL=https://api.pumble.com/workspaces/67a0346a240b8a36fd63b2fa/incomingWebhooks/postMessage/AGzEVNKPaL1aHDu1TJ1GlGLY
+WEBHOOK_URL=https://api.pumble.com/workspaces/<workspace-id>/incomingWebhooks/postMessage/<webhook-token>
 ```
 
 ### `.env.example` (committed to git)

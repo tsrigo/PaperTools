@@ -15,17 +15,19 @@
 1. 进入 Fork 后仓库的 `Settings` > `Pages`
 2. 在 `Build and deployment` > `Source` 中选择 `GitHub Actions`
 
-**配置 Actions 写入权限（必须）：**
+**检查 Actions 权限：**
 
 1. 进入 `Settings` > `Actions` > `General`
 2. 滚动到 `Workflow permissions`
-3. 选择 `Read and write permissions`
-4. 勾选 `Allow GitHub Actions to create and approve pull requests`
-5. 点击 `Save`
+3. 确认 GitHub Actions 已启用
+4. 不需要勾选 `Allow GitHub Actions to create and approve pull requests`
+
+部署工作流在 `.github/workflows/deploy.yml` 中声明最小权限：
+`contents: read`、`pages: write`、`id-token: write`。
 
 ### 步骤 3：触发部署
 
-首次配置完成后，在 `Actions` 标签页手动触发 `Deploy MyArxiv Website` 工作流，或推送一次提交触发自动运行。
+首次配置完成后，在 `Actions` 标签页手动触发 `Deploy PaperTools Website` 工作流，或推送一次提交触发自动运行。
 
 部署成功后，网站地址为：`https://<用户名>.github.io/<仓库名>/`
 
@@ -33,14 +35,14 @@
 
 `.github/workflows/deploy.yml` 的执行流程：
 
-1. Checkout 代码（包含已提交的 `summary/` 数据）
+1. Checkout 代码（包含已提交的 `webpages/` 发布内容）
 2. 安装依赖
-3. 若 `summary/` 目录下有 JSON 数据文件，运行 `generate_unified_index.py` 生成 `webpages/index.html`
-4. 将 `webpages/` 目录作为 Pages artifact 上传并部署
+3. 运行 `scripts/validate_published_payloads.py --webpages-dir webpages`
+4. 将已验证的 `webpages/` 目录作为 Pages artifact 上传并部署
 
-**更新网站内容**：在本地运行流水线生成新数据后，将 `summary/` 和 `webpages/` 目录的变更提交并推送到 `master` 分支，Actions 会自动重新部署。
+**更新网站内容**：优先使用 `./daily_update.sh`。脚本会从最新 `origin/master` 或 `origin/main` 开始，要求干净工作区，加锁防止并发发布，运行完整流水线，执行 `scripts/validate_published_payloads.py`，然后只提交 `webpages/` 发布内容。Actions 会在推送后自动重新部署。
 
-**自定义筛选规则**：修改 `src/utils/config.py` 中的 `PAPER_FILTER_PROMPT` 并推送，下次 Actions 运行时会使用新规则（需要本地重新跑完整流水线并提交结果）。
+**自定义筛选规则**：修改 `src/utils/config.py` 中的 `PAPER_FILTER_PROMPT` 并推送后，需要用 `./daily_update.sh` 重新生成并验证 `webpages/` 发布内容。部署工作流不会从中间文件重新生成网页。
 
 ### 备选方案：手动部署
 
@@ -50,7 +52,7 @@
 
 ## crontab 定时运行
 
-在服务器上设置 cron 任务，每天自动运行流水线：
+在服务器上设置 cron 任务，每天自动运行、校验并发布：
 
 ```bash
 crontab -e
@@ -59,15 +61,27 @@ crontab -e
 常用示例：
 
 ```bash
-# 每天早上 8 点运行（跳过启动服务器）
-0 8 * * * cd /path/to/PaperTools && papertools run --skip-serve >> logs/cron.log 2>&1
-
-# 每天早上 8 点运行，使用完整模式
-0 8 * * * cd /path/to/PaperTools && papertools run --mode full --skip-serve >> logs/cron.log 2>&1
+# 每天早上 8 点运行 hardened daily publisher
+0 8 * * * cd /path/to/PaperTools && ./daily_update.sh >> logs/cron.log 2>&1
 
 # 仅工作日运行（周一至周五）
-0 8 * * 1-5 cd /path/to/PaperTools && papertools run --skip-serve >> logs/cron.log 2>&1
+0 8 * * 1-5 cd /path/to/PaperTools && ./daily_update.sh >> logs/cron.log 2>&1
+
+# SJTU/慢网关重试窗口模式
+0 8 * * * cd /path/to/PaperTools && bash scripts/robust_daily_update.sh >> logs/cron.log 2>&1
 ```
+
+不要在生产 cron 中直接运行 `papertools run --skip-serve`。该命令适合本地诊断，但不会独立保证发布前 worktree 干净、已 fast-forward 到最新 `origin`、持有发布锁、只暂存 `webpages/`、失败时不提交等发布不变量。
+
+本地排查流水线时可以手动运行：
+
+```bash
+papertools run --mode full --skip-serve --date YYYY-MM-DD
+python scripts/validate_published_payloads.py --webpages-dir webpages
+git diff -- webpages/
+```
+
+只有验证后的 `webpages/` 变更才是可发布内容。
 
 ---
 
@@ -98,7 +112,7 @@ mkdir -p /path/to/PaperTools/logs
 或使用简单的手动轮转（在 cron 中）：
 
 ```bash
-0 8 * * * cd /path/to/PaperTools && papertools run --skip-serve >> logs/cron.log 2>&1 && find logs/ -name "*.log" -mtime +30 -delete
+0 8 * * * cd /path/to/PaperTools && ./daily_update.sh >> logs/cron.log 2>&1 && find logs/ -name "*.log" -mtime +30 -delete
 ```
 
 ---
@@ -112,7 +126,7 @@ cron 的 `PATH` 不包含 Python 虚拟环境。有两种解决方式：
 **方式一**：在 crontab 中指定完整路径：
 
 ```bash
-0 8 * * * cd /path/to/PaperTools && /path/to/venv/bin/papertools run --skip-serve >> logs/cron.log 2>&1
+0 8 * * * cd /path/to/PaperTools && PATH="/path/to/venv/bin:$PATH" ./daily_update.sh >> logs/cron.log 2>&1
 ```
 
 **方式二**：用脚本包装并激活虚拟环境：
@@ -122,7 +136,7 @@ cron 的 `PATH` 不包含 Python 虚拟环境。有两种解决方式：
 #!/bin/bash
 source /path/to/venv/bin/activate
 cd /path/to/PaperTools
-papertools run --skip-serve
+./daily_update.sh
 ```
 
 ```bash

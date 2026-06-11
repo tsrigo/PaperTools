@@ -19,7 +19,9 @@ def validate_date_string(value: Optional[str], field_name: str) -> Optional[str]
     try:
         parsed = datetime.strptime(value, DATE_FORMAT)
     except ValueError as exc:
-        raise ValidationError(f"{field_name} 格式错误，应为 YYYY-MM-DD: {value}") from exc
+        raise ValidationError(
+            f"{field_name} 格式错误，应为 YYYY-MM-DD: {value}"
+        ) from exc
 
     return parsed.strftime(DATE_FORMAT)
 

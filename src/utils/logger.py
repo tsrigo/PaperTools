@@ -71,7 +71,7 @@ def setup_logger(
             log_path,
             maxBytes=DEFAULT_MAX_BYTES,
             backupCount=DEFAULT_BACKUP_COUNT,
-            encoding="utf-8"
+            encoding="utf-8",
         )
         file_handler.setLevel(level)
         file_handler.setFormatter(formatter)

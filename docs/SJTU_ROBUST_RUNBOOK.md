@@ -1,44 +1,72 @@
-# PaperTools 日跑鲁棒性热修说明
+# SJTU Daily Runbook
 
-## 发现的问题
+This runbook documents the SJTU-oriented daily automation profile. The
+publishing invariant is the same as the rest of PaperTools: only validated
+`webpages/` artifacts are publishable.
 
-1. `src/utils/config.py` 里的模型别名会把 `MiniMax-M2.7` 映射成 `qwen`，把 `deepseek-reasoner` 映射成 `deepseek-chat`。在 SJTU 端点已经提供 `minimax` 和 `deepseek-reasoner` 这两个 model_id 时，这会让你以为选了某个模型，实际请求却打到另一个模型。
-2. 默认 summary base URL 仍指向 ModelScope，而你给的是 SJTU OpenAI-compatible API。没有额外 summary key 时，日跑容易在总结阶段跑到错误 provider。
-3. `daily_update.sh` 只有单次 `python papertools.py run --mode full --skip-serve`，失败后直接跳过提交，没有状态文件、重试、窗口补抓、并发降载和永久错误识别。
-4. OpenAI-compatible 客户端没有统一 timeout / SDK retry 默认值；共享网关上偶发 429、502、503、524 时容易把整次流水线打断。
+## Runtime Defaults
 
-## 安装
+The daily wrappers apply conservative OpenAI-compatible gateway defaults:
 
-在 PaperTools 仓库根目录执行：
+- `OPENAI_BASE_URL=https://models.sjtu.edu.cn/api/v1/`
+- `FILTER_MODEL=qwen`
+- `PAPERTOOLS_FILTER_MODEL_CHAIN=qwen,deepseek-chat,minimax`
+- `CLUSTER_MODEL=glm`
+- `PAPERTOOLS_CLUSTER_MODEL_CHAIN=qwen,deepseek-chat,minimax`
+- `SUMMARY_MODEL=qwen`
+- `SUMMARY_MODEL_CHAIN=sjtu:qwen,sjtu:deepseek-chat,sjtu:minimax,sjtu:glm,sjtu:deepseek-reasoner`
+- `FILTER_MAX_WORKERS=1`
+- `SUMMARY_MAX_WORKERS=1`
+- `PAPERTOOLS_FILTER_RPM=4`
+- `PAPERTOOLS_FILTER_LLM_TIMEOUT=60`
+- `PAPERTOOLS_FILTER_LLM_MAX_RETRIES=1`
+- `PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE=0`
+- `DOCUMENT_EXTRACTOR_CHAIN=jina,pymupdf4llm`
 
-```bash
-python /path/to/install_hardening.py
+Use `PAPERTOOLS_DAILY_*` variables for explicit cron-time overrides. Secrets
+still belong in `.env` or a secret manager.
+
+Daily publishing wrappers run the remote `/models` preflight by default. The
+check validates configured primary plus fallback filter, cluster, and summary
+models against their actual provider endpoint, so a separate cluster or Prism
+summary provider is not checked against the main `OPENAI_BASE_URL`. Set
+`PAPERTOOLS_DAILY_PREFLIGHT_OFFLINE_OK=1` only for an intentional offline run
+where the gateway cannot be reached but local validation should still run.
+
+## Recommended Cron
+
+Use the hardened publisher for normal daily publishing:
+
+```cron
+0 8 * * * cd /path/to/PaperTools && ./daily_update.sh >> logs/cron.log 2>&1
 ```
 
-安装器会备份改动文件到 `.papertools_hotfix_backup/<timestamp>/`。
-
-然后把模板复制成 `.env`，填入真实 key：
-
-```bash
-cp .env.sjtu.example .env
-chmod 600 .env
-# 编辑 OPENAI_API_KEY
-```
-
-## 推荐 crontab
+For the legacy SJTU wrapper with retry/window defaults:
 
 ```cron
 0 8 * * * cd /path/to/PaperTools && bash scripts/robust_daily_update.sh >> logs/cron.log 2>&1
 ```
 
-默认使用最近 4 天的滚动窗口，适合 arXiv/镜像站晚更新、前一天失败后自动补抓的场景。
+Both paths must run the full publication validator before committing. They
+stage only `webpages/`; `arxiv_paper/`, `domain_paper/`, `summary/`, and `logs/`
+remain local runtime state.
 
-## 回滚
+## Validation
 
-改动前文件都在：
+Before pushing or deploying, run:
 
 ```bash
-.papertools_hotfix_backup/<timestamp>/
+make ci
+python scripts/validate_published_payloads.py --webpages-dir webpages
 ```
 
-可直接复制回去，或用 git checkout 回滚源码文件。
+The validator checks the static entrypoint, index integrity, stale date files,
+daily overviews, cluster metadata, and every user-facing generated field.
+
+## Failure Policy
+
+- Pipeline or validator failure is publication-blocking.
+- Empty source days and zero selected papers are skipped, not published.
+- Commit and push failures must be visible non-zero failures.
+- When debugging production failures, inspect `webpages/data/*.json`; logs are
+  supporting evidence, not proof that a page is publishable.

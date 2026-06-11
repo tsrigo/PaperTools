@@ -4,6 +4,8 @@
 Paper summary generation script - adds summary2 field to JSON file
 """
 
+import html
+import hashlib
 import json
 import os
 import re
@@ -14,6 +16,7 @@ import warnings
 from collections import deque
 from dataclasses import dataclass, field
 from typing import Deque, Optional, Dict, List, Tuple
+from urllib.parse import quote
 
 warnings.filterwarnings(
     "ignore",
@@ -29,22 +32,39 @@ from functools import wraps
 
 # 导入配置
 import sys
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
+
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 from src.utils.config import (  # noqa: E402
-    SUMMARY_API_KEY, SUMMARY_BASE_URL, SUMMARY_MODEL, SUMMARY_MODEL_CHAIN,
-    SUMMARY_SJTU_API_KEY, SUMMARY_SJTU_BASE_URL,
-    SUMMARY_SJTU_RPM, SUMMARY_SJTU_WINDOW_SECONDS,
-    SUMMARY_SJTU_WINDOW_SAFETY_REQUESTS, SUMMARY_SJTU_429_COOLDOWN_SECONDS,
-    SUMMARY_PRISM_API_KEY, SUMMARY_PRISM_BASE_URL, SUMMARY_PRISM_RPM,
-    SUMMARY_PRISM_REASONING_EFFORT, SUMMARY_PRISM_WINDOW_SECONDS,
-    SUMMARY_PRISM_WINDOW_SAFETY_REQUESTS, SUMMARY_PRISM_429_COOLDOWN_SECONDS,
-    SUMMARY_DIR, TEMPERATURE, REQUEST_DELAY, MAX_WORKERS,
-    SUMMARY_CONTENT_CHAR_LIMIT, SUMMARY_MAX_WORKERS, ENABLE_CACHE,
+    SUMMARY_API_KEY,
+    SUMMARY_BASE_URL,
+    SUMMARY_MODEL,
+    SUMMARY_MODEL_CHAIN,
+    SUMMARY_SJTU_API_KEY,
+    SUMMARY_SJTU_BASE_URL,
+    SUMMARY_SJTU_RPM,
+    SUMMARY_SJTU_WINDOW_SECONDS,
+    SUMMARY_SJTU_WINDOW_SAFETY_REQUESTS,
+    SUMMARY_SJTU_429_COOLDOWN_SECONDS,
+    SUMMARY_PRISM_API_KEY,
+    SUMMARY_PRISM_BASE_URL,
+    SUMMARY_PRISM_RPM,
+    SUMMARY_PRISM_REASONING_EFFORT,
+    SUMMARY_PRISM_WINDOW_SECONDS,
+    SUMMARY_PRISM_WINDOW_SAFETY_REQUESTS,
+    SUMMARY_PRISM_429_COOLDOWN_SECONDS,
+    SUMMARY_DIR,
+    TEMPERATURE,
+    REQUEST_DELAY,
+    SUMMARY_CONTENT_CHAR_LIMIT,
+    SUMMARY_MAX_WORKERS,
+    ENABLE_CACHE,
     SUMMARY_EXTRACTION_MAX_ATTEMPTS,
-    REVIEWGROUNDER_ENABLED, REVIEWGROUNDER_MODEL, REVIEWGROUNDER_REASONING_EFFORT,
+    REVIEWGROUNDER_ENABLED,
+    REVIEWGROUNDER_MODEL,
+    REVIEWGROUNDER_REASONING_EFFORT,
 )
 from src.core.reviewgrounder_adapter import (  # noqa: E402
     build_reviewgrounder_cache_payload,
@@ -73,6 +93,7 @@ ensure_valid_paper_content = ensure_valid_extraction_content
 @dataclass
 class SummaryRateState:
     """Shared request state for one provider quota bucket."""
+
     lock: threading.Lock = field(default_factory=threading.Lock)
     next_request_at: float = 0.0
     request_timestamps: Deque[float] = field(default_factory=deque)
@@ -85,7 +106,7 @@ _SUMMARY_RATE_STATES_LOCK = threading.Lock()
 
 def strip_think_tags(text: str) -> str:
     """Remove <think>...</think> blocks from model output (reasoning tokens)."""
-    return re.sub(r'<think>[\s\S]*?</think>\s*', '', text).strip()
+    return re.sub(r"<think>[\s\S]*?</think>\s*", "", text).strip()
 
 
 def has_non_empty_text(value) -> bool:
@@ -116,6 +137,36 @@ def has_valid_generated_text(value) -> bool:
     return has_non_empty_text(value) and not is_failed_generated_text(value)
 
 
+def ensure_valid_daily_overview_text(value: object, date_str: str = "") -> str:
+    """Return a daily overview only when it is real generated content."""
+    if not has_valid_generated_text(value):
+        label = f" {date_str}" if date_str else ""
+        raise ValueError(f"每日速览{label}为空或包含失败占位文本")
+    return str(value).strip()
+
+
+def build_daily_overview_cache_fingerprint(papers: List[Dict]) -> str:
+    """Hash all prompt-relevant paper fields so overview cache cannot go stale."""
+    prompt_inputs = []
+    for paper in papers:
+        prompt_inputs.append(
+            {
+                "title": paper.get("title", "Unknown Title"),
+                "arxiv_id": paper.get("arxiv_id", "Unknown"),
+                "category": paper.get("category", "Unknown"),
+                "cluster": paper.get("cluster", "Other"),
+                "summary": paper.get("summary", "No summary available"),
+            }
+        )
+    serialized = json.dumps(
+        prompt_inputs,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    return hashlib.sha256(serialized.encode("utf-8")).hexdigest()
+
+
 SUMMARY_ANALYSIS_FIELDS = (
     "intro_logic",
     "core_insight",
@@ -137,7 +188,9 @@ def env_int(name: str, default: int, minimum: int = 0) -> int:
     return max(minimum, value)
 
 
-SUMMARY_FIELD_REPAIR_ATTEMPTS = env_int("PAPERTOOLS_SUMMARY_FIELD_REPAIR_ATTEMPTS", 2, minimum=0)
+SUMMARY_FIELD_REPAIR_ATTEMPTS = env_int(
+    "PAPERTOOLS_SUMMARY_FIELD_REPAIR_ATTEMPTS", 2, minimum=0
+)
 
 
 def has_complete_summary_analysis(paper: Dict) -> bool:
@@ -157,18 +210,20 @@ def compact_generated_context(value, limit: int = 900) -> str:
 
 def is_section_heading(line: str) -> bool:
     """Heuristic section-heading detector used for abstract extraction."""
-    cleaned = re.sub(r'^[#>\-\s]+', '', line or '').strip()
-    cleaned = re.sub(r'\s+', ' ', cleaned)
+    cleaned = re.sub(r"^[#>\-\s]+", "", line or "").strip()
+    cleaned = re.sub(r"\s+", " ", cleaned)
     lowered = cleaned.lower()
     if not lowered:
         return False
     if lowered.startswith("keywords"):
         return True
-    return bool(re.match(
-        r'^(?:\d+(?:\.\d+)*\.?|[ivxlcdm]+\.?)\s+'
-        r'(?:introduction|background|related work|preliminar(?:y|ies)|method|methods|approach|overview|experiment|experiments|results|conclusion|references)\b',
-        lowered,
-    )) or lowered in {
+    return bool(
+        re.match(
+            r"^(?:\d+(?:\.\d+)*\.?|[ivxlcdm]+\.?)\s+"
+            r"(?:introduction|background|related work|preliminar(?:y|ies)|method|methods|approach|overview|experiment|experiments|results|conclusion|references)\b",
+            lowered,
+        )
+    ) or lowered in {
         "introduction",
         "background",
         "related work",
@@ -194,7 +249,9 @@ def extract_abstract_from_paper_content(paper_content: str) -> str:
         if not line:
             continue
 
-        match = re.match(r'^(?:#+\s*)?abstract\b[\s:.\-–—]*?(.*)$', line, flags=re.IGNORECASE)
+        match = re.match(
+            r"^(?:#+\s*)?abstract\b[\s:.\-–—]*?(.*)$", line, flags=re.IGNORECASE
+        )
         if not match:
             continue
 
@@ -203,7 +260,7 @@ def extract_abstract_from_paper_content(paper_content: str) -> str:
         if inline_abstract:
             collected.append(inline_abstract)
 
-        for follow_line in lines[idx + 1: idx + 80]:
+        for follow_line in lines[idx + 1 : idx + 80]:
             stripped = follow_line.strip()
             if not stripped:
                 if collected:
@@ -213,7 +270,9 @@ def extract_abstract_from_paper_content(paper_content: str) -> str:
                 break
             collected.append(stripped)
 
-        abstract = normalize_whitespace(" ".join(part for part in collected if part is not None))
+        abstract = normalize_whitespace(
+            " ".join(part for part in collected if part is not None)
+        )
         if len(abstract) >= 200:
             return abstract
 
@@ -223,6 +282,7 @@ def extract_abstract_from_paper_content(paper_content: str) -> str:
 @dataclass
 class SummaryProvider:
     """One OpenAI-compatible summary model endpoint."""
+
     name: str
     base_url: str
     api_key: str
@@ -246,7 +306,9 @@ class SummaryProvider:
                 SummaryRateState(),
             )
         try:
-            timeout = float(os.getenv("PAPERTOOLS_SUMMARY_OPENAI_TIMEOUT", "180") or "180")
+            timeout = float(
+                os.getenv("PAPERTOOLS_SUMMARY_OPENAI_TIMEOUT", "180") or "180"
+            )
         except ValueError:
             timeout = 180.0
         self.client = create_openai_client(
@@ -300,7 +362,9 @@ class SummaryProvider:
         window_limit = 0
         if window_seconds > 0:
             raw_window_limit = int(self.rpm_limit * window_seconds / 60.0)
-            window_limit = max(1, raw_window_limit - max(0, int(self.rate_window_safety_requests)))
+            window_limit = max(
+                1, raw_window_limit - max(0, int(self.rate_window_safety_requests))
+            )
 
         while True:
             wait_time = 0.0
@@ -310,7 +374,10 @@ class SummaryProvider:
                 now = time.monotonic()
 
                 if window_seconds > 0:
-                    while self._request_timestamps and now - self._request_timestamps[0] >= window_seconds:
+                    while (
+                        self._request_timestamps
+                        and now - self._request_timestamps[0] >= window_seconds
+                    ):
                         self._request_timestamps.popleft()
 
                 wait_until = max(self._cooldown_until, self._next_request_at)
@@ -330,7 +397,9 @@ class SummaryProvider:
 
                 wait_time = wait_until - now
 
-            print(f"⏳ {self.label} 限速等待 {wait_time:.1f}s ({wait_reason}, RPM={self.rpm_limit})")
+            print(
+                f"⏳ {self.label} 限速等待 {wait_time:.1f}s ({wait_reason}, RPM={self.rpm_limit})"
+            )
             time.sleep(wait_time)
 
     def note_rate_limit_error(self) -> None:
@@ -339,7 +408,9 @@ class SummaryProvider:
         if cooldown <= 0:
             return
         with self._rate_lock:
-            self._cooldown_until = max(self._cooldown_until, time.monotonic() + cooldown)
+            self._cooldown_until = max(
+                self._cooldown_until, time.monotonic() + cooldown
+            )
         print(f"⏳ {self.label} 触发 429，冷却 {cooldown}s 后再使用该 provider")
 
     def cooldown_remaining(self) -> float:
@@ -411,7 +482,9 @@ def build_summary_providers(
             print(f"⚠️ 忽略无法识别的总结模型配置: {entry}")
             continue
         if (provider_name, model) in unsupported_models:
-            print(f"⚠️ 跳过当前不可用的总结模型: {provider_name}:{model}，请使用 sjtu:minimax")
+            print(
+                f"⚠️ 跳过当前不可用的总结模型: {provider_name}:{model}，请使用 sjtu:minimax"
+            )
             continue
 
         (
@@ -494,7 +567,9 @@ def collect_streaming_completion(
             disabled = provider.disabled
         if disabled:
             continue
-        fallback_available = any(not candidate.disabled for candidate in providers[idx + 1:])
+        fallback_available = any(
+            not candidate.disabled for candidate in providers[idx + 1 :]
+        )
         cooldown_remaining = provider.cooldown_remaining()
         if fallback_available and cooldown_remaining > 0:
             print(
@@ -548,6 +623,7 @@ def retry_on_openai_error(max_retries: int = 6, backoff_factor: float = 2.0):
         max_retries: 最大重试次数
         backoff_factor: 退避因子（指数退避）
     """
+
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -556,35 +632,48 @@ def retry_on_openai_error(max_retries: int = 6, backoff_factor: float = 2.0):
             for attempt in range(max_retries):
                 try:
                     return func(*args, **kwargs)
-                except (OpenAIError, requests.exceptions.RequestException, ConnectionError, TimeoutError) as e:
+                except (
+                    OpenAIError,
+                    requests.exceptions.RequestException,
+                    ConnectionError,
+                    TimeoutError,
+                ) as e:
                     last_exception = e
                     error_msg = str(e)
 
                     # 不可重试的错误：认证失败、参数错误等客户端问题
                     non_retryable_errors = [
-                        '401',
-                        'Unauthorized',
-                        '403',
-                        'Forbidden',
-                        'invalid_api_key',
+                        "401",
+                        "Unauthorized",
+                        "403",
+                        "Forbidden",
+                        "invalid_api_key",
                     ]
 
-                    is_non_retryable = any(err in error_msg for err in non_retryable_errors)
+                    is_non_retryable = any(
+                        err in error_msg for err in non_retryable_errors
+                    )
 
                     if not is_non_retryable and attempt < max_retries - 1:
-                        wait_time = backoff_factor ** attempt
-                        print(f"⚠️ OpenAI API调用失败 (尝试 {attempt + 1}/{max_retries}), {wait_time:.2f}秒后重试: {error_msg}")
+                        wait_time = backoff_factor**attempt
+                        print(
+                            f"⚠️ OpenAI API调用失败 (尝试 {attempt + 1}/{max_retries}), {wait_time:.2f}秒后重试: {error_msg}"
+                        )
                         time.sleep(wait_time)
                     else:
                         if attempt == max_retries - 1:
-                            print(f"❌ OpenAI API调用失败，已达到最大重试次数: {error_msg}")
+                            print(
+                                f"❌ OpenAI API调用失败，已达到最大重试次数: {error_msg}"
+                            )
                         raise e
                 except Exception as e:
                     last_exception = e
                     error_msg = str(e)
                     if attempt < max_retries - 1:
-                        wait_time = backoff_factor ** attempt
-                        print(f"⚠️ 未知错误 (尝试 {attempt + 1}/{max_retries}), {wait_time:.2f}秒后重试: {error_msg}")
+                        wait_time = backoff_factor**attempt
+                        print(
+                            f"⚠️ 未知错误 (尝试 {attempt + 1}/{max_retries}), {wait_time:.2f}秒后重试: {error_msg}"
+                        )
                         time.sleep(wait_time)
                     else:
                         print(f"❌ 已达到最大重试次数: {error_msg}")
@@ -595,17 +684,18 @@ def retry_on_openai_error(max_retries: int = 6, backoff_factor: float = 2.0):
                 raise last_exception
 
         return wrapper
+
     return decorator
 
 
 def extract_arxiv_id_from_link(link: str) -> Optional[str]:
     """从arXiv链接中提取论文ID"""
     patterns = [
-        r'arxiv\.org/abs/(\d+\.\d+)',
-        r'arxiv\.org/pdf/(\d+\.\d+)',
-        r'(\d{4}\.\d{4,5})'
+        r"arxiv\.org/abs/(\d+\.\d+)",
+        r"arxiv\.org/pdf/(\d+\.\d+)",
+        r"(\d{4}\.\d{4,5})",
     ]
-    
+
     for pattern in patterns:
         match = re.search(pattern, link)
         if match:
@@ -614,7 +704,13 @@ def extract_arxiv_id_from_link(link: str) -> Optional[str]:
 
 
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
-def translate_summary(summary: str, providers: List[SummaryProvider], temperature: float, paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
+def translate_summary(
+    summary: str,
+    providers: List[SummaryProvider],
+    temperature: float,
+    paper_title: str = "",
+    cache_manager: Optional[CacheManager] = None,
+) -> str:
     """
     翻译英文摘要为中文
 
@@ -633,7 +729,9 @@ def translate_summary(summary: str, providers: List[SummaryProvider], temperatur
     if cache_manager and ENABLE_CACHE:
         cache_key = f"{translation_cache_version}_{paper_title}_{summary[:100]}"
         for provider in providers:
-            cached_translation = cache_manager.get_summary_cache(f"{provider.cache_label}:{cache_key}", summary)
+            cached_translation = cache_manager.get_summary_cache(
+                f"{provider.cache_label}:{cache_key}", summary
+            )
             if cached_translation and has_valid_generated_text(cached_translation):
                 return cached_translation
 
@@ -652,18 +750,15 @@ def translate_summary(summary: str, providers: List[SummaryProvider], temperatur
 请只输出中文翻译："""
 
     messages = [
-            {
-                "role": "system",
-                "content": (
-                    "你是一个专业的学术论文翻译助手。请准确翻译摘要，"
-                    "保留英文专有名词和技术术语，不用括号添加中文解释。"
-                )
-            },
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ]
+        {
+            "role": "system",
+            "content": (
+                "你是一个专业的学术论文翻译助手。请准确翻译摘要，"
+                "保留英文专有名词和技术术语，不用括号添加中文解释。"
+            ),
+        },
+        {"role": "user", "content": prompt},
+    ]
     translation, provider = collect_streaming_completion(
         providers, messages, temperature, f"translation_{paper_title[:50]}"
     )
@@ -671,18 +766,29 @@ def translate_summary(summary: str, providers: List[SummaryProvider], temperatur
     # 保存到缓存
     if cache_manager and ENABLE_CACHE:
         cache_key = f"{translation_cache_version}_{paper_title}_{summary[:100]}"
-        cache_manager.set_summary_cache(f"{provider.cache_label}:{cache_key}", summary, translation)
+        cache_manager.set_summary_cache(
+            f"{provider.cache_label}:{cache_key}", summary, translation
+        )
 
     return translation
 
 
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
-def _llm_generate(providers: List[SummaryProvider], temperature: float, system: str, prompt: str,
-                   cache_key: str, paper_content: str, cache_manager) -> str:
+def _llm_generate(
+    providers: List[SummaryProvider],
+    temperature: float,
+    system: str,
+    prompt: str,
+    cache_key: str,
+    paper_content: str,
+    cache_manager,
+) -> str:
     """Shared helper: cache lookup → LLM streaming call → strip think tags → cache save."""
     if cache_manager and ENABLE_CACHE:
         for provider in providers:
-            cached = cache_manager.get_summary_cache(f"{provider.cache_label}:{cache_key}", paper_content)
+            cached = cache_manager.get_summary_cache(
+                f"{provider.cache_label}:{cache_key}", paper_content
+            )
             if has_valid_generated_text(cached):
                 return cached
 
@@ -694,7 +800,9 @@ def _llm_generate(providers: List[SummaryProvider], temperature: float, system: 
     )
 
     if cache_manager and ENABLE_CACHE:
-        cache_manager.set_summary_cache(f"{provider.cache_label}:{cache_key}", paper_content, result)
+        cache_manager.set_summary_cache(
+            f"{provider.cache_label}:{cache_key}", paper_content, result
+        )
     return result
 
 
@@ -702,24 +810,40 @@ def _llm_generate(providers: List[SummaryProvider], temperature: float, system: 
 # Prompt 1: Introduction Logic (Chinese)
 # ---------------------------------------------------------------------------
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
-def generate_intro_logic(paper_content: str, providers: List[SummaryProvider], temperature: float,
-                         paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
+def generate_intro_logic(
+    paper_content: str,
+    providers: List[SummaryProvider],
+    temperature: float,
+    paper_title: str = "",
+    cache_manager: Optional[CacheManager] = None,
+) -> str:
     prompt = f"""{paper_content}
 
 ---
 请完整提取 Introduction 部分"讲故事"（引出问题）的逻辑链条（不涉及具体方法等），然后压缩成一个有序列表。最后一点要求是"研究问题"（一个问句）。用纯文本回答，不要使用任何加粗或斜体。专业术语保持英文。"""
 
-    return _llm_generate(providers, temperature,
-                         "你是一个精确的学术阅读助手。用中文回复，专业术语保持英文。",
-                         prompt, f"intro_logic_zh_{paper_title}", paper_content, cache_manager)
+    return _llm_generate(
+        providers,
+        temperature,
+        "你是一个精确的学术阅读助手。用中文回复，专业术语保持英文。",
+        prompt,
+        f"intro_logic_zh_{paper_title}",
+        paper_content,
+        cache_manager,
+    )
 
 
 # ---------------------------------------------------------------------------
 # Prompt 2: Core Insight (Chinese)
 # ---------------------------------------------------------------------------
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
-def generate_core_insight(paper_content: str, providers: List[SummaryProvider], temperature: float,
-                          paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
+def generate_core_insight(
+    paper_content: str,
+    providers: List[SummaryProvider],
+    temperature: float,
+    paper_title: str = "",
+    cache_manager: Optional[CacheManager] = None,
+) -> str:
     prompt = f"""{paper_content}
 
 ---
@@ -735,17 +859,28 @@ def generate_core_insight(paper_content: str, providers: List[SummaryProvider], 
 
 用中文回复，专业术语保持英文，引用论文原文时保持英文。"""
 
-    return _llm_generate(providers, temperature,
-                         "你是一位善于发现研究灵感源头的学术分析师。你的任务是找到论文背后那个关键的intellectual insight——不是问题本身，而是解决问题的那个独特视角。",
-                         prompt, f"core_insight_v2_{paper_title}", paper_content, cache_manager)
+    return _llm_generate(
+        providers,
+        temperature,
+        "你是一位善于发现研究灵感源头的学术分析师。你的任务是找到论文背后那个关键的intellectual insight——不是问题本身，而是解决问题的那个独特视角。",
+        prompt,
+        f"core_insight_v2_{paper_title}",
+        paper_content,
+        cache_manager,
+    )
 
 
 # ---------------------------------------------------------------------------
 # Prompt 3: Methodology Breakdown (Chinese)
 # ---------------------------------------------------------------------------
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
-def generate_methodology(paper_content: str, providers: List[SummaryProvider], temperature: float,
-                         paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
+def generate_methodology(
+    paper_content: str,
+    providers: List[SummaryProvider],
+    temperature: float,
+    paper_title: str = "",
+    cache_manager: Optional[CacheManager] = None,
+) -> str:
     prompt = f"""{paper_content}
 
 ---
@@ -786,9 +921,15 @@ def generate_methodology(paper_content: str, providers: List[SummaryProvider], t
 
 请根据以上要求，为我解读以下论文的内容。"""
 
-    return _llm_generate(providers, temperature,
-                         "你是一个资深的学术论文解读助手，用大白话讲解方法论与设计逻辑。",
-                         prompt, f"methodology_v2_{paper_title}", paper_content, cache_manager)
+    return _llm_generate(
+        providers,
+        temperature,
+        "你是一个资深的学术论文解读助手，用大白话讲解方法论与设计逻辑。",
+        prompt,
+        f"methodology_v2_{paper_title}",
+        paper_content,
+        cache_manager,
+    )
 
 
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
@@ -805,13 +946,13 @@ def repair_methodology_with_focused_prompt(
 {paper_title}
 
 ## 原始摘要
-{compact_generated_context(paper.get('summary', ''), 1200)}
+{compact_generated_context(paper.get("summary", ""), 1200)}
 
 ## 已生成的引入逻辑
-{compact_generated_context(paper.get('intro_logic', ''), 1200)}
+{compact_generated_context(paper.get("intro_logic", ""), 1200)}
 
 ## 已生成的核心洞察
-{compact_generated_context(paper.get('core_insight', ''), 1200)}
+{compact_generated_context(paper.get("core_insight", ""), 1200)}
 
 ## 论文正文/抽取文本
 {compact_generated_context(paper_content, 9000)}
@@ -839,11 +980,15 @@ def repair_methodology_with_focused_prompt(
     )
 
 
-def build_methodology_fallback(paper: Dict, paper_content: str, paper_title: str = "") -> str:
+def build_methodology_fallback(
+    paper: Dict, paper_content: str, paper_title: str = ""
+) -> str:
     """Create a grounded minimal methodology section from already available text."""
     title = compact_generated_context(paper_title or paper.get("title", ""), 220)
     abstract = compact_generated_context(
-        paper.get("summary") or paper.get("abstract") or extract_abstract_from_paper_content(paper_content),
+        paper.get("summary")
+        or paper.get("abstract")
+        or extract_abstract_from_paper_content(paper_content),
         900,
     )
     intro_logic = compact_generated_context(paper.get("intro_logic", ""), 900)
@@ -876,8 +1021,13 @@ def build_methodology_fallback(paper: Dict, paper_content: str, paper_title: str
 # Prompt 4: Additional Insights (Chinese)
 # ---------------------------------------------------------------------------
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
-def generate_additional_insights(paper_content: str, providers: List[SummaryProvider], temperature: float,
-                                 paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
+def generate_additional_insights(
+    paper_content: str,
+    providers: List[SummaryProvider],
+    temperature: float,
+    paper_title: str = "",
+    cache_manager: Optional[CacheManager] = None,
+) -> str:
     prompt = f"""{paper_content}
 
 ---
@@ -895,9 +1045,15 @@ def generate_additional_insights(paper_content: str, providers: List[SummaryProv
 
 请只输出有实质内容的条目。必须至少输出 1 条；如果论文没有清晰的实验、ablation 或工程 trick，不要留空，而是从论文的分析、适用边界、局限性或未来机会中提炼有依据的补充洞察，并明确说明依据来自当前可提取文本。不要输出“无”“没有”“生成失败”这类空结论。每条用1-2句话概括，附上论文中的依据。用中文回复，专业术语保持英文。"""
 
-    return _llm_generate(providers, temperature,
-                         "你是一个善于从论文中榨取最大价值的研究助手。",
-                         prompt, f"additional_insights_{paper_title}", paper_content, cache_manager)
+    return _llm_generate(
+        providers,
+        temperature,
+        "你是一个善于从论文中榨取最大价值的研究助手。",
+        prompt,
+        f"additional_insights_{paper_title}",
+        paper_content,
+        cache_manager,
+    )
 
 
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
@@ -914,16 +1070,16 @@ def repair_additional_insights_with_focused_prompt(
 {paper_title}
 
 ## 原始摘要
-{paper.get('summary', '')}
+{paper.get("summary", "")}
 
 ## 已生成的引入逻辑
-{paper.get('intro_logic', '')}
+{paper.get("intro_logic", "")}
 
 ## 已生成的核心洞察
-{paper.get('core_insight', '')}
+{paper.get("core_insight", "")}
 
 ## 已生成的方法分析
-{paper.get('methodology', '')}
+{paper.get("methodology", "")}
 
 ## 论文正文/抽取文本
 {paper_content}
@@ -951,10 +1107,14 @@ def repair_additional_insights_with_focused_prompt(
     )
 
 
-def build_additional_insights_fallback(paper: Dict, paper_content: str, paper_title: str = "") -> str:
+def build_additional_insights_fallback(
+    paper: Dict, paper_content: str, paper_title: str = ""
+) -> str:
     """Create a grounded minimal additional-insights section from available text."""
     abstract = compact_generated_context(
-        paper.get("summary") or paper.get("abstract") or extract_abstract_from_paper_content(paper_content),
+        paper.get("summary")
+        or paper.get("abstract")
+        or extract_abstract_from_paper_content(paper_content),
         900,
     )
     intro_logic = compact_generated_context(paper.get("intro_logic", ""), 900)
@@ -999,7 +1159,9 @@ def repair_missing_summary_fields(
 
     if "intro_logic" in missing:
         try:
-            value = generate_intro_logic(paper_content, providers, temperature, paper_title, cache_manager)
+            value = generate_intro_logic(
+                paper_content, providers, temperature, paper_title, cache_manager
+            )
             if has_valid_generated_text(value):
                 paper["intro_logic"] = value
         except Exception as exc:
@@ -1007,7 +1169,9 @@ def repair_missing_summary_fields(
 
     if "core_insight" in missing:
         try:
-            value = generate_core_insight(paper_content, providers, temperature, paper_title, cache_manager)
+            value = generate_core_insight(
+                paper_content, providers, temperature, paper_title, cache_manager
+            )
             if has_valid_generated_text(value):
                 paper["core_insight"] = value
         except Exception as exc:
@@ -1015,12 +1179,19 @@ def repair_missing_summary_fields(
 
     if "methodology" in missing:
         try:
-            value = generate_methodology(paper_content, providers, temperature, paper_title, cache_manager)
+            value = generate_methodology(
+                paper_content, providers, temperature, paper_title, cache_manager
+            )
             if has_valid_generated_text(value):
                 paper["methodology"] = value
             else:
                 repaired = repair_methodology_with_focused_prompt(
-                    paper, paper_content, providers, temperature, paper_title, cache_manager
+                    paper,
+                    paper_content,
+                    providers,
+                    temperature,
+                    paper_title,
+                    cache_manager,
                 )
                 if has_valid_generated_text(repaired):
                     paper["methodology"] = repaired
@@ -1028,7 +1199,12 @@ def repair_missing_summary_fields(
             print(f"⚠️ 修复methodology失败 {paper_title[:30]}: {exc}")
             try:
                 repaired = repair_methodology_with_focused_prompt(
-                    paper, paper_content, providers, temperature, paper_title, cache_manager
+                    paper,
+                    paper_content,
+                    providers,
+                    temperature,
+                    paper_title,
+                    cache_manager,
                 )
                 if has_valid_generated_text(repaired):
                     paper["methodology"] = repaired
@@ -1042,12 +1218,19 @@ def repair_missing_summary_fields(
 
     if "additional_insights" in missing:
         try:
-            value = generate_additional_insights(paper_content, providers, temperature, paper_title, cache_manager)
+            value = generate_additional_insights(
+                paper_content, providers, temperature, paper_title, cache_manager
+            )
             if has_valid_generated_text(value):
                 paper["additional_insights"] = value
             else:
                 repaired = repair_additional_insights_with_focused_prompt(
-                    paper, paper_content, providers, temperature, paper_title, cache_manager
+                    paper,
+                    paper_content,
+                    providers,
+                    temperature,
+                    paper_title,
+                    cache_manager,
                 )
                 if has_valid_generated_text(repaired):
                     paper["additional_insights"] = repaired
@@ -1055,21 +1238,36 @@ def repair_missing_summary_fields(
             print(f"⚠️ 常规修复additional_insights失败 {paper_title[:30]}: {exc}")
             try:
                 repaired = repair_additional_insights_with_focused_prompt(
-                    paper, paper_content, providers, temperature, paper_title, cache_manager
+                    paper,
+                    paper_content,
+                    providers,
+                    temperature,
+                    paper_title,
+                    cache_manager,
                 )
                 if has_valid_generated_text(repaired):
                     paper["additional_insights"] = repaired
             except Exception as focused_exc:
-                print(f"⚠️ 聚焦修复additional_insights失败 {paper_title[:30]}: {focused_exc}")
+                print(
+                    f"⚠️ 聚焦修复additional_insights失败 {paper_title[:30]}: {focused_exc}"
+                )
         if not has_valid_generated_text(paper.get("additional_insights")):
-            fallback = build_additional_insights_fallback(paper, paper_content, paper_title)
+            fallback = build_additional_insights_fallback(
+                paper, paper_content, paper_title
+            )
             if has_valid_generated_text(fallback):
-                print(f"🧩 使用已生成内容兜底additional_insights: {paper_title[:50]}...")
+                print(
+                    f"🧩 使用已生成内容兜底additional_insights: {paper_title[:50]}..."
+                )
                 paper["additional_insights"] = fallback
 
-    if "summary_translation" in missing and has_valid_generated_text(paper.get("summary")):
+    if "summary_translation" in missing and has_valid_generated_text(
+        paper.get("summary")
+    ):
         try:
-            value = translate_summary(paper["summary"], providers, temperature, paper_title, cache_manager)
+            value = translate_summary(
+                paper["summary"], providers, temperature, paper_title, cache_manager
+            )
             if has_valid_generated_text(value):
                 paper["summary_translation"] = value
         except Exception as exc:
@@ -1091,9 +1289,13 @@ def repair_missing_summary_fields(
             )
             if has_valid_generated_text(value):
                 paper["research_value"] = value
-                paper["reviewgrounder_review"] = {"source": "summary_field_repair_fallback"}
+                paper["reviewgrounder_review"] = {
+                    "source": "summary_field_repair_fallback"
+                }
                 paper["research_value_source"] = "summary_field_repair_fallback"
-                paper["research_value_model"] = ",".join(provider.label for provider in providers)
+                paper["research_value_model"] = ",".join(
+                    provider.label for provider in providers
+                )
                 paper["research_value_reasoning_effort"] = ""
         except Exception as exc:
             print(f"⚠️ 修复research_value失败 {paper_title[:30]}: {exc}")
@@ -1103,11 +1305,18 @@ def repair_missing_summary_fields(
 # Prompt 5: Research Value Evaluation (Chinese)
 # ---------------------------------------------------------------------------
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
-def generate_research_value(providers: List[SummaryProvider], temperature: float,
-                            paper_title: str, arxiv_id: str, date: str,
-                            intro_logic: str, methodology: str,
-                            additional_insights: str, original_summary: str,
-                            cache_manager: Optional[CacheManager] = None) -> str:
+def generate_research_value(
+    providers: List[SummaryProvider],
+    temperature: float,
+    paper_title: str,
+    arxiv_id: str,
+    date: str,
+    intro_logic: str,
+    methodology: str,
+    additional_insights: str,
+    original_summary: str,
+    cache_manager: Optional[CacheManager] = None,
+) -> str:
     """根据已有分析结果拼接输入，评估研究价值。"""
     assembled_input = f"""## 论文基本信息
 标题：{paper_title}
@@ -1198,19 +1407,32 @@ ArXiv ID：{arxiv_id}
 - **与 Carlini 原则的对照**：这篇论文最符合和最不符合 Carlini 哪条研究原则？各一句话。"""
 
     # Cache key uses paper_title as proxy; the assembled_input serves as content hash
-    return _llm_generate(providers, temperature,
-                         "你是一位经验丰富的研究评审者，客观评估研究问题的价值。",
-                         prompt, f"research_value_{paper_title}", assembled_input, cache_manager)
+    return _llm_generate(
+        providers,
+        temperature,
+        "你是一位经验丰富的研究评审者，客观评估研究问题的价值。",
+        prompt,
+        f"research_value_{paper_title}",
+        assembled_input,
+        cache_manager,
+    )
 
 
 # ---------------------------------------------------------------------------
 # Legacy functions kept for backward compatibility (not called by pipeline)
 # ---------------------------------------------------------------------------
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
-def generate_inspiration_trace(paper_content: str, client: object, model: str, temperature: float, paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
+def generate_inspiration_trace(
+    paper_content: str,
+    client: object,
+    model: str,
+    temperature: float,
+    paper_title: str = "",
+    cache_manager: Optional[CacheManager] = None,
+) -> str:
     """
     生成论文的灵感溯源分析
-    
+
     Args:
         paper_content: 论文完整内容
         client: OpenAI客户端
@@ -1218,7 +1440,7 @@ def generate_inspiration_trace(paper_content: str, client: object, model: str, t
         temperature: 生成温度
         paper_title: 论文标题（用于缓存）
         cache_manager: 缓存管理器
-    
+
     Returns:
         生成的灵感溯源分析
     """
@@ -1228,7 +1450,7 @@ def generate_inspiration_trace(paper_content: str, client: object, model: str, t
         cached_trace = cache_manager.get_summary_cache(cache_key, paper_content)
         if cached_trace:
             return cached_trace
-    
+
     # 构建prompt
     prompt = f"""请基于以下学术论文内容，系统性地推演作者提出其核心方法的逻辑链，目标就是还原作者产出这篇文章的思考过程。
 
@@ -1246,15 +1468,12 @@ def generate_inspiration_trace(paper_content: str, client: object, model: str, t
             messages=[
                 {
                     "role": "system",
-                    "content": "你是一个学术思维分析专家，擅长追溯和分析学术论文中的创新思路和逻辑演进。"
+                    "content": "你是一个学术思维分析专家，擅长追溯和分析学术论文中的创新思路和逻辑演进。",
                 },
-                {
-                    "role": "user",
-                    "content": prompt
-                }
+                {"role": "user", "content": prompt},
             ],
             temperature=temperature,
-            stream=True  # 使用流式响应避免524超时
+            stream=True,  # 使用流式响应避免524超时
         )
         # 收集流式响应
         inspiration_trace = ""
@@ -1263,7 +1482,7 @@ def generate_inspiration_trace(paper_content: str, client: object, model: str, t
                 delta = chunk.choices[0].delta
                 if delta and delta.content:
                     inspiration_trace += delta.content
-        
+
         inspiration_trace = strip_think_tags(inspiration_trace)
 
         # 保存到缓存
@@ -1279,7 +1498,14 @@ def generate_inspiration_trace(paper_content: str, client: object, model: str, t
 
 
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
-def generate_research_insights(paper_content: str, client: object, model: str, temperature: float, paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
+def generate_research_insights(
+    paper_content: str,
+    client: object,
+    model: str,
+    temperature: float,
+    paper_title: str = "",
+    cache_manager: Optional[CacheManager] = None,
+) -> str:
     """
     生成研究洞察：核心贡献 + 研究动机 + 设计亮点（合并为1次API调用）
     """
@@ -1314,11 +1540,14 @@ def generate_research_insights(paper_content: str, client: object, model: str, t
         response = client.chat.completions.create(
             model=model,
             messages=[
-                {"role": "system", "content": "你是一个学术论文分析专家，擅长提炼论文的核心贡献、研究动机和设计亮点。"},
-                {"role": "user", "content": prompt}
+                {
+                    "role": "system",
+                    "content": "你是一个学术论文分析专家，擅长提炼论文的核心贡献、研究动机和设计亮点。",
+                },
+                {"role": "user", "content": prompt},
             ],
             temperature=temperature,
-            stream=True  # 使用流式响应避免524超时
+            stream=True,  # 使用流式响应避免524超时
         )
         # 收集流式响应
         result = ""
@@ -1340,7 +1569,14 @@ def generate_research_insights(paper_content: str, client: object, model: str, t
 
 
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
-def generate_critical_evaluation(paper_content: str, client: object, model: str, temperature: float, paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
+def generate_critical_evaluation(
+    paper_content: str,
+    client: object,
+    model: str,
+    temperature: float,
+    paper_title: str = "",
+    cache_manager: Optional[CacheManager] = None,
+) -> str:
     """
     生成批判性评估：批判性分析 + 潜力评估（合并为1次API调用）
     """
@@ -1374,11 +1610,14 @@ def generate_critical_evaluation(paper_content: str, client: object, model: str,
         response = client.chat.completions.create(
             model=model,
             messages=[
-                {"role": "system", "content": "你是一个资深学术审稿人，擅长对论文进行客观、建设性的批判性分析和潜力评估。"},
-                {"role": "user", "content": prompt}
+                {
+                    "role": "system",
+                    "content": "你是一个资深学术审稿人，擅长对论文进行客观、建设性的批判性分析和潜力评估。",
+                },
+                {"role": "user", "content": prompt},
             ],
             temperature=temperature,
-            stream=True  # 使用流式响应避免524超时
+            stream=True,  # 使用流式响应避免524超时
         )
         # 收集流式响应
         result = ""
@@ -1403,8 +1642,14 @@ def generate_critical_evaluation(paper_content: str, client: object, model: str,
 # Affiliation Extraction
 # ---------------------------------------------------------------------------
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
-def extract_affiliations(paper_content: str, authors: str, providers: List[SummaryProvider], temperature: float,
-                         paper_title: str = "", cache_manager: Optional[CacheManager] = None) -> str:
+def extract_affiliations(
+    paper_content: str,
+    authors: str,
+    providers: List[SummaryProvider],
+    temperature: float,
+    paper_title: str = "",
+    cache_manager: Optional[CacheManager] = None,
+) -> str:
     """从论文内容中提取作者机构及角标信息，返回 JSON 字符串。"""
     prompt = f"""{paper_content}
 
@@ -1452,51 +1697,72 @@ def extract_affiliations(paper_content: str, authors: str, providers: List[Summa
 7. 保持作者顺序与论文一致"""
 
     system = "你是一个学术信息提取助手。请精确提取作者机构信息，只输出 JSON，不要输出其他内容。"
-    return _llm_generate(providers, temperature, system,
-                         prompt, f"affiliations_{paper_title}", paper_content, cache_manager)
+    return _llm_generate(
+        providers,
+        temperature,
+        system,
+        prompt,
+        f"affiliations_{paper_title}",
+        paper_content,
+        cache_manager,
+    )
 
 
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
-def generate_daily_overview(papers: List[Dict], providers: List[SummaryProvider], temperature: float, date_str: str = "", cache_manager: Optional[CacheManager] = None) -> str:
+def generate_daily_overview(
+    papers: List[Dict],
+    providers: List[SummaryProvider],
+    temperature: float,
+    date_str: str = "",
+    cache_manager: Optional[CacheManager] = None,
+) -> str:
     """
     生成"今日AI论文速览"
-    
+
     Args:
         papers: 论文列表
         providers: 总结模型回退链
         temperature: 生成温度
         date_str: 日期字符串（用于缓存和标题）
         cache_manager: 缓存管理器
-    
+
     Returns:
         生成的每日速览
     """
     # 尝试从缓存获取
     if cache_manager and ENABLE_CACHE:
         cache_key = f"daily_overview_v2_{date_str}"
-        # 使用所有论文标题的组合作为内容指纹
-        content_fingerprint = "_".join([p.get('title', '')[:30] for p in papers[:10]])
+        content_fingerprint = build_daily_overview_cache_fingerprint(papers)
         for provider in providers:
-            cached_overview = cache_manager.get_summary_cache(f"{provider.cache_label}:{cache_key}", content_fingerprint)
+            cached_overview = cache_manager.get_summary_cache(
+                f"{provider.cache_label}:{cache_key}", content_fingerprint
+            )
             if cached_overview:
+                try:
+                    daily_overview = ensure_valid_daily_overview_text(
+                        cached_overview, date_str
+                    )
+                except ValueError as exc:
+                    print(f"⚠️ 忽略无效缓存每日速览: {exc}")
+                    continue
                 print(f"📋 使用缓存的每日速览: {date_str}")
-                return cached_overview
-    
+                return daily_overview
+
     # 构建论文信息列表（包含聚类信息）
     papers_info = []
     for paper in papers:
-        cluster = paper.get('cluster', 'Other')
-        paper_info = f"""[{paper.get('title', 'Unknown Title')}]
-ArXiv ID: {paper.get('arxiv_id', 'Unknown')}
-[类别: {paper.get('category', 'Unknown')}]
+        cluster = paper.get("cluster", "Other")
+        paper_info = f"""[{paper.get("title", "Unknown Title")}]
+ArXiv ID: {paper.get("arxiv_id", "Unknown")}
+[类别: {paper.get("category", "Unknown")}]
 [聚类主题: {cluster}]
 [发布日期: {date_str}]
-{paper.get('summary', 'No summary available')}
+{paper.get("summary", "No summary available")}
 ---"""
         papers_info.append(paper_info)
-    
+
     papers_text = "\n\n".join(papers_info)
-    
+
     # 构建prompt
     prompt = f"""## Prompt: 生成"今日AI论文速览"
 
@@ -1553,24 +1819,24 @@ ArXiv ID: {paper.get('arxiv_id', 'Unknown')}
 请现在生成"今日AI论文速览"报告："""
 
     messages = [
-            {
-                "role": "system",
-                "content": "你是一位顶尖的AI研究分析师和科技媒体主编，擅长将复杂的学术论文信息提炼成结构清晰、重点突出的每日速览。"
-            },
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ]
+        {
+            "role": "system",
+            "content": "你是一位顶尖的AI研究分析师和科技媒体主编，擅长将复杂的学术论文信息提炼成结构清晰、重点突出的每日速览。",
+        },
+        {"role": "user", "content": prompt},
+    ]
     daily_overview, provider = collect_streaming_completion(
         providers, messages, temperature, f"daily_overview_v2_{date_str}"
     )
+    daily_overview = ensure_valid_daily_overview_text(daily_overview, date_str)
 
     # 保存到缓存
     if cache_manager and ENABLE_CACHE:
         cache_key = f"daily_overview_v2_{date_str}"
-        content_fingerprint = "_".join([p.get('title', '')[:30] for p in papers[:10]])
-        cache_manager.set_summary_cache(f"{provider.cache_label}:{cache_key}", content_fingerprint, daily_overview)
+        content_fingerprint = build_daily_overview_cache_fingerprint(papers)
+        cache_manager.set_summary_cache(
+            f"{provider.cache_label}:{cache_key}", content_fingerprint, daily_overview
+        )
 
     return daily_overview
 
@@ -1582,7 +1848,9 @@ def extract_yyyy_mm_dd(value: object) -> str:
     return match.group(0) if match else ""
 
 
-def group_papers_by_source_date(papers: List[Dict], fallback_date: str) -> Dict[str, List[Dict]]:
+def group_papers_by_source_date(
+    papers: List[Dict], fallback_date: str
+) -> Dict[str, List[Dict]]:
     grouped: Dict[str, List[Dict]] = {}
     for paper in papers:
         date_str = (
@@ -1596,44 +1864,69 @@ def group_papers_by_source_date(papers: List[Dict], fallback_date: str) -> Dict[
 
 def main() -> int:
     """主函数"""
-    parser = argparse.ArgumentParser(description='论文总结生成工具')
-    parser.add_argument('--input-file', required=True,
-                       help='输入的JSON文件路径')
-    parser.add_argument('--output-dir', default=SUMMARY_DIR,
-                       help=f'输出目录（JSON文件保存位置，默认: {SUMMARY_DIR})')
-    parser.add_argument('--api-key', default=SUMMARY_API_KEY,
-                       help='API密钥')
-    parser.add_argument('--base-url', default=SUMMARY_BASE_URL,
-                       help='API基础URL')
-    parser.add_argument('--model', default=SUMMARY_MODEL,
-                       help='使用的模型')
-    parser.add_argument('--model-chain', default=SUMMARY_MODEL_CHAIN,
-                       help='总结模型回退链，格式 provider:model,provider:model')
-    parser.add_argument('--sjtu-api-key', default=SUMMARY_SJTU_API_KEY,
-                       help='SJTU 兜底 API 密钥')
-    parser.add_argument('--sjtu-base-url', default=SUMMARY_SJTU_BASE_URL,
-                       help='SJTU 兜底 API 基础 URL')
-    parser.add_argument('--prism-api-key', default=SUMMARY_PRISM_API_KEY,
-                       help='Prism 生成 API 密钥')
-    parser.add_argument('--prism-base-url', default=SUMMARY_PRISM_BASE_URL,
-                       help='Prism 生成 API 基础 URL')
-    parser.add_argument('--prism-rpm', type=int, default=SUMMARY_PRISM_RPM,
-                       help=f'Prism provider RPM 限制 (默认: {SUMMARY_PRISM_RPM})')
-    parser.add_argument('--prism-reasoning-effort', default=SUMMARY_PRISM_REASONING_EFFORT,
-                       help=f'Prism reasoning_effort 参数，留空则不传 (默认: {SUMMARY_PRISM_REASONING_EFFORT})')
-    parser.add_argument('--temperature', type=float, default=TEMPERATURE,
-                       help='生成温度')
-    parser.add_argument('--max-papers', type=int, default=0,
-                       help='最大处理论文数量，0表示处理所有（推荐处理所有）')
-    parser.add_argument('--skip-existing', action='store_true',
-                       help='跳过已有summary2字段的论文')
-    parser.add_argument('--max-workers', type=int, default=SUMMARY_MAX_WORKERS,
-                       help=f'最大线程数 (默认: {SUMMARY_MAX_WORKERS})')
-    parser.add_argument('--disable-cache', action='store_true',
-                       help='禁用缓存机制')
-    parser.add_argument('--skip-overview', action='store_true',
-                       help='只生成逐篇论文总结，跳过每日速览')
-    
+    parser = argparse.ArgumentParser(description="论文总结生成工具")
+    parser.add_argument("--input-file", required=True, help="输入的JSON文件路径")
+    parser.add_argument(
+        "--output-dir",
+        default=SUMMARY_DIR,
+        help=f"输出目录（JSON文件保存位置，默认: {SUMMARY_DIR})",
+    )
+    parser.add_argument("--api-key", default=SUMMARY_API_KEY, help="API密钥")
+    parser.add_argument("--base-url", default=SUMMARY_BASE_URL, help="API基础URL")
+    parser.add_argument("--model", default=SUMMARY_MODEL, help="使用的模型")
+    parser.add_argument(
+        "--model-chain",
+        default=SUMMARY_MODEL_CHAIN,
+        help="总结模型回退链，格式 provider:model,provider:model",
+    )
+    parser.add_argument(
+        "--sjtu-api-key", default=SUMMARY_SJTU_API_KEY, help="SJTU 兜底 API 密钥"
+    )
+    parser.add_argument(
+        "--sjtu-base-url", default=SUMMARY_SJTU_BASE_URL, help="SJTU 兜底 API 基础 URL"
+    )
+    parser.add_argument(
+        "--prism-api-key", default=SUMMARY_PRISM_API_KEY, help="Prism 生成 API 密钥"
+    )
+    parser.add_argument(
+        "--prism-base-url",
+        default=SUMMARY_PRISM_BASE_URL,
+        help="Prism 生成 API 基础 URL",
+    )
+    parser.add_argument(
+        "--prism-rpm",
+        type=int,
+        default=SUMMARY_PRISM_RPM,
+        help=f"Prism provider RPM 限制 (默认: {SUMMARY_PRISM_RPM})",
+    )
+    parser.add_argument(
+        "--prism-reasoning-effort",
+        default=SUMMARY_PRISM_REASONING_EFFORT,
+        help=f"Prism reasoning_effort 参数，留空则不传 (默认: {SUMMARY_PRISM_REASONING_EFFORT})",
+    )
+    parser.add_argument(
+        "--temperature", type=float, default=TEMPERATURE, help="生成温度"
+    )
+    parser.add_argument(
+        "--max-papers",
+        type=int,
+        default=0,
+        help="最大处理论文数量，0表示处理所有（推荐处理所有）",
+    )
+    parser.add_argument(
+        "--skip-existing", action="store_true", help="跳过已有summary2字段的论文"
+    )
+    parser.add_argument(
+        "--max-workers",
+        type=int,
+        default=SUMMARY_MAX_WORKERS,
+        help=f"最大线程数 (默认: {SUMMARY_MAX_WORKERS})",
+    )
+    parser.add_argument("--disable-cache", action="store_true", help="禁用缓存机制")
+    parser.add_argument(
+        "--skip-overview", action="store_true", help="只生成逐篇论文总结，跳过每日速览"
+    )
+
     args = parser.parse_args()
 
     try:
@@ -1643,7 +1936,7 @@ def main() -> int:
     except ValidationError as exc:
         print(f"❌ 参数校验失败: {exc}")
         return 2
-    
+
     providers = build_summary_providers(
         args.model_chain,
         args.api_key,
@@ -1664,50 +1957,55 @@ def main() -> int:
     if not args.disable_cache and ENABLE_CACHE:
         cache_manager = CacheManager(summary_namespace="summary_model_chain_v2")
     document_extractor = ExtractionManager(cache_manager=cache_manager)
-    
+
     # 检查输入文件
     if not os.path.exists(args.input_file):
         print(f"❌ 输入文件未找到: {args.input_file}")
         return 1
-    
+
     # 创建输出目录
     os.makedirs(args.output_dir, exist_ok=True)
-    
+
     print("📝 开始生成论文总结")
     print(f"📁 输入文件: {args.input_file}")
     print(f"📂 输出目录: {args.output_dir}")
     print(f"🤖 总结模型链: {', '.join(provider.label for provider in providers)}")
     print("=" * 50)
-    
+
     # 加载论文数据
     try:
-        with open(args.input_file, 'r', encoding='utf-8') as f:
+        with open(args.input_file, "r", encoding="utf-8") as f:
             papers = json.load(f)
         print(f"📚 成功加载 {len(papers)} 篇论文")
     except Exception as e:
         print(f"❌ 读取文件时出错: {e}")
         return 1
-    
+
     # 限制处理数量
     if args.max_papers > 0:
-        papers = papers[:args.max_papers]
+        papers = papers[: args.max_papers]
         print(f"🔢 限制处理数量为: {args.max_papers}")
-    
+
     # 多线程处理论文
     def process_paper_wrapper(paper_with_index):
         """包装函数，用于多线程处理"""
         index, paper = paper_with_index
-        paper_title = paper.get('title', 'Untitled Paper')
-        paper_link = paper.get('link', '')
-        
+        paper_title = paper.get("title", "Untitled Paper")
+        paper_link = paper.get("link", "")
+
         # 只有网页所需字段都存在时才跳过；半成品需要重新处理以便回填。
         if args.skip_existing and has_complete_summary_analysis(paper):
-            return 'skipped', index, paper, f"⏭️ 跳过已有总结的论文: {paper_title[:50]}..."
-        
+            return (
+                "skipped",
+                index,
+                paper,
+                f"⏭️ 跳过已有总结的论文: {paper_title[:50]}...",
+            )
+
         try:
             # 优化：先检查是否有缓存的总结和翻译，避免不必要的内容获取
-            original_summary = paper.get('summary', '')
-            
+            original_summary = paper.get("summary", "")
+
             # 检查总结缓存（使用虚拟内容先检查）
             cached_intro_logic = None
             cached_core_insight = None
@@ -1727,14 +2025,24 @@ def main() -> int:
                         cached_paper_content = ""
 
                     if cached_paper_content and not original_summary:
-                        original_summary = extract_abstract_from_paper_content(cached_paper_content)
+                        original_summary = extract_abstract_from_paper_content(
+                            cached_paper_content
+                        )
 
                     # 检查prompt的缓存
                     if cached_paper_content:
-                        cached_intro_logic = cache_manager.get_summary_cache(f"intro_logic_zh_{paper_title}", cached_paper_content)
-                        cached_core_insight = cache_manager.get_summary_cache(f"core_insight_v2_{paper_title}", cached_paper_content)
-                        cached_methodology = cache_manager.get_summary_cache(f"methodology_v2_{paper_title}", cached_paper_content)
-                        cached_additional_insights = cache_manager.get_summary_cache(f"additional_insights_{paper_title}", cached_paper_content)
+                        cached_intro_logic = cache_manager.get_summary_cache(
+                            f"intro_logic_zh_{paper_title}", cached_paper_content
+                        )
+                        cached_core_insight = cache_manager.get_summary_cache(
+                            f"core_insight_v2_{paper_title}", cached_paper_content
+                        )
+                        cached_methodology = cache_manager.get_summary_cache(
+                            f"methodology_v2_{paper_title}", cached_paper_content
+                        )
+                        cached_additional_insights = cache_manager.get_summary_cache(
+                            f"additional_insights_{paper_title}", cached_paper_content
+                        )
                         if not has_valid_generated_text(cached_intro_logic):
                             cached_intro_logic = None
                         if not has_valid_generated_text(cached_core_insight):
@@ -1746,18 +2054,22 @@ def main() -> int:
 
                     if original_summary:
                         cache_key = f"translation_v2_term_preserve_{paper_title}_{original_summary[:100]}"
-                        cached_translation = cache_manager.get_summary_cache(cache_key, original_summary)
+                        cached_translation = cache_manager.get_summary_cache(
+                            cache_key, original_summary
+                        )
                         if not has_valid_generated_text(cached_translation):
                             cached_translation = None
 
                     # ReviewGrounder 缓存依赖全文、模型和 grounding 配置；旧 research_value 缓存不再复用。
                     if cached_paper_content:
-                        reviewgrounder_cache_payload = build_reviewgrounder_cache_payload(
-                            paper_title=paper_title,
-                            arxiv_id=paper.get('arxiv_id', ''),
-                            date=paper.get('source_date') or paper.get('date', ''),
-                            abstract=original_summary or paper.get('summary', ''),
-                            paper_content=cached_paper_content,
+                        reviewgrounder_cache_payload = (
+                            build_reviewgrounder_cache_payload(
+                                paper_title=paper_title,
+                                arxiv_id=paper.get("arxiv_id", ""),
+                                date=paper.get("source_date") or paper.get("date", ""),
+                                abstract=original_summary or paper.get("summary", ""),
+                                paper_content=cached_paper_content,
+                            )
                         )
                         cached_reviewgrounder_raw = cache_manager.get_summary_cache(
                             f"reviewgrounder_{paper_title}",
@@ -1765,46 +2077,81 @@ def main() -> int:
                         )
                         if cached_reviewgrounder_raw:
                             try:
-                                cached_reviewgrounder_review = json.loads(cached_reviewgrounder_raw)
-                                cached_research_value = reviewgrounder_markdown_from_result(cached_reviewgrounder_review)
+                                cached_reviewgrounder_review = json.loads(
+                                    cached_reviewgrounder_raw
+                                )
+                                cached_research_value = (
+                                    reviewgrounder_markdown_from_result(
+                                        cached_reviewgrounder_review
+                                    )
+                                )
                             except Exception:
                                 cached_reviewgrounder_review = None
                                 cached_research_value = None
 
                     # affiliations 缓存
-                    cached_affiliations = cache_manager.get_summary_cache(f"affiliations_{paper_title}", cached_paper_content) if cached_paper_content else None
+                    cached_affiliations = (
+                        cache_manager.get_summary_cache(
+                            f"affiliations_{paper_title}", cached_paper_content
+                        )
+                        if cached_paper_content
+                        else None
+                    )
 
                     # 如果都有缓存，直接返回
-                    if cached_intro_logic and cached_core_insight and cached_methodology and cached_additional_insights and cached_research_value and cached_affiliations and (not original_summary or cached_translation):
+                    if (
+                        cached_intro_logic
+                        and cached_core_insight
+                        and cached_methodology
+                        and cached_additional_insights
+                        and cached_research_value
+                        and cached_affiliations
+                        and (not original_summary or cached_translation)
+                    ):
                         paper_copy = paper.copy()
                         if original_summary:
-                            paper_copy['summary'] = original_summary
-                        paper_copy['intro_logic'] = cached_intro_logic
-                        paper_copy['core_insight'] = cached_core_insight
-                        paper_copy['methodology'] = cached_methodology
-                        paper_copy['additional_insights'] = cached_additional_insights
-                        paper_copy['reviewgrounder_review'] = cached_reviewgrounder_review
-                        paper_copy['research_value'] = cached_research_value
-                        paper_copy['research_value_source'] = 'reviewgrounder'
-                        paper_copy['research_value_model'] = REVIEWGROUNDER_MODEL
-                        paper_copy['research_value_reasoning_effort'] = REVIEWGROUNDER_REASONING_EFFORT
-                        paper_copy['affiliations'] = cached_affiliations or ""
-                        paper_copy['summary_translation'] = cached_translation or "无需翻译"
-                        paper_copy['summary_generated_time'] = time.strftime('%Y-%m-%d %H:%M:%S')
-                        paper_copy['summary_model'] = ",".join(provider.label for provider in providers)
+                            paper_copy["summary"] = original_summary
+                        paper_copy["intro_logic"] = cached_intro_logic
+                        paper_copy["core_insight"] = cached_core_insight
+                        paper_copy["methodology"] = cached_methodology
+                        paper_copy["additional_insights"] = cached_additional_insights
+                        paper_copy["reviewgrounder_review"] = (
+                            cached_reviewgrounder_review
+                        )
+                        paper_copy["research_value"] = cached_research_value
+                        paper_copy["research_value_source"] = "reviewgrounder"
+                        paper_copy["research_value_model"] = REVIEWGROUNDER_MODEL
+                        paper_copy["research_value_reasoning_effort"] = (
+                            REVIEWGROUNDER_REASONING_EFFORT
+                        )
+                        paper_copy["affiliations"] = cached_affiliations or ""
+                        paper_copy["summary_translation"] = (
+                            cached_translation or "无需翻译"
+                        )
+                        paper_copy["summary_generated_time"] = time.strftime(
+                            "%Y-%m-%d %H:%M:%S"
+                        )
+                        paper_copy["summary_model"] = ",".join(
+                            provider.label for provider in providers
+                        )
                         cached_missing_fields = missing_publish_fields(paper_copy)
                         if cached_missing_fields:
                             return (
-                                'partial_failed',
+                                "partial_failed",
                                 index,
                                 paper_copy,
                                 f"⚠️ 缓存总结不完整: {paper_title[:50]}... missing={', '.join(cached_missing_fields)}",
                             )
-                        return 'success', index, paper_copy, f"📋 使用缓存: {paper_title[:50]}..."
-            
+                        return (
+                            "success",
+                            index,
+                            paper_copy,
+                            f"📋 使用缓存: {paper_title[:50]}...",
+                        )
+
             # 如果没有完整缓存，才获取论文内容
             paper_content = None
-            
+
             # 先尝试从缓存获取论文内容
             if cache_manager and ENABLE_CACHE:
                 cached_result = document_extractor.get_cached_result(paper_link)
@@ -1823,7 +2170,9 @@ def main() -> int:
                 for attempt in range(1, SUMMARY_EXTRACTION_MAX_ATTEMPTS + 1):
                     try:
                         extraction_result = document_extractor.extract(paper_link)
-                        paper_content = ensure_valid_paper_content(extraction_result.content, paper_title)
+                        paper_content = ensure_valid_paper_content(
+                            extraction_result.content, paper_title
+                        )
                         break
                     except Exception as exc:
                         last_extraction_error = exc
@@ -1836,7 +2185,7 @@ def main() -> int:
 
                 if not paper_content:
                     return (
-                        'failed',
+                        "failed",
                         index,
                         paper,
                         f"❌ 无法获取有效论文全文: {paper_title} ({last_extraction_error})",
@@ -1849,58 +2198,102 @@ def main() -> int:
                 if extracted_summary:
                     original_summary = extracted_summary
                     print(f"📝 从论文正文回填原始摘要: {paper_title[:50]}...")
-            
+
             # 检查内容长度并截断
             if len(paper_content) > SUMMARY_CONTENT_CHAR_LIMIT:
-                paper_content = paper_content[:SUMMARY_CONTENT_CHAR_LIMIT] + "\n\n[内容已截断...]"
-            
+                paper_content = (
+                    paper_content[:SUMMARY_CONTENT_CHAR_LIMIT] + "\n\n[内容已截断...]"
+                )
+
             # 生成4个新prompt的内容；已有有效字段直接复用，便于只迁移旧 research_value。
-            intro_logic = paper.get('intro_logic', '') if has_valid_generated_text(paper.get('intro_logic')) else ""
+            intro_logic = (
+                paper.get("intro_logic", "")
+                if has_valid_generated_text(paper.get("intro_logic"))
+                else ""
+            )
             if not intro_logic:
                 try:
-                    intro_logic = generate_intro_logic(paper_content, providers, args.temperature, paper.get('title', ''), cache_manager)
+                    intro_logic = generate_intro_logic(
+                        paper_content,
+                        providers,
+                        args.temperature,
+                        paper.get("title", ""),
+                        cache_manager,
+                    )
                 except Exception as e:
                     print(f"⚠️ 生成intro_logic失败 {paper_title[:30]}: {e}")
                     intro_logic = ""
 
-            core_insight = paper.get('core_insight', '') if has_valid_generated_text(paper.get('core_insight')) else ""
+            core_insight = (
+                paper.get("core_insight", "")
+                if has_valid_generated_text(paper.get("core_insight"))
+                else ""
+            )
             if not core_insight:
                 try:
-                    core_insight = generate_core_insight(paper_content, providers, args.temperature, paper.get('title', ''), cache_manager)
+                    core_insight = generate_core_insight(
+                        paper_content,
+                        providers,
+                        args.temperature,
+                        paper.get("title", ""),
+                        cache_manager,
+                    )
                 except Exception as e:
                     print(f"⚠️ 生成core_insight失败 {paper_title[:30]}: {e}")
                     core_insight = ""
 
-            methodology = paper.get('methodology', '') if has_valid_generated_text(paper.get('methodology')) else ""
+            methodology = (
+                paper.get("methodology", "")
+                if has_valid_generated_text(paper.get("methodology"))
+                else ""
+            )
             if not methodology:
                 try:
-                    methodology = generate_methodology(paper_content, providers, args.temperature, paper.get('title', ''), cache_manager)
+                    methodology = generate_methodology(
+                        paper_content,
+                        providers,
+                        args.temperature,
+                        paper.get("title", ""),
+                        cache_manager,
+                    )
                 except Exception as e:
                     print(f"⚠️ 生成methodology失败 {paper_title[:30]}: {e}")
                     methodology = ""
 
             additional_insights = (
-                paper.get('additional_insights', '')
-                if has_valid_generated_text(paper.get('additional_insights'))
+                paper.get("additional_insights", "")
+                if has_valid_generated_text(paper.get("additional_insights"))
                 else ""
             )
             if not additional_insights:
                 try:
-                    additional_insights = generate_additional_insights(paper_content, providers, args.temperature, paper.get('title', ''), cache_manager)
+                    additional_insights = generate_additional_insights(
+                        paper_content,
+                        providers,
+                        args.temperature,
+                        paper.get("title", ""),
+                        cache_manager,
+                    )
                 except Exception as e:
                     print(f"⚠️ 生成additional_insights失败 {paper_title[:30]}: {e}")
                     additional_insights = ""
 
             # 翻译原始摘要（这里也会检查缓存）
             summary_translation = (
-                paper.get('summary_translation', '')
-                if has_valid_generated_text(paper.get('summary_translation'))
+                paper.get("summary_translation", "")
+                if has_valid_generated_text(paper.get("summary_translation"))
                 else ""
             )
             if original_summary:
                 if not summary_translation:
                     try:
-                        summary_translation = translate_summary(original_summary, providers, args.temperature, paper.get('title', ''), cache_manager)
+                        summary_translation = translate_summary(
+                            original_summary,
+                            providers,
+                            args.temperature,
+                            paper.get("title", ""),
+                            cache_manager,
+                        )
                     except Exception as e:
                         print(f"⚠️ 翻译摘要失败 {paper_title[:30]}: {e}")
                         summary_translation = ""
@@ -1915,14 +2308,18 @@ def main() -> int:
                 try:
                     reviewgrounder_cache_payload = build_reviewgrounder_cache_payload(
                         paper_title=paper_title,
-                        arxiv_id=paper.get('arxiv_id', ''),
-                        date=paper.get('source_date') or paper.get('date', ''),
-                        abstract=original_summary or paper.get('summary', ''),
+                        arxiv_id=paper.get("arxiv_id", ""),
+                        date=paper.get("source_date") or paper.get("date", ""),
+                        abstract=original_summary or paper.get("summary", ""),
                         paper_content=paper_content,
                     )
                     cached_reviewgrounder_raw = (
-                        cache_manager.get_summary_cache(f"reviewgrounder_{paper_title}", reviewgrounder_cache_payload)
-                        if cache_manager and ENABLE_CACHE else None
+                        cache_manager.get_summary_cache(
+                            f"reviewgrounder_{paper_title}",
+                            reviewgrounder_cache_payload,
+                        )
+                        if cache_manager and ENABLE_CACHE
+                        else None
                     )
                     if cached_reviewgrounder_raw:
                         reviewgrounder_review = json.loads(cached_reviewgrounder_raw)
@@ -1930,10 +2327,10 @@ def main() -> int:
                         reviewgrounder_review = generate_reviewgrounder_review(
                             paper_content,
                             paper_title=paper_title,
-                            abstract=original_summary or paper.get('summary', ''),
-                            arxiv_id=paper.get('arxiv_id', ''),
-                            date=paper.get('source_date') or paper.get('date', ''),
-                            keywords=paper.get('tags') or None,
+                            abstract=original_summary or paper.get("summary", ""),
+                            arxiv_id=paper.get("arxiv_id", ""),
+                            date=paper.get("source_date") or paper.get("date", ""),
+                            keywords=paper.get("tags") or None,
                         )
                         if cache_manager and ENABLE_CACHE:
                             cache_manager.set_summary_cache(
@@ -1941,7 +2338,9 @@ def main() -> int:
                                 reviewgrounder_cache_payload,
                                 json.dumps(reviewgrounder_review, ensure_ascii=False),
                             )
-                    research_value = reviewgrounder_markdown_from_result(reviewgrounder_review)
+                    research_value = reviewgrounder_markdown_from_result(
+                        reviewgrounder_review
+                    )
                 except Exception as e:
                     print(f"⚠️ 生成ReviewGrounder审稿失败 {paper_title[:30]}: {e}")
                     print(f"↩️ 使用内置研究价值评估兜底: {paper_title[:50]}...")
@@ -1950,12 +2349,12 @@ def main() -> int:
                             providers,
                             args.temperature,
                             paper_title,
-                            paper.get('arxiv_id', ''),
-                            paper.get('source_date') or paper.get('date', ''),
+                            paper.get("arxiv_id", ""),
+                            paper.get("source_date") or paper.get("date", ""),
                             intro_logic,
                             methodology,
                             additional_insights,
-                            original_summary or paper.get('summary', ''),
+                            original_summary or paper.get("summary", ""),
                             cache_manager,
                         )
                         reviewgrounder_review = {
@@ -1963,60 +2362,87 @@ def main() -> int:
                             "fallback_reason": str(e),
                         }
                         research_value_source = "legacy_research_value_fallback"
-                        research_value_model = ",".join(provider.label for provider in providers)
+                        research_value_model = ",".join(
+                            provider.label for provider in providers
+                        )
                         research_value_reasoning_effort = ""
                     except Exception as fallback_exc:
-                        print(f"⚠️ 内置研究价值评估也失败 {paper_title[:30]}: {fallback_exc}")
-                        reviewgrounder_review = reviewgrounder_error_result(fallback_exc, paper_title)
-                        research_value = reviewgrounder_markdown_from_result(reviewgrounder_review)
+                        print(
+                            f"⚠️ 内置研究价值评估也失败 {paper_title[:30]}: {fallback_exc}"
+                        )
+                        reviewgrounder_review = reviewgrounder_error_result(
+                            fallback_exc, paper_title
+                        )
+                        research_value = reviewgrounder_markdown_from_result(
+                            reviewgrounder_review
+                        )
             else:
                 try:
                     research_value = generate_research_value(
                         providers,
                         args.temperature,
                         paper_title,
-                        paper.get('arxiv_id', ''),
-                        paper.get('source_date') or paper.get('date', ''),
+                        paper.get("arxiv_id", ""),
+                        paper.get("source_date") or paper.get("date", ""),
                         intro_logic,
                         methodology,
                         additional_insights,
-                        original_summary or paper.get('summary', ''),
+                        original_summary or paper.get("summary", ""),
                         cache_manager,
                     )
                     reviewgrounder_review = {"source": "legacy_research_value"}
                     research_value_source = "legacy_research_value"
-                    research_value_model = ",".join(provider.label for provider in providers)
+                    research_value_model = ",".join(
+                        provider.label for provider in providers
+                    )
                     research_value_reasoning_effort = ""
                 except Exception as e:
                     print(f"⚠️ 内置研究价值评估失败 {paper_title[:30]}: {e}")
                     reviewgrounder_review = reviewgrounder_error_result(e, paper_title)
-                    research_value = reviewgrounder_markdown_from_result(reviewgrounder_review)
+                    research_value = reviewgrounder_markdown_from_result(
+                        reviewgrounder_review
+                    )
 
             # 提取作者机构信息
-            affiliations = paper.get('affiliations', '') if has_valid_generated_text(paper.get('affiliations')) else ""
+            affiliations = (
+                paper.get("affiliations", "")
+                if has_valid_generated_text(paper.get("affiliations"))
+                else ""
+            )
             if not affiliations:
                 try:
-                    affiliations = extract_affiliations(paper_content, paper.get('authors', ''), providers, args.temperature, paper.get('title', ''), cache_manager)
+                    affiliations = extract_affiliations(
+                        paper_content,
+                        paper.get("authors", ""),
+                        providers,
+                        args.temperature,
+                        paper.get("title", ""),
+                        cache_manager,
+                    )
                 except Exception as e:
                     print(f"⚠️ 提取机构信息失败 {paper_title[:30]}: {e}")
 
             # 添加总结到论文数据中
             paper_copy = paper.copy()
             if original_summary:
-                paper_copy['summary'] = original_summary
-            paper_copy['intro_logic'] = intro_logic
-            paper_copy['core_insight'] = core_insight
-            paper_copy['methodology'] = methodology
-            paper_copy['additional_insights'] = additional_insights
-            paper_copy['reviewgrounder_review'] = reviewgrounder_review
-            paper_copy['research_value'] = research_value
-            paper_copy['research_value_source'] = research_value_source
-            paper_copy['research_value_model'] = research_value_model
-            paper_copy['research_value_reasoning_effort'] = research_value_reasoning_effort
-            paper_copy['affiliations'] = affiliations
-            paper_copy['summary_translation'] = summary_translation
-            paper_copy['summary_generated_time'] = time.strftime('%Y-%m-%d %H:%M:%S')
-            paper_copy['summary_model'] = ",".join(provider.label for provider in providers)
+                paper_copy["summary"] = original_summary
+            paper_copy["intro_logic"] = intro_logic
+            paper_copy["core_insight"] = core_insight
+            paper_copy["methodology"] = methodology
+            paper_copy["additional_insights"] = additional_insights
+            paper_copy["reviewgrounder_review"] = reviewgrounder_review
+            paper_copy["research_value"] = research_value
+            paper_copy["research_value_source"] = research_value_source
+            paper_copy["research_value_model"] = research_value_model
+            paper_copy["research_value_reasoning_effort"] = (
+                research_value_reasoning_effort
+            )
+            paper_copy["affiliations"] = affiliations
+            paper_copy["summary_translation"] = summary_translation
+            paper_copy["summary_generated_time"] = time.strftime("%Y-%m-%d %H:%M:%S")
+            paper_copy["summary_model"] = ",".join(
+                provider.label for provider in providers
+            )
 
             missing_fields = missing_publish_fields(paper_copy)
             for repair_attempt in range(1, SUMMARY_FIELD_REPAIR_ATTEMPTS + 1):
@@ -2036,63 +2462,75 @@ def main() -> int:
                     paper_title,
                     cache_manager,
                 )
-                paper_copy['summary_generated_time'] = time.strftime('%Y-%m-%d %H:%M:%S')
-                paper_copy['summary_model'] = ",".join(provider.label for provider in providers)
+                paper_copy["summary_generated_time"] = time.strftime(
+                    "%Y-%m-%d %H:%M:%S"
+                )
+                paper_copy["summary_model"] = ",".join(
+                    provider.label for provider in providers
+                )
                 missing_fields = missing_publish_fields(paper_copy)
 
             if missing_fields:
                 return (
-                    'partial_failed',
+                    "partial_failed",
                     index,
                     paper_copy,
                     f"⚠️ 部分总结字段生成失败: {paper_title[:50]}... missing={', '.join(missing_fields)}",
                 )
 
-            return 'success', index, paper_copy, f"✅ 成功生成总结和分析: {paper_title[:50]}..."
-            
+            return (
+                "success",
+                index,
+                paper_copy,
+                f"✅ 成功生成总结和分析: {paper_title[:50]}...",
+            )
+
         except Exception as e:
-            return 'failed', index, paper, f"❌ 处理论文时出错 {paper_title}: {e}"
-    
+            return "failed", index, paper, f"❌ 处理论文时出错 {paper_title}: {e}"
+
     print(f"🔄 使用 {args.max_workers} 个线程并行生成总结...")
-    
+
     processed = 0
     skipped = 0
     failed = 0
     partial_failed = 0
     overview_failed = 0
     updated_papers = papers.copy()  # 创建副本用于更新
-    
+
     with ThreadPoolExecutor(max_workers=args.max_workers) as executor:
         # 提交所有处理任务，传入索引和论文数据
-        futures = [executor.submit(process_paper_wrapper, (i, paper)) for i, paper in enumerate(papers)]
-        
+        futures = [
+            executor.submit(process_paper_wrapper, (i, paper))
+            for i, paper in enumerate(papers)
+        ]
+
         # 收集结果
         for future in tqdm(as_completed(futures), total=len(papers), desc="生成总结"):
             try:
                 status, index, updated_paper, message = future.result()
-                if status != 'success' and status != 'skipped':
+                if status != "success" and status != "skipped":
                     print(message)
-                
-                if status == 'success':
+
+                if status == "success":
                     processed += 1
                     updated_papers[index] = updated_paper  # 更新对应位置的论文数据
-                elif status == 'skipped':
+                elif status == "skipped":
                     skipped += 1
-                elif status == 'partial_failed':
+                elif status == "partial_failed":
                     failed += 1
                     partial_failed += 1
                     updated_papers[index] = updated_paper
                 else:  # failed
                     failed += 1
-                
+
                 # 添加延时避免API请求过快
                 time.sleep(REQUEST_DELAY / args.max_workers)
-                
+
             except Exception as e:
                 print(f"❌ 获取处理结果时出错: {e}")
                 failed += 1
                 continue
-    
+
     # Notify about failures
     if failed > 0:
         failure_msgs = [f"{failed} papers failed during summary generation"]
@@ -2110,13 +2548,15 @@ def main() -> int:
         if not save_json(output_path, updated_papers, indent=2, ensure_ascii=False):
             print(f"❌ 保存总结结果失败: {output_path}")
             return 1
-        
+
         print(f"\n💾 已保存更新后的JSON文件: {output_path}")
-        
+
         # 生成"今日AI论文速览"
-        range_match = re.search(r'(\d{4}-\d{2}-\d{2})_to_(\d{4}-\d{2}-\d{2})', input_filename)
-        date_match = re.search(r'(\d{4}-\d{2}-\d{2})', input_filename)
-        fallback_date = date_match.group(1) if date_match else time.strftime('%Y-%m-%d')
+        range_match = re.search(
+            r"(\d{4}-\d{2}-\d{2})_to_(\d{4}-\d{2}-\d{2})", input_filename
+        )
+        date_match = re.search(r"(\d{4}-\d{2}-\d{2})", input_filename)
+        fallback_date = date_match.group(1) if date_match else time.strftime("%Y-%m-%d")
         papers_by_overview_date = (
             group_papers_by_source_date(updated_papers, fallback_date)
             if range_match
@@ -2145,7 +2585,7 @@ def main() -> int:
                         providers,
                         args.temperature,
                         date_str,
-                        cache_manager
+                        cache_manager,
                     )
 
                     # 保存每日速览到独立的 Markdown 文件
@@ -2157,7 +2597,7 @@ def main() -> int:
                 except Exception as e:
                     print(f"⚠️ 生成每日速览时出错: {e}")
                     overview_failed += 1
-    
+
     # 打印统计信息
     print("\n📊 总结生成完成！")
     print(f"✅ 已处理: {processed} 篇论文")
@@ -2180,11 +2620,30 @@ def main() -> int:
     return 0 if (processed > 0 or skipped > 0) else 1
 
 
+def html_escape_text(value, default: str = "") -> str:
+    """Escape untrusted text before embedding it in generated HTML."""
+    if value in (None, ""):
+        value = default
+    return html.escape(str(value), quote=True)
+
+
+def html_escape_js_arg(value) -> str:
+    """Return an HTML-attribute-safe JavaScript string literal."""
+    text = "" if value is None else str(value)
+    return html.escape(json.dumps(text, ensure_ascii=False), quote=True)
+
+
+def url_path_segment(value) -> str:
+    """Percent-encode an untrusted value used as one URL path segment."""
+    return quote("" if value is None else str(value), safe="")
+
+
 def generate_papers_list_html(filtered_papers, output_dir):
     """生成过滤后论文列表的HTML页面"""
     import os
+
     os.makedirs(output_dir, exist_ok=True)
-    
+
     # HTML模板（使用占位符避免 .format 误处理 JS/CSS 花括号）
     html_template = """<!DOCTYPE html>
 <html lang="zh-CN">
@@ -2323,7 +2782,7 @@ def generate_papers_list_html(filtered_papers, output_dir):
         .toast .countdown {{
             opacity: 0.8;
         }}
-        
+
         /* 可折叠部分样式 */
         .collapsible-header {{
             cursor: pointer;
@@ -2357,7 +2816,7 @@ def generate_papers_list_html(filtered_papers, output_dir):
         .collapsible-content .inner {{
             padding-top: 5px;
         }}
-        
+
         /* 灵感溯源的特殊样式 */
         .inspiration-trace {{
             background-color: #f8d7da;
@@ -2464,7 +2923,7 @@ def generate_papers_list_html(filtered_papers, output_dir):
         // 先隐藏，提供撤销
         el.classList.add('hidden');
         updateStatsCount();
-        
+
         const seconds = 5;
         let apiSucceeded = false;
         showUndoToast('已删除，5秒内可撤销', seconds, () => {
@@ -2517,7 +2976,7 @@ def generate_papers_list_html(filtered_papers, output_dir):
             header.addEventListener('click', function() {{
                 const content = this.nextElementSibling;
                 const isOpen = header.classList.contains('open');
-                
+
                 if (isOpen) {{
                     header.classList.remove('open');
                     content.classList.remove('open');
@@ -2533,7 +2992,7 @@ def generate_papers_list_html(filtered_papers, output_dir):
         try {{
             // 初始化可折叠功能
             initializeCollapsible();
-            
+
             // 优先从路径中解析 /YYYY-MM-DD/index.html；若服务根目录即日期目录，则回退到 PAGE_DATE
             const parts = location.pathname.split('/').filter(Boolean);
             let dateStr = parts.length >= 2 ? parts[parts.length - 2] : '';
@@ -2569,71 +3028,83 @@ def generate_papers_list_html(filtered_papers, output_dir):
     <div class="container">
         <h1>筛选论文列表</h1>
         <div class="stats">共筛选出 __PAPER_COUNT__ 篇论文</div>
-        
+
         __PAPERS_HTML__
     </div>
 </body>
 </html>"""
     # 还原 CSS/JS 花括号为单括号
     html_template = html_template.replace("{{", "{").replace("}}", "}")
-    
+
     # 生成每篇论文的HTML
     papers_html = ""
     for idx, paper in enumerate(filtered_papers, 1):
-        arxiv_id = paper.get('arxiv_id', 'Unknown')
-        papers_cool_url = f"https://papers.cool/arxiv/{arxiv_id}"
-        title = paper.get('title', 'Unknown Title')
-        safe_title = re.sub(r'[<>:"/\\|?*]', '_', title)[:100]
+        arxiv_id = str(paper.get("arxiv_id", "Unknown") or "Unknown")
+        arxiv_id_html = html_escape_text(arxiv_id)
+        arxiv_id_url = url_path_segment(arxiv_id)
+        papers_cool_url = f"https://papers.cool/arxiv/{arxiv_id_url}"
+        title = str(paper.get("title", "Unknown Title") or "Unknown Title")
+        title_html = html_escape_text(title)
+        safe_title = re.sub(r'[<>:"/\\|?*]', "_", title)[:100]
+        output_date = os.path.basename(output_dir)
         paper_dir_name = f"{idx:03d}_{safe_title}"
-        
+        paper_dir = f"{output_date}/{paper_dir_name}"
+        output_date_arg = html_escape_js_arg(output_date)
+        arxiv_id_arg = html_escape_js_arg(arxiv_id)
+        paper_dir_arg = html_escape_js_arg(paper_dir)
+        title_arg = html_escape_js_arg(title)
+        summary_translation = (
+            paper.get("summary_translation") or paper.get("summary") or "暂无摘要翻译"
+        )
+
         paper_html = f"""
-        <div class="paper-item" data-arxiv-id="{arxiv_id}">
-            <div class="paper-title">{title}
-                <span style=\"float:right; cursor:pointer; color:#e74c3c;\" title=\"删除\" onclick=\"deletePaper('{os.path.basename(output_dir)}','{arxiv_id}','{os.path.basename(output_dir)}/{paper_dir_name}','{title.replace('"','&quot;')}')\">✖</span>
+        <div class="paper-item" data-arxiv-id="{arxiv_id_html}">
+            <div class="paper-title">{title_html}
+                <span style=\"float:right; cursor:pointer; color:#e74c3c;\" title=\"删除\" onclick=\"deletePaper({output_date_arg},{arxiv_id_arg},{paper_dir_arg},{title_arg})\">✖</span>
             </div>
-            <div class="paper-meta">ArXiv ID: {arxiv_id}</div>
-            <div class="paper-authors">作者: {paper.get('authors', 'Unknown')}</div>
-            <div class="paper-category">{paper.get('category', 'Unknown')}</div>
+            <div class="paper-meta">ArXiv ID: {arxiv_id_html}</div>
+            <div class="paper-authors">作者: {html_escape_text(paper.get("authors"), "Unknown")}</div>
+            <div class="paper-category">{html_escape_text(paper.get("category"), "Unknown")}</div>
             <div class=\"paper-meta\">
-                <label><input type=\"checkbox\" onchange=\"toggleRead('{os.path.basename(output_dir)}','{arxiv_id}', this)\"> 已阅读</label>
+                <label><input type=\"checkbox\" onchange=\"toggleRead({output_date_arg},{arxiv_id_arg}, this)\"> 已阅读</label>
             </div>
-            
+
             <!-- 筛选原因 (默认折叠) -->
             <div class="collapsible-header">筛选原因</div>
             <div class="collapsible-content">
                 <div class="inner">
                     <div class="filter-reason">
-                        {paper.get('filter_reason', '无特定原因')}
+                        {html_escape_text(paper.get("filter_reason"), "无特定原因")}
                     </div>
                 </div>
             </div>
-            
+
             <!-- AI摘要 (默认展开) -->
             <div class="collapsible-header open">AI摘要</div>
             <div class="collapsible-content open">
                 <div class="inner">
                     <div class="paper-summary">
-                        {paper.get('summary2', '暂无AI摘要')}
+                        {html_escape_text(paper.get("summary2"), "暂无AI摘要")}
                     </div>
                 </div>
             </div>
-            
+
             <!-- 原始摘要 (默认展开) -->
             <div class="collapsible-header open">原始摘要（中文翻译）</div>
             <div class="collapsible-content open">
                 <div class="inner">
                     <div class="paper-original-summary">
-                        {paper.get('summary_translation', paper.get('summary', '暂无摘要翻译'))}
+                        {html_escape_text(summary_translation)}
                     </div>
                 </div>
             </div>
-            
+
             <!-- 灵感溯源 (默认折叠) -->
             <div class="collapsible-header">灵感溯源</div>
             <div class="collapsible-content">
                 <div class="inner">
                     <div class="inspiration-trace">
-                        {paper.get('inspiration_trace', '暂无灵感溯源分析')}
+                        {html_escape_text(paper.get("inspiration_trace"), "暂无灵感溯源分析")}
                     </div>
                 </div>
             </div>
@@ -2643,7 +3114,7 @@ def generate_papers_list_html(filtered_papers, output_dir):
             <div class="collapsible-content">
                 <div class="inner">
                     <div class="research-insights">
-                        {paper.get('research_insights', '暂无研究洞察分析')}
+                        {html_escape_text(paper.get("research_insights"), "暂无研究洞察分析")}
                     </div>
                 </div>
             </div>
@@ -2653,33 +3124,35 @@ def generate_papers_list_html(filtered_papers, output_dir):
             <div class="collapsible-content">
                 <div class="inner">
                     <div class="critical-evaluation">
-                        {paper.get('critical_evaluation', '暂无批判性评估')}
+                        {html_escape_text(paper.get("critical_evaluation"), "暂无批判性评估")}
                     </div>
                 </div>
             </div>
 
             <div class="paper-links">
-                <a href="https://arxiv.org/abs/{arxiv_id}" target="_blank">ArXiv原文</a>
-                <a href="https://arxiv.org/pdf/{arxiv_id}.pdf" target="_blank">下载PDF</a>
-                <a href="{papers_cool_url}" target="_blank" class="papers-cool-link">Papers.cool</a>
+                <a href="https://arxiv.org/abs/{arxiv_id_url}" target="_blank" rel="noopener noreferrer">ArXiv原文</a>
+                <a href="https://arxiv.org/pdf/{arxiv_id_url}.pdf" target="_blank" rel="noopener noreferrer">下载PDF</a>
+                <a href="{papers_cool_url}" target="_blank" rel="noopener noreferrer" class="papers-cool-link">Papers.cool</a>
             </div>
         </div>
         """
         papers_html += paper_html
-    
+
     # 填充模板（避免 str.format 解析 JS 模板中的 {remaining} 等）
     html_content = (
-        html_template
-        .replace("__PAPER_COUNT__", str(len(filtered_papers)))
+        html_template.replace("__PAPER_COUNT__", str(len(filtered_papers)))
         .replace("__PAPERS_HTML__", papers_html)
         .replace("__DATE_STR__", os.path.basename(output_dir))
     )
-    
-    # 写入HTML文件
-    html_file = os.path.join(output_dir, 'index.html')
-    with open(html_file, 'w', encoding='utf-8') as f:
-        f.write(html_content)
-    
+
+    html_file = os.path.join(output_dir, "index.html")
+    return save_html_page(html_file, html_content)
+
+
+def save_html_page(html_file: str, html_content: str) -> str:
+    """Persist a generated HTML page atomically."""
+    if not save_text(html_file, html_content):
+        raise OSError(f"failed to save HTML page: {html_file}")
     return html_file
 
 

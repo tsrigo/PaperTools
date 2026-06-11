@@ -6,12 +6,20 @@ on:
   pull_request:
     branches: [ master, main ]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     strategy:
       matrix:
-        python-version: ['3.9', '3.10', '3.11']
+        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
 
     steps:
     - name: Checkout
@@ -34,11 +42,17 @@ jobs:
         echo 'MODEL=gpt-4' >> .env
 
     - name: Run tests
+      env:
+        PYTEST_DISABLE_PLUGIN_AUTOLOAD: '1'
       run: |
-        pytest tests/ -v --cov=src --cov-report=xml --cov-report=term-missing
+        python -m pytest -p pytest_cov tests/ -v --cov=src --cov-report=xml --cov-report=term-missing
+
+    - name: Validate published data
+      run: |
+        python scripts/validate_published_payloads.py
 
     - name: Upload coverage to Codecov
-      if: matrix.python-version == '3.10'
+      if: matrix.python-version == '3.13'
       uses: codecov/codecov-action@v4
       with:
         files: ./coverage.xml
@@ -46,6 +60,7 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -53,23 +68,40 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: '3.13'
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install ruff mypy
+        pip install -e ".[dev]"
+
+    - name: Validate pre-commit config
+      run: |
+        python -m pre_commit validate-config
+
+    - name: Run pre-commit hooks
+      run: |
+        python -m pre_commit run --all-files
 
     - name: Run ruff linter
       run: |
-        ruff check src/ --output-format=github
+        ruff check papertools.py src/ tests/ scripts/ --output-format=github
 
     - name: Run ruff formatter check
       run: |
-        ruff format src/ --check
+        ruff format papertools.py src/ tests/ scripts/ --check
+
+    - name: Validate dependency metadata
+      run: |
+        python scripts/check_dependency_metadata.py
+
+    - name: Build wheel
+      run: |
+        python -m pip wheel . --no-deps --wheel-dir dist
 
   security:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -77,13 +109,14 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: '3.13'
 
-    - name: Install bandit
+    - name: Install security dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install bandit[toml]
+        pip install -e ".[security]"
 
     - name: Run security scan
       run: |
-        bandit -r src/ -c pyproject.toml -f txt || true
+        python scripts/check_secrets.py
+        bandit -r src/ papertools.py -c pyproject.toml -f txt --severity-level medium --confidence-level high

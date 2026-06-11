@@ -24,10 +24,15 @@ def _get_env_int(name: str, default: int, minimum: int = None) -> int:
     try:
         parsed = int(value)
     except ValueError:
-        warnings.warn(f"{name}={value!r} 不是合法整数，回退到默认值 {default}", RuntimeWarning)
+        warnings.warn(
+            f"{name}={value!r} 不是合法整数，回退到默认值 {default}", RuntimeWarning
+        )
         return default
     if minimum is not None and parsed < minimum:
-        warnings.warn(f"{name}={value!r} 小于允许下限 {minimum}，回退到默认值 {default}", RuntimeWarning)
+        warnings.warn(
+            f"{name}={value!r} 小于允许下限 {minimum}，回退到默认值 {default}",
+            RuntimeWarning,
+        )
         return default
     return parsed
 
@@ -39,10 +44,15 @@ def _get_env_float(name: str, default: float, minimum: float = None) -> float:
     try:
         parsed = float(value)
     except ValueError:
-        warnings.warn(f"{name}={value!r} 不是合法数字，回退到默认值 {default}", RuntimeWarning)
+        warnings.warn(
+            f"{name}={value!r} 不是合法数字，回退到默认值 {default}", RuntimeWarning
+        )
         return default
     if minimum is not None and parsed < minimum:
-        warnings.warn(f"{name}={value!r} 小于允许下限 {minimum}，回退到默认值 {default}", RuntimeWarning)
+        warnings.warn(
+            f"{name}={value!r} 小于允许下限 {minimum}，回退到默认值 {default}",
+            RuntimeWarning,
+        )
         return default
     return parsed
 
@@ -70,13 +80,7 @@ def _normalize_model_alias(model: str) -> str:
     if not raw:
         return raw
 
-    key = (
-        raw.lower()
-        .replace("（", "(")
-        .replace("）", ")")
-        .replace("_", "-")
-        .strip()
-    )
+    key = raw.lower().replace("（", "(").replace("）", ")").replace("_", "-").strip()
     key = " ".join(key.split())
 
     aliases = {
@@ -86,7 +90,6 @@ def _normalize_model_alias(model: str) -> str:
         "qwen": "qwen",
         "deepseek-chat": "deepseek-chat",
         "deepseek-reasoner": "deepseek-reasoner",
-
         # Human/display names commonly copied from model lists
         "minimax-m2": "minimax",
         "minimax-m2.5": "minimax",
@@ -113,6 +116,7 @@ def _normalize_model_alias(model: str) -> str:
     }
     return aliases.get(key, raw)
 
+
 # API 配置 - 从.env文件中读取
 API_KEY = _get_env_str("OPENAI_API_KEY")
 BASE_URL = _get_env_str("OPENAI_BASE_URL")
@@ -122,7 +126,9 @@ FILTER_MODEL = _normalize_model_alias(
 )  # 筛选用轻量模型
 CLUSTER_API_KEY = _get_env_str("CLUSTER_OPENAI_API_KEY", API_KEY)
 CLUSTER_BASE_URL = _get_env_str("CLUSTER_OPENAI_BASE_URL", BASE_URL)
-CLUSTER_MODEL = _normalize_model_alias(_get_env_str("CLUSTER_MODEL", FILTER_MODEL or MODEL))
+CLUSTER_MODEL = _normalize_model_alias(
+    _get_env_str("CLUSTER_MODEL", FILTER_MODEL or MODEL)
+)
 DEFAULT_SUMMARY_BASE_URL = BASE_URL or "https://models.sjtu.edu.cn/api/v1/"
 DEFAULT_SUMMARY_MODEL = _normalize_model_alias(MODEL or "minimax")
 DEFAULT_SUMMARY_MODEL_CHAIN = _get_env_str(
@@ -142,21 +148,39 @@ SUMMARY_SJTU_BASE_URL = _get_env_str(
     _get_env_str("SJTU_OPENAI_BASE_URL", "https://models.sjtu.edu.cn/api/v1/"),
 )
 SUMMARY_SJTU_RPM = _get_env_int("SUMMARY_SJTU_RPM", 2, minimum=0)
-SUMMARY_SJTU_WINDOW_SECONDS = _get_env_int("SUMMARY_SJTU_WINDOW_SECONDS", 300, minimum=0)
-SUMMARY_SJTU_WINDOW_SAFETY_REQUESTS = _get_env_int("SUMMARY_SJTU_WINDOW_SAFETY_REQUESTS", 1, minimum=0)
-SUMMARY_SJTU_429_COOLDOWN_SECONDS = _get_env_int("SUMMARY_SJTU_429_COOLDOWN_SECONDS", 300, minimum=0)
+SUMMARY_SJTU_WINDOW_SECONDS = _get_env_int(
+    "SUMMARY_SJTU_WINDOW_SECONDS", 300, minimum=0
+)
+SUMMARY_SJTU_WINDOW_SAFETY_REQUESTS = _get_env_int(
+    "SUMMARY_SJTU_WINDOW_SAFETY_REQUESTS", 1, minimum=0
+)
+SUMMARY_SJTU_429_COOLDOWN_SECONDS = _get_env_int(
+    "SUMMARY_SJTU_429_COOLDOWN_SECONDS", 300, minimum=0
+)
 SUMMARY_PRISM_API_KEY = _get_env_str(
     "SUMMARY_PRISM_OPENAI_API_KEY",
     _get_env_str("PRISM_OPENAI_API_KEY", ""),
 )
-SUMMARY_PRISM_BASE_URL = _get_env_str("SUMMARY_PRISM_OPENAI_BASE_URL", "https://ai.prism.uno/v1")
+SUMMARY_PRISM_BASE_URL = _get_env_str(
+    "SUMMARY_PRISM_OPENAI_BASE_URL", "https://ai.prism.uno/v1"
+)
 SUMMARY_PRISM_RPM = _get_env_int("SUMMARY_PRISM_RPM", 5, minimum=1)
-SUMMARY_PRISM_REASONING_EFFORT = _get_env_str("SUMMARY_PRISM_REASONING_EFFORT", "xhigh")
-SUMMARY_PRISM_WINDOW_SECONDS = _get_env_int("SUMMARY_PRISM_WINDOW_SECONDS", 300, minimum=60)
-SUMMARY_PRISM_WINDOW_SAFETY_REQUESTS = _get_env_int("SUMMARY_PRISM_WINDOW_SAFETY_REQUESTS", 1, minimum=0)
-SUMMARY_PRISM_429_COOLDOWN_SECONDS = _get_env_int("SUMMARY_PRISM_429_COOLDOWN_SECONDS", 300, minimum=0)
-SUMMARY_CONTENT_CHAR_LIMIT = _get_env_int("SUMMARY_CONTENT_CHAR_LIMIT", 200000, minimum=10000)
-SUMMARY_EXTRACTION_MAX_ATTEMPTS = _get_env_int("SUMMARY_EXTRACTION_MAX_ATTEMPTS", 3, minimum=1)
+SUMMARY_PRISM_REASONING_EFFORT = _get_env_str("SUMMARY_PRISM_REASONING_EFFORT", "")
+SUMMARY_PRISM_WINDOW_SECONDS = _get_env_int(
+    "SUMMARY_PRISM_WINDOW_SECONDS", 300, minimum=60
+)
+SUMMARY_PRISM_WINDOW_SAFETY_REQUESTS = _get_env_int(
+    "SUMMARY_PRISM_WINDOW_SAFETY_REQUESTS", 1, minimum=0
+)
+SUMMARY_PRISM_429_COOLDOWN_SECONDS = _get_env_int(
+    "SUMMARY_PRISM_429_COOLDOWN_SECONDS", 300, minimum=0
+)
+SUMMARY_CONTENT_CHAR_LIMIT = _get_env_int(
+    "SUMMARY_CONTENT_CHAR_LIMIT", 200000, minimum=10000
+)
+SUMMARY_EXTRACTION_MAX_ATTEMPTS = _get_env_int(
+    "SUMMARY_EXTRACTION_MAX_ATTEMPTS", 3, minimum=1
+)
 
 # ReviewGrounder 审稿配置
 REVIEWGROUNDER_ENABLED = _get_env_bool("REVIEWGROUNDER_ENABLED", False)
@@ -173,18 +197,38 @@ REVIEWGROUNDER_BASE_URL = _get_env_str(
     ),
 )
 REVIEWGROUNDER_MODEL = _get_env_str("REVIEWGROUNDER_MODEL", "gpt-5.5")
-REVIEWGROUNDER_REASONING_EFFORT = _get_env_str("REVIEWGROUNDER_REASONING_EFFORT", "xhigh")
-REVIEWGROUNDER_MAX_OUTPUT_TOKENS = _get_env_int("REVIEWGROUNDER_MAX_OUTPUT_TOKENS", 16384, minimum=1024)
-REVIEWGROUNDER_MAX_RELATED_PAPERS = _get_env_int("REVIEWGROUNDER_MAX_RELATED_PAPERS", 1, minimum=0)
-REVIEWGROUNDER_ENABLE_WEB_FALLBACK = _get_env_bool("REVIEWGROUNDER_ENABLE_WEB_FALLBACK", True)
-REVIEWGROUNDER_REVIEW_FORMAT = _get_env_str("REVIEWGROUNDER_REVIEW_FORMAT", "ai_researcher")
-REVIEWGROUNDER_REFINER_REVIEW_FORMAT = _get_env_str("REVIEWGROUNDER_REFINER_REVIEW_FORMAT", "detailed_gradio")
-REVIEWGROUNDER_TIMEOUT_SECONDS = _get_env_int("REVIEWGROUNDER_TIMEOUT_SECONDS", 180, minimum=10)
+REVIEWGROUNDER_REASONING_EFFORT = _get_env_str(
+    "REVIEWGROUNDER_REASONING_EFFORT", "xhigh"
+)
+REVIEWGROUNDER_MAX_OUTPUT_TOKENS = _get_env_int(
+    "REVIEWGROUNDER_MAX_OUTPUT_TOKENS", 16384, minimum=1024
+)
+REVIEWGROUNDER_MAX_RELATED_PAPERS = _get_env_int(
+    "REVIEWGROUNDER_MAX_RELATED_PAPERS", 1, minimum=0
+)
+REVIEWGROUNDER_ENABLE_WEB_FALLBACK = _get_env_bool(
+    "REVIEWGROUNDER_ENABLE_WEB_FALLBACK", True
+)
+REVIEWGROUNDER_REVIEW_FORMAT = _get_env_str(
+    "REVIEWGROUNDER_REVIEW_FORMAT", "ai_researcher"
+)
+REVIEWGROUNDER_REFINER_REVIEW_FORMAT = _get_env_str(
+    "REVIEWGROUNDER_REFINER_REVIEW_FORMAT", "detailed_gradio"
+)
+REVIEWGROUNDER_TIMEOUT_SECONDS = _get_env_int(
+    "REVIEWGROUNDER_TIMEOUT_SECONDS", 180, minimum=10
+)
 REVIEWGROUNDER_RPM = _get_env_int("REVIEWGROUNDER_RPM", 5, minimum=0)
-REVIEWGROUNDER_MAX_PARALLEL_SUMMARIES = _get_env_int("REVIEWGROUNDER_MAX_PARALLEL_SUMMARIES", 1, minimum=1)
-REVIEWGROUNDER_MAX_LLM_CALLS = _get_env_int("REVIEWGROUNDER_MAX_LLM_CALLS", 0, minimum=0)
+REVIEWGROUNDER_MAX_PARALLEL_SUMMARIES = _get_env_int(
+    "REVIEWGROUNDER_MAX_PARALLEL_SUMMARIES", 1, minimum=1
+)
+REVIEWGROUNDER_MAX_LLM_CALLS = _get_env_int(
+    "REVIEWGROUNDER_MAX_LLM_CALLS", 0, minimum=0
+)
 REVIEWGROUNDER_VERBOSE = _get_env_bool("REVIEWGROUNDER_VERBOSE", False)
-REVIEWGROUNDER_JSON_TOOL_RETRIES = _get_env_int("REVIEWGROUNDER_JSON_TOOL_RETRIES", 1, minimum=1)
+REVIEWGROUNDER_JSON_TOOL_RETRIES = _get_env_int(
+    "REVIEWGROUNDER_JSON_TOOL_RETRIES", 1, minimum=1
+)
 
 # Prestige 筛选配置
 PRESTIGE_ENABLED = _get_env_bool("PRESTIGE_ENABLED", True)
@@ -197,11 +241,13 @@ WEBHOOK_URL = _get_env_str("WEBHOOK_URL", "")
 # 处理参数
 TEMPERATURE = _get_env_float("TEMPERATURE", 0.1, minimum=0.0)
 REQUEST_TIMEOUT = _get_env_int("REQUEST_TIMEOUT", 300, minimum=1)  # 5分钟超时
-REQUEST_DELAY = _get_env_float("REQUEST_DELAY", 0.8, minimum=0.0)  # 请求间隔（秒），100 RPM ≈ 0.6s/req，留余量
+REQUEST_DELAY = _get_env_float(
+    "REQUEST_DELAY", 0.8, minimum=0.0
+)  # 请求间隔（秒），100 RPM ≈ 0.6s/req，留余量
 
 # 目录配置
 ARXIV_PAPER_DIR = "arxiv_paper"
-DOMAIN_PAPER_DIR = "domain_paper" 
+DOMAIN_PAPER_DIR = "domain_paper"
 SUMMARY_DIR = "summary"
 WEBPAGES_DIR = "webpages"
 
@@ -215,14 +261,18 @@ ENABLE_CACHE = _get_env_bool("ENABLE_CACHE", True)  # 是否启用缓存机制
 CACHE_EXPIRY_DAYS = _get_env_int("CACHE_EXPIRY_DAYS", 30, minimum=1)  # 缓存过期天数
 
 # 爬取配置
-MAX_PAPERS_PER_CATEGORY = _get_env_int("MAX_PAPERS_PER_CATEGORY", 5000, minimum=1)  # 增加到5000，获取更多论文
-CRAWL_CATEGORIES = ['cs.AI', 'cs.CL', 'cs.LG']
+MAX_PAPERS_PER_CATEGORY = _get_env_int(
+    "MAX_PAPERS_PER_CATEGORY", 5000, minimum=1
+)  # 增加到5000，获取更多论文
+CRAWL_CATEGORIES = ["cs.AI", "cs.CL", "cs.LG"]
 MAX_PAPERS_TOTAL_QUICK = 10
 MAX_PAPERS_TOTAL_FULL = 10000
 MAX_PAPERS_TOTAL_DEFAULT = 0
 
 # 多线程配置
-MAX_WORKERS = _get_env_int("MAX_WORKERS", 20, minimum=1)  # 并发线程数，100 RPM 限额下安全运行
+MAX_WORKERS = _get_env_int(
+    "MAX_WORKERS", 20, minimum=1
+)  # 并发线程数，100 RPM 限额下安全运行
 FILTER_MAX_WORKERS = _get_env_int("FILTER_MAX_WORKERS", min(MAX_WORKERS, 5), minimum=1)
 SUMMARY_MAX_WORKERS = _get_env_int("SUMMARY_MAX_WORKERS", 5, minimum=1)
 
@@ -339,27 +389,57 @@ PRESTIGE_AUTHOR_WHITELIST = {
 
 PRESTIGE_INSTITUTION_WHITELIST = {
     "Stanford University": ["stanford", "stanford university"],
-    "Massachusetts Institute of Technology": ["mit", "massachusetts institute of technology"],
-    "Carnegie Mellon University": ["cmu", "carnegie mellon", "carnegie mellon university"],
-    "University of California, Berkeley": ["berkeley", "uc berkeley", "university of california berkeley"],
+    "Massachusetts Institute of Technology": [
+        "mit",
+        "massachusetts institute of technology",
+    ],
+    "Carnegie Mellon University": [
+        "cmu",
+        "carnegie mellon",
+        "carnegie mellon university",
+    ],
+    "University of California, Berkeley": [
+        "berkeley",
+        "uc berkeley",
+        "university of california berkeley",
+    ],
     "Princeton University": ["princeton", "princeton university"],
     "University of Oxford": ["oxford", "university of oxford"],
     "University of Cambridge": ["cambridge", "university of cambridge"],
     "Harvard University": ["harvard", "harvard university"],
     "Columbia University": ["columbia", "columbia university"],
     "Cornell University": ["cornell", "cornell university"],
-    "University of Illinois Urbana-Champaign": ["uiuc", "university of illinois urbana champaign"],
+    "University of Illinois Urbana-Champaign": [
+        "uiuc",
+        "university of illinois urbana champaign",
+    ],
     "University of Washington": ["university of washington", "uw seattle", "uw"],
     "ETH Zurich": ["eth zurich", "ethz", "eth"],
     "EPFL": ["epfl", "ecole polytechnique federale de lausanne"],
-    "University of California, Los Angeles": ["ucla", "university of california los angeles"],
-    "University of California, San Diego": ["ucsd", "university of california san diego"],
+    "University of California, Los Angeles": [
+        "ucla",
+        "university of california los angeles",
+    ],
+    "University of California, San Diego": [
+        "ucsd",
+        "university of california san diego",
+    ],
     "Tsinghua University": ["thu", "tsinghua", "tsinghua university"],
     "Peking University": ["pku", "peking university"],
     "Shanghai Jiao Tong University": ["sjtu", "shanghai jiao tong university"],
-    "University of Science and Technology of China": ["ustc", "university of science and technology of china"],
-    "Harbin Institute of Technology": ["hit", "hit shenzhen", "harbin institute of technology"],
-    "Hong Kong University of Science and Technology": ["hkust", "hong kong university of science and technology"],
+    "University of Science and Technology of China": [
+        "ustc",
+        "university of science and technology of china",
+    ],
+    "Harbin Institute of Technology": [
+        "hit",
+        "hit shenzhen",
+        "harbin institute of technology",
+    ],
+    "Hong Kong University of Science and Technology": [
+        "hkust",
+        "hong kong university of science and technology",
+    ],
     "National University of Singapore": ["nus", "national university of singapore"],
     "Nanyang Technological University": ["ntu", "nanyang technological university"],
     "National Taiwan University": ["national taiwan university"],
@@ -389,14 +469,24 @@ PRESTIGE_COMPANY_WHITELIST = {
 }
 
 # Jina API配置
-JINA_MAX_REQUESTS_PER_MINUTE = _get_env_int("JINA_MAX_REQUESTS_PER_MINUTE", 20, minimum=1)
+JINA_MAX_REQUESTS_PER_MINUTE = _get_env_int(
+    "JINA_MAX_REQUESTS_PER_MINUTE", 20, minimum=1
+)
 JINA_MAX_RETRIES = _get_env_int("JINA_MAX_RETRIES", 3, minimum=1)
 JINA_BACKOFF_FACTOR = _get_env_float("JINA_BACKOFF_FACTOR", 2.0, minimum=1.0)
-JINA_REQUEST_TIMEOUT = _get_env_int("JINA_REQUEST_TIMEOUT", min(REQUEST_TIMEOUT, 45), minimum=1)
+JINA_REQUEST_TIMEOUT = _get_env_int(
+    "JINA_REQUEST_TIMEOUT", min(REQUEST_TIMEOUT, 45), minimum=1
+)
 JINA_API_TOKEN = _get_env_str("JINA_API_TOKEN")  # 可选：为r.jina.ai添加Bearer Token
 
 # 统一文档提取配置
-DOCUMENT_EXTRACTOR_CHAIN = _get_env_str("DOCUMENT_EXTRACTOR_CHAIN", "docling,pymupdf4llm,jina")
+DOCUMENT_EXTRACTOR_CHAIN = _get_env_str(
+    "DOCUMENT_EXTRACTOR_CHAIN", "docling,pymupdf4llm,jina"
+)
 DOCUMENT_EXTRACT_OCR_MODE = _get_env_str("DOCUMENT_EXTRACT_OCR_MODE", "auto")
-DOCUMENT_EXTRACT_TIMEOUT = _get_env_int("DOCUMENT_EXTRACT_TIMEOUT", REQUEST_TIMEOUT, minimum=1)
-DOCUMENT_EXTRACT_REMOTE_FALLBACK = _get_env_bool("DOCUMENT_EXTRACT_REMOTE_FALLBACK", True)
+DOCUMENT_EXTRACT_TIMEOUT = _get_env_int(
+    "DOCUMENT_EXTRACT_TIMEOUT", REQUEST_TIMEOUT, minimum=1
+)
+DOCUMENT_EXTRACT_REMOTE_FALLBACK = _get_env_bool(
+    "DOCUMENT_EXTRACT_REMOTE_FALLBACK", True
+)

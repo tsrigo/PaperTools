@@ -817,9 +817,15 @@ def is_invalid_filter_model_error(exc: Exception) -> bool:
 
 
 def _is_server_error(exc: Exception) -> bool:
-    """Detect 5xx server errors that should trigger fallback to next model."""
+    """Detect server/auth errors that should trigger fallback to next model.
+
+    Catches 5xx server errors AND 401 auth errors from LiteLLM proxy
+    (which returns 401 when a model name is not configured, not just bad keys).
+    """
     status_code = getattr(exc, "status_code", None)
     if status_code is not None and int(status_code) >= 500:
+        return True
+    if status_code is not None and int(status_code) == 401:
         return True
     message = str(exc).lower()
     return any(
@@ -830,6 +836,8 @@ def _is_server_error(exc: Exception) -> bool:
             "internal server error",
             "connection error",
             "no fallback model group",
+            "token_not_found_in_db",
+            "authentication error",
         )
     )
 
@@ -1097,7 +1105,7 @@ def parse_llm_response(response_text: str) -> Tuple[bool, str]:
 
 
 @retry_with_backoff(
-    max_retries=FILTER_LLM_MAX_RETRIES, initial_delay=2.0, max_delay=8.0
+    max_retries=FILTER_LLM_MAX_RETRIES, initial_delay=2.0, max_delay=30.0
 )
 def run_llm_prompt(
     prompt: str,

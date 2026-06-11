@@ -29,8 +29,12 @@ def test_reviewgrounder_markdown_prefers_refined_review():
 
 
 def test_reviewgrounder_cache_payload_changes_with_content():
-    first = build_reviewgrounder_cache_payload("T", "2601.00001", "2026-01-01", "A", "body one")
-    second = build_reviewgrounder_cache_payload("T", "2601.00001", "2026-01-01", "A", "body two")
+    first = build_reviewgrounder_cache_payload(
+        "T", "2601.00001", "2026-01-01", "A", "body one"
+    )
+    second = build_reviewgrounder_cache_payload(
+        "T", "2601.00001", "2026-01-01", "A", "body two"
+    )
 
     assert first != second
     payload = json.loads(first)
@@ -64,11 +68,13 @@ def test_refiner_failure_formats_json_initial_review():
     review = {
         "error": "refiner failed",
         "initial_review": {
-            "review": json.dumps({
-                "summary": "Structured initial review.",
-                "strengths": ["Clear motivation"],
-                "rating": 5,
-            }),
+            "review": json.dumps(
+                {
+                    "summary": "Structured initial review.",
+                    "strengths": ["Clear motivation"],
+                    "rating": 5,
+                }
+            ),
         },
     }
 

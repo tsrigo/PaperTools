@@ -10,6 +10,110 @@ def test_filter_model_chain_normalizes_stale_minimax_alias_to_stable_chat_model(
     assert "deepseek-chat" in chain
 
 
+def test_filter_status_file_uses_atomic_json_writer(tmp_path, monkeypatch):
+    calls = []
+    status_file = tmp_path / "logs" / "filter-status.json"
+
+    def fake_save_json(filepath, payload, indent=2, ensure_ascii=False):
+        calls.append((filepath, payload, indent, ensure_ascii))
+        return True
+
+    monkeypatch.setattr(paper_filter, "save_json", fake_save_json)
+
+    assert paper_filter.write_status_file(str(status_file), {"status": "ok"})
+
+    assert calls == [(str(status_file), {"status": "ok"}, 2, False)]
+
+
+def test_filter_status_write_failure_is_visible(tmp_path, monkeypatch, capsys):
+    status_file = tmp_path / "logs" / "filter-status.json"
+    monkeypatch.setattr(paper_filter, "save_json", lambda *_args, **_kwargs: False)
+
+    assert not paper_filter.write_status_file(str(status_file), {"status": "failed"})
+
+    assert "写入状态文件失败" in capsys.readouterr().out
+    assert not status_file.exists()
+
+
+def test_filter_status_write_failure_blocks_successful_final_status(
+    tmp_path, monkeypatch, capsys
+):
+    status_file = tmp_path / "logs" / "filter-status.json"
+    monkeypatch.setattr(paper_filter, "save_json", lambda *_args, **_kwargs: False)
+
+    exit_code = paper_filter.finalize_filter_status(
+        str(status_file),
+        {"status": "ok", "filtered_total": 3},
+        0,
+    )
+
+    assert exit_code == 1
+    captured = capsys.readouterr().out
+    assert "筛选状态文件写入失败" in captured
+    assert "拒绝把本次筛选视为成功或可跳过" in captured
+
+
+def test_filter_status_write_failure_preserves_nonzero_exit(tmp_path, monkeypatch):
+    status_file = tmp_path / "logs" / "filter-status.json"
+    monkeypatch.setattr(paper_filter, "save_json", lambda *_args, **_kwargs: False)
+
+    assert (
+        paper_filter.finalize_filter_status(
+            str(status_file),
+            {"status": "failed", "failure_reason": "filter error"},
+            2,
+        )
+        == 2
+    )
+
+
+def test_save_filter_progress_uses_atomic_json_writer(monkeypatch):
+    calls = []
+
+    def fake_save_json(filepath, payload, indent=2, ensure_ascii=False):
+        calls.append((filepath, payload, indent, ensure_ascii))
+        return True
+
+    monkeypatch.setattr(paper_filter, "save_json", fake_save_json)
+
+    assert paper_filter.save_filter_progress(
+        "filtered.json",
+        "excluded.json",
+        [{"title": "old filtered"}],
+        [{"title": "new filtered"}],
+        [{"title": "old excluded"}],
+        [{"title": "new excluded"}],
+    )
+    assert calls == [
+        (
+            "filtered.json",
+            [{"title": "old filtered"}, {"title": "new filtered"}],
+            4,
+            False,
+        ),
+        (
+            "excluded.json",
+            [{"title": "old excluded"}, {"title": "new excluded"}],
+            4,
+            False,
+        ),
+    ]
+
+
+def test_save_filter_progress_failure_is_visible(monkeypatch, capsys):
+    monkeypatch.setattr(paper_filter, "save_json", lambda *_args, **_kwargs: False)
+
+    assert not paper_filter.save_filter_progress(
+        "filtered.json",
+        "excluded.json",
+        [],
+        [],
+        [],
+        [],
+    )
+    assert "保存筛选进度失败" in capsys.readouterr().out
+
+
 def test_filter_model_chain_uses_openrouter_model_ids_for_openrouter_base_url():
     chain = paper_filter.build_filter_model_chain(
         "qwen",
@@ -124,9 +228,7 @@ def test_legacy_prestige_extraction_failure_is_not_treated_as_current_schema():
 
 def test_existing_large_zero_filter_cache_is_still_suspicious():
     existing_filtered = []
-    existing_excluded = [
-        {"exclude_stage": "keyword"} for _ in range(400)
-    ] + [
+    existing_excluded = [{"exclude_stage": "keyword"} for _ in range(400)] + [
         {"exclude_stage": "topic"} for _ in range(150)
     ]
 
@@ -354,7 +456,9 @@ def test_filter_model_fallback_skips_invalid_model(monkeypatch):
     def fake_run_llm_prompt(_prompt, _system, _client, model, _temperature):
         calls.append(model)
         if model == "bad-model":
-            raise OpenAIError("/chat/completions: Invalid model name passed in model=bad-model")
+            raise OpenAIError(
+                "/chat/completions: Invalid model name passed in model=bad-model"
+            )
         return "结果: False\n理由: fallback ok"
 
     monkeypatch.setattr(paper_filter, "run_llm_prompt", fake_run_llm_prompt)
@@ -411,7 +515,9 @@ def test_missing_affiliations_without_author_signal_is_excluded(monkeypatch):
         title="Rethinking Agentic Reinforcement Learning In Large Language Models",
         authors="Fangming Cui, Ruixiao Zhu, Cheng Fang, Sunan Li, Jiahong Li",
         fetch_reason="无法获取论文前置内容",
-        paper_with_reason={"title": "Rethinking Agentic Reinforcement Learning In Large Language Models"},
+        paper_with_reason={
+            "title": "Rethinking Agentic Reinforcement Learning In Large Language Models"
+        },
         client=None,
         model="test-model",
         temperature=0.1,
