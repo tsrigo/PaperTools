@@ -428,10 +428,19 @@ git commit -m "fix(daily): run in place (no self-refresh/worktree); per-date con
 
 ---
 
-## Task 6: Collapse robust_daily_update.sh to a thin alias
+## Task 6: Eliminate wrapper divergence
+
+> **Deviation from original plan (2026-06-15):** the original step gutted
+> `robust_daily_update.sh` into a thin alias. That would have broken
+> `tests/test_daily_runtime_defaults.py::test_robust_daily_publish_path_validates_and_only_stages_webpages`,
+> which asserts the script's rich, in-place publish structure (a currently-passing
+> test). To honor the real goal — no divergence — with minimal blast radius, the
+> alias was replaced by **aligning `robust_daily_update.sh`'s shared runtime
+> defaults with `daily_full_run.sh`** (canonical chain incl. prism, summary time
+> budget, 90-min ceiling). `daily_full_run.sh` remains the canonical cron entry.
 
 **Files:**
-- Modify: `scripts/robust_daily_update.sh`
+- Modify: `scripts/robust_daily_update.sh` (align defaults, keep structure)
 
 - [ ] **Step 1: Replace its body with a delegating shim** so there is one wrapper of record:
 
