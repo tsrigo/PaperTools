@@ -118,7 +118,8 @@ def test_robust_daily_defaults_override_stale_dotenv_values(tmp_path):
     assert values["PAPERTOOLS_SUMMARY_OPENAI_TIMEOUT"] == "90"
     assert values["DOCUMENT_EXTRACTOR_CHAIN"] == "jina,pymupdf4llm"
     assert values["JINA_MAX_RETRIES"] == "2"
-    assert values["PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS"] == "5400"
+    assert values["PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS"] == "10800"
+    assert values["SUMMARY_MAX_WORKERS"] == "3"
     assert values["PAPERTOOLS_DAILY_PREFLIGHT_OFFLINE_OK"] == "0"
 
 
@@ -145,7 +146,7 @@ def test_daily_full_runner_uses_same_daily_defaults(tmp_path):
     assert values["PAPERTOOLS_FILTER_RULE_VERSION"] == "2026-05-31-topic-post-v2-daily"
     assert values["PAPERTOOLS_SUMMARY_OPENAI_TIMEOUT"] == "90"
     assert values["DOCUMENT_EXTRACTOR_CHAIN"] == "jina,pymupdf4llm"
-    assert values["PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS"] == "5400"
+    assert values["PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS"] == "10800"
     assert values["PAPERTOOLS_DAILY_PREFLIGHT_OFFLINE_OK"] == "0"
 
 

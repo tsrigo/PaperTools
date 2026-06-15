@@ -72,7 +72,10 @@ configure_daily_runtime_defaults() {
     export SUMMARY_MODEL_CHAIN="${PAPERTOOLS_DAILY_SUMMARY_MODEL_CHAIN:-sjtu:qwen,sjtu:deepseek-chat,sjtu:minimax,sjtu:glm,prism:gpt-5.5}"
     export SUMMARY_SJTU_RPM="${PAPERTOOLS_DAILY_SUMMARY_SJTU_RPM:-8}"
     export FILTER_MAX_WORKERS="${PAPERTOOLS_DAILY_FILTER_MAX_WORKERS:-3}"
-    export SUMMARY_MAX_WORKERS="${PAPERTOOLS_DAILY_SUMMARY_MAX_WORKERS:-1}"
+    # Summary is latency-bound (~240s/paper), not RPM-bound: at 3 workers the
+    # SUMMARY_SJTU_RPM=8 cap is never reached, and shared-token-bucket overflow is
+    # absorbed by the 429 cooldown + prism:gpt-5.5 fallback (separate bucket).
+    export SUMMARY_MAX_WORKERS="${PAPERTOOLS_DAILY_SUMMARY_MAX_WORKERS:-3}"
     export PAPERTOOLS_FILTER_RPM="${PAPERTOOLS_DAILY_FILTER_RPM:-6}"
     export PAPERTOOLS_FILTER_LLM_TIMEOUT="${PAPERTOOLS_DAILY_FILTER_LLM_TIMEOUT:-90}"
     export PAPERTOOLS_FILTER_429_COOLDOWN_SECONDS="${PAPERTOOLS_DAILY_FILTER_429_COOLDOWN_SECONDS:-300}"
@@ -88,7 +91,7 @@ configure_daily_runtime_defaults() {
     # Wall-clock budget for the summary stage: when exhausted it saves completed
     # papers and exits with code 3 (partial) so the next run resumes from cache
     # instead of being SIGKILLed by the hard timeout and losing in-memory work.
-    export PAPERTOOLS_SUMMARY_TIME_BUDGET_SECONDS="${PAPERTOOLS_DAILY_SUMMARY_TIME_BUDGET_SECONDS:-3000}"
+    export PAPERTOOLS_SUMMARY_TIME_BUDGET_SECONDS="${PAPERTOOLS_DAILY_SUMMARY_TIME_BUDGET_SECONDS:-5400}"
     export PAPERTOOLS_OPENAI_SDK_MAX_RETRIES="${PAPERTOOLS_DAILY_OPENAI_SDK_MAX_RETRIES:-2}"
     export PAPERTOOLS_RETRY_MAX_DELAY_SECONDS="${PAPERTOOLS_DAILY_RETRY_MAX_DELAY_SECONDS:-120}"
     export PAPERTOOLS_OPENAI_TRUST_ENV="${PAPERTOOLS_DAILY_OPENAI_TRUST_ENV:-false}"
@@ -97,8 +100,9 @@ configure_daily_runtime_defaults() {
     export JINA_REQUEST_TIMEOUT="${PAPERTOOLS_DAILY_JINA_REQUEST_TIMEOUT:-45}"
     export JINA_MAX_RETRIES="${PAPERTOOLS_DAILY_JINA_MAX_RETRIES:-2}"
     # Hard ceiling per date, set above the summary budget so the budget (clean
-    # partial exit) fires first. No more 6h spin-then-SIGKILL.
-    export PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS="${PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS:-5400}"
+    # partial exit) fires first. No more 6h spin-then-SIGKILL. 3h gives a cold
+    # backlog date room to finish filter (~400 papers) AND summary in one window.
+    export PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS="${PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS:-10800}"
     export PAPERTOOLS_DAILY_PREFLIGHT_OFFLINE_OK="${PAPERTOOLS_DAILY_PREFLIGHT_OFFLINE_OK:-0}"
 }
 
