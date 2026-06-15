@@ -123,6 +123,27 @@ def parse_rate_limit_reset_seconds(
     return max(0.0, reset_epoch - now_utc_epoch)
 
 
+class SummaryBudgetExceeded(Exception):
+    """Raised when the summary stage's wall-clock budget is exhausted.
+
+    Lets the stage stop generating new work and exit cleanly (saving completed
+    papers, whose per-field results are already cached) instead of being SIGKILLed
+    by the outer ``timeout`` and losing in-memory state.
+    """
+
+
+_SUMMARY_DEADLINE = 0.0  # monotonic seconds; 0 disables the budget
+
+
+def set_summary_deadline(deadline_monotonic: float) -> None:
+    global _SUMMARY_DEADLINE
+    _SUMMARY_DEADLINE = float(deadline_monotonic or 0.0)
+
+
+def summary_budget_exceeded() -> bool:
+    return _SUMMARY_DEADLINE > 0.0 and time.monotonic() >= _SUMMARY_DEADLINE
+
+
 @dataclass
 class SummaryRateState:
     """Shared request state for one provider quota bucket."""
@@ -430,6 +451,10 @@ class SummaryProvider:
 
                 wait_time = wait_until - now
 
+            if _SUMMARY_DEADLINE > 0.0 and time.monotonic() + wait_time > _SUMMARY_DEADLINE:
+                raise SummaryBudgetExceeded(
+                    f"rate-limit wait {wait_time:.0f}s exceeds summary budget"
+                )
             print(
                 f"⏳ {self.label} 限速等待 {wait_time:.1f}s ({wait_reason}, RPM={self.rpm_limit})"
             )
@@ -1973,6 +1998,12 @@ def main() -> int:
     parser.add_argument(
         "--skip-overview", action="store_true", help="只生成逐篇论文总结，跳过每日速览"
     )
+    parser.add_argument(
+        "--time-budget-seconds",
+        type=float,
+        default=0.0,
+        help="本阶段墙钟预算秒数，0=不限；超出后保存已完成部分并以码 3 退出以便续跑",
+    )
 
     args = parser.parse_args()
 
@@ -1998,6 +2029,13 @@ def main() -> int:
     if not providers:
         print("❌ 没有可用的总结模型配置")
         return 2
+
+    budget = args.time_budget_seconds or env_int(
+        "PAPERTOOLS_SUMMARY_TIME_BUDGET_SECONDS", 0, minimum=0
+    )
+    if budget and budget > 0:
+        set_summary_deadline(time.monotonic() + float(budget))
+        print(f"⏱️ 总结阶段预算: {float(budget):.0f}s（超出则保存进度并续跑）")
 
     # 初始化缓存管理器
     cache_manager = None
@@ -2047,6 +2085,15 @@ def main() -> int:
                 index,
                 paper,
                 f"⏭️ 跳过已有总结的论文: {paper_title[:50]}...",
+            )
+
+        # 墙钟预算用尽：不再开新论文，留给下次运行（已完成字段已在缓存中）。
+        if summary_budget_exceeded():
+            return (
+                "deferred",
+                index,
+                paper,
+                f"⏳ 预算用尽，推迟到下次运行: {paper_title[:50]}...",
             )
 
         try:
@@ -2532,6 +2579,13 @@ def main() -> int:
                 f"✅ 成功生成总结和分析: {paper_title[:50]}...",
             )
 
+        except SummaryBudgetExceeded:
+            return (
+                "deferred",
+                index,
+                paper,
+                f"⏳ 预算用尽，推迟到下次运行: {paper_title[:50]}...",
+            )
         except Exception as e:
             return "failed", index, paper, f"❌ 处理论文时出错 {paper_title}: {e}"
 
@@ -2541,6 +2595,7 @@ def main() -> int:
     skipped = 0
     failed = 0
     partial_failed = 0
+    deferred = 0
     overview_failed = 0
     updated_papers = papers.copy()  # 创建副本用于更新
 
@@ -2567,6 +2622,9 @@ def main() -> int:
                     failed += 1
                     partial_failed += 1
                     updated_papers[index] = updated_paper
+                elif status == "deferred":
+                    # 预算用尽，本篇留到下次运行；保留原始论文，缓存里已有的字段下次复用。
+                    deferred += 1
                 else:  # failed
                     failed += 1
 
@@ -2612,6 +2670,8 @@ def main() -> int:
 
         if failed > 0:
             print("⏭️ 存在论文总结失败，跳过每日速览生成")
+        elif deferred > 0:
+            print("⏭️ 预算用尽且本日未完成，跳过每日速览生成（下次续跑时再生成）")
         else:
             for date_str, overview_papers in sorted(papers_by_overview_date.items()):
                 if args.skip_overview:
@@ -2650,6 +2710,8 @@ def main() -> int:
     print(f"✅ 已处理: {processed} 篇论文")
     print(f"⏭️ 已跳过: {skipped} 篇论文")
     print(f"❌ 失败: {failed} 篇论文")
+    if deferred:
+        print(f"⏳ 预算推迟: {deferred} 篇论文")
     if overview_failed:
         print(f"❌ 每日速览失败: {overview_failed} 个日期")
     if processed > 0 or skipped > 0:
@@ -2658,6 +2720,12 @@ def main() -> int:
     if failed > 0 or partial_failed > 0:
         print("❌ 存在未完整生成的论文，拒绝将半成品交给发布阶段")
         return 1
+    # 预算用尽但没有真正失败：保存已完成部分，以码 3 退出，交由调度器下次续跑。
+    if deferred > 0:
+        print(
+            f"⏳ 本轮预算用尽，{deferred} 篇推迟；已完成 {processed} 篇，下次运行续跑"
+        )
+        return 3
     if overview_failed > 0:
         print("❌ 每日速览生成失败，拒绝发布不完整日期")
         return 1
