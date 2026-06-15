@@ -4,6 +4,8 @@
 Paper summary generation script - adds summary2 field to JSON file
 """
 
+import calendar
+import datetime as _dt
 import html
 import hashlib
 import json
@@ -88,6 +90,37 @@ from src.utils.validation import validate_non_negative_int, validate_positive_in
 
 
 ensure_valid_paper_content = ensure_valid_extraction_content
+
+
+_RESET_AT_RE = re.compile(
+    r"resets?\s*at:?\s*(\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2})\s*UTC", re.IGNORECASE
+)
+
+
+def parse_rate_limit_reset_seconds(
+    message: str, now_utc_epoch: Optional[float] = None
+) -> Optional[float]:
+    """Seconds to wait until the API's stated 429 reset time; None if not present.
+
+    SJTU/OpenAI-compatible 429 errors include ``Limit resets at: <UTC>``. Waiting
+    until exactly that moment avoids both over-waiting (fixed 300s) and the
+    relentless retry-before-reset spin that previously burned the whole run.
+    """
+    if not message:
+        return None
+    match = _RESET_AT_RE.search(message)
+    if not match:
+        return None
+    try:
+        dt = _dt.datetime.strptime(
+            match.group(1).replace("T", " "), "%Y-%m-%d %H:%M:%S"
+        )
+    except ValueError:
+        return None
+    reset_epoch = calendar.timegm(dt.timetuple())
+    if now_utc_epoch is None:
+        now_utc_epoch = calendar.timegm(_dt.datetime.utcnow().timetuple())
+    return max(0.0, reset_epoch - now_utc_epoch)
 
 
 @dataclass
@@ -402,16 +435,30 @@ class SummaryProvider:
             )
             time.sleep(wait_time)
 
-    def note_rate_limit_error(self) -> None:
-        """Back off after provider-enforced rolling-window rate-limit errors."""
-        cooldown = max(0, int(self.rate_limit_cooldown_seconds or 0))
+    def note_rate_limit_error(self, exc: Optional[Exception] = None) -> None:
+        """Back off after provider-enforced rolling-window rate-limit errors.
+
+        Prefers the API's exact ``Limit resets at`` timestamp when present, so we
+        wait just long enough instead of a blind fixed cooldown. Always bounded by
+        PAPERTOOLS_SUMMARY_429_MAX_COOLDOWN_SECONDS so a bogus far-future timestamp
+        cannot stall the run.
+        """
+        cooldown = float(max(0, int(self.rate_limit_cooldown_seconds or 0)))
+        if exc is not None:
+            reset = parse_rate_limit_reset_seconds(str(exc))
+            if reset is not None:
+                cooldown = reset + 2.0  # small safety margin past the reset
+        max_cooldown = env_int(
+            "PAPERTOOLS_SUMMARY_429_MAX_COOLDOWN_SECONDS", 330, minimum=1
+        )
+        cooldown = min(cooldown, float(max_cooldown))
         if cooldown <= 0:
             return
         with self._rate_lock:
             self._cooldown_until = max(
                 self._cooldown_until, time.monotonic() + cooldown
             )
-        print(f"⏳ {self.label} 触发 429，冷却 {cooldown}s 后再使用该 provider")
+        print(f"⏳ {self.label} 触发 429，冷却 {cooldown:.0f}s 后再使用该 provider")
 
     def cooldown_remaining(self) -> float:
         with self._rate_lock:
@@ -604,7 +651,7 @@ def collect_streaming_completion(
             last_exception = exc
             print(f"⚠️ 总结模型失败，尝试下一个: {provider.label}: {exc}")
             if is_rate_limit_error(exc):
-                provider.note_rate_limit_error()
+                provider.note_rate_limit_error(exc)
             elif should_disable_provider(exc):
                 mark_provider_disabled(provider, exc)
             continue
