@@ -320,6 +320,68 @@ def run_command(
         return False
 
 
+def run_command_rc(
+    cmd: List[str],
+    description: str,
+    progress_tracker: ProgressTracker = None,
+    env: Optional[Dict[str, str]] = None,
+) -> int:
+    """Like run_command but returns the child's exit code (124 on timeout).
+
+    Used by stages that distinguish more than success/failure — e.g. the summary
+    stage returns 3 to mean "budget exhausted, partial progress saved, resume".
+    """
+    secret_args = find_secret_cli_args(cmd)
+    if secret_args:
+        message = (
+            "❌ 拒绝运行包含密钥命令行参数的子进程: "
+            + ", ".join(secret_args)
+            + "；请通过环境变量传递"
+        )
+        if progress_tracker:
+            progress_tracker.log_with_timestamp(message)
+        else:
+            print(message)
+        return 1
+
+    if progress_tracker:
+        progress_tracker.log_with_timestamp(f"🔄 开始: {description}")
+        progress_tracker.log_with_timestamp(f"   命令: {redact_command(cmd)}")
+    else:
+        print(f"🔄 {description}...")
+        print(f"   命令: {redact_command(cmd)}")
+
+    start_time = time.time()
+    timeout = pipeline_stage_timeout_seconds()
+    try:
+        run_kwargs = {"text": True, "timeout": timeout}
+        if env is not None:
+            run_kwargs["env"] = env
+        completed = subprocess.run(cmd, **run_kwargs)
+        duration = time.time() - start_time
+        if progress_tracker:
+            progress_tracker.log_with_timestamp(
+                f"↩️ 结束: {description} (耗时: {duration:.1f}秒, 返回码: {completed.returncode})"
+            )
+        return completed.returncode
+    except subprocess.TimeoutExpired:
+        duration = time.time() - start_time
+        if progress_tracker:
+            progress_tracker.log_with_timestamp(
+                f"❌ 超时: {description} (耗时: {duration:.1f}秒)"
+            )
+        else:
+            print(f"❌ {description} 超时")
+        return 124
+    except Exception as e:
+        duration = time.time() - start_time
+        if progress_tracker:
+            progress_tracker.log_with_timestamp(f"❌ 异常: {description} - {e}")
+        else:
+            print(f"❌ {description} 出错: {e}")
+        return 1
+
+
 def run_interactive_command(
     cmd: List[str],
     description: str,
@@ -1032,6 +1094,8 @@ def main() -> int:
             "--skip-existing",
             "--max-workers",
             str(min(args.max_workers, SUMMARY_MAX_WORKERS)),
+            "--time-budget-seconds",
+            str(int(os.getenv("PAPERTOOLS_SUMMARY_TIME_BUDGET_SECONDS", "0") or "0")),
         ]
         summary_env = build_subprocess_env(
             {
@@ -1044,7 +1108,15 @@ def main() -> int:
             }
         )
 
-        if run_command(cmd, "生成论文总结", progress, env=summary_env):
+        summary_rc = run_command_rc(cmd, "生成论文总结", progress, env=summary_env)
+        if summary_rc == 3:
+            # 总结阶段墙钟预算用尽：已保存部分进度（缓存里保留已完成字段），
+            # 本日不发布，交由调度器下次运行从缓存续跑。不算硬失败。
+            reason = "总结阶段预算用尽，已保存部分进度，下次运行续跑"
+            progress.log_with_timestamp(f"⏳ {reason}")
+            progress.complete_step("生成论文总结", False)
+            return finish_pipeline(0, "partial", reason)
+        if summary_rc == 0:
             # 查找生成的带有summary2的JSON文件
             cluster_filename = os.path.basename(cluster_output_file)
             name_without_ext = os.path.splitext(cluster_filename)[0]
