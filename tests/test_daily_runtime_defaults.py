@@ -106,17 +106,19 @@ def test_robust_daily_defaults_override_stale_dotenv_values(tmp_path):
     assert values["PAPERTOOLS_CLUSTER_MODEL_CHAIN"] == "qwen,deepseek-chat,minimax"
     assert values["SUMMARY_MODEL"] == "qwen"
     assert values["SUMMARY_MODEL_CHAIN"].startswith("sjtu:qwen")
-    assert values["PAPERTOOLS_FILTER_RPM"] == "4"
-    assert values["PAPERTOOLS_FILTER_LLM_TIMEOUT"] == "60"
-    assert values["PAPERTOOLS_FILTER_LLM_MAX_RETRIES"] == "1"
+    assert values["SUMMARY_MODEL_CHAIN"].endswith("prism:gpt-5.5")
+    assert "deepseek-reasoner" not in values["SUMMARY_MODEL_CHAIN"]
+    assert values["PAPERTOOLS_FILTER_RPM"] == "6"
+    assert values["PAPERTOOLS_FILTER_LLM_TIMEOUT"] == "90"
+    assert values["PAPERTOOLS_FILTER_LLM_MAX_RETRIES"] == "3"
     assert values["PAPERTOOLS_FILTER_EARLY_STOP_AFTER_CAP"] == "1"
     assert values["PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE"] == "0"
     assert values["PAPERTOOLS_FILTER_MAX_OUTPUT_PAPERS"] == "0"
     assert values["PAPERTOOLS_FILTER_RULE_VERSION"] == "2026-05-31-topic-post-v2-daily"
-    assert values["PAPERTOOLS_SUMMARY_OPENAI_TIMEOUT"] == "60"
+    assert values["PAPERTOOLS_SUMMARY_OPENAI_TIMEOUT"] == "90"
     assert values["DOCUMENT_EXTRACTOR_CHAIN"] == "jina,pymupdf4llm"
     assert values["JINA_MAX_RETRIES"] == "2"
-    assert values["PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS"] == "21600"
+    assert values["PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS"] == "5400"
     assert values["PAPERTOOLS_DAILY_PREFLIGHT_OFFLINE_OK"] == "0"
 
 
@@ -135,13 +137,15 @@ def test_daily_full_runner_uses_same_daily_defaults(tmp_path):
     assert values["PAPERTOOLS_FILTER_MODEL_CHAIN"] == "qwen,deepseek-chat,minimax"
     assert values["PAPERTOOLS_CLUSTER_MODEL_CHAIN"] == "qwen,deepseek-chat,minimax"
     assert values["OPENAI_BASE_URL"] == "https://models.sjtu.edu.cn/api/v1/"
-    assert values["PAPERTOOLS_FILTER_RPM"] == "4"
+    assert values["SUMMARY_MODEL_CHAIN"].endswith("prism:gpt-5.5")
+    assert "deepseek-reasoner" not in values["SUMMARY_MODEL_CHAIN"]
+    assert values["PAPERTOOLS_FILTER_RPM"] == "6"
     assert values["PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE"] == "0"
     assert values["PAPERTOOLS_FILTER_MAX_OUTPUT_PAPERS"] == "0"
     assert values["PAPERTOOLS_FILTER_RULE_VERSION"] == "2026-05-31-topic-post-v2-daily"
-    assert values["PAPERTOOLS_SUMMARY_OPENAI_TIMEOUT"] == "60"
+    assert values["PAPERTOOLS_SUMMARY_OPENAI_TIMEOUT"] == "90"
     assert values["DOCUMENT_EXTRACTOR_CHAIN"] == "jina,pymupdf4llm"
-    assert values["PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS"] == "21600"
+    assert values["PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS"] == "5400"
     assert values["PAPERTOOLS_DAILY_PREFLIGHT_OFFLINE_OK"] == "0"
 
 

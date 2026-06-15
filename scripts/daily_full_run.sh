@@ -29,7 +29,12 @@ DAILY_MAX_CATCHUP_DAYS="${PAPERTOOLS_DAILY_MAX_CATCHUP_DAYS:-7}"
 export PAPERTOOLS_DAILY_WINDOW_DAYS="$DAILY_WINDOW_DAYS"
 export PAPERTOOLS_DAILY_MAX_CATCHUP_DAYS="$DAILY_MAX_CATCHUP_DAYS"
 REPROCESS_EXISTING_DATES="${PAPERTOOLS_DAILY_REPROCESS_EXISTING:-0}"
-SELF_REFRESH="${PAPERTOOLS_DAILY_SELF_REFRESH:-1}"
+# Run in place from this checkout (no /tmp worktree, no self-refresh from the
+# remote publish branch). This is the fix for "my changes never reached
+# production": the cron used to run a throwaway worktree built from the remote
+# branch, so local commits never took effect and cache/intermediate files never
+# persisted between runs.
+SELF_REFRESH="${PAPERTOOLS_DAILY_SELF_REFRESH:-0}"
 SELF_REFRESHED="${PAPERTOOLS_DAILY_SELF_REFRESHED:-0}"
 PUBLISH_BRANCH="${PAPERTOOLS_GIT_BRANCH:-}"
 PROXY_HOST="${PAPERTOOLS_PROXY_HOST:-127.0.0.1}"
@@ -57,34 +62,43 @@ configure_daily_runtime_defaults() {
     # still supplies secrets, but should not disable cron recovery behavior.
     export OPENAI_BASE_URL="${PAPERTOOLS_DAILY_OPENAI_BASE_URL:-https://models.sjtu.edu.cn/api/v1/}"
     export MODEL="${PAPERTOOLS_DAILY_MODEL:-deepseek-reasoner}"
-    export FILTER_MODEL="${PAPERTOOLS_DAILY_FILTER_MODEL:-deepseek-chat}"
-    export PAPERTOOLS_FILTER_MODEL_CHAIN="${PAPERTOOLS_DAILY_FILTER_MODEL_CHAIN:-deepseek-chat,minimax}"
+    export FILTER_MODEL="${PAPERTOOLS_DAILY_FILTER_MODEL:-qwen}"
+    export PAPERTOOLS_FILTER_MODEL_CHAIN="${PAPERTOOLS_DAILY_FILTER_MODEL_CHAIN:-qwen,deepseek-chat,minimax}"
     export CLUSTER_MODEL="${PAPERTOOLS_DAILY_CLUSTER_MODEL:-glm}"
     export PAPERTOOLS_CLUSTER_MODEL_CHAIN="${PAPERTOOLS_DAILY_CLUSTER_MODEL_CHAIN:-qwen,deepseek-chat,minimax}"
     export SUMMARY_MODEL="${PAPERTOOLS_DAILY_SUMMARY_MODEL:-qwen}"
-    export SUMMARY_MODEL_CHAIN="${PAPERTOOLS_DAILY_SUMMARY_MODEL_CHAIN:-sjtu:qwen,sjtu:deepseek-chat,sjtu:minimax,sjtu:glm,sjtu:deepseek-reasoner}"
-    export FILTER_MAX_WORKERS="${PAPERTOOLS_DAILY_FILTER_MAX_WORKERS:-1}"
+    # deepseek-reasoner dropped: it cannot fit the shared SJTU token bucket and
+    # only caused the 6h 429 spin. prism:gpt-5.5 is a real cross-bucket fallback.
+    export SUMMARY_MODEL_CHAIN="${PAPERTOOLS_DAILY_SUMMARY_MODEL_CHAIN:-sjtu:qwen,sjtu:deepseek-chat,sjtu:minimax,sjtu:glm,prism:gpt-5.5}"
+    export SUMMARY_SJTU_RPM="${PAPERTOOLS_DAILY_SUMMARY_SJTU_RPM:-8}"
+    export FILTER_MAX_WORKERS="${PAPERTOOLS_DAILY_FILTER_MAX_WORKERS:-3}"
     export SUMMARY_MAX_WORKERS="${PAPERTOOLS_DAILY_SUMMARY_MAX_WORKERS:-1}"
-    export PAPERTOOLS_FILTER_RPM="${PAPERTOOLS_DAILY_FILTER_RPM:-1}"
-    export PAPERTOOLS_FILTER_LLM_TIMEOUT="${PAPERTOOLS_DAILY_FILTER_LLM_TIMEOUT:-60}"
+    export PAPERTOOLS_FILTER_RPM="${PAPERTOOLS_DAILY_FILTER_RPM:-6}"
+    export PAPERTOOLS_FILTER_LLM_TIMEOUT="${PAPERTOOLS_DAILY_FILTER_LLM_TIMEOUT:-90}"
     export PAPERTOOLS_FILTER_429_COOLDOWN_SECONDS="${PAPERTOOLS_DAILY_FILTER_429_COOLDOWN_SECONDS:-300}"
-    export PAPERTOOLS_FILTER_ERROR_TOLERANCE_PERCENT="${PAPERTOOLS_DAILY_FILTER_ERROR_TOLERANCE_PERCENT:-10}"
-    export PAPERTOOLS_FILTER_LLM_MAX_RETRIES="${PAPERTOOLS_DAILY_FILTER_LLM_MAX_RETRIES:-1}"
+    export PAPERTOOLS_FILTER_ERROR_TOLERANCE_PERCENT="${PAPERTOOLS_DAILY_FILTER_ERROR_TOLERANCE_PERCENT:-30}"
+    export PAPERTOOLS_FILTER_LLM_MAX_RETRIES="${PAPERTOOLS_DAILY_FILTER_LLM_MAX_RETRIES:-3}"
     export PAPERTOOLS_FILTER_EARLY_STOP_AFTER_CAP="${PAPERTOOLS_DAILY_FILTER_EARLY_STOP_AFTER_CAP:-1}"
     export PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE="${PAPERTOOLS_DAILY_TOPIC_HEURISTIC_BYPASS_PRESTIGE:-0}"
     export PAPERTOOLS_FILTER_MAX_OUTPUT_PAPERS="${PAPERTOOLS_DAILY_FILTER_MAX_OUTPUT_PAPERS:-0}"
     export PAPERTOOLS_FILTER_RULE_VERSION="${PAPERTOOLS_DAILY_FILTER_RULE_VERSION:-2026-05-31-topic-post-v2-daily}"
     export PAPERTOOLS_OPENAI_TIMEOUT="${PAPERTOOLS_DAILY_OPENAI_TIMEOUT:-120}"
-    export PAPERTOOLS_SUMMARY_OPENAI_TIMEOUT="${PAPERTOOLS_DAILY_SUMMARY_OPENAI_TIMEOUT:-60}"
+    export PAPERTOOLS_SUMMARY_OPENAI_TIMEOUT="${PAPERTOOLS_DAILY_SUMMARY_OPENAI_TIMEOUT:-90}"
     export PAPERTOOLS_SUMMARY_FIELD_REPAIR_ATTEMPTS="${PAPERTOOLS_DAILY_SUMMARY_FIELD_REPAIR_ATTEMPTS:-2}"
+    # Wall-clock budget for the summary stage: when exhausted it saves completed
+    # papers and exits with code 3 (partial) so the next run resumes from cache
+    # instead of being SIGKILLed by the hard timeout and losing in-memory work.
+    export PAPERTOOLS_SUMMARY_TIME_BUDGET_SECONDS="${PAPERTOOLS_DAILY_SUMMARY_TIME_BUDGET_SECONDS:-3000}"
     export PAPERTOOLS_OPENAI_SDK_MAX_RETRIES="${PAPERTOOLS_DAILY_OPENAI_SDK_MAX_RETRIES:-2}"
-    export PAPERTOOLS_RETRY_MAX_DELAY_SECONDS="${PAPERTOOLS_DAILY_RETRY_MAX_DELAY_SECONDS:-60}"
+    export PAPERTOOLS_RETRY_MAX_DELAY_SECONDS="${PAPERTOOLS_DAILY_RETRY_MAX_DELAY_SECONDS:-120}"
     export PAPERTOOLS_OPENAI_TRUST_ENV="${PAPERTOOLS_DAILY_OPENAI_TRUST_ENV:-false}"
     export DOCUMENT_EXTRACTOR_CHAIN="${PAPERTOOLS_DAILY_DOCUMENT_EXTRACTOR_CHAIN:-jina,pymupdf4llm}"
     export DOCUMENT_EXTRACT_TIMEOUT="${PAPERTOOLS_DAILY_DOCUMENT_EXTRACT_TIMEOUT:-60}"
     export JINA_REQUEST_TIMEOUT="${PAPERTOOLS_DAILY_JINA_REQUEST_TIMEOUT:-45}"
     export JINA_MAX_RETRIES="${PAPERTOOLS_DAILY_JINA_MAX_RETRIES:-2}"
-    export PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS="${PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS:-21600}"
+    # Hard ceiling per date, set above the summary budget so the budget (clean
+    # partial exit) fires first. No more 6h spin-then-SIGKILL.
+    export PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS="${PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS:-5400}"
     export PAPERTOOLS_DAILY_PREFLIGHT_OFFLINE_OK="${PAPERTOOLS_DAILY_PREFLIGHT_OFFLINE_OK:-0}"
 }
 
@@ -401,16 +415,19 @@ fi
 
 CURRENT_STAGE="fetch_origin"
 fetch_origin_branch
-CURRENT_STAGE="create_worktree"
-run_logged git worktree add --detach "$WORKTREE_DIR" "$(origin_ref)"
-
-if [ -f "$ROOT_DIR/.env" ]; then
-    cp "$ROOT_DIR/.env" "$WORKTREE_DIR/.env"
+# Run in place in the persistent checkout. Fast-forward to the latest published
+# branch when possible (so we publish on top of the newest webpages), but never
+# discard local state: cache/ and intermediate artifacts here are what make the
+# summary stage resumable across runs.
+CURRENT_STAGE="prepare_checkout"
+cd "$ROOT_DIR"
+if git merge --ff-only "$(origin_ref)" >>"$LOG_FILE" 2>&1; then
+    log "↪️ Fast-forwarded to $(origin_ref)"
+else
+    log "ℹ️ ff-merge skipped (local ahead/diverged or nothing to merge); continuing in place"
 fi
-
-cd "$WORKTREE_DIR"
 BASE_SHA="$(git rev-parse --short HEAD)"
-log "📌 Running from clean $(origin_ref) worktree at $BASE_SHA"
+log "📌 Running in place at $ROOT_DIR ($BASE_SHA)"
 CURRENT_STAGE="init_submodules"
 SUBMODULE_TIMEOUT_SECONDS="${PAPERTOOLS_DAILY_SUBMODULE_TIMEOUT_SECONDS:-30}"
 if ! run_logged timeout "$SUBMODULE_TIMEOUT_SECONDS" git submodule update --init --recursive; then
@@ -492,8 +509,10 @@ PY
 }
 
 PIPELINE_EXIT=0
+OVERALL_EXIT=0
 PUBLISHED_DATE_LIST=""
 SKIPPED_DATE_LIST=""
+FAILED_DATE_LIST=""
 
 append_date() {
     local current_list="$1"
@@ -523,13 +542,23 @@ while IFS= read -r RUN_DATE; do
     set -e
 
     if [ "$PIPELINE_EXIT" -ne 0 ]; then
-        log "⚠️ Pipeline for $RUN_DATE exited with code $PIPELINE_EXIT"
-        notify_failure "$(printf '❌ PaperTools pipeline failed\n  • date: %s\n  • exit_code: %s\n  • base: %s\n  • run_id: %s' "$RUN_DATE" "$PIPELINE_EXIT" "$BASE_SHA" "$RUN_ID")"
-        log "⏭️ Not committing generated output after pipeline failure"
-        exit "$PIPELINE_EXIT"
+        # One bad date no longer aborts the whole backlog: log it, keep going, and
+        # let the next run retry it (cache makes the retry cheap). Code 124 = the
+        # hard per-date ceiling fired; the summary budget should normally trip
+        # first with a clean 'partial' status well before this.
+        log "⚠️ Pipeline for $RUN_DATE exited with code $PIPELINE_EXIT; skipping this date, continuing backlog"
+        notify_failure "$(printf '⚠️ PaperTools pipeline date failed\n  • date: %s\n  • exit_code: %s\n  • base: %s\n  • run_id: %s' "$RUN_DATE" "$PIPELINE_EXIT" "$BASE_SHA" "$RUN_ID")"
+        FAILED_DATE_LIST="$(append_date "$FAILED_DATE_LIST" "$RUN_DATE")"
+        OVERALL_EXIT=1
+        continue
     else
         PIPELINE_STATUS_VALUE="$(read_pipeline_status "$STATUS_FILE")"
         case "$PIPELINE_STATUS_VALUE" in
+            partial)
+                log "⏳ $RUN_DATE 部分完成（总结预算用尽），未发布；下次运行从缓存续跑"
+                SKIPPED_DATE_LIST="$(append_date "$SKIPPED_DATE_LIST" "$RUN_DATE")"
+                continue
+                ;;
             skipped_no_source_papers|skipped_no_selected_papers)
                 log "⏭️ Pipeline skipped $RUN_DATE without publishing empty content: $PIPELINE_STATUS_VALUE"
                 CURRENT_STAGE="prune_unpublishable_dates_${RUN_DATE}"
@@ -543,7 +572,13 @@ while IFS= read -r RUN_DATE; do
                 continue
                 ;;
         esac
-        validate_date_output "$RUN_DATE" "$STATUS_FILE"
+        if ! validate_date_output "$RUN_DATE" "$STATUS_FILE"; then
+            log "⚠️ $RUN_DATE 生成结果未通过校验；跳过该日期，继续处理其余日期"
+            notify_failure "$(printf '⚠️ PaperTools date validation failed\n  • date: %s\n  • base: %s\n  • run_id: %s' "$RUN_DATE" "$BASE_SHA" "$RUN_ID")"
+            FAILED_DATE_LIST="$(append_date "$FAILED_DATE_LIST" "$RUN_DATE")"
+            OVERALL_EXIT=1
+            continue
+        fi
         log "✅ Pipeline completed for $RUN_DATE"
     fi
 
@@ -559,8 +594,8 @@ CURRENT_STAGE="stage_generated_webpages"
 git add webpages/
 if git diff --cached --quiet; then
     log "ℹ️ No generated changes detected; nothing to commit"
-    notify_wrapper "$(printf 'ℹ️ PaperTools daily complete; no generated changes\n  • processed_dates: %s\n  • skipped_dates: %s\n  • pipeline_exit: %s\n  • base: %s\n  • run_id: %s' "${PUBLISHED_DATE_LIST:-none}" "${SKIPPED_DATE_LIST:-none}" "$PIPELINE_EXIT" "$BASE_SHA" "$RUN_ID")"
-    exit 0
+    notify_wrapper "$(printf 'ℹ️ PaperTools daily complete; no generated changes\n  • processed_dates: %s\n  • skipped_dates: %s\n  • failed_dates: %s\n  • base: %s\n  • run_id: %s' "${PUBLISHED_DATE_LIST:-none}" "${SKIPPED_DATE_LIST:-none}" "${FAILED_DATE_LIST:-none}" "$BASE_SHA" "$RUN_ID")"
+    exit "$OVERALL_EXIT"
 fi
 
 COMMIT_MSG="chore: arxiv daily update $(date '+%Y-%m-%d')"
@@ -588,16 +623,16 @@ if [ "$PUSH_EXIT" -ne 0 ]; then
         PUSH_EXIT=$?
         set -e
     else
-        log "❌ Rebase failed; daily changes remain in $WORKTREE_DIR for inspection"
-        notify_failure "$(printf '❌ PaperTools publish failed during rebase\n  • worktree: %s\n  • commit: %s\n  • run_id: %s' "$WORKTREE_DIR" "$COMMIT_SHA" "$RUN_ID")"
+        log "❌ Rebase failed; daily changes remain in $ROOT_DIR for inspection"
+        notify_failure "$(printf '❌ PaperTools publish failed during rebase\n  • checkout: %s\n  • commit: %s\n  • run_id: %s' "$ROOT_DIR" "$COMMIT_SHA" "$RUN_ID")"
         trap - EXIT
         exit 1
     fi
 fi
 
 if [ "$PUSH_EXIT" -ne 0 ]; then
-    log "❌ Push failed after retry; daily changes remain in $WORKTREE_DIR for inspection"
-    notify_failure "$(printf '❌ PaperTools publish failed after retry\n  • worktree: %s\n  • commit: %s\n  • run_id: %s' "$WORKTREE_DIR" "$COMMIT_SHA" "$RUN_ID")"
+    log "❌ Push failed after retry; daily changes remain in $ROOT_DIR for inspection"
+    notify_failure "$(printf '❌ PaperTools publish failed after retry\n  • checkout: %s\n  • commit: %s\n  • run_id: %s' "$ROOT_DIR" "$COMMIT_SHA" "$RUN_ID")"
     trap - EXIT
     exit 1
 fi
@@ -610,5 +645,5 @@ PUBLISHED_DATES="$(
         | tr '\n' ',' \
         | sed 's/,$//;s/,/, /g'
 )"
-notify_wrapper "$(printf '✅ PaperTools publish complete\n  • commit: %s\n  • published_dates: %s\n  • skipped_dates: %s\n  • pipeline_exit: %s\n  • run_id: %s' "$COMMIT_SHA" "${PUBLISHED_DATES:-none}" "${SKIPPED_DATE_LIST:-none}" "$PIPELINE_EXIT" "$RUN_ID")"
-exit "$PIPELINE_EXIT"
+notify_wrapper "$(printf '✅ PaperTools publish complete\n  • commit: %s\n  • published_dates: %s\n  • skipped_dates: %s\n  • failed_dates: %s\n  • run_id: %s' "$COMMIT_SHA" "${PUBLISHED_DATES:-none}" "${SKIPPED_DATE_LIST:-none}" "${FAILED_DATE_LIST:-none}" "$RUN_ID")"
+exit "$OVERALL_EXIT"
