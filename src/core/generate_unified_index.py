@@ -1904,12 +1904,12 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
 
         function escapeJsSingleQuotedAttr(value) {{
             return escapeHtml(String(value ?? '')
-                .replace(/\\/g, '\\\\')
-                .replace(/'/g, "\\'")
-                .replace(/\r/g, '\\r')
-                .replace(/\n/g, '\\n')
-                .replace(/\u2028/g, '\\u2028')
-                .replace(/\u2029/g, '\\u2029'));
+                .replace(/\\\\/g, '\\\\\\\\')
+                .replace(/'/g, "\\\\'")
+                .replace(/\\r/g, '\\\\r')
+                .replace(/\\n/g, '\\\\n')
+                .replace(/\\u2028/g, '\\\\u2028')
+                .replace(/\\u2029/g, '\\\\u2029'));
         }}
 
         function safePathSegment(value) {{
@@ -1919,7 +1919,7 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
         function cssEscape(value) {{
             const text = String(value ?? '');
             if (window.CSS && typeof CSS.escape === 'function') return CSS.escape(text);
-            return text.replace(/["\\]/g, '\\$&');
+            return text.replace(/["\\\\]/g, '\\\\$&');
         }}
 
         function escapeMarkdownHtml(value) {{
