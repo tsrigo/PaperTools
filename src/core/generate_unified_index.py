@@ -11,6 +11,7 @@ import re
 import shutil
 import sys
 import tempfile
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Set
 
@@ -118,6 +119,9 @@ except ImportError as exc:
 # 分页配置
 INITIAL_DAYS = 3  # 初始加载的天数（其余通过"加载更多"按需加载）
 LOAD_MORE_DAYS = 7  # 每次"加载更多"加载的天数
+# 展示窗口：默认信息流只展示最近 WINDOW_DAYS 天（约两周）。窗口外的日期数据文件
+# 仍然保留在 webpages/data/ 下不删除，但只有被用户收藏（星标）的论文才会内联显示。
+WINDOW_DAYS = 14
 
 RICHNESS_FIELDS = (
     "summary",
@@ -953,6 +957,30 @@ def save_date_data_files(papers_by_date: Dict, daily_overviews: Dict) -> List[st
     return all_dates
 
 
+def compute_window_dates(all_dates: List[str]) -> List[str]:
+    """返回展示窗口内的日期（约最近 WINDOW_DAYS 天，以最新日期为锚点）。
+
+    窗口外的日期不在此列表里——它们的数据文件仍然保留，但默认信息流不展示，
+    只有被收藏的论文才会内联显示。锚定在最新可用日期而非真实"今天"，可避免
+    管线偶尔停摆时信息流被清空。
+    """
+    if not all_dates:
+        return []
+    parsed = []
+    for d in all_dates:
+        try:
+            parsed.append((d, datetime.strptime(d, "%Y-%m-%d").date()))
+        except ValueError:
+            continue
+    if not parsed:
+        return list(all_dates)
+    anchor = max(dt for _, dt in parsed)
+    cutoff = anchor - timedelta(days=WINDOW_DAYS - 1)
+    window = [d for d, dt in parsed if dt >= cutoff]
+    # 保持与 all_dates 一致的倒序（最新在前）
+    return sorted(window, reverse=True)
+
+
 def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
     """生成完整的HTML页面"""
     papers_by_date = load_paper_data(replace_dates=replace_dates)
@@ -966,9 +994,22 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
     # 保存所有日期的数据到独立文件
     all_dates = save_date_data_files(papers_by_date, daily_overviews)
 
-    # 只取最近 INITIAL_DAYS 天的数据嵌入 HTML
+    # 展示窗口：默认信息流只覆盖最近约两周的日期；窗口外日期数据文件仍保留，
+    # 但只有被收藏的论文才内联显示。窗口是纯客户端的展示过滤——index.json 与
+    # 嵌入的 availableDates 仍是全量日期（满足发布校验器与每日发布逐日校验）。
+    window_dates = compute_window_dates(all_dates)
+    # 嵌入 HTML 的初始数据仍是最新 INITIAL_DAYS 天（必然落在窗口内）
     initial_dates = all_dates[:INITIAL_DAYS]
     data_version = build_data_version(papers_by_date, daily_overviews)
+
+    # 全量 arxiv_id -> 日期索引：供前端把窗口外被收藏的论文按需加载并内联显示。
+    # 仅包含被展示的（已筛选）论文，体积很小。倒序遍历，重复 id 取最新日期。
+    paper_date_index: Dict[str, str] = {}
+    for date in all_dates:
+        for paper in papers_by_date.get(date, []):
+            aid = str(paper.get("arxiv_id") or "")
+            if aid:
+                paper_date_index.setdefault(aid, date)
 
     # 生成JavaScript数据 - 只包含初始数据
     initial_papers = {}
@@ -986,10 +1027,17 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
     }
     js_data += f"const allPaperTags = {dumps_js(initial_tags)};\n\n"
 
-    # 添加所有可用日期列表（用于按需加载）
+    # 添加所有可用日期列表（用于按需加载）。注意 availableDates 仍是全量日期
+    # （发布校验器要求它与 index.json 一致）；两周窗口由下面的 windowDateSet
+    # 在客户端做展示过滤。
     js_data += f"const availableDates = {dumps_js(all_dates)};\n"
     js_data += f"const loadedDates = new Set({dumps_js(initial_dates)});\n"
-    js_data += f"const LOAD_MORE_DAYS = {LOAD_MORE_DAYS};\n\n"
+    js_data += f"const LOAD_MORE_DAYS = {LOAD_MORE_DAYS};\n"
+    js_data += f"const WINDOW_DAYS = {WINDOW_DAYS};\n"
+    # 两周展示窗口内的日期集合：窗口内正常展示；窗口外只展示被收藏的论文。
+    js_data += f"const windowDateSet = new Set({dumps_js(window_dates)});\n"
+    # arxiv_id -> 日期：用于把窗口外被收藏的论文按需加载进来内联显示。
+    js_data += f"const paperDateIndex = {dumps_js(paper_date_index)};\n\n"
     js_data += f"const DATA_VERSION = {dumps_js(data_version)};\n\n"
 
     # 添加每日速览数据 - 只包含初始数据
@@ -1567,9 +1615,10 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
         let isLoadingMore = false; // 是否正在加载更多
         let activeTagFilters = {{}}; // {{date: Set of active tag names}}
 
-        // 获取未加载的日期
+        // 获取未加载的日期（只在两周展示窗口内分页；窗口外日期不进入"加载更多"，
+        // 仅在被收藏时由 loadArchivedStarredDates 按需加载）
         function getUnloadedDates() {{
-            return availableDates.filter(date => !loadedDates.has(date));
+            return availableDates.filter(date => !loadedDates.has(date) && windowDateSet.has(date));
         }}
 
         // Tag filter toggle
@@ -1660,6 +1709,42 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
                     loadBtn.disabled = false;
                     loadBtn.innerHTML = `📥 加载更多 (还有 ${{unloadedCount}} 天)`;
                 }}
+            }}
+        }}
+
+        // 加载窗口外（两周前）被收藏论文所在日期的数据，使其能在信息流中内联显示。
+        // 这些日期的数据文件一直保留在 data/ 下，这里按需 fetch 进来；渲染时
+        // createPaperHTML 会把窗口外日期里未收藏的论文隐藏，只留下收藏的那几篇。
+        async function loadArchivedStarredDates() {{
+            if (!starredPapers || starredPapers.size === 0) return;
+            const datesToLoad = new Set();
+            starredPapers.forEach(aid => {{
+                const date = paperDateIndex[aid];
+                if (date && !windowDateSet.has(date) && !loadedDates.has(date)) {{
+                    datesToLoad.add(date);
+                }}
+            }});
+            if (datesToLoad.size === 0) return;
+
+            let loadedCount = 0;
+            for (const date of datesToLoad) {{
+                try {{
+                    const response = await fetch(`data/${{date}}.json?v=${{DATA_VERSION}}`);
+                    if (!response.ok) continue;
+                    const dateData = await response.json();
+                    allPapers[date] = dateData.clusters;
+                    allPaperTags[date] = dateData.tags;
+                    if (dateData.overview) {{
+                        dailyOverviews[date] = dateData.overview;
+                    }}
+                    loadedDates.add(date);
+                    loadedCount++;
+                }} catch (e) {{
+                    console.error(`加载收藏日期 ${{date}} 数据失败:`, e);
+                }}
+            }}
+            if (loadedCount > 0) {{
+                renderPapers();
             }}
         }}
 
@@ -1795,8 +1880,11 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
             }}
             saveState();
 
-            // 如果当前是只看收藏模式，需要重新渲染
-            if (showOnlyStarred) {{
+            // 如果当前是只看收藏模式，或这篇属于窗口外（两周前）日期，则重新渲染：
+            // 窗口外的论文取消收藏后应立即隐藏，新收藏的则应立即出现。
+            const paperDate = (paperDataMap[arxivId] && paperDataMap[arxivId].date)
+                || paperDateIndex[arxivId];
+            if (showOnlyStarred || (paperDate && !windowDateSet.has(paperDate))) {{
                 renderPapers();
             }} else {{
                 // 否则只更新星标按钮状态
@@ -2063,6 +2151,8 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
             const isDeleted = deletedPapers.has(aid);
 
             if (isDeleted) return '';
+            // 展示窗口：窗口外（两周前）的日期只展示被收藏的论文，其余隐藏。
+            if (!windowDateSet.has(date) && !isStarred) return '';
             if (showOnlyStarred && !isStarred) return '';
             if (!paperMatchesFilters(paper, date)) return '';
 
@@ -2506,8 +2596,11 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
             if (!tocList) return;
 
             let html = '';
-            // 遍历所有可用日期，不仅仅是已加载的
-            for (const date of availableDates) {{
+            // 遍历目录项：两周窗口内的全部日期，加上窗口外但已因收藏而加载进来的日期。
+            const tocDates = availableDates.filter(
+                date => windowDateSet.has(date) || loadedDates.has(date)
+            );
+            for (const date of tocDates) {{
                 const isLoaded = loadedDates.has(date);
                 let papers = [];
 
@@ -2661,6 +2754,9 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
             renderPapers();
             buildToc();
             setupTocScrollSpy();
+
+            // 异步加载窗口外被收藏论文所在日期，加载完成后会重新渲染并内联显示
+            loadArchivedStarredDates();
 
             // 恢复 TOC 侧边栏状态
             const savedTocState = localStorage.getItem('tocSidebarOpen');
