@@ -329,11 +329,8 @@ def _validate_cluster_assignments(
 
     missing = sorted(set(range(paper_count)) - set(seen))
     if missing:
-        # Assign missing papers to a default cluster instead of failing
         default_cluster = "Other"
-        if default_cluster not in result:
-            result[default_cluster] = []
-        result[default_cluster].extend(missing)
+        assignments.setdefault(default_cluster, []).extend(missing)
         print(f"⚠️ {len(missing)} papers missing cluster assignments, assigned to '{default_cluster}'")
 
 
