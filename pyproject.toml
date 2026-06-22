@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=70.0", "wheel"]
+requires = ["setuptools>=82.0.1", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -23,11 +23,11 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 dependencies = [
-    "requests>=2.28.0",
-    "beautifulsoup4>=4.11.0",
-    "openai>=1.0.0",
-    "tqdm>=4.64.0",
-    "python-dotenv>=1.0.0",
+    "requests>=2.34.2",
+    "beautifulsoup4>=4.15.0",
+    "openai>=2.43.0",
+    "tqdm>=4.68.3",
+    "python-dotenv>=1.2.2",
 ]
 
 [project.optional-dependencies]
@@ -44,20 +44,20 @@ extract-all = [
     "pymupdf",
 ]
 reviewgrounder = [
-    "pydantic>=2.0.0",
-    "pyyaml>=6.0.0",
-    "pdfminer.six>=20221105",
+    "pydantic>=2.13.4",
+    "pyyaml>=6.0.3",
+    "pdfminer.six>=20260107",
 ]
 security = [
-    "bandit[toml]>=1.7.10",
+    "bandit[toml]>=1.9.4",
 ]
 dev = [
-    "pytest>=8.0",
-    "pytest-cov>=5.0",
-    "ruff>=0.5.7",
-    "mypy>=1.11",
-    "bandit[toml]>=1.7.10",
-    "pre-commit>=3.7",
+    "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.15.18",
+    "mypy>=2.1.0",
+    "bandit[toml]>=1.9.4",
+    "pre-commit>=4.6.0",
     "tomli>=2.0; python_version < '3.11'",
 ]
 
