@@ -108,6 +108,46 @@ def _extract_js_string_array(
     return value, []
 
 
+def _strip_structural_trailing_commas(value_text: str) -> str:
+    """Remove legacy JSON trailing commas without changing string contents."""
+    result: list[str] = []
+    in_string = False
+    escaped = False
+    index = 0
+
+    while index < len(value_text):
+        char = value_text[index]
+        if in_string:
+            result.append(char)
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == '"':
+                in_string = False
+            index += 1
+            continue
+
+        if char == '"':
+            in_string = True
+            result.append(char)
+            index += 1
+            continue
+
+        if char == ",":
+            next_index = index + 1
+            while next_index < len(value_text) and value_text[next_index].isspace():
+                next_index += 1
+            if next_index < len(value_text) and value_text[next_index] in "}]":
+                index += 1
+                continue
+
+        result.append(char)
+        index += 1
+
+    return "".join(result)
+
+
 def _extract_js_data_block(
     html: str,
     path: Path,
@@ -126,15 +166,21 @@ def _extract_js_data_block(
     value_text = html[value_start:end].strip()
     if value_text.endswith(";"):
         value_text = value_text[:-1].strip()
-    value_text = re.sub(r",(\s*[}\]])", r"\1", value_text)
-    value_text = re.sub(
-        r"[\x00-\x08\x0b\x0c\x0e-\x1f]",
-        lambda match: f"\\u{ord(match.group(0)):04x}",
-        value_text,
-    )
 
     try:
         return json.loads(value_text), []
+    except json.JSONDecodeError:
+        pass
+
+    legacy_value_text = _strip_structural_trailing_commas(value_text)
+    legacy_value_text = re.sub(
+        r"[\x00-\x08\x0b\x0c\x0e-\x1f]",
+        lambda match: f"\\u{ord(match.group(0)):04x}",
+        legacy_value_text,
+    )
+
+    try:
+        return json.loads(legacy_value_text), []
     except json.JSONDecodeError as exc:
         return None, [f"{path}: {label} embedded data is not valid JSON: {exc}"]
 

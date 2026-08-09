@@ -149,6 +149,54 @@ def test_validate_webpages_data_accepts_complete_payload(tmp_path):
     assert validate_webpages_data(webpages) == []
 
 
+def test_validate_webpages_data_preserves_json_punctuation_inside_strings(tmp_path):
+    webpages = tmp_path / "webpages"
+    data_dir = webpages / "data"
+    index_payload = {"dates": ["2026-05-12"], "initial_days": 3, "load_more_days": 7}
+    date_payload = _date_payload()
+    date_payload["clusters"][0]["papers"][0]["affiliations"] = "[,]"
+    _write_index_html(
+        webpages,
+        data_version=build_published_data_version(
+            index_payload,
+            {"2026-05-12": date_payload},
+        ),
+        date_payloads_by_date={"2026-05-12": date_payload},
+    )
+    _write_json(data_dir / "index.json", index_payload)
+    _write_json(data_dir / "2026-05-12.json", date_payload)
+
+    assert validate_webpages_data(webpages) == []
+
+
+def test_validate_webpages_data_strips_only_structural_trailing_commas(tmp_path):
+    webpages = tmp_path / "webpages"
+    data_dir = webpages / "data"
+    index_payload = {"dates": ["2026-05-12"], "initial_days": 3, "load_more_days": 7}
+    date_payload = _date_payload()
+    date_payload["clusters"][0]["papers"][0]["affiliations"] = "[,]"
+    _write_index_html(
+        webpages,
+        data_version=build_published_data_version(
+            index_payload,
+            {"2026-05-12": date_payload},
+        ),
+        date_payloads_by_date={"2026-05-12": date_payload},
+    )
+    _write_json(data_dir / "index.json", index_payload)
+    _write_json(data_dir / "2026-05-12.json", date_payload)
+    site_index = webpages / "index.html"
+    html = site_index.read_text(encoding="utf-8")
+    html = html.replace(
+        "};\n\nconst allPaperTags =",
+        ",};\n\nconst allPaperTags =",
+        1,
+    )
+    site_index.write_text(html, encoding="utf-8")
+
+    assert validate_webpages_data(webpages) == []
+
+
 def test_validate_webpages_data_rejects_symlinked_webpages_dir(tmp_path):
     webpages = _write_valid_webpages(tmp_path)
     linked_webpages = tmp_path / "linked-webpages"
