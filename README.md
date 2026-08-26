@@ -10,6 +10,30 @@ PaperTools 是一个面向日常研究阅读的 arXiv 论文处理系统。它�
 
 > PaperTools 目前处于 Alpha 阶段。仓库内置的筛选规则主要关注 LLM Agent 及其演化研究，生成流程需要自行准备兼容 OpenAI API 格式的模型服务。
 
+## 作为 SKILL 安装
+
+PaperTools 也是一个可以直接安装的 [Agent Skill](https://developers.openai.com/codex/skills/)。安装后，可以使用 `$papertools` 让 Codex 完成环境检查、指定日期生成、失败恢复、发布校验和部署排查。技能入口和完整执行规则位于 [`SKILL.md`](SKILL.md)。
+
+在 Codex 中调用 `$skill-installer`，然后输入：
+
+```text
+Install the PaperTools skill from https://github.com/tsrigo/PaperTools
+```
+
+也可以手动安装到用户级 Skills 目录：
+
+```bash
+git clone https://github.com/tsrigo/PaperTools.git "$HOME/.agents/skills/papertools"
+```
+
+安装完成后，在 Codex 中输入：
+
+```text
+使用 $papertools 为 2026-08-25 生成并验证论文阅读页面。
+```
+
+Codex 通常会自动发现新增的 SKILL；如果没有出现在技能列表中，请重新启动 Codex。SKILL 只包装仓库现有工作流，不会绕过 API 配置或发布质量门禁。
+
 ## 项目包含什么
 
 - 从 `cs.AI`、`cs.CL` 和 `cs.LG` 等 arXiv 分类获取论文；
@@ -107,22 +131,52 @@ papertools run --mode full --date YYYY-MM-DD --skip-serve
 
 ## 调整论文范围
 
-默认规则服务于本仓库当前维护的 LLM Agent 研究页面，并不是通用的全学科推荐器。生成自己的页面前，建议检查以下两处：
+每个人关注的论文不同。PaperTools 分两层控制筛选范围：`--categories` 决定从哪些 arXiv 分类获取论文，`PAPER_FILTER_PROMPT` 决定其中哪些论文符合你的兴趣。
 
-- arXiv 分类和运行规模位于 [`src/utils/config.py`](src/utils/config.py)；
-- 主题筛选要求位于同一文件的 `PAPER_FILTER_PROMPT`。
-
-命令行也可以临时指定分类：
+例如，只获取 `cs.AI` 和 `cs.CL`：
 
 ```bash
 papertools run \
   --date YYYY-MM-DD \
   --categories cs.AI cs.CL \
-  --max-papers-total 100 \
   --skip-serve
 ```
 
-修改筛选范围后，应先使用 `--mode quick` 检查入选论文数量和内容，再执行完整生成。
+### 自定义论文兴趣 Prompt
+
+打开 [`src/utils/config.py`](src/utils/config.py)，找到 `PAPER_FILTER_PROMPT`，把其中的关注方向、保留条件和排除条件改成自己的要求。例如：
+
+```python
+PAPER_FILTER_PROMPT = """你是一名研究论文筛选助手。
+
+我关注：
+- 具身智能中的长期规划；
+- 机器人操作与视觉语言动作模型；
+- 能够通过环境反馈持续学习的智能体。
+
+排除：
+- 只做数据集整理的论文；
+- 与机器人或具身智能无关的通用语言模型论文；
+- 只讨论安全、对齐或水印的论文。
+
+论文标题: {title}
+论文摘要: {summary}
+
+请严格按照以下格式回答:
+结果: [True/False]
+理由: [说明保留或排除的依据]
+"""
+```
+
+`{title}` 和 `{summary}` 是程序填入论文信息的位置，不能删除。`结果:` 和 `理由:` 也是筛选器读取模型回答所需的字段，不要改名。可以自由增删关注方向和判断规则，但应让标准具体，并明确写出希望排除的内容。
+
+修改后，先选择一个尚未处理过的日期快速试跑：
+
+```bash
+papertools run --mode quick --date YYYY-MM-DD --skip-serve
+```
+
+检查 `domain_paper/filtered_papers_YYYY-MM-DD.json` 中的入选论文，以及 `domain_paper/excluded_papers_YYYY-MM-DD.json` 中的排除论文。根据误选和漏选调整 Prompt，确认结果符合预期后，再运行完整流程。已经处理过的日期可能复用原有筛选结果，因此测试新 Prompt 时应优先使用新的日期。
 
 ## 输出目录
 

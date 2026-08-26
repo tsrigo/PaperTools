@@ -122,7 +122,11 @@ def test_unified_index_html_uses_safe_render_helpers(tmp_path, monkeypatch):
     assert "\\u003C/script\\u003E\\u003Cscript\\u003Ealert" in html
     assert "marked.parse(escapeMarkdownHtml(raw))" in html
     assert "renderMarkdownAfterPaint(content)" in html
-    assert "warmMarkdownDuringIdle(container)" in html
+    assert "function afterNextPaint(callback)" in html
+    assert "warmMarkdownDuringIdle" not in html
+    assert "content-visibility: auto" in html
+    assert "container.setAttribute('data-expanded', '1')" in html
+    assert "container.classList.remove('hidden')" in html
     assert "transition: opacity 0.2s ease-out, transform 0.2s ease-out" in html
     assert "@media (prefers-reduced-motion: reduce)" in html
     assert "sanitizeRenderedMarkdown(el)" in html

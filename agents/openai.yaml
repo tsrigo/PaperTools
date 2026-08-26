@@ -1,0 +1,4 @@
+interface:
+  display_name: "PaperTools"
+  short_description: "筛选、聚类、解读并安全发布每日 arXiv 论文阅读页"
+  default_prompt: "使用 $papertools 为指定日期生成并验证 arXiv 论文阅读页面。"

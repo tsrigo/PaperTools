@@ -1118,6 +1118,8 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
         /* 论文项目样式 */
         .paper-item {{
             transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+            content-visibility: auto;
+            contain-intrinsic-block-size: auto 240px;
         }}
         .paper-item.hidden-paper {{
             opacity: 0.3;
@@ -1995,7 +1997,7 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
             }} else {{
                 header.classList.add('open');
                 content.classList.add('open');
-                // Commit the open state first, then render markdown after a paint.
+                // Commit the disclosure state before doing any text layout.
                 renderMarkdownAfterPaint(content);
             }}
         }}
@@ -2077,46 +2079,24 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
             container.querySelectorAll('.markdown-content:not([data-rendered])').forEach(renderMarkdownEl);
         }}
 
-        // Keep markdown parsing out of the click handler so the open state paints first.
+        // Run work after a browser paint. Two animation frames are intentional: the
+        // first commits the interaction feedback, and the second starts follow-up work.
+        function afterNextPaint(callback) {{
+            requestAnimationFrame(() => requestAnimationFrame(callback));
+        }}
+
+        // Keep markdown parsing and the resulting text layout out of the click frame.
         function renderMarkdownAfterPaint(container) {{
             if (!container || typeof marked === 'undefined') return;
             const pending = container.querySelectorAll('.markdown-content:not([data-rendered])');
             if (!pending.length) return;
 
-            requestAnimationFrame(() => {{
-                setTimeout(() => lazyRenderMarkdown(container), 0);
+            afterNextPaint(() => {{
+                if (!container.isConnected) return;
+                if (container.classList.contains('collapsible-content') &&
+                    !container.classList.contains('open')) return;
+                lazyRenderMarkdown(container);
             }});
-        }}
-
-        // Warm closed sections one at a time while the browser is idle. By the time a
-        // reader opens the next section, its markdown is normally already rendered.
-        function warmMarkdownDuringIdle(container) {{
-            if (!container || typeof marked === 'undefined') return;
-            const pending = Array.from(
-                container.querySelectorAll('.markdown-content:not([data-rendered])')
-            );
-            let index = 0;
-
-            const renderNext = deadline => {{
-                while (index < pending.length) {{
-                    if (deadline && deadline.timeRemaining() < 4 && !deadline.didTimeout) break;
-                    renderMarkdownEl(pending[index]);
-                    index += 1;
-                    // The fallback has no idle deadline, so yield after every section.
-                    if (!deadline) break;
-                }}
-                if (index < pending.length) scheduleNext();
-            }};
-
-            const scheduleNext = () => {{
-                if ('requestIdleCallback' in window) {{
-                    window.requestIdleCallback(renderNext, {{ timeout: 500 }});
-                }} else {{
-                    setTimeout(() => renderNext(null), 16);
-                }}
-            }};
-
-            scheduleNext();
         }}
 
         function hasMeaningfulText(value) {{
@@ -2397,11 +2377,6 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
 
             container.innerHTML = html;
 
-            // Reveal first. Markdown is rendered after paint, then the remaining
-            // closed sections are prepared during idle time.
-            container.querySelectorAll('.collapsible-content.open').forEach(renderMarkdownAfterPaint);
-            warmMarkdownDuringIdle(container);
-
             // Apply summary language setting
             if (showChineseSummary) {{
                 const ch = container.querySelector('.chinese-summary');
@@ -2422,16 +2397,26 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
             const hint = document.getElementById(`expand-hint-${{arxivId}}`);
             if (!container) return;
 
-            const isHidden = container.classList.contains('hidden');
-            if (isHidden) {{
-                // First expand: build the DOM
-                buildPaperDetail(arxivId);
-                container.classList.remove('hidden');
+            const isExpanded = container.getAttribute('data-expanded') === '1';
+            if (!isExpanded) {{
+                container.setAttribute('data-expanded', '1');
                 if (hint) {{
                     hint.querySelector('.expand-arrow').textContent = '▼';
                     hint.childNodes[hint.childNodes.length - 1].textContent = ' 点击标题收起';
                 }}
+
+                // The arrow is the immediate commitment pose. Reveal the heavier
+                // detail layout only after that feedback has reached the screen.
+                afterNextPaint(() => {{
+                    if (!container.isConnected ||
+                        container.getAttribute('data-expanded') !== '1') return;
+                    buildPaperDetail(arxivId);
+                    container.classList.remove('hidden');
+                    container.querySelectorAll('.collapsible-content.open')
+                        .forEach(renderMarkdownAfterPaint);
+                }});
             }} else {{
+                container.setAttribute('data-expanded', '0');
                 container.classList.add('hidden');
                 if (hint) {{
                     hint.querySelector('.expand-arrow').textContent = '▶';
