@@ -1358,6 +1358,18 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
             color: #60a5fa;
         }}
 
+        /* 桌面端正文使用移除右栏后释放的宽度，同时避开左侧目录。 */
+        #content-column {{
+            width: 100%;
+        }}
+        @media (min-width: 1024px) {{
+            #content-column {{
+                width: min(1024px, calc(100% - 260px));
+                margin-left: max(240px, calc((100% - 1024px) / 2));
+                margin-right: auto;
+            }}
+        }}
+
         /* TOC 侧边栏样式 - 固定在左侧 */
         #toc-sidebar {{
             position: fixed;
@@ -1467,6 +1479,31 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
             background: #1e3a5f;
             color: #93c5fd;
         }}
+        .toc-expand-all {{
+            width: calc(100% - 8px);
+            margin: 5px 4px 6px;
+            padding: 5px 8px;
+            border: 1px solid #bfdbfe;
+            border-radius: 5px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s;
+        }}
+        .toc-expand-all:hover {{
+            background: #dbeafe;
+            border-color: #93c5fd;
+        }}
+        .dark .toc-expand-all {{
+            background: rgba(30, 58, 95, 0.55);
+            border-color: #1e40af;
+            color: #93c5fd;
+        }}
+        .dark .toc-expand-all:hover {{
+            background: #1e3a5f;
+        }}
         /* TOC 切换按钮 - 左侧 */
         #toc-toggle {{
             position: fixed;
@@ -1520,60 +1557,6 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
             }}
         }}
 
-        /* 当前日期论文快速跳转 - 右侧 */
-        #paper-jump-sidebar {{
-            position: fixed;
-            right: 0;
-            top: 0;
-            width: 240px;
-            height: 100vh;
-            z-index: 34;
-            background: rgba(255, 255, 255, 0.96);
-            border-left: 1px solid #e2e8f0;
-            backdrop-filter: blur(8px);
-        }}
-        .dark #paper-jump-sidebar {{
-            background: rgba(30, 41, 59, 0.96);
-            border-left-color: #334155;
-        }}
-        #paper-jump-inner {{
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            padding: 1rem 0.65rem;
-        }}
-        #paper-jump-list {{
-            flex: 1;
-            overflow-y: auto;
-            scrollbar-width: thin;
-            padding-right: 2px;
-        }}
-        .paper-jump-item {{
-            width: 100%;
-            display: block;
-            text-align: left;
-            padding: 6px 8px;
-            border-radius: 5px;
-            color: #64748b;
-            font-size: 0.78rem;
-            line-height: 1.35;
-            cursor: pointer;
-            transition: background 0.15s, color 0.15s;
-        }}
-        .paper-jump-item:hover,
-        .paper-jump-item.active {{
-            background: #eff6ff;
-            color: #1d4ed8;
-        }}
-        .dark .paper-jump-item {{ color: #94a3b8; }}
-        .dark .paper-jump-item:hover,
-        .dark .paper-jump-item.active {{
-            background: #1e3a5f;
-            color: #93c5fd;
-        }}
-        @media (max-width: 1279px) {{
-            #paper-jump-sidebar {{ display: none; }}
-        }}
     </style>
     <script>
         // Tailwind CSS 暗色模式配置
@@ -1604,7 +1587,7 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
 
     <div class="flex mx-auto max-w-none">
     <!-- 主内容区域 -->
-    <div class="w-full lg:w-3/5 mx-auto p-3 sm:p-4 lg:p-6">
+    <div id="content-column" class="p-3 sm:p-4 lg:p-6">
         <!-- 头部导航栏 -->
         <header class="mb-4 sm:mb-6">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
@@ -1672,20 +1655,6 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
         </div>
     </aside>
 
-    <!-- 右侧当前日期论文快速跳转 -->
-    <aside id="paper-jump-sidebar" class="hidden xl:block" aria-label="当天论文导航">
-        <div id="paper-jump-inner">
-            <div class="mb-3 px-1">
-                <div class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">当天论文</div>
-                <div id="paper-jump-date" class="mt-1 text-sm font-semibold text-slate-700 dark:text-slate-200">—</div>
-                <button type="button" id="paper-jump-expand-all" data-expand-all-date=""
-                    class="mt-2 w-full px-2.5 py-1.5 text-xs font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
-                    aria-pressed="false">展开当天全部</button>
-            </div>
-            <nav id="paper-jump-list"></nav>
-        </div>
-    </aside>
-
     <script>
         {js_data}
 
@@ -1700,7 +1669,7 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
         let activeTagFilters = {{}}; // {{date: Set of active tag names}}
         let bulkExpandedDate = null; // 同一时间只允许一个日期批量展开
         let bulkExpansionRun = 0; // 取消仍在逐帧执行的旧批量任务
-        let currentJumpDate = null; // 右侧当天论文目录所对应的日期
+        let currentTocDate = null; // 左侧目录当前展开的唯一日期
 
         // 获取未加载的日期（只在两周展示窗口内分页；窗口外日期不进入"加载更多"，
         // 仅在被收藏时由 loadArchivedStarredDates 按需加载）
@@ -1952,7 +1921,6 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
                 updateDateSection(sectionEl);
                 updateStats();
                 buildToc();
-                updatePaperJumpSidebar(currentJumpDate);
 
                 // 显示简单的删除提示
                 showSimpleToast(`已删除: ${{title}}`);
@@ -2707,7 +2675,7 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
                             <h2 class="text-base sm:text-lg font-medium text-slate-500 dark:text-slate-400" data-date-heading="${{dateHtml}}">${{dateHtml}} (${{escapeHtml(dateVisibleTotal)}} 篇论文)</h2>
                             ${{dateVisibleTotal > 0 ? `
                             <button type="button" data-expand-all-date="${{dateHtml}}" onclick="toggleExpandAllForDate('${{dateArg}}')"
-                                class="px-2.5 py-1.5 text-xs sm:text-sm font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors whitespace-nowrap"
+                                class="lg:hidden px-2.5 py-1.5 text-xs sm:text-sm font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors whitespace-nowrap"
                                 aria-pressed="false">展开当天全部</button>` : ''}}
                         </div>
                 `;
@@ -2780,7 +2748,6 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
 
             // 更新 TOC
             buildToc();
-            updatePaperJumpSidebar(currentJumpDate);
 
         }}
 
@@ -2856,55 +2823,50 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
         // ========== TOC 侧边栏功能 ==========
         let tocSidebarOpen = true;
 
-        function updatePaperJumpSidebar(preferredDate = null) {{
-            const dateEl = document.getElementById('paper-jump-date');
-            const listEl = document.getElementById('paper-jump-list');
-            const expandButton = document.getElementById('paper-jump-expand-all');
-            if (!dateEl || !listEl || !expandButton) return;
-
-            let date = preferredDate;
-            let section = date
-                ? document.querySelector(`[data-date-section="${{cssEscape(date)}}"]`)
-                : null;
-            if (!section) {{
-                section = document.querySelector('[data-date-section]');
-                date = section ? section.getAttribute('data-date-section') : null;
-            }}
-
-            currentJumpDate = date;
-            if (!date || !section) {{
-                dateEl.textContent = '—';
-                listEl.innerHTML = '<div class="px-2 text-xs text-slate-400">暂无论文</div>';
-                expandButton.disabled = true;
-                expandButton.setAttribute('data-expand-all-date', '');
-                return;
-            }}
-
-            const cards = [...section.querySelectorAll('.paper-item[data-arxiv-id]')];
-            dateEl.textContent = `${{date}} · ${{cards.length}} 篇`;
-            expandButton.disabled = cards.length === 0;
-            expandButton.setAttribute('data-expand-all-date', date);
-            expandButton.onclick = () => toggleExpandAllForDate(date);
-
-            listEl.innerHTML = cards.map((card, index) => {{
-                const aid = card.getAttribute('data-arxiv-id') || '';
-                const entry = paperDataMap[aid];
-                const title = entry && entry.paper ? entry.paper.title : aid;
-                const aidHtml = escapeHtml(aid);
-                const aidArg = escapeJsSingleQuotedAttr(aid);
-                return `<button type="button" class="paper-jump-item" data-paper-jump="${{aidHtml}}" onclick="jumpToPaper('${{aidArg}}')" title="${{escapeHtml(title)}}"><span class="text-slate-400 mr-1">${{index + 1}}.</span>${{escapeHtml(title)}}</button>`;
-            }}).join('');
-            updateExpandAllButtons(date);
-        }}
-
         function jumpToPaper(arxivId) {{
             const card = document.querySelector(`[data-arxiv-id="${{cssEscape(arxivId)}}"]`);
             if (!card) return;
             setPaperDetailExpansion(arxivId, true);
             card.scrollIntoView({{ behavior: 'smooth', block: 'start' }});
-            document.querySelectorAll('.paper-jump-item').forEach(item => item.classList.remove('active'));
-            const active = document.querySelector(`[data-paper-jump="${{cssEscape(arxivId)}}"]`);
-            if (active) active.classList.add('active');
+            setActiveTocPaper(arxivId);
+        }}
+
+        function setActiveTocPaper(arxivId = null) {{
+            document.querySelectorAll('.toc-paper[data-toc-paper]').forEach(item => {{
+                item.classList.toggle(
+                    'active',
+                    Boolean(arxivId) && item.getAttribute('data-toc-paper') === arxivId
+                );
+            }});
+        }}
+
+        function setActiveTocDate(date, ensureVisible = true) {{
+            if (!date) return;
+            currentTocDate = date;
+            document.querySelectorAll('[data-toc-date]').forEach(group => {{
+                const groupDate = group.getAttribute('data-toc-date');
+                const active = groupDate === date;
+                const button = group.querySelector('.toc-date');
+                const papers = group.querySelector('.toc-papers');
+                const arrow = group.querySelector('.toc-date-arrow');
+                if (button) button.classList.toggle('active', active);
+                if (papers) papers.classList.toggle('open', active);
+                if (arrow) arrow.classList.toggle('open', active);
+            }});
+
+            updateExpandAllButtons(date);
+            if (!ensureVisible) return;
+            const activeButton = document.querySelector(
+                `[data-toc-date-btn="${{cssEscape(date)}}"]`
+            );
+            const tocInner = document.getElementById('toc-inner');
+            if (activeButton && tocInner) {{
+                const buttonRect = activeButton.getBoundingClientRect();
+                const tocRect = tocInner.getBoundingClientRect();
+                if (buttonRect.top < tocRect.top || buttonRect.bottom > tocRect.bottom) {{
+                    activeButton.scrollIntoView({{ behavior: 'smooth', block: 'nearest' }});
+                }}
+            }}
         }}
 
         function toggleTocSidebar() {{
@@ -2964,6 +2926,9 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
                 html += `</div>`;
                 html += `<div class="toc-papers" data-toc-papers="${{dateHtml}}">`;
                 if (isLoaded) {{
+                    if (papers.length > 0) {{
+                        html += `<button type="button" class="toc-expand-all" data-expand-all-date="${{dateHtml}}" onclick="toggleExpandAllForDate('${{dateArg}}')" aria-pressed="false">展开当天全部</button>`;
+                    }}
                     papers.forEach(paper => {{
                         const title = paper.title.length > 50 ? paper.title.substring(0, 47) + '...' : paper.title;
                         const aidHtml = escapeHtml(paper.arxiv_id);
@@ -2976,6 +2941,16 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
                 html += `</div></div>`;
             }}
             tocList.innerHTML = html;
+
+            const currentGroup = currentTocDate
+                ? document.querySelector(`[data-toc-date="${{cssEscape(currentTocDate)}}"]`)
+                : null;
+            const firstSection = document.querySelector('[data-date-section]');
+            const fallbackDate = firstSection
+                ? firstSection.getAttribute('data-date-section')
+                : null;
+            const activeDate = currentGroup ? currentTocDate : fallbackDate;
+            if (activeDate) setActiveTocDate(activeDate, false);
         }}
 
         async function tocLoadAndScrollToDate(date) {{
@@ -3009,13 +2984,7 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
                 tocLoadAndScrollToDate(date);
                 return;
             }}
-            const arrow = el.querySelector('.toc-date-arrow');
-            const papers = document.querySelector(`[data-toc-papers="${{cssEscape(date)}}"]`);
-            if (papers) {{
-                papers.classList.toggle('open');
-                arrow.classList.toggle('open');
-            }}
-            // 同时滚动到对应日期
+            // 左侧同一时间只展开当前日期，并同步滚动正文。
             tocScrollToDate(date);
         }}
 
@@ -3039,7 +3008,8 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
                 if (bulkExpandedDate && bulkExpandedDate !== date) {{
                     collapseBulkExpandedDate();
                 }}
-                updatePaperJumpSidebar(date);
+                setActiveTocDate(date);
+                setActiveTocPaper();
                 section.scrollIntoView({{ behavior: 'smooth', block: 'start' }});
             }}
         }}
@@ -3060,25 +3030,23 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
                         }}
                     }});
 
-                    // 更新 TOC 高亮
-                    document.querySelectorAll('.toc-date').forEach(el => el.classList.remove('active'));
                     if (currentDate) {{
-                        if (currentDate !== currentJumpDate) {{
-                            updatePaperJumpSidebar(currentDate);
+                        if (currentDate !== currentTocDate) {{
+                            setActiveTocDate(currentDate);
                         }}
-                        const activeBtn = document.querySelector(`[data-toc-date-btn="${{cssEscape(currentDate)}}"]`);
-                        if (activeBtn) {{
-                            activeBtn.classList.add('active');
-                            // 确保活跃日期在 TOC 可视区域内
-                            const tocInner = document.getElementById('toc-inner');
-                            if (tocInner) {{
-                                const btnRect = activeBtn.getBoundingClientRect();
-                                const tocRect = tocInner.getBoundingClientRect();
-                                if (btnRect.top < tocRect.top || btnRect.bottom > tocRect.bottom) {{
-                                    activeBtn.scrollIntoView({{ behavior: 'smooth', block: 'nearest' }});
+
+                        const section = document.querySelector(
+                            `[data-date-section="${{cssEscape(currentDate)}}"]`
+                        );
+                        let currentPaper = null;
+                        if (section) {{
+                            section.querySelectorAll('.paper-item[data-arxiv-id]').forEach(card => {{
+                                if (card.offsetTop <= scrollTop + 80) {{
+                                    currentPaper = card.getAttribute('data-arxiv-id');
                                 }}
-                            }}
+                            }});
                         }}
+                        setActiveTocPaper(currentPaper);
                     }}
                 }}, 100);
             }});

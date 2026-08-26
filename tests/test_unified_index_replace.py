@@ -164,9 +164,15 @@ def test_unified_index_html_uses_safe_render_helpers(tmp_path, monkeypatch):
     assert "function toggleExpandAllForDate(date)" in html
     assert "正在展开 ${index + 1}/${ids.length}" in html
     assert "const markdownRenderQueue = []" in html
-    assert 'id="paper-jump-sidebar"' in html
-    assert "function updatePaperJumpSidebar" in html
+    assert 'id="paper-jump-sidebar"' not in html
+    assert "function updatePaperJumpSidebar" not in html
     assert "function jumpToPaper(arxivId)" in html
+    assert "function setActiveTocDate(date, ensureVisible = true)" in html
+    assert "function setActiveTocPaper(arxivId = null)" in html
+    assert 'class="toc-expand-all"' in html
+    assert 'class="lg:hidden px-2.5' in html
+    assert 'id="content-column"' in html
+    assert "width: min(1024px, calc(100% - 260px))" in html
     assert "collapseBulkExpandedDate()" in html
 
 
