@@ -744,7 +744,7 @@ def has_blocking_filter_failures(
 
 
 def is_transient_affiliation_fetch_failure(fetch_reason: str) -> bool:
-    """Detect affiliation extraction failures that should be retried, not hard-excluded."""
+    """Detect exhausted affiliation failures that should quarantine one candidate."""
     reason = (fetch_reason or "").lower()
     return any(
         token in reason
@@ -765,6 +765,11 @@ def is_transient_affiliation_fetch_failure(fetch_reason: str) -> bool:
 
 def is_transient_filter_exclusion(paper: dict) -> bool:
     """Return True when an excluded cache entry represents a retryable failure."""
+    if (
+        paper.get("exclude_stage") == "prestige"
+        and paper.get("prestige_status") == "quarantined"
+    ):
+        return False
     if paper.get("filter_transient_failure") is True:
         return True
     if paper.get("exclude_stage") in {"filter_timeout", "filter_transient_failure"}:
@@ -1382,13 +1387,27 @@ def resolve_missing_affiliations_prestige(
         return True, paper_with_reason, paper_with_reason["prestige_reason"]
 
     if not PRESTIGE_LLM_ENABLED:
-        prestige_reason = (
-            f"机构信息缺失且未命中确定性白名单，按 prestige 硬筛排除: {fetch_reason}"
-        )
+        extraction_failed = is_transient_affiliation_fetch_failure(fetch_reason)
+        if extraction_failed:
+            prestige_reason = (
+                "Prestige 机构信息在 provider 重试后仍无法提取，"
+                f"已隔离此候选论文，不阻断其他完整论文发布: {fetch_reason}"
+            )
+        else:
+            prestige_reason = (
+                "机构信息缺失且未命中确定性白名单，"
+                f"按 prestige 硬筛排除: {fetch_reason}"
+            )
         paper_with_reason["prestige_result"] = False
         paper_with_reason["prestige_reason"] = prestige_reason
-        paper_with_reason["prestige_source"] = "deterministic_missing_affiliations"
-        paper_with_reason["prestige_status"] = "rejected"
+        paper_with_reason["prestige_source"] = (
+            "affiliation_extraction_quarantine"
+            if extraction_failed
+            else "deterministic_missing_affiliations"
+        )
+        paper_with_reason["prestige_status"] = (
+            "quarantined" if extraction_failed else "rejected"
+        )
         paper_with_reason["exclude_stage"] = "prestige"
         return False, paper_with_reason, prestige_reason
 
@@ -2073,29 +2092,6 @@ def main() -> int:
             paper_with_reason["affiliations"] = affiliations or ""
 
             if not affiliations:
-                if (
-                    PRESTIGE_AFFILIATION_FETCH_ENABLED
-                    and is_transient_affiliation_fetch_failure(fetch_reason)
-                ):
-                    paper_with_reason["prestige_result"] = None
-                    paper_with_reason["prestige_reason"] = fetch_reason
-                    paper_with_reason["prestige_source"] = (
-                        "affiliation_extraction_failure"
-                    )
-                    paper_with_reason["prestige_status"] = "retryable_failure"
-                    paper_with_reason["prestige_rule_version"] = PRESTIGE_RULE_VERSION
-                    paper_with_reason["filter_reason"] = (
-                        f"{paper_with_reason.get('filter_reason', '')}\n\n"
-                        f"Prestige 机构提取失败，按可重试筛选失败处理: {fetch_reason}"
-                    ).strip()
-                    paper_with_reason["exclude_stage"] = "filter_transient_failure"
-                    paper_with_reason["filter_transient_failure"] = True
-                    return (
-                        "transient_failure",
-                        paper_with_reason,
-                        f"⏱️ Prestige 机构提取失败，待重试: {title[:50]}...",
-                        fetch_reason,
-                    )
                 prestige_match, paper_with_reason, prestige_reason = (
                     resolve_missing_affiliations_prestige(
                         title,

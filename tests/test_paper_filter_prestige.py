@@ -531,6 +531,33 @@ def test_missing_affiliations_without_author_signal_is_excluded(monkeypatch):
     assert "无法获取论文前置内容" in reason
 
 
+def test_exhausted_affiliation_extraction_is_quarantined_not_retried(monkeypatch):
+    monkeypatch.setattr(paper_filter, "PRESTIGE_LLM_ENABLED", False)
+
+    included, paper, reason = paper_filter.resolve_missing_affiliations_prestige(
+        title="A Candidate With Unavailable PDF",
+        authors="Unknown Author",
+        fetch_reason="所有文档提取 provider 均失败，待后续重试机构提取",
+        paper_with_reason={
+            "title": "A Candidate With Unavailable PDF",
+            "filter_reason": "主题筛选通过",
+            "filter_rule_version": paper_filter.FILTER_RULE_VERSION,
+        },
+        client=None,
+        model="test-model",
+        temperature=0.1,
+    )
+
+    assert included is False
+    assert paper["exclude_stage"] == "prestige"
+    assert paper["prestige_result"] is False
+    assert paper["prestige_status"] == "quarantined"
+    assert paper["prestige_source"] == "affiliation_extraction_quarantine"
+    assert "不阻断其他完整论文发布" in reason
+    assert paper_filter.is_transient_filter_exclusion(paper) is False
+    assert paper_filter.is_current_excluded_schema(paper) is True
+
+
 def test_missing_affiliations_author_whitelist_is_still_included(monkeypatch):
     def fail_if_called(*_args, **_kwargs):
         raise AssertionError("LLM should not be called when author whitelist matches")
