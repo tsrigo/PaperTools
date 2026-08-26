@@ -133,6 +133,8 @@ papertools run --mode full --date YYYY-MM-DD --skip-serve
 
 每个人关注的论文不同。PaperTools 分两层控制筛选范围：`--categories` 决定从哪些 arXiv 分类获取论文，`PAPER_FILTER_PROMPT` 决定其中哪些论文符合你的兴趣。
 
+主题筛选后默认还会执行可选的作者和机构优先级筛选；如不需要，可以在 `.env` 中设置 `PRESTIGE_ENABLED=false` 关闭。
+
 例如，只获取 `cs.AI` 和 `cs.CL`：
 
 ```bash

@@ -124,6 +124,9 @@ def test_unified_index_html_uses_safe_render_helpers(tmp_path, monkeypatch):
     assert "renderMarkdownAfterPaint(content)" in html
     assert "function afterNextPaint(callback)" in html
     assert "warmMarkdownDuringIdle" not in html
+    assert "detail-reveal" not in html
+    assert "if (el.style.display !== 'none') renderMarkdownEl(el)" in html
+    assert "renderMarkdownAfterPaint(section)" in html
     assert "content-visibility: auto" in html
     assert "container.setAttribute('data-expanded', '1')" in html
     assert "container.classList.remove('hidden')" in html

@@ -40,6 +40,7 @@ def test_readme_documents_custom_paper_interest_prompt() -> None:
     content = (ROOT / "README.md").read_text(encoding="utf-8")
 
     assert "PAPER_FILTER_PROMPT" in content
+    assert "PRESTIGE_ENABLED=false" in content
     assert "{title}" in content
     assert "{summary}" in content
     assert "结果: [True/False]" in content

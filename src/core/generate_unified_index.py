@@ -1153,7 +1153,6 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
             border-top: 1px solid #e2e8f0;
             margin-top: 8px;
             padding-top: 8px;
-            animation: detail-reveal 0.16s cubic-bezier(0.2, 0.8, 0.2, 1);
         }}
         .dark .paper-detail {{
             border-top-color: #334155;
@@ -1194,29 +1193,11 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
         .collapsible-content.open {{
             display: block;
         }}
-        .collapsible-content.open > .inner {{
-            animation: detail-reveal 0.14s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }}
         .collapsible-content .inner {{
             padding-top: 8px;
         }}
 
-        @keyframes detail-reveal {{
-            from {{
-                opacity: 0;
-                transform: translateY(-2px);
-            }}
-            to {{
-                opacity: 1;
-                transform: translateY(0);
-            }}
-        }}
-
         @media (prefers-reduced-motion: reduce) {{
-            .paper-detail,
-            .collapsible-content.open > .inner {{
-                animation: none;
-            }}
             .paper-item,
             .collapsible-header,
             .collapsible-header::before,
@@ -1960,6 +1941,10 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
                     if (chineseContent) chineseContent.style.display = 'none';
                     if (englishContent) englishContent.style.display = 'block';
                 }}
+
+                // Only the selected language is parsed. The hidden translation is
+                // left as raw data until the reader actually switches to it.
+                renderMarkdownAfterPaint(section);
             }});
 
             saveState();
@@ -2076,7 +2061,9 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
         // Parse markdown for all unrendered .markdown-content elements inside a container
         function lazyRenderMarkdown(container) {{
             if (typeof marked === 'undefined') return;
-            container.querySelectorAll('.markdown-content:not([data-rendered])').forEach(renderMarkdownEl);
+            container.querySelectorAll('.markdown-content:not([data-rendered])').forEach(el => {{
+                if (el.style.display !== 'none') renderMarkdownEl(el);
+            }});
         }}
 
         // Run work after a browser paint. Two animation frames are intentional: the
