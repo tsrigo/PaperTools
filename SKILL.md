@@ -24,6 +24,14 @@ Also obtain the target date, arXiv categories, research interests, and desired o
 4. Treat model-backed generation as potentially costly. If the user did not request execution, explain the command without calling external model APIs.
 5. Never expose `.env`, API keys, provider tokens, webhook URLs, or masked credentials in output.
 
+## Resolve research interests
+
+Use research interests from the current request when provided. Otherwise ask whether to use the repository's default scope from `PAPER_FILTER_PROMPT` or define a custom scope. For a custom scope, ask for topics to include and exclude; ask about borderline cases only when they materially change selection.
+
+Convert the answer into a concise rubric with `Include`, `Exclude`, and optional `Prefer` rules. Confirm the rubric only when the request is ambiguous. Keep the same rubric for every paper and pass it unchanged to every filtering subagent.
+
+In Agent-native mode, do not edit `PAPER_FILTER_PROMPT`. Do not apply the repository's prestige author or institution rules unless the user explicitly requests them. In full pipeline mode, use the repository default as-is or follow the persistent customization procedure below.
+
 ## Agent-native mode
 
 Use this as a simplified reading workflow. It does not call the repository's external model providers and must not publish into `webpages/`.
@@ -51,7 +59,7 @@ Locate the generated `arxiv_paper/*_paper_YYYY-MM-DD.json`. Validate that it is 
 
 ### Filter and summarize with agents
 
-Treat the user's research interests as the selection rubric. If the rubric is vague, ask for the topics to include and exclude.
+Treat the resolved research-interest rubric as the only semantic selection policy for the run.
 
 For a large paper set, divide the papers into non-overlapping chunks and delegate independent chunks to subagents. Use `gpt-5.6-luna` for clear, high-volume filtering and concise summaries when it is available; otherwise use an available fast model and disclose the fallback. Adapt the number of agents to the available concurrency, keep assignments bounded, and wait for every assigned chunk.
 
@@ -128,7 +136,7 @@ Do not use filtered or clustered intermediate data as a finished webpage. Do not
 
 ### Customize the research scope
 
-Change arXiv categories through CLI flags when possible. Edit `CRAWL_CATEGORIES` or `PAPER_FILTER_PROMPT` in `src/utils/config.py` only when the user wants a persistent scope change. Run a quick dated sample and inspect both selection count and paper relevance before a full run.
+Change arXiv categories through CLI flags when possible. Edit `CRAWL_CATEGORIES` or `PAPER_FILTER_PROMPT` in `src/utils/config.py` only when the user wants a persistent scope change. Preserve the `{title}` and `{summary}` placeholders and the `结果:` and `理由:` output labels. Run a quick dated sample and inspect both selection count and paper relevance before a full run.
 
 ### Diagnose failures
 

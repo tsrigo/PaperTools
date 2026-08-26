@@ -1,4 +1,4 @@
 interface:
   display_name: "PaperTools"
   short_description: "支持两种模式获取、筛选并整理每日 arXiv 论文阅读结果"
-  default_prompt: "使用 $papertools 获取指定日期的 arXiv 论文；如果我没有指定模式，请先询问我选择 Agent 原生模式还是完整 Pipeline 模式。"
+  default_prompt: "使用 $papertools 获取指定日期的 arXiv 论文；如果我没有指定模式或论文兴趣，请先询问。"

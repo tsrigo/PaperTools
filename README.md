@@ -54,6 +54,69 @@ Codex 通常会自动发现新增的 SKILL；如果没有出现在技能列表�
 arXiv → 主题筛选 → 聚类 → 论文解读与每日概览 → 静态网站
 ```
 
+## 自定义论文兴趣 Prompt
+
+每个人关注的论文不同。PaperTools 分两层控制筛选范围：arXiv 分类决定从哪些领域获取论文，论文兴趣 Prompt 决定其中哪些论文值得保留。
+
+### 在 Agent 原生模式中
+
+不需要修改代码，直接在调用 `$papertools` 时说明关注和排除的方向：
+
+```text
+使用 $papertools 的 Agent 原生模式整理今天的论文。
+我关注具身智能中的长期规划、机器人操作和视觉语言动作模型；
+排除只做数据集整理，以及与机器人无关的通用语言模型论文。
+```
+
+如果没有提供论文兴趣，SKILL 会先询问使用仓库默认范围，还是输入自己的关注和排除条件。Agent 原生模式不会自行启用作者和机构优先级筛选；只有用户明确提出时才使用这项规则。
+
+### 在完整 Pipeline 模式中
+
+打开 [`src/utils/config.py`](src/utils/config.py)，找到 `PAPER_FILTER_PROMPT`，把其中的关注方向、保留条件和排除条件改成自己的要求。例如：
+
+```python
+PAPER_FILTER_PROMPT = """你是一名研究论文筛选助手。
+
+我关注：
+- 具身智能中的长期规划；
+- 机器人操作与视觉语言动作模型；
+- 能够通过环境反馈持续学习的智能体。
+
+排除：
+- 只做数据集整理的论文；
+- 与机器人或具身智能无关的通用语言模型论文；
+- 只讨论安全、对齐或水印的论文。
+
+论文标题: {title}
+论文摘要: {summary}
+
+请严格按照以下格式回答:
+结果: [True/False]
+理由: [说明保留或排除的依据]
+"""
+```
+
+`{title}` 和 `{summary}` 是程序填入论文信息的位置，不能删除。`结果:` 和 `理由:` 是筛选器读取模型回答所需的字段，也不要改名。
+
+主题筛选后默认还会执行作者和机构优先级筛选；如不需要，可以在 `.env` 中设置 `PRESTIGE_ENABLED=false` 关闭。
+
+修改后，选择一个尚未处理过的日期快速试跑：
+
+```bash
+papertools run --mode quick --date YYYY-MM-DD --skip-serve
+```
+
+检查 `domain_paper/filtered_papers_YYYY-MM-DD.json` 中的入选论文，以及 `domain_paper/excluded_papers_YYYY-MM-DD.json` 中的排除论文。根据误选和漏选调整 Prompt，再执行完整流程。已经处理过的日期可能复用原有筛选结果，因此测试新 Prompt 时应优先使用新的日期。
+
+两种模式都可以调整 arXiv 分类。例如，完整 Pipeline 模式可以临时指定 `cs.AI` 和 `cs.CL`：
+
+```bash
+papertools run \
+  --date YYYY-MM-DD \
+  --categories cs.AI cs.CL \
+  --skip-serve
+```
+
 ## 直接浏览已有内容
 
 仓库已经包含生成后的网站。只想查看页面时，不需要配置 API：
@@ -133,57 +196,6 @@ papertools run --mode full --date YYYY-MM-DD --skip-serve
 ```
 
 完整流程会产生多次模型调用和全文请求，实际耗时与候选论文数量、模型速度及接口限额有关。
-
-## 调整论文范围
-
-每个人关注的论文不同。PaperTools 分两层控制筛选范围：`--categories` 决定从哪些 arXiv 分类获取论文，`PAPER_FILTER_PROMPT` 决定其中哪些论文符合你的兴趣。
-
-主题筛选后默认还会执行可选的作者和机构优先级筛选；如不需要，可以在 `.env` 中设置 `PRESTIGE_ENABLED=false` 关闭。
-
-例如，只获取 `cs.AI` 和 `cs.CL`：
-
-```bash
-papertools run \
-  --date YYYY-MM-DD \
-  --categories cs.AI cs.CL \
-  --skip-serve
-```
-
-### 自定义论文兴趣 Prompt
-
-打开 [`src/utils/config.py`](src/utils/config.py)，找到 `PAPER_FILTER_PROMPT`，把其中的关注方向、保留条件和排除条件改成自己的要求。例如：
-
-```python
-PAPER_FILTER_PROMPT = """你是一名研究论文筛选助手。
-
-我关注：
-- 具身智能中的长期规划；
-- 机器人操作与视觉语言动作模型；
-- 能够通过环境反馈持续学习的智能体。
-
-排除：
-- 只做数据集整理的论文；
-- 与机器人或具身智能无关的通用语言模型论文；
-- 只讨论安全、对齐或水印的论文。
-
-论文标题: {title}
-论文摘要: {summary}
-
-请严格按照以下格式回答:
-结果: [True/False]
-理由: [说明保留或排除的依据]
-"""
-```
-
-`{title}` 和 `{summary}` 是程序填入论文信息的位置，不能删除。`结果:` 和 `理由:` 也是筛选器读取模型回答所需的字段，不要改名。可以自由增删关注方向和判断规则，但应让标准具体，并明确写出希望排除的内容。
-
-修改后，先选择一个尚未处理过的日期快速试跑：
-
-```bash
-papertools run --mode quick --date YYYY-MM-DD --skip-serve
-```
-
-检查 `domain_paper/filtered_papers_YYYY-MM-DD.json` 中的入选论文，以及 `domain_paper/excluded_papers_YYYY-MM-DD.json` 中的排除论文。根据误选和漏选调整 Prompt，确认结果符合预期后，再运行完整流程。已经处理过的日期可能复用原有筛选结果，因此测试新 Prompt 时应优先使用新的日期。
 
 ## 输出目录
 
