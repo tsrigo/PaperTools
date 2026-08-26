@@ -112,10 +112,10 @@ def test_summary_provider_timeout_can_be_lowered_by_environment(monkeypatch):
     assert captured["timeout"] == 12.5
 
 
-def test_default_daily_chain_excludes_reasoner_and_includes_prism():
+def test_default_daily_chain_excludes_reasoner_and_prism():
     from src.core.generate_summary import build_summary_providers
 
-    chain = "sjtu:qwen,sjtu:deepseek-chat,sjtu:minimax,sjtu:glm,prism:gpt-5.5"
+    chain = "sjtu:qwen,sjtu:deepseek-chat,sjtu:minimax,sjtu:glm"
     providers = build_summary_providers(
         chain,
         modelscope_api_key="",
@@ -129,4 +129,4 @@ def test_default_daily_chain_excludes_reasoner_and_includes_prism():
     )
     models = [p.model for p in providers]
     assert "deepseek-reasoner" not in models
-    assert any(p.name == "prism" and p.model == "gpt-5.5" for p in providers)
+    assert not any(p.name == "prism" for p in providers)

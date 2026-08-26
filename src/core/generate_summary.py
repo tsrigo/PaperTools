@@ -86,8 +86,10 @@ from src.utils.io import save_json, save_text  # noqa: E402
 from src.utils.notify import notify_failures  # noqa: E402
 from src.utils.openai_client import create_openai_client  # noqa: E402
 from src.utils.publish_quality import missing_publish_fields  # noqa: E402
-from src.utils.validation import validate_non_negative_int, validate_positive_int  # noqa: E402
-
+from src.utils.validation import (
+    validate_non_negative_int,
+    validate_positive_int,
+)  # noqa: E402
 
 ensure_valid_paper_content = ensure_valid_extraction_content
 
@@ -451,7 +453,10 @@ class SummaryProvider:
 
                 wait_time = wait_until - now
 
-            if _SUMMARY_DEADLINE > 0.0 and time.monotonic() + wait_time > _SUMMARY_DEADLINE:
+            if (
+                _SUMMARY_DEADLINE > 0.0
+                and time.monotonic() + wait_time > _SUMMARY_DEADLINE
+            ):
                 raise SummaryBudgetExceeded(
                     f"rate-limit wait {wait_time:.0f}s exceeds summary budget"
                 )
@@ -672,6 +677,8 @@ def collect_streaming_completion(
             if not result.strip():
                 raise ValueError(f"LLM returned empty result for {cache_key}")
             return result, provider
+        except SummaryBudgetExceeded:
+            raise
         except Exception as exc:
             last_exception = exc
             print(f"⚠️ 总结模型失败，尝试下一个: {provider.label}: {exc}")
@@ -704,6 +711,8 @@ def retry_on_openai_error(max_retries: int = 6, backoff_factor: float = 2.0):
             for attempt in range(max_retries):
                 try:
                     return func(*args, **kwargs)
+                except SummaryBudgetExceeded:
+                    raise
                 except (
                     OpenAIError,
                     requests.exceptions.RequestException,
@@ -1214,6 +1223,8 @@ def repair_missing_summary_fields(
             )
             if has_valid_generated_text(value):
                 paper["intro_logic"] = value
+        except SummaryBudgetExceeded:
+            raise
         except Exception as exc:
             print(f"⚠️ 修复intro_logic失败 {paper_title[:30]}: {exc}")
 
@@ -1224,6 +1235,8 @@ def repair_missing_summary_fields(
             )
             if has_valid_generated_text(value):
                 paper["core_insight"] = value
+        except SummaryBudgetExceeded:
+            raise
         except Exception as exc:
             print(f"⚠️ 修复core_insight失败 {paper_title[:30]}: {exc}")
 
@@ -1245,6 +1258,8 @@ def repair_missing_summary_fields(
                 )
                 if has_valid_generated_text(repaired):
                     paper["methodology"] = repaired
+        except SummaryBudgetExceeded:
+            raise
         except Exception as exc:
             print(f"⚠️ 修复methodology失败 {paper_title[:30]}: {exc}")
             try:
@@ -1258,6 +1273,8 @@ def repair_missing_summary_fields(
                 )
                 if has_valid_generated_text(repaired):
                     paper["methodology"] = repaired
+            except SummaryBudgetExceeded:
+                raise
             except Exception as focused_exc:
                 print(f"⚠️ 聚焦修复methodology失败 {paper_title[:30]}: {focused_exc}")
         if not has_valid_generated_text(paper.get("methodology")):
@@ -1284,6 +1301,8 @@ def repair_missing_summary_fields(
                 )
                 if has_valid_generated_text(repaired):
                     paper["additional_insights"] = repaired
+        except SummaryBudgetExceeded:
+            raise
         except Exception as exc:
             print(f"⚠️ 常规修复additional_insights失败 {paper_title[:30]}: {exc}")
             try:
@@ -1297,6 +1316,8 @@ def repair_missing_summary_fields(
                 )
                 if has_valid_generated_text(repaired):
                     paper["additional_insights"] = repaired
+            except SummaryBudgetExceeded:
+                raise
             except Exception as focused_exc:
                 print(
                     f"⚠️ 聚焦修复additional_insights失败 {paper_title[:30]}: {focused_exc}"
@@ -1320,6 +1341,8 @@ def repair_missing_summary_fields(
             )
             if has_valid_generated_text(value):
                 paper["summary_translation"] = value
+        except SummaryBudgetExceeded:
+            raise
         except Exception as exc:
             print(f"⚠️ 修复summary_translation失败 {paper_title[:30]}: {exc}")
 
@@ -1347,6 +1370,8 @@ def repair_missing_summary_fields(
                     provider.label for provider in providers
                 )
                 paper["research_value_reasoning_effort"] = ""
+        except SummaryBudgetExceeded:
+            raise
         except Exception as exc:
             print(f"⚠️ 修复research_value失败 {paper_title[:30]}: {exc}")
 
@@ -2062,7 +2087,8 @@ def main() -> int:
                             f"methodology_v3_{paper_title}", cached_paper_content
                         )
                         cached_additional_insights = cache_manager.get_summary_cache(
-                            f"additional_insights_v2_{paper_title}", cached_paper_content
+                            f"additional_insights_v2_{paper_title}",
+                            cached_paper_content,
                         )
                         if not has_valid_generated_text(cached_intro_logic):
                             cached_intro_logic = None
@@ -2241,6 +2267,8 @@ def main() -> int:
                         paper.get("title", ""),
                         cache_manager,
                     )
+                except SummaryBudgetExceeded:
+                    raise
                 except Exception as e:
                     print(f"⚠️ 生成intro_logic失败 {paper_title[:30]}: {e}")
                     intro_logic = ""
@@ -2259,6 +2287,8 @@ def main() -> int:
                         paper.get("title", ""),
                         cache_manager,
                     )
+                except SummaryBudgetExceeded:
+                    raise
                 except Exception as e:
                     print(f"⚠️ 生成core_insight失败 {paper_title[:30]}: {e}")
                     core_insight = ""
@@ -2277,6 +2307,8 @@ def main() -> int:
                         paper.get("title", ""),
                         cache_manager,
                     )
+                except SummaryBudgetExceeded:
+                    raise
                 except Exception as e:
                     print(f"⚠️ 生成methodology失败 {paper_title[:30]}: {e}")
                     methodology = ""
@@ -2295,6 +2327,8 @@ def main() -> int:
                         paper.get("title", ""),
                         cache_manager,
                     )
+                except SummaryBudgetExceeded:
+                    raise
                 except Exception as e:
                     print(f"⚠️ 生成additional_insights失败 {paper_title[:30]}: {e}")
                     additional_insights = ""
@@ -2315,6 +2349,8 @@ def main() -> int:
                             paper.get("title", ""),
                             cache_manager,
                         )
+                    except SummaryBudgetExceeded:
+                        raise
                     except Exception as e:
                         print(f"⚠️ 翻译摘要失败 {paper_title[:30]}: {e}")
                         summary_translation = ""
@@ -2362,6 +2398,8 @@ def main() -> int:
                     research_value = reviewgrounder_markdown_from_result(
                         reviewgrounder_review
                     )
+                except SummaryBudgetExceeded:
+                    raise
                 except Exception as e:
                     print(f"⚠️ 生成ReviewGrounder审稿失败 {paper_title[:30]}: {e}")
                     print(f"↩️ 使用内置研究价值评估兜底: {paper_title[:50]}...")
@@ -2387,6 +2425,8 @@ def main() -> int:
                             provider.label for provider in providers
                         )
                         research_value_reasoning_effort = ""
+                    except SummaryBudgetExceeded:
+                        raise
                     except Exception as fallback_exc:
                         print(
                             f"⚠️ 内置研究价值评估也失败 {paper_title[:30]}: {fallback_exc}"
@@ -2417,6 +2457,8 @@ def main() -> int:
                         provider.label for provider in providers
                     )
                     research_value_reasoning_effort = ""
+                except SummaryBudgetExceeded:
+                    raise
                 except Exception as e:
                     print(f"⚠️ 内置研究价值评估失败 {paper_title[:30]}: {e}")
                     reviewgrounder_review = reviewgrounder_error_result(e, paper_title)
@@ -2440,6 +2482,8 @@ def main() -> int:
                         paper.get("title", ""),
                         cache_manager,
                     )
+                except SummaryBudgetExceeded:
+                    raise
                 except Exception as e:
                     print(f"⚠️ 提取机构信息失败 {paper_title[:30]}: {e}")
 

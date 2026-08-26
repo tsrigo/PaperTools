@@ -18,9 +18,7 @@ except Exception:  # pragma: no cover
 SJTU_BASE_URL = "https://models.sjtu.edu.cn/api/v1/"
 SJTU_MODELS = {"minimax", "glm", "qwen", "deepseek-chat", "deepseek-reasoner"}
 PRISM_BASE_URL = "https://ai.prism.uno/v1"
-DEFAULT_SUMMARY_MODEL_CHAIN = (
-    "sjtu:minimax,sjtu:glm,sjtu:qwen,sjtu:deepseek-chat,sjtu:deepseek-reasoner"
-)
+DEFAULT_SUMMARY_MODEL_CHAIN = "sjtu:qwen,sjtu:deepseek-chat,sjtu:minimax"
 SUMMARY_PROVIDERS = {"modelscope", "sjtu", "prism"}
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -268,6 +266,15 @@ def merge_model_checks(checks: list[ModelCheck]) -> list[ModelCheck]:
     return result
 
 
+def is_summary_only_check(check: ModelCheck) -> bool:
+    labels = [label.strip() for label in check.label.split(",")]
+    return bool(labels) and all(label.startswith("summary:") for label in labels)
+
+
+def has_summary_label(check: ModelCheck) -> bool:
+    return any(label.strip().startswith("summary:") for label in check.label.split(","))
+
+
 def check_disk_space(
     min_gb: float = 5.0, path: str | Path | None = None
 ) -> tuple[bool, str]:
@@ -326,7 +333,7 @@ def main() -> int:
     model_vars = {
         "MODEL": env_str("MODEL", "minimax"),
         "FILTER_MODEL": env_str("FILTER_MODEL", "qwen"),
-        "CLUSTER_MODEL": env_str("CLUSTER_MODEL", "glm"),
+        "CLUSTER_MODEL": env_str("CLUSTER_MODEL", "qwen"),
         "SUMMARY_MODEL": env_str("SUMMARY_MODEL", "minimax"),
     }
     for name, value in model_vars.items():
@@ -406,9 +413,12 @@ def main() -> int:
             return 2
 
     if not args.offline_ok:
+        summary_remote_success = False
+        summary_remote_warnings: list[str] = []
         for check in merge_model_checks(checks):
             client = None
             print(f"Checking /models for {check.label} at {check.base_url}")
+            summary_only = is_summary_only_check(check)
             try:
                 client = create_openai_client(
                     api_key=check.api_key,
@@ -421,20 +431,50 @@ def main() -> int:
                     getattr(model, "id", "") for model in getattr(models, "data", [])
                 }
                 if not available:
-                    print(
+                    message = (
                         f"ERROR: remote /models returned no model IDs for {check.label}"
                     )
+                    if summary_only:
+                        warning = message.replace("ERROR:", "WARNING:", 1)
+                        print(warning)
+                        summary_remote_warnings.append(warning)
+                        continue
+                    print(message)
                     return 2
                 missing_remote = sorted(
                     model for model in check.models if model not in available
                 )
                 if missing_remote:
-                    print(
+                    message = (
                         f"ERROR: requested models not returned by /models for "
                         f"{check.label}: " + ", ".join(missing_remote)
                     )
+                    if summary_only and any(
+                        model in available for model in check.models
+                    ):
+                        warning = message.replace("ERROR:", "WARNING:", 1)
+                        print(warning)
+                        summary_remote_warnings.append(warning)
+                        summary_remote_success = True
+                        continue
+                    if summary_only:
+                        warning = message.replace("ERROR:", "WARNING:", 1)
+                        print(warning)
+                        summary_remote_warnings.append(warning)
+                        continue
+                    print(message)
                     return 2
+                if has_summary_label(check):
+                    summary_remote_success = True
             except Exception as exc:
+                if summary_only:
+                    warning = (
+                        f"WARNING: remote /models check failed for optional "
+                        f"{check.label}: {exc}"
+                    )
+                    print(warning)
+                    summary_remote_warnings.append(warning)
+                    continue
                 print(f"ERROR: remote /models check failed for {check.label}: {exc}")
                 print(
                     "Use --offline-ok only when intentionally running without /models."
@@ -446,6 +486,11 @@ def main() -> int:
                         client.close()
                     except Exception:
                         pass
+        if summary_checks and not summary_remote_success:
+            print("ERROR: no summary provider passed remote /models preflight")
+            for warning in summary_remote_warnings:
+                print(f"  {warning}")
+            return 2
 
     print("Preflight OK")
     return 0

@@ -55,6 +55,36 @@ acquire_lock() {
     fail "another daily update is already running: $LEGACY_LOCK_DIR"
 }
 
+load_project_env() {
+    local env_file="${PAPERTOOLS_DAILY_ENV_FILE:-$PROJECT_DIR/.env}"
+    if [ -f "$env_file" ]; then
+        set -a
+        # shellcheck disable=SC1091
+        . "$env_file"
+        set +a
+    fi
+}
+
+configure_provider_defaults() {
+    local sjtu_base_url="${PAPERTOOLS_DAILY_SJTU_BASE_URL:-${SUMMARY_SJTU_OPENAI_BASE_URL:-${SJTU_OPENAI_BASE_URL:-https://models.sjtu.edu.cn/api/v1/}}}"
+    local sjtu_api_key="${PAPERTOOLS_DAILY_SJTU_API_KEY:-${SUMMARY_SJTU_OPENAI_API_KEY:-${SJTU_OPENAI_API_KEY:-${OPENAI_API_KEY:-}}}}"
+
+    export OPENAI_BASE_URL="${PAPERTOOLS_DAILY_OPENAI_BASE_URL:-$sjtu_base_url}"
+    export OPENAI_API_KEY="${PAPERTOOLS_DAILY_OPENAI_API_KEY:-$sjtu_api_key}"
+    export MODEL="${PAPERTOOLS_DAILY_MODEL:-deepseek-reasoner}"
+    export FILTER_MODEL="${PAPERTOOLS_DAILY_FILTER_MODEL:-qwen}"
+    export PAPERTOOLS_FILTER_MODEL_CHAIN="${PAPERTOOLS_DAILY_FILTER_MODEL_CHAIN:-qwen,deepseek-chat,minimax}"
+    export CLUSTER_MODEL="${PAPERTOOLS_DAILY_CLUSTER_MODEL:-qwen}"
+    export PAPERTOOLS_CLUSTER_MODEL_CHAIN="${PAPERTOOLS_DAILY_CLUSTER_MODEL_CHAIN:-qwen,deepseek-chat,minimax}"
+    export SUMMARY_MODEL="${PAPERTOOLS_DAILY_SUMMARY_MODEL:-qwen}"
+    export SUMMARY_SJTU_OPENAI_API_KEY="${PAPERTOOLS_DAILY_SJTU_API_KEY:-${SUMMARY_SJTU_OPENAI_API_KEY:-${SJTU_OPENAI_API_KEY:-$OPENAI_API_KEY}}}"
+    export SUMMARY_SJTU_OPENAI_BASE_URL="${PAPERTOOLS_DAILY_SJTU_BASE_URL:-$sjtu_base_url}"
+    export SUMMARY_MODEL_CHAIN="${PAPERTOOLS_DAILY_SUMMARY_MODEL_CHAIN:-sjtu:qwen,sjtu:deepseek-chat,sjtu:minimax}"
+    export PAPERTOOLS_FILTER_PAPER_TIMEOUT="${PAPERTOOLS_DAILY_FILTER_PAPER_TIMEOUT:-480}"
+    export PAPERTOOLS_FILTER_ERROR_TOLERANCE_PERCENT="${PAPERTOOLS_DAILY_FILTER_ERROR_TOLERANCE_PERCENT:-0}"
+    PREFLIGHT_OFFLINE_OK="${PAPERTOOLS_DAILY_PREFLIGHT_OFFLINE_OK:-$PREFLIGHT_OFFLINE_OK}"
+}
+
 require_clean_worktree() {
     git update-index -q --refresh
 
@@ -116,6 +146,9 @@ if [ -f venv/bin/activate ]; then
     # shellcheck disable=SC1091
     source venv/bin/activate
 fi
+
+load_project_env
+configure_provider_defaults
 
 mkdir -p "$STATUS_DIR"
 log "Structured pipeline status will be written to $STATUS_FILE"

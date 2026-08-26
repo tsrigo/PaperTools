@@ -134,9 +134,9 @@ DEFAULT_SUMMARY_MODEL = _normalize_model_alias(MODEL or "minimax")
 DEFAULT_SUMMARY_MODEL_CHAIN = _get_env_str(
     "PAPERTOOLS_DEFAULT_SUMMARY_MODEL_CHAIN",
     # deepseek-reasoner removed: a single reasoner request exceeds the shared SJTU
-    # token bucket, so it can never succeed and only causes 429 spin. prism:gpt-5.5
-    # is a real cross-bucket fallback (separate key/URL, larger token budget).
-    "sjtu:qwen,sjtu:deepseek-chat,sjtu:minimax,sjtu:glm,prism:gpt-5.5",
+    # token bucket, so it can never succeed and only causes 429 spin. Keep Prism
+    # out of the default chain; operators can append it explicitly when funded.
+    "sjtu:qwen,sjtu:deepseek-chat,sjtu:minimax",
 )
 SUMMARY_API_KEY = _get_env_str("SUMMARY_OPENAI_API_KEY", API_KEY)
 SUMMARY_BASE_URL = _get_env_str("SUMMARY_OPENAI_BASE_URL", DEFAULT_SUMMARY_BASE_URL)

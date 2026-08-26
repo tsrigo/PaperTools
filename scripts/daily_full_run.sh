@@ -26,8 +26,12 @@ WORKTREE_DIR="${PAPERTOOLS_DAILY_WORKTREE:-/tmp/papertools-daily-${RUN_ID}}"
 BOOTSTRAP_WORKTREE_DIR="${PAPERTOOLS_DAILY_BOOTSTRAP_WORKTREE:-/tmp/papertools-daily-bootstrap-${RUN_ID}}"
 DAILY_WINDOW_DAYS="${PAPERTOOLS_DAILY_WINDOW_DAYS:-4}"
 DAILY_MAX_CATCHUP_DAYS="${PAPERTOOLS_DAILY_MAX_CATCHUP_DAYS:-7}"
+DAILY_MAX_ATTEMPTS="${PAPERTOOLS_DAILY_MAX_ATTEMPTS:-3}"
+DAILY_RETRY_BASE_SECONDS="${PAPERTOOLS_DAILY_RETRY_BASE_SECONDS:-30}"
 export PAPERTOOLS_DAILY_WINDOW_DAYS="$DAILY_WINDOW_DAYS"
 export PAPERTOOLS_DAILY_MAX_CATCHUP_DAYS="$DAILY_MAX_CATCHUP_DAYS"
+export PAPERTOOLS_DAILY_MAX_ATTEMPTS="$DAILY_MAX_ATTEMPTS"
+export PAPERTOOLS_DAILY_RETRY_BASE_SECONDS="$DAILY_RETRY_BASE_SECONDS"
 REPROCESS_EXISTING_DATES="${PAPERTOOLS_DAILY_REPROCESS_EXISTING:-0}"
 # Run in place from this checkout (no /tmp worktree, no self-refresh from the
 # remote publish branch). This is the fix for "my changes never reached
@@ -49,10 +53,11 @@ log() {
 }
 
 load_project_env() {
-    if [ -f "$ROOT_DIR/.env" ]; then
+    local env_file="${PAPERTOOLS_DAILY_ENV_FILE:-$ROOT_DIR/.env}"
+    if [ -f "$env_file" ]; then
         set -a
         # shellcheck disable=SC1091
-        . "$ROOT_DIR/.env"
+        . "$env_file"
         set +a
     fi
 }
@@ -60,26 +65,37 @@ load_project_env() {
 configure_daily_runtime_defaults() {
     # Daily automation owns operational safety defaults. The repository .env
     # still supplies secrets, but should not disable cron recovery behavior.
-    export OPENAI_BASE_URL="${PAPERTOOLS_DAILY_OPENAI_BASE_URL:-https://models.sjtu.edu.cn/api/v1/}"
+    local sjtu_base_url="${PAPERTOOLS_DAILY_SJTU_BASE_URL:-${SUMMARY_SJTU_OPENAI_BASE_URL:-${SJTU_OPENAI_BASE_URL:-https://models.sjtu.edu.cn/api/v1/}}}"
+    local sjtu_api_key="${PAPERTOOLS_DAILY_SJTU_API_KEY:-${SUMMARY_SJTU_OPENAI_API_KEY:-${SJTU_OPENAI_API_KEY:-${OPENAI_API_KEY:-}}}}"
+
+    export OPENAI_BASE_URL="${PAPERTOOLS_DAILY_OPENAI_BASE_URL:-$sjtu_base_url}"
+    export OPENAI_API_KEY="${PAPERTOOLS_DAILY_OPENAI_API_KEY:-$sjtu_api_key}"
     export MODEL="${PAPERTOOLS_DAILY_MODEL:-deepseek-reasoner}"
     export FILTER_MODEL="${PAPERTOOLS_DAILY_FILTER_MODEL:-qwen}"
     export PAPERTOOLS_FILTER_MODEL_CHAIN="${PAPERTOOLS_DAILY_FILTER_MODEL_CHAIN:-qwen,deepseek-chat,minimax}"
-    export CLUSTER_MODEL="${PAPERTOOLS_DAILY_CLUSTER_MODEL:-glm}"
+    export CLUSTER_MODEL="${PAPERTOOLS_DAILY_CLUSTER_MODEL:-qwen}"
     export PAPERTOOLS_CLUSTER_MODEL_CHAIN="${PAPERTOOLS_DAILY_CLUSTER_MODEL_CHAIN:-qwen,deepseek-chat,minimax}"
     export SUMMARY_MODEL="${PAPERTOOLS_DAILY_SUMMARY_MODEL:-qwen}"
+    export SUMMARY_SJTU_OPENAI_API_KEY="${PAPERTOOLS_DAILY_SJTU_API_KEY:-${SUMMARY_SJTU_OPENAI_API_KEY:-${SJTU_OPENAI_API_KEY:-$OPENAI_API_KEY}}}"
+    export SUMMARY_SJTU_OPENAI_BASE_URL="${PAPERTOOLS_DAILY_SJTU_BASE_URL:-$sjtu_base_url}"
+    export SUMMARY_OPENAI_API_KEY="${PAPERTOOLS_DAILY_SUMMARY_API_KEY:-${SUMMARY_OPENAI_API_KEY:-$OPENAI_API_KEY}}"
+    export SUMMARY_OPENAI_BASE_URL="${PAPERTOOLS_DAILY_SUMMARY_BASE_URL:-${SUMMARY_OPENAI_BASE_URL:-$OPENAI_BASE_URL}}"
     # deepseek-reasoner dropped: it cannot fit the shared SJTU token bucket and
-    # only caused the 6h 429 spin. prism:gpt-5.5 is a real cross-bucket fallback.
-    export SUMMARY_MODEL_CHAIN="${PAPERTOOLS_DAILY_SUMMARY_MODEL_CHAIN:-sjtu:qwen,sjtu:deepseek-chat,sjtu:minimax,sjtu:glm,prism:gpt-5.5}"
+    # only caused the 6h 429 spin. Prism is opt-in while funded.
+    export SUMMARY_MODEL_CHAIN="${PAPERTOOLS_DAILY_SUMMARY_MODEL_CHAIN:-sjtu:qwen,sjtu:deepseek-chat,sjtu:minimax}"
     export SUMMARY_SJTU_RPM="${PAPERTOOLS_DAILY_SUMMARY_SJTU_RPM:-8}"
     export FILTER_MAX_WORKERS="${PAPERTOOLS_DAILY_FILTER_MAX_WORKERS:-3}"
     # Summary is latency-bound (~240s/paper), not RPM-bound: at 3 workers the
-    # SUMMARY_SJTU_RPM=8 cap is never reached, and shared-token-bucket overflow is
-    # absorbed by the 429 cooldown + prism:gpt-5.5 fallback (separate bucket).
+    # SUMMARY_SJTU_RPM=8 cap is rarely reached, and shared-token-bucket overflow
+    # is handled by the 429 cooldown plus the next SJTU model in the chain.
     export SUMMARY_MAX_WORKERS="${PAPERTOOLS_DAILY_SUMMARY_MAX_WORKERS:-3}"
     export PAPERTOOLS_FILTER_RPM="${PAPERTOOLS_DAILY_FILTER_RPM:-6}"
     export PAPERTOOLS_FILTER_LLM_TIMEOUT="${PAPERTOOLS_DAILY_FILTER_LLM_TIMEOUT:-90}"
+    # Must exceed the 300s shared-provider cooldown so a healthy 429 recovery is
+    # not mislabeled as a per-paper timeout before the retry can run.
+    export PAPERTOOLS_FILTER_PAPER_TIMEOUT="${PAPERTOOLS_DAILY_FILTER_PAPER_TIMEOUT:-480}"
     export PAPERTOOLS_FILTER_429_COOLDOWN_SECONDS="${PAPERTOOLS_DAILY_FILTER_429_COOLDOWN_SECONDS:-300}"
-    export PAPERTOOLS_FILTER_ERROR_TOLERANCE_PERCENT="${PAPERTOOLS_DAILY_FILTER_ERROR_TOLERANCE_PERCENT:-30}"
+    export PAPERTOOLS_FILTER_ERROR_TOLERANCE_PERCENT="${PAPERTOOLS_DAILY_FILTER_ERROR_TOLERANCE_PERCENT:-0}"
     export PAPERTOOLS_FILTER_LLM_MAX_RETRIES="${PAPERTOOLS_DAILY_FILTER_LLM_MAX_RETRIES:-3}"
     export PAPERTOOLS_FILTER_EARLY_STOP_AFTER_CAP="${PAPERTOOLS_DAILY_FILTER_EARLY_STOP_AFTER_CAP:-1}"
     export PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE="${PAPERTOOLS_DAILY_TOPIC_HEURISTIC_BYPASS_PRESTIGE:-0}"
@@ -107,18 +123,25 @@ configure_daily_runtime_defaults() {
 }
 
 print_runtime_config() {
+    _mask() { local v="${1:-}"; [ -z "$v" ] && printf '<unset>' && return; printf '%s...%s' "${v:0:8}" "${v: -4}"; }
+    printf '# ---- Providers ----\n'
+    printf 'SJTU:       url=%s  key=%s\n' "${SUMMARY_SJTU_OPENAI_BASE_URL:-<unset>}" "$(_mask "$SUMMARY_SJTU_OPENAI_API_KEY")"
+    printf 'OpenAI:     url=%s  key=%s\n' "${OPENAI_BASE_URL:-<unset>}" "$(_mask "$OPENAI_API_KEY")"
+    printf '# ---- Runtime ----\n'
     for key in \
         OPENAI_BASE_URL MODEL FILTER_MODEL CLUSTER_MODEL SUMMARY_MODEL SUMMARY_MODEL_CHAIN \
         PAPERTOOLS_FILTER_MODEL_CHAIN PAPERTOOLS_CLUSTER_MODEL_CHAIN \
         FILTER_MAX_WORKERS SUMMARY_MAX_WORKERS PAPERTOOLS_FILTER_RPM \
-        PAPERTOOLS_FILTER_LLM_TIMEOUT PAPERTOOLS_FILTER_LLM_MAX_RETRIES \
+        PAPERTOOLS_FILTER_LLM_TIMEOUT PAPERTOOLS_FILTER_PAPER_TIMEOUT PAPERTOOLS_FILTER_LLM_MAX_RETRIES \
+        PAPERTOOLS_FILTER_ERROR_TOLERANCE_PERCENT \
         PAPERTOOLS_FILTER_EARLY_STOP_AFTER_CAP PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE \
         PAPERTOOLS_FILTER_MAX_OUTPUT_PAPERS PAPERTOOLS_FILTER_RULE_VERSION PAPERTOOLS_OPENAI_TIMEOUT \
         PAPERTOOLS_SUMMARY_OPENAI_TIMEOUT PAPERTOOLS_SUMMARY_FIELD_REPAIR_ATTEMPTS \
         PAPERTOOLS_OPENAI_SDK_MAX_RETRIES PAPERTOOLS_RETRY_MAX_DELAY_SECONDS \
         PAPERTOOLS_OPENAI_TRUST_ENV DOCUMENT_EXTRACTOR_CHAIN DOCUMENT_EXTRACT_TIMEOUT \
         JINA_REQUEST_TIMEOUT JINA_MAX_RETRIES PAPERTOOLS_DAILY_WINDOW_DAYS \
-        PAPERTOOLS_DAILY_MAX_CATCHUP_DAYS PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS \
+        PAPERTOOLS_DAILY_MAX_CATCHUP_DAYS PAPERTOOLS_DAILY_MAX_ATTEMPTS \
+        PAPERTOOLS_DAILY_RETRY_BASE_SECONDS PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS \
         PAPERTOOLS_DAILY_PREFLIGHT_OFFLINE_OK; do
         printf '%s=%s\n' "$key" "${!key:-}"
     done
@@ -358,6 +381,14 @@ if ! [[ "$DAILY_MAX_CATCHUP_DAYS" =~ ^[0-9]+$ ]] || [ "$DAILY_MAX_CATCHUP_DAYS" 
     log "⚠️ Invalid PAPERTOOLS_DAILY_MAX_CATCHUP_DAYS=$DAILY_MAX_CATCHUP_DAYS; falling back to 7"
     DAILY_MAX_CATCHUP_DAYS=7
 fi
+if ! [[ "$DAILY_MAX_ATTEMPTS" =~ ^[0-9]+$ ]] || [ "$DAILY_MAX_ATTEMPTS" -lt 1 ]; then
+    log "⚠️ Invalid PAPERTOOLS_DAILY_MAX_ATTEMPTS=$DAILY_MAX_ATTEMPTS; falling back to 3"
+    DAILY_MAX_ATTEMPTS=3
+fi
+if ! [[ "$DAILY_RETRY_BASE_SECONDS" =~ ^[0-9]+$ ]]; then
+    log "⚠️ Invalid PAPERTOOLS_DAILY_RETRY_BASE_SECONDS=$DAILY_RETRY_BASE_SECONDS; falling back to 30"
+    DAILY_RETRY_BASE_SECONDS=30
+fi
 DATE_RANGE="$(
     "$PYTHON_BIN" - "$DAILY_WINDOW_DAYS" "$DAILY_MAX_CATCHUP_DAYS" <<'PY'
 import os
@@ -528,6 +559,41 @@ append_date() {
     fi
 }
 
+run_date_pipeline() {
+    local run_date="$1"
+    local status_file="$2"
+    local attempt=1
+    local exit_code=1
+    local retry_delay
+
+    while [ "$attempt" -le "$DAILY_MAX_ATTEMPTS" ]; do
+        log "🔁 Pipeline attempt $attempt/$DAILY_MAX_ATTEMPTS for $run_date"
+        if timeout "$PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS" "$PYTHON_BIN" papertools.py run --mode full --skip-serve --date "$run_date" --status-file "$status_file" >>"$LOG_FILE" 2>&1; then
+            exit_code=0
+        else
+            exit_code=$?
+        fi
+
+        if [ "$exit_code" -eq 0 ]; then
+            return 0
+        fi
+        if "$PYTHON_BIN" scripts/classify_pipeline_failure.py --status-file "$status_file" --permanent; then
+            log "⛔ Permanent failure for $run_date; not retrying"
+            return "$exit_code"
+        fi
+        if [ "$attempt" -ge "$DAILY_MAX_ATTEMPTS" ]; then
+            return "$exit_code"
+        fi
+
+        retry_delay=$((attempt * attempt * DAILY_RETRY_BASE_SECONDS))
+        log "⏳ Transient failure for $run_date; retrying cached progress after ${retry_delay}s"
+        sleep "$retry_delay"
+        attempt=$((attempt + 1))
+    done
+
+    return "$exit_code"
+}
+
 while IFS= read -r RUN_DATE; do
     [ -n "$RUN_DATE" ] || continue
     if [ "$REPROCESS_EXISTING_DATES" != "1" ] && [ -f "webpages/data/${RUN_DATE}.json" ]; then
@@ -541,7 +607,7 @@ while IFS= read -r RUN_DATE; do
     log "📅 Running daily pipeline for $RUN_DATE"
 
     set +e
-    timeout "$PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS" "$PYTHON_BIN" papertools.py run --mode full --skip-serve --date "$RUN_DATE" --status-file "$STATUS_FILE" >>"$LOG_FILE" 2>&1
+    run_date_pipeline "$RUN_DATE" "$STATUS_FILE"
     PIPELINE_EXIT=$?
     set -e
 

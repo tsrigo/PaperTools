@@ -11,15 +11,18 @@ The daily wrappers apply conservative OpenAI-compatible gateway defaults:
 - `OPENAI_BASE_URL=https://models.sjtu.edu.cn/api/v1/`
 - `FILTER_MODEL=qwen`
 - `PAPERTOOLS_FILTER_MODEL_CHAIN=qwen,deepseek-chat,minimax`
-- `CLUSTER_MODEL=glm`
+- `CLUSTER_MODEL=qwen`
 - `PAPERTOOLS_CLUSTER_MODEL_CHAIN=qwen,deepseek-chat,minimax`
 - `SUMMARY_MODEL=qwen`
-- `SUMMARY_MODEL_CHAIN=sjtu:qwen,sjtu:deepseek-chat,sjtu:minimax,sjtu:glm,sjtu:deepseek-reasoner`
-- `FILTER_MAX_WORKERS=1`
-- `SUMMARY_MAX_WORKERS=1`
-- `PAPERTOOLS_FILTER_RPM=4`
-- `PAPERTOOLS_FILTER_LLM_TIMEOUT=60`
-- `PAPERTOOLS_FILTER_LLM_MAX_RETRIES=1`
+- `SUMMARY_MODEL_CHAIN=sjtu:qwen,sjtu:deepseek-chat,sjtu:minimax`
+- `FILTER_MAX_WORKERS=3`
+- `SUMMARY_MAX_WORKERS=3`
+- `PAPERTOOLS_FILTER_RPM=6`
+- `PAPERTOOLS_FILTER_LLM_TIMEOUT=90`
+- `PAPERTOOLS_FILTER_PAPER_TIMEOUT=480`
+- `PAPERTOOLS_FILTER_LLM_MAX_RETRIES=3`
+- `PAPERTOOLS_DAILY_MAX_ATTEMPTS=3`
+- `PAPERTOOLS_DAILY_RETRY_BASE_SECONDS=30`
 - `PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE=0`
 - `DOCUMENT_EXTRACTOR_CHAIN=jina,pymupdf4llm`
 
@@ -29,7 +32,9 @@ still belong in `.env` or a secret manager.
 Daily publishing wrappers run the remote `/models` preflight by default. The
 check validates configured primary plus fallback filter, cluster, and summary
 models against their actual provider endpoint, so a separate cluster or Prism
-summary provider is not checked against the main `OPENAI_BASE_URL`. Set
+summary provider is not checked against the main `OPENAI_BASE_URL`. A remote
+failure from a summary-only fallback provider is treated as a warning if another
+summary provider passes preflight. Set
 `PAPERTOOLS_DAILY_PREFLIGHT_OFFLINE_OK=1` only for an intentional offline run
 where the gateway cannot be reached but local validation should still run.
 

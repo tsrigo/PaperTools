@@ -14,6 +14,7 @@ from src.core.generate_summary import has_non_empty_text
 from src.core.generate_unified_index import backfill_paper_metadata
 from src.core.paper_filter import repair_paper_metadata_from_source
 from src.core.pipeline import (
+    filter_status_blocking_reason,
     find_file_by_date,
     find_latest_file,
     select_cluster_output_file,
@@ -317,6 +318,31 @@ def test_cluster_model_fallback_skips_invalid_model(monkeypatch) -> None:
     assert clustered == {"Agents": [0]}
     assert calls == ["bad-model", "good-model"]
     assert "bad-model" in cluster_module._DISABLED_CLUSTER_MODELS
+
+
+def test_filter_status_failure_reason_blocks_publication_even_when_status_ok() -> None:
+    assert (
+        filter_status_blocking_reason(
+            {
+                "status": "ok",
+                "failure_reason": "筛选阶段存在 8 个单篇超时，拒绝发布不完整筛选结果",
+                "timed_out_count": 8,
+            },
+            filtered_count=37,
+        )
+        == "筛选阶段存在 8 个单篇超时，拒绝发布不完整筛选结果"
+    )
+
+
+def test_filter_status_zero_result_with_errors_blocks_publication() -> None:
+    assert filter_status_blocking_reason(
+        {
+            "status": "ok",
+            "error_count": 1,
+            "prefiltered_count": 10,
+        },
+        filtered_count=0,
+    )
 
 
 def test_validate_webpages_for_publication_blocks_missing_validator(

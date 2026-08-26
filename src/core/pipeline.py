@@ -63,7 +63,6 @@ from src.utils.validation import (
     validate_positive_int,
 )
 
-
 SECRET_CLI_OPTIONS = {
     "--api-key",
     "--cluster-api-key",
@@ -532,6 +531,23 @@ def validate_webpages_for_publication(
     )
 
 
+def filter_status_blocking_reason(
+    filter_status: Dict[str, Any], filtered_count: int
+) -> Optional[str]:
+    """Return a publication-blocking filter failure reason, if present."""
+    if filter_status.get("failure_reason"):
+        return str(filter_status["failure_reason"])
+    if filter_status.get("fatal_zero_result"):
+        return str(filter_status.get("failure_reason") or "筛选阶段异常零结果")
+    if (
+        filtered_count == 0
+        and int(filter_status.get("error_count") or 0) > 0
+        and int(filter_status.get("prefiltered_count") or 0) > 0
+    ):
+        return "筛选结果为 0 且存在 LLM/API 错误，拒绝发布疑似异常空结果"
+    return None
+
+
 def find_latest_file(directory: str, pattern: str = "*.json") -> Optional[str]:
     """找到目录中最新的匹配文件，优先选择合并文件和筛选结果文件"""
     try:
@@ -983,16 +999,8 @@ def main() -> int:
     pipeline_status["filtered"] = len(filtered_papers)
     if isinstance(pipeline_status.get("filter_status"), dict):
         filter_status = pipeline_status["filter_status"]
-        if filter_status.get("fatal_zero_result"):
-            reason = filter_status.get("failure_reason") or "筛选阶段异常零结果"
-            progress.log_with_timestamp(f"❌ {reason}")
-            return finish_pipeline(1, "failed", str(reason))
-        if (
-            len(filtered_papers) == 0
-            and int(filter_status.get("error_count") or 0) > 0
-            and int(filter_status.get("prefiltered_count") or 0) > 0
-        ):
-            reason = "筛选结果为 0 且存在 LLM/API 错误，拒绝发布疑似异常空结果"
+        reason = filter_status_blocking_reason(filter_status, len(filtered_papers))
+        if reason:
             progress.log_with_timestamp(f"❌ {reason}")
             return finish_pipeline(1, "failed", reason)
 

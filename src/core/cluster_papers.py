@@ -323,15 +323,19 @@ def _validate_cluster_assignments(
                 )
                 continue
             if raw_index in seen:
-                # Paper assigned to multiple clusters - use first assignment
+                errors.append(
+                    f"paper index {raw_index} assigned to both "
+                    f"{seen[raw_index]!r} and {cluster_name!r}"
+                )
                 continue
             seen[raw_index] = cluster_name
 
     missing = sorted(set(range(paper_count)) - set(seen))
     if missing:
-        default_cluster = "Other"
-        assignments.setdefault(default_cluster, []).extend(missing)
-        print(f"⚠️ {len(missing)} papers missing cluster assignments, assigned to '{default_cluster}'")
+        errors.append(f"missing cluster assignments for paper indices: {missing}")
+
+    if errors:
+        raise ValueError("; ".join(errors))
 
 
 def cluster_batch(

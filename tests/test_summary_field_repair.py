@@ -108,6 +108,28 @@ def test_repair_missing_summary_fields_backfills_methodology_and_insights(monkey
     assert generate_summary.missing_publish_fields(paper) == []
 
 
+def test_repair_missing_summary_fields_propagates_summary_budget(monkeypatch):
+    paper = _paper(intro_logic="")
+
+    def budgeted_generation(*_args, **_kwargs):
+        raise generate_summary.SummaryBudgetExceeded(
+            "rate-limit wait exceeds summary budget"
+        )
+
+    monkeypatch.setattr(generate_summary, "generate_intro_logic", budgeted_generation)
+
+    with pytest.raises(generate_summary.SummaryBudgetExceeded):
+        generate_summary.repair_missing_summary_fields(
+            paper,
+            ["intro_logic"],
+            "paper content",
+            providers=[],
+            temperature=0.1,
+            paper_title="Repairable Paper",
+            cache_manager=None,
+        )
+
+
 def test_translate_summary_prompt_preserves_terms_without_parenthetical_gloss(
     monkeypatch,
 ):

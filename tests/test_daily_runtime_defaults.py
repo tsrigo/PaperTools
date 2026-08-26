@@ -4,7 +4,6 @@ import sys
 from pathlib import Path
 from types import SimpleNamespace
 
-
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -18,12 +17,12 @@ def parse_key_values(output: str) -> dict[str, str]:
     return values
 
 
-def run_runtime_dump(
+def run_runtime_dump_output(
     tmp_path: Path,
     env_file: Path,
     script: str = "scripts/robust_daily_update.sh",
     **overrides: str,
-) -> dict[str, str]:
+) -> str:
     env = {
         "HOME": str(tmp_path),
         "PATH": os.environ.get("PATH", "/usr/local/bin:/usr/bin:/bin"),
@@ -43,7 +42,18 @@ def run_runtime_dump(
         check=False,
     )
     assert result.returncode == 0, result.stderr + result.stdout
-    return parse_key_values(result.stdout)
+    return result.stdout
+
+
+def run_runtime_dump(
+    tmp_path: Path,
+    env_file: Path,
+    script: str = "scripts/robust_daily_update.sh",
+    **overrides: str,
+) -> dict[str, str]:
+    return parse_key_values(
+        run_runtime_dump_output(tmp_path, env_file, script=script, **overrides)
+    )
 
 
 def clear_preflight_model_chains(monkeypatch):
@@ -102,15 +112,17 @@ def test_robust_daily_defaults_override_stale_dotenv_values(tmp_path):
     assert values["OPENAI_BASE_URL"] == "https://models.sjtu.edu.cn/api/v1/"
     assert values["FILTER_MODEL"] == "qwen"
     assert values["PAPERTOOLS_FILTER_MODEL_CHAIN"] == "qwen,deepseek-chat,minimax"
-    assert values["CLUSTER_MODEL"] == "glm"
+    assert values["CLUSTER_MODEL"] == "qwen"
     assert values["PAPERTOOLS_CLUSTER_MODEL_CHAIN"] == "qwen,deepseek-chat,minimax"
     assert values["SUMMARY_MODEL"] == "qwen"
-    assert values["SUMMARY_MODEL_CHAIN"].startswith("sjtu:qwen")
-    assert values["SUMMARY_MODEL_CHAIN"].endswith("prism:gpt-5.5")
+    assert values["SUMMARY_MODEL_CHAIN"] == "sjtu:qwen,sjtu:deepseek-chat,sjtu:minimax"
     assert "deepseek-reasoner" not in values["SUMMARY_MODEL_CHAIN"]
+    assert "prism:" not in values["SUMMARY_MODEL_CHAIN"]
     assert values["PAPERTOOLS_FILTER_RPM"] == "6"
     assert values["PAPERTOOLS_FILTER_LLM_TIMEOUT"] == "90"
+    assert values["PAPERTOOLS_FILTER_PAPER_TIMEOUT"] == "480"
     assert values["PAPERTOOLS_FILTER_LLM_MAX_RETRIES"] == "3"
+    assert values["PAPERTOOLS_FILTER_ERROR_TOLERANCE_PERCENT"] == "0"
     assert values["PAPERTOOLS_FILTER_EARLY_STOP_AFTER_CAP"] == "1"
     assert values["PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE"] == "0"
     assert values["PAPERTOOLS_FILTER_MAX_OUTPUT_PAPERS"] == "0"
@@ -119,6 +131,8 @@ def test_robust_daily_defaults_override_stale_dotenv_values(tmp_path):
     assert values["DOCUMENT_EXTRACTOR_CHAIN"] == "jina,pymupdf4llm"
     assert values["JINA_MAX_RETRIES"] == "2"
     assert values["PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS"] == "10800"
+    assert values["PAPERTOOLS_DAILY_MAX_ATTEMPTS"] == "3"
+    assert values["PAPERTOOLS_DAILY_RETRY_BASE_SECONDS"] == "30"
     assert values["SUMMARY_MAX_WORKERS"] == "3"
     assert values["PAPERTOOLS_DAILY_PREFLIGHT_OFFLINE_OK"] == "0"
 
@@ -136,17 +150,23 @@ def test_daily_full_runner_uses_same_daily_defaults(tmp_path):
 
     assert values["FILTER_MODEL"] == "qwen"
     assert values["PAPERTOOLS_FILTER_MODEL_CHAIN"] == "qwen,deepseek-chat,minimax"
+    assert values["CLUSTER_MODEL"] == "qwen"
     assert values["PAPERTOOLS_CLUSTER_MODEL_CHAIN"] == "qwen,deepseek-chat,minimax"
     assert values["OPENAI_BASE_URL"] == "https://models.sjtu.edu.cn/api/v1/"
-    assert values["SUMMARY_MODEL_CHAIN"].endswith("prism:gpt-5.5")
+    assert values["SUMMARY_MODEL_CHAIN"] == "sjtu:qwen,sjtu:deepseek-chat,sjtu:minimax"
     assert "deepseek-reasoner" not in values["SUMMARY_MODEL_CHAIN"]
+    assert "prism:" not in values["SUMMARY_MODEL_CHAIN"]
     assert values["PAPERTOOLS_FILTER_RPM"] == "6"
+    assert values["PAPERTOOLS_FILTER_ERROR_TOLERANCE_PERCENT"] == "0"
     assert values["PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE"] == "0"
     assert values["PAPERTOOLS_FILTER_MAX_OUTPUT_PAPERS"] == "0"
     assert values["PAPERTOOLS_FILTER_RULE_VERSION"] == "2026-05-31-topic-post-v2-daily"
     assert values["PAPERTOOLS_SUMMARY_OPENAI_TIMEOUT"] == "90"
+    assert values["PAPERTOOLS_FILTER_PAPER_TIMEOUT"] == "480"
     assert values["DOCUMENT_EXTRACTOR_CHAIN"] == "jina,pymupdf4llm"
     assert values["PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS"] == "10800"
+    assert values["PAPERTOOLS_DAILY_MAX_ATTEMPTS"] == "3"
+    assert values["PAPERTOOLS_DAILY_RETRY_BASE_SECONDS"] == "30"
     assert values["PAPERTOOLS_DAILY_PREFLIGHT_OFFLINE_OK"] == "0"
 
 
@@ -211,6 +231,19 @@ def test_default_daily_update_writes_status_and_validates_before_staging():
     )
     assert 'mkdir -p "$STATUS_DIR"' in script
     assert "run_preflight_check" in script
+    assert "load_project_env" in script
+    assert "configure_provider_defaults" in script
+    assert (
+        'export OPENAI_API_KEY="${PAPERTOOLS_DAILY_OPENAI_API_KEY:-$sjtu_api_key}"'
+        in script
+    )
+    assert "sjtu:qwen,sjtu:deepseek-chat,sjtu:minimax" in script
+    assert "sjtu:glm" not in script
+    assert "prism:gpt-5.5" not in script
+    assert (
+        'export PAPERTOOLS_FILTER_ERROR_TOLERANCE_PERCENT="${PAPERTOOLS_DAILY_FILTER_ERROR_TOLERANCE_PERCENT:-0}"'
+        in script
+    )
     assert "preflight_cmd=(python scripts/preflight_check.py)" in script
     assert "preflight_cmd+=(--offline-ok)" in script
     assert "PAPERTOOLS_DAILY_PREFLIGHT_OFFLINE_OK" in script
@@ -261,8 +294,84 @@ def test_daily_full_runner_validates_before_staging_and_never_commits_failures()
     assert "HEAD:master" not in script
     assert 'git push origin "HEAD:$PUBLISH_BRANCH"' in script
     assert "fetch_origin_branch" in script
+    assert "run_date_pipeline" in script
+    assert "scripts/classify_pipeline_failure.py" in script
+    assert "PAPERTOOLS_DAILY_MAX_ATTEMPTS" in script
+    assert "PAPERTOOLS_DAILY_RETRY_BASE_SECONDS" in script
     assert "git add arxiv_paper/" not in script
     assert "git add arxiv_paper/ domain_paper/ summary/ webpages/ logs/" not in script
+
+
+def test_daily_full_runner_retries_only_transient_date_failures(tmp_path):
+    script = (ROOT / "scripts/daily_full_run.sh").read_text(encoding="utf-8")
+    function_body = script.split("run_date_pipeline() {", 1)[1].split(
+        "\n}\n\nwhile IFS=", 1
+    )[0]
+    function_text = "run_date_pipeline() {" + function_body + "\n}\n"
+
+    fake_timeout = tmp_path / "timeout"
+    fake_timeout.write_text(
+        """#!/bin/bash
+count=0
+if [ -f "$ATTEMPT_FILE" ]; then read -r count < "$ATTEMPT_FILE"; fi
+count=$((count + 1))
+printf '%s\n' "$count" > "$ATTEMPT_FILE"
+if [ "$count" -lt "${SUCCEED_ON_ATTEMPT:-999}" ]; then exit 1; fi
+exit 0
+""",
+        encoding="utf-8",
+    )
+    fake_timeout.chmod(0o755)
+
+    fake_python = tmp_path / "python"
+    fake_python.write_text(
+        '#!/bin/bash\nexit "${CLASSIFIER_EXIT_CODE:-1}"\n',
+        encoding="utf-8",
+    )
+    fake_python.chmod(0o755)
+
+    harness = tmp_path / "retry-harness.sh"
+    harness.write_text(
+        "\n".join(
+            [
+                "#!/bin/bash",
+                "set -uo pipefail",
+                "DAILY_MAX_ATTEMPTS=3",
+                "DAILY_RETRY_BASE_SECONDS=0",
+                "PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS=10",
+                f'PYTHON_BIN="{fake_python}"',
+                f'LOG_FILE="{tmp_path / "daily.log"}"',
+                "log() { :; }",
+                function_text,
+                'run_date_pipeline "2026-07-16" "status.json"',
+            ]
+        ),
+        encoding="utf-8",
+    )
+    harness.chmod(0o755)
+
+    attempt_file = tmp_path / "attempts"
+    env = {
+        **os.environ,
+        "PATH": f"{tmp_path}:{os.environ.get('PATH', '')}",
+        "ATTEMPT_FILE": str(attempt_file),
+        "SUCCEED_ON_ATTEMPT": "2",
+        "CLASSIFIER_EXIT_CODE": "1",
+    }
+    transient = subprocess.run(
+        ["bash", str(harness)], text=True, capture_output=True, env=env, check=False
+    )
+    assert transient.returncode == 0, transient.stderr + transient.stdout
+    assert attempt_file.read_text(encoding="utf-8").strip() == "2"
+
+    attempt_file.unlink()
+    env["SUCCEED_ON_ATTEMPT"] = "999"
+    env["CLASSIFIER_EXIT_CODE"] = "0"
+    permanent = subprocess.run(
+        ["bash", str(harness)], text=True, capture_output=True, env=env, check=False
+    )
+    assert permanent.returncode == 1
+    assert attempt_file.read_text(encoding="utf-8").strip() == "1"
 
 
 def test_robust_daily_allows_explicit_daily_overrides(tmp_path):
@@ -278,6 +387,8 @@ def test_robust_daily_allows_explicit_daily_overrides(tmp_path):
         PAPERTOOLS_DAILY_FILTER_MODEL_CHAIN="deepseek-chat,qwen",
         PAPERTOOLS_DAILY_CLUSTER_MODEL_CHAIN="minimax,qwen",
         PAPERTOOLS_DAILY_FILTER_RPM="12",
+        PAPERTOOLS_DAILY_FILTER_PAPER_TIMEOUT="900",
+        PAPERTOOLS_DAILY_FILTER_ERROR_TOLERANCE_PERCENT="5",
         PAPERTOOLS_DAILY_TOPIC_HEURISTIC_BYPASS_PRESTIGE="0",
         PAPERTOOLS_DAILY_FILTER_MAX_OUTPUT_PAPERS="2",
         PAPERTOOLS_DAILY_FILTER_RULE_VERSION="test-rule",
@@ -289,11 +400,39 @@ def test_robust_daily_allows_explicit_daily_overrides(tmp_path):
     assert values["PAPERTOOLS_FILTER_MODEL_CHAIN"] == "deepseek-chat,qwen"
     assert values["PAPERTOOLS_CLUSTER_MODEL_CHAIN"] == "minimax,qwen"
     assert values["PAPERTOOLS_FILTER_RPM"] == "12"
+    assert values["PAPERTOOLS_FILTER_PAPER_TIMEOUT"] == "900"
+    assert values["PAPERTOOLS_FILTER_ERROR_TOLERANCE_PERCENT"] == "5"
     assert values["PAPERTOOLS_TOPIC_HEURISTIC_BYPASS_PRESTIGE"] == "0"
     assert values["PAPERTOOLS_FILTER_MAX_OUTPUT_PAPERS"] == "2"
     assert values["PAPERTOOLS_FILTER_RULE_VERSION"] == "test-rule"
     assert values["PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS"] == "42"
     assert values["PAPERTOOLS_DAILY_PREFLIGHT_OFFLINE_OK"] == "1"
+
+
+def test_daily_full_runner_prefers_sjtu_key_for_primary_gateway(tmp_path):
+    env_file = tmp_path / ".env"
+    env_file.write_text(
+        "\n".join(
+            [
+                "OPENAI_API_KEY=sk-openrouter-old9999",
+                "OPENAI_BASE_URL=https://openrouter.ai/api/v1/",
+                "SUMMARY_SJTU_OPENAI_API_KEY=sk-sjtu-primary0001",
+                "SUMMARY_SJTU_OPENAI_BASE_URL=https://models.sjtu.edu.cn/api/v1/",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    output = run_runtime_dump_output(
+        tmp_path,
+        env_file,
+        script="scripts/daily_full_run.sh",
+        PAPERTOOLS_DAILY_SELF_REFRESH="0",
+    )
+
+    assert "OpenAI:     url=https://models.sjtu.edu.cn/api/v1/" in output
+    assert "key=sk-sjtu-...0001" in output
+    assert "sk-openr...9999" not in output
 
 
 def test_preflight_respects_runtime_env_over_dotenv(tmp_path):
@@ -468,6 +607,61 @@ def test_preflight_checks_stage_specific_model_endpoints(monkeypatch, capsys):
     output = capsys.readouterr().out
     assert "Checking /models for cluster at https://cluster.example/v1" in output
     assert "Checking /models for summary:prism at https://prism.example/v1" in output
+
+
+def test_preflight_warns_for_unavailable_summary_only_fallback(monkeypatch, capsys):
+    from scripts import preflight_check
+
+    prepare_preflight_test_env(monkeypatch, preflight_check)
+
+    class FakeModel:
+        def __init__(self, model_id: str):
+            self.id = model_id
+
+    class FakeModels:
+        def list(self):
+            return type(
+                "ModelList",
+                (),
+                {
+                    "data": [
+                        FakeModel("qwen"),
+                        FakeModel("glm"),
+                        FakeModel("minimax"),
+                    ]
+                },
+            )()
+
+    class FakeClient:
+        models = FakeModels()
+
+        def close(self):
+            pass
+
+    def fake_create_openai_client(**kwargs):
+        if kwargs["base_url"] == "https://prism.example/v1":
+            raise RuntimeError("insufficient balance")
+        return FakeClient()
+
+    monkeypatch.setattr(preflight_check, "check_disk_space", lambda: (True, "ok"))
+    monkeypatch.setattr(
+        preflight_check, "create_openai_client", fake_create_openai_client
+    )
+    monkeypatch.setenv("OPENAI_BASE_URL", "https://models.sjtu.edu.cn/api/v1/")
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-runtime")
+    monkeypatch.setenv("MODEL", "qwen")
+    monkeypatch.setenv("FILTER_MODEL", "qwen")
+    monkeypatch.setenv("CLUSTER_MODEL", "glm")
+    monkeypatch.setenv("SUMMARY_MODEL_CHAIN", "sjtu:qwen,prism:gpt-5.5")
+    monkeypatch.setenv("SUMMARY_PRISM_OPENAI_API_KEY", "sk-prism")
+    monkeypatch.setenv("SUMMARY_PRISM_OPENAI_BASE_URL", "https://prism.example/v1")
+    monkeypatch.setattr(preflight_check.sys, "argv", ["preflight_check.py"])
+
+    assert preflight_check.main() == 0
+
+    output = capsys.readouterr().out
+    assert "WARNING: remote /models check failed for optional summary:prism" in output
+    assert "Preflight OK" in output
 
 
 def test_preflight_remote_check_fails_for_stage_specific_missing_model(

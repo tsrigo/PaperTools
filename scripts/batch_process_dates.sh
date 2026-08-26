@@ -78,6 +78,15 @@ except Exception:
 PY
 }
 
+file_sha256() {
+    local path="$1"
+    if command -v sha256sum >/dev/null 2>&1; then
+        sha256sum "$path" | awk '{print $1}'
+    else
+        shasum -a 256 "$path" | awk '{print $1}'
+    fi
+}
+
 # 生成日期列表（跳过周末 - arXiv 周末不更新）
 current="$START_DATE"
 while [[ "$current" < "$END_DATE" ]] || [[ "$current" == "$END_DATE" ]]; do
@@ -91,8 +100,10 @@ while [[ "$current" < "$END_DATE" ]] || [[ "$current" == "$END_DATE" ]]; do
 
         status_file="$STATUS_DIR/pipeline_status_${current}.json"
         had_date_payload=0
+        date_payload_sha256=""
         if [[ -f "webpages/data/${current}.json" ]]; then
             had_date_payload=1
+            date_payload_sha256="$(file_sha256 "webpages/data/${current}.json")"
         fi
         if "$PYTHON_BIN" papertools.py run --mode full --date "$current" --skip-serve --status-file "$status_file" 2>&1 | tee -a "$LOG_FILE"; then
             pipeline_status="$(read_pipeline_status "$status_file")"
@@ -102,7 +113,17 @@ while [[ "$current" < "$END_DATE" ]] || [[ "$current" == "$END_DATE" ]]; do
                     processed_dates+=("$current")
                     ;;
                 skipped_no_source_papers|skipped_no_selected_papers)
+                    payload_changed=0
                     if [[ "$had_date_payload" -eq 0 && -f "webpages/data/${current}.json" ]]; then
+                        payload_changed=1
+                    elif [[ "$had_date_payload" -eq 1 && ! -f "webpages/data/${current}.json" ]]; then
+                        payload_changed=1
+                    elif [[ "$had_date_payload" -eq 1 ]] &&
+                        [[ "$(file_sha256 "webpages/data/${current}.json")" != "$date_payload_sha256" ]]; then
+                        payload_changed=1
+                    fi
+
+                    if [[ "$payload_changed" -eq 1 ]]; then
                         echo "❌ $current 被标记为跳过但生成了发布 payload: webpages/data/${current}.json" | tee -a "$LOG_FILE"
                         failed_dates+=("$current")
                     else

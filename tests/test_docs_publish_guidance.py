@@ -72,7 +72,6 @@ def test_public_docs_match_filter_timeout_default():
     assert match, "missing PAPERTOOLS_FILTER_LLM_TIMEOUT default in source"
     default = match.group("default")
 
-    assert f"默认 {default}" in _read_doc("README.md")
     assert f"默认 `{default}`" in _read_doc("docs/configuration.md")
 
 
@@ -85,5 +84,4 @@ def test_public_docs_match_pipeline_stage_timeout_default():
     assert match, "missing PAPERTOOLS_PIPELINE_STAGE_TIMEOUT_SECONDS default in source"
     default = match.group("default")
 
-    assert f"默认 {default}" in _read_doc("README.md")
     assert f"默认 `{default}`" in _read_doc("docs/configuration.md")

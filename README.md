@@ -1,116 +1,185 @@
 # PaperTools
 
-自动追踪、筛选、聚类、总结 arXiv 论文。每天帮你从海量论文中找到真正相关的研究。
+[![CI](https://github.com/tsrigo/PaperTools/actions/workflows/ci.yml/badge.svg)](https://github.com/tsrigo/PaperTools/actions/workflows/ci.yml)
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## 快速开始
+PaperTools 是一个面向日常研究阅读的 arXiv 论文处理系统。它从指定的 arXiv 分类获取论文，经过筛选、聚类和内容生成，最后输出一个可以直接浏览和部署的静态网站。
+
+[查看在线页面](https://tsrigo.github.io/PaperTools/) · [报告问题](https://github.com/tsrigo/PaperTools/issues) · [参与开发](CONTRIBUTING.md)
+
+> PaperTools 目前处于 Alpha 阶段。仓库内置的筛选规则主要关注 LLM Agent 及其演化研究，生成流程需要自行准备兼容 OpenAI API 格式的模型服务。
+
+## 项目包含什么
+
+- 从 `cs.AI`、`cs.CL` 和 `cs.LG` 等 arXiv 分类获取论文；
+- 使用语言模型完成主题筛选、论文聚类和中文内容生成；
+- 为每篇论文整理原始摘要、中文摘要、研究逻辑、方法、核心观点和研究价值；
+- 按日期和主题生成每日概览及论文列表；
+- 生成可以在本地浏览或部署到 GitHub Pages 的静态网站；
+- 缓存已经完成的处理结果，并支持从中间阶段继续执行。
+
+处理流程如下：
+
+```text
+arXiv → 主题筛选 → 聚类 → 论文解读与每日概览 → 静态网站
+```
+
+## 直接浏览已有内容
+
+仓库已经包含生成后的网站。只想查看页面时，不需要配置 API：
 
 ```bash
-# 1. 安装
-pip install -e .
+git clone https://github.com/tsrigo/PaperTools.git
+cd PaperTools
+python -m http.server 8080 --directory webpages
+```
 
-# 2. 配置
+然后访问 <http://localhost:8080>。也可以直接打开上方的在线页面。
+
+## 生成自己的论文页面
+
+### 1. 准备环境
+
+需要 Python 3.10 或更高版本。建议在虚拟环境中安装：
+
+```bash
+git clone https://github.com/tsrigo/PaperTools.git
+cd PaperTools
+
+python -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
+python -m pip install --upgrade pip
+python -m pip install -e .
+```
+
+如果希望优先在本地提取论文全文，可以安装相应的可选依赖：
+
+```bash
+python -m pip install -e ".[extract-all]"
+```
+
+不安装这些依赖时，系统可以使用远程文档提取服务作为后备方案。
+
+### 2. 配置模型服务
+
+```bash
 cp .env.example .env
-# 编辑 .env，填入 API 地址、密钥和模型名
-
-# 3. 运行
-papertools run
 ```
 
-## 配置
+编辑 `.env`，填写自己的 API 地址、密钥和模型名。PaperTools 调用兼容 OpenAI API 格式的聊天补全接口。首次使用只需要关注以下三类信息：
 
-| 变量 | 说明 | 必填 |
-|------|------|------|
-| `OPENAI_BASE_URL` | API 地址 | 是 |
-| `OPENAI_API_KEY` | API 密钥 | 是 |
-| `MODEL` | 模型名 | 是 |
-| `FILTER_MODEL` | 筛选阶段模型，默认 `qwen` | 否 |
-| `PAPERTOOLS_FILTER_MODEL_CHAIN` | 筛选模型回退链；OpenRouter 下自动把短别名归一化为 provider-prefixed ID | 否 |
-| `CLUSTER_MODEL` | 聚类阶段模型，默认跟随 `FILTER_MODEL` | 否 |
-| `CLUSTER_OPENAI_BASE_URL` | 聚类阶段 API 地址；不填则使用 `OPENAI_BASE_URL` | 否 |
-| `PAPERTOOLS_CLUSTER_MODEL_CHAIN` | 聚类模型回退链；OpenRouter 下自动把短别名归一化为 provider-prefixed ID | 否 |
-| `SUMMARY_MODEL_CHAIN` | 总结/翻译模型回退链，默认 `sjtu:minimax,sjtu:glm,sjtu:qwen,sjtu:deepseek-chat,sjtu:deepseek-reasoner`；可显式加入 `prism:gpt-5.5` | 否 |
-| `SUMMARY_SJTU_OPENAI_API_KEY` | 致远一号总结/翻译 API，不用于筛选 | 否 |
-| `SUMMARY_PRISM_OPENAI_API_KEY` | Prism 总结/翻译 API，不用于筛选 | 否 |
-| `SUMMARY_SJTU_RPM` | SJTU 总结 provider 的共享 RPM 限制，默认 2；同一 key/base URL 下多个模型共用冷却 | 否 |
-| `SUMMARY_PRISM_RPM` | Prism 每分钟请求上限，默认 5 | 否 |
-| `SUMMARY_PRISM_REASONING_EFFORT` | Prism `reasoning_effort`，默认 `xhigh` | 否 |
-| `SUMMARY_PRISM_WINDOW_SECONDS` | Prism 滚动限额窗口秒数，默认 300 | 否 |
-| `SUMMARY_PRISM_WINDOW_SAFETY_REQUESTS` | Prism 滚动窗口安全余量，默认 1 | 否 |
-| `SUMMARY_PRISM_429_COOLDOWN_SECONDS` | Prism 429 后冷却秒数，默认 300 | 否 |
-| `REVIEWGROUNDER_API_KEY` | ReviewGrounder key；默认优先复用 `SUMMARY_PRISM_OPENAI_API_KEY` | 否 |
-| `REVIEWGROUNDER_BASE_URL` | ReviewGrounder base URL；默认优先复用 `SUMMARY_PRISM_OPENAI_BASE_URL` | 否 |
-| `REVIEWGROUNDER_MODEL` | ReviewGrounder backbone，默认 `gpt-5.5` | 否 |
-| `REVIEWGROUNDER_REASONING_EFFORT` | ReviewGrounder reasoning effort，默认 `xhigh` | 否 |
-| `REVIEWGROUNDER_RPM` | ReviewGrounder backbone 的滚动 RPM 限制，默认 `5` | 否 |
-| `REVIEWGROUNDER_MAX_RELATED_PAPERS` | 每篇最多纳入的 related papers，默认 `1` | 否 |
-| `FILTER_MAX_WORKERS` | 筛选阶段并发上限，默认 5 | 否 |
-| `PAPERTOOLS_FILTER_LLM_TIMEOUT` | 筛选阶段单次 LLM 请求超时秒数，默认 120 | 否 |
-| `PAPERTOOLS_FILTER_LLM_MAX_RETRIES` | 筛选阶段 LLM 重试次数，默认 1 | 否 |
-| `PAPERTOOLS_FILTER_EXTRACT_CHAIN` | 筛选阶段 prestige 机构抽取链，默认 `docling,pymupdf4llm,jina` | 否 |
-| `PAPERTOOLS_TOPIC_HEURISTIC_TOPIC_BYPASS_MIN_SCORE` | 强主题确定性命中的 LLM 细筛旁路最低分，默认 30；硬排除风险仍交给 LLM | 否 |
-| `PAPERTOOLS_FILTER_SUSPICIOUS_ZERO_MIN_INPUT` | 可疑零结果源论文阈值，默认 500 | 否 |
-| `PAPERTOOLS_FILTER_SUSPICIOUS_ZERO_MIN_PREFILTERED` | 可疑零结果关键词候选阈值，默认 100 | 否 |
-| `PAPERTOOLS_OPENAI_TRUST_ENV` | OpenAI-compatible API 是否继承系统代理环境，默认 `false` | 否 |
-| `PAPERTOOLS_PIPELINE_STAGE_TIMEOUT_SECONDS` | 单个 pipeline 子进程阶段超时秒数，默认 21600；设为 0 可禁用 | 否 |
-| `WEBHOOK_URL` | 失败/完成通知 webhook | 否 |
-| `PAPERTOOLS_DAILY_WINDOW_DAYS` | 每日任务滚动补抓天数，默认 4 | 否 |
-| `PAPERTOOLS_DAILY_PIPELINE_TIMEOUT_SECONDS` | 每日自动发布单次 pipeline 超时秒数，默认 21600（6 小时） | 否 |
-| `PAPERTOOLS_DAILY_PREFLIGHT_OFFLINE_OK` | 设为 `1` 时每日 wrapper 跳过远端 `/models` 预检；默认 `0`。默认预检会按筛选、聚类、总结 provider 的实际 endpoint 分组检查模型 | 否 |
-| `JINA_API_TOKEN` | Jina Reader API（全文获取）| 否 |
+- API 地址和密钥；
+- 筛选与聚类使用的模型；
+- 内容生成使用的模型。
 
-筛选规则在 `src/utils/config.py` 的 `PAPER_FILTER_PROMPT` 中定义。
+不同服务商使用的模型 ID 和速率限制并不相同。`.env.example` 同时包含基础配置和本仓库维护任务使用的高级配置，请删除自己无法使用的服务商与模型占位值，只保留实际可用的配置。当前版本还没有把不同服务商的内容生成配置统一为一组通用字段，具体对应关系见[配置参考](docs/configuration.md)。请勿提交包含真实密钥的 `.env` 文件。
 
-## 命令
+### 3. 检查环境
 
 ```bash
-papertools run                        # 运行完整流水线
-papertools run --mode quick           # 快速测试（10篇）
-papertools run --date 2026-03-28      # 指定日期
-papertools run --start-date 2026-03-26 --end-date 2026-03-28
-papertools serve                      # 启动本地服务器
-papertools clean                      # 清理缓存
-papertools check                      # 检查环境
-papertools check --install-missing    # 显式安装缺失的基础依赖
+papertools check
 ```
 
-## 开发检查
+该命令会检查基础依赖、配置文件和可用的文档提取方式，不会开始生成论文页面。
 
-项目支持 CPython 3.10-3.14；CI 会覆盖 `pyproject.toml` 中声明的所有
-CPython 版本。
+### 4. 先完成一次小规模运行
 
 ```bash
-pip install -e ".[dev]"
-pre-commit install  # 可选：提交前运行快速检查
-make test       # 隔离外部 pytest 插件，避免全局环境影响测试
-make lint       # Ruff lint + format check
-make security   # Bandit medium/high security gate
-make validate-data  # 校验当前 webpages/data 发布 payload
-make pre-commit # 对已跟踪文件运行提交前检查
-make ci         # 本地复现主要 CI 检查
+papertools run --mode quick --date YYYY-MM-DD --skip-serve
 ```
 
-## 定时运行
+请将日期替换为 arXiv 有论文更新的日期。周末、节假日或没有符合筛选条件的日期不会生成空页面。
+
+流水线成功完成后，启动本地网站：
 
 ```bash
-crontab -e
-# 每天早上 8 点自动运行、校验并发布 webpages/
-0 8 * * * cd /path/to/PaperTools && ./daily_update.sh >> logs/cron.log 2>&1
+papertools serve
 ```
 
-## 流水线
+命令会显示本地访问地址。完整运行可以使用：
 
+```bash
+papertools run --mode full --date YYYY-MM-DD --skip-serve
 ```
-爬取 arXiv → LLM 筛选 → LLM 聚类 → 摘要/总结生成 → 网页生成
+
+完整流程会产生多次模型调用和全文请求，实际耗时与候选论文数量、模型速度及接口限额有关。
+
+## 调整论文范围
+
+默认规则服务于本仓库当前维护的 LLM Agent 研究页面，并不是通用的全学科推荐器。生成自己的页面前，建议检查以下两处：
+
+- arXiv 分类和运行规模位于 [`src/utils/config.py`](src/utils/config.py)；
+- 主题筛选要求位于同一文件的 `PAPER_FILTER_PROMPT`。
+
+命令行也可以临时指定分类：
+
+```bash
+papertools run \
+  --date YYYY-MM-DD \
+  --categories cs.AI cs.CL \
+  --max-papers-total 100 \
+  --skip-serve
 ```
 
-每个阶段产出独立的 JSON 文件，可以从任意阶段恢复：`papertools run --start-from cluster`
+修改筛选范围后，应先使用 `--mode quick` 检查入选论文数量和内容，再执行完整生成。
 
-## 更多文档
+## 输出目录
 
-- [完整配置参考](docs/configuration.md)
-- [流水线详解](docs/pipeline.md)
-- [部署指南](docs/deployment.md)（GitHub Pages、crontab）
-- [质量门禁](docs/QUALITY_GATES.md)
+| 目录 | 内容 |
+| --- | --- |
+| `arxiv_paper/` | 从 arXiv 获取的原始论文元数据 |
+| `domain_paper/` | 筛选结果和聚类结果 |
+| `summary/` | 论文解读与每日概览 |
+| `webpages/` | 可以直接浏览和部署的网站 |
+| `cache/` | 可复用的提取和生成缓存 |
+
+这些阶段会依次检查输入。生成失败、字段缺失或内容不完整时，流程会停止，不会把中间结果当作可发布页面。
+
+如果某个阶段已经成功，可以从后续阶段继续执行：
+
+```bash
+papertools run --start-from cluster --date YYYY-MM-DD --skip-serve
+papertools run --start-from summary --date YYYY-MM-DD --skip-serve
+papertools run --start-from unified --skip-serve
+```
+
+更多阶段说明和输入输出格式见[流水线文档](docs/pipeline.md)。
+
+## 部署与定时更新
+
+生成的网站位于 `webpages/`，可以部署到任何静态网站托管服务。本仓库提供 GitHub Pages 工作流，也提供带有工作区检查、运行锁和发布校验的每日更新脚本。
+
+定时发布涉及拉取最新代码、处理接口失败、验证页面内容和推送仓库，不建议直接把 `papertools run` 写入生产环境的 cron。完整步骤见[部署指南](docs/deployment.md)。发布数据必须通过以下检查：
+
+```bash
+python scripts/validate_published_payloads.py --webpages-dir webpages
+```
+
+校验失败的日期不应提交或部署。详细规则见[发布质量门禁](docs/QUALITY_GATES.md)。
+
+## 开发
+
+安装开发依赖并运行本地检查：
+
+```bash
+python -m pip install -e ".[dev]"
+make test
+make lint
+make security
+```
+
+`make ci` 可以执行主要的 CI 检查。提交修改前请阅读[贡献指南](CONTRIBUTING.md)。安全问题请按照[安全策略](SECURITY.md)中的方式报告。
+
+## 文档
+
+- [配置参考](docs/configuration.md)
+- [流水线说明](docs/pipeline.md)
+- [部署指南](docs/deployment.md)
+- [发布质量门禁](docs/QUALITY_GATES.md)
 - [贡献指南](CONTRIBUTING.md)
-- [安全策略](SECURITY.md)
 - [行为准则](CODE_OF_CONDUCT.md)
+
+## License
+
+PaperTools 使用 [MIT License](LICENSE)。

@@ -85,7 +85,9 @@ def _run_batch_range(
         ROOT / "webpages" / "data" / "2026-06-01.json",
         ROOT / "webpages" / "data" / "2026-06-02.json",
     ]
-    preexisting_payloads = {path: path.exists() for path in touched_payloads}
+    original_payloads = {
+        path: path.read_bytes() if path.exists() else None for path in touched_payloads
+    }
     try:
         return subprocess.run(
             [
@@ -102,9 +104,11 @@ def _run_batch_range(
             check=False,
         )
     finally:
-        for path in touched_payloads:
-            if not preexisting_payloads[path] and path.exists():
+        for path, original_content in original_payloads.items():
+            if original_content is None and path.exists():
                 path.unlink()
+            elif original_content is not None:
+                path.write_bytes(original_content)
 
 
 def test_batch_process_dates_validates_after_successful_backfill(tmp_path):

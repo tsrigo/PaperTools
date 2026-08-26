@@ -19,7 +19,7 @@ cp .env.example .env
 | `CLUSTER_OPENAI_API_KEY` | 否 | 聚类阶段 API 密钥；不填则使用 `OPENAI_API_KEY` |
 | `CLUSTER_OPENAI_BASE_URL` | 否 | 聚类阶段 API 端点；不填则使用 `OPENAI_BASE_URL` |
 | `PAPERTOOLS_CLUSTER_MODEL_CHAIN` | 否 | 聚类模型回退链；OpenRouter 下自动把 `qwen`、`minimax`、`deepseek-chat` 等短别名归一化为 provider-prefixed ID |
-| `SUMMARY_MODEL_CHAIN` | 否 | 总结/翻译阶段模型回退链，默认 `sjtu:minimax,sjtu:glm,sjtu:qwen,sjtu:deepseek-chat,sjtu:deepseek-reasoner`；可显式加入 `prism:gpt-5.5` |
+| `SUMMARY_MODEL_CHAIN` | 否 | 总结/翻译阶段模型回退链，默认 `sjtu:qwen,sjtu:deepseek-chat,sjtu:minimax`；Prism 暂不在默认链内，可在账户可用时显式追加 `prism:gpt-5.5` |
 | `SUMMARY_SJTU_OPENAI_API_KEY` | 否 | 致远一号总结/翻译 API 密钥，只用于筛选后的内容生成 |
 | `SUMMARY_SJTU_OPENAI_BASE_URL` | 否 | 致远一号 OpenAI-compatible base URL，默认 `https://models.sjtu.edu.cn/api/v1/` |
 | `SUMMARY_SJTU_RPM` | 否 | SJTU 总结 provider 的共享 RPM 限制，默认 `2`；同一 key/base URL 下多个模型共用节流和 429 冷却状态 |
