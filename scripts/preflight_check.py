@@ -18,7 +18,7 @@ except Exception:  # pragma: no cover
 SJTU_BASE_URL = "https://models.sjtu.edu.cn/api/v1/"
 SJTU_MODELS = {"minimax", "glm", "qwen", "deepseek-chat", "deepseek-reasoner"}
 PRISM_BASE_URL = "https://ai.prism.uno/v1"
-DEFAULT_SUMMARY_MODEL_CHAIN = "sjtu:qwen,sjtu:deepseek-chat,sjtu:minimax"
+DEFAULT_SUMMARY_MODEL_CHAIN = "sjtu:glm"
 SUMMARY_PROVIDERS = {"modelscope", "sjtu", "prism"}
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -38,6 +38,8 @@ _MODEL_ALIASES = {
     "minimax/m2.7": "minimax",
     "glm-5.1": "glm",
     "glm5.1": "glm",
+    "glm-5.2": "glm",
+    "glm5.2": "glm",
     "qwen3.5-27b": "qwen",
     "qwen-3.5-27b": "qwen",
     "qwen/qwen3.5-27b": "qwen",
@@ -101,6 +103,18 @@ def normalize_model_for_base_url(model: str, base_url: str) -> str:
     if is_openrouter_base_url(base_url):
         return _OPENROUTER_MODEL_ALIASES.get(key, raw)
     return _normalize_model(raw)
+
+
+def remote_model_is_available(model: str, available: set[str], base_url: str) -> bool:
+    """Match stable SJTU aliases against versioned IDs returned by /models."""
+    if model in available:
+        return True
+    if is_sjtu_base_url(base_url) and model == "glm":
+        return any(
+            candidate == "glm" or candidate.startswith("glm-")
+            for candidate in available
+        )
+    return False
 
 
 def env_str(name: str, default: str = "") -> str:
@@ -331,10 +345,10 @@ def main() -> int:
     print(f"OPENAI_API_KEY={mask(openai_api_key)}")
 
     model_vars = {
-        "MODEL": env_str("MODEL", "minimax"),
-        "FILTER_MODEL": env_str("FILTER_MODEL", "qwen"),
-        "CLUSTER_MODEL": env_str("CLUSTER_MODEL", "qwen"),
-        "SUMMARY_MODEL": env_str("SUMMARY_MODEL", "minimax"),
+        "MODEL": env_str("MODEL", "glm"),
+        "FILTER_MODEL": env_str("FILTER_MODEL", "glm"),
+        "CLUSTER_MODEL": env_str("CLUSTER_MODEL", "glm"),
+        "SUMMARY_MODEL": env_str("SUMMARY_MODEL", "glm"),
     }
     for name, value in model_vars.items():
         print(f"{name}={value}")
@@ -442,7 +456,9 @@ def main() -> int:
                     print(message)
                     return 2
                 missing_remote = sorted(
-                    model for model in check.models if model not in available
+                    model
+                    for model in check.models
+                    if not remote_model_is_available(model, available, check.base_url)
                 )
                 if missing_remote:
                     message = (
@@ -450,7 +466,8 @@ def main() -> int:
                         f"{check.label}: " + ", ".join(missing_remote)
                     )
                     if summary_only and any(
-                        model in available for model in check.models
+                        remote_model_is_available(model, available, check.base_url)
+                        for model in check.models
                     ):
                         warning = message.replace("ERROR:", "WARNING:", 1)
                         print(warning)

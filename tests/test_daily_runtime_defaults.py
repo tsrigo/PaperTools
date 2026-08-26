@@ -108,14 +108,14 @@ def test_robust_daily_defaults_override_stale_dotenv_values(tmp_path):
 
     values = run_runtime_dump(tmp_path, env_file)
 
-    assert values["MODEL"] == "deepseek-reasoner"
+    assert values["MODEL"] == "glm"
     assert values["OPENAI_BASE_URL"] == "https://models.sjtu.edu.cn/api/v1/"
-    assert values["FILTER_MODEL"] == "qwen"
-    assert values["PAPERTOOLS_FILTER_MODEL_CHAIN"] == "qwen,deepseek-chat,minimax"
-    assert values["CLUSTER_MODEL"] == "qwen"
-    assert values["PAPERTOOLS_CLUSTER_MODEL_CHAIN"] == "qwen,deepseek-chat,minimax"
-    assert values["SUMMARY_MODEL"] == "qwen"
-    assert values["SUMMARY_MODEL_CHAIN"] == "sjtu:qwen,sjtu:deepseek-chat,sjtu:minimax"
+    assert values["FILTER_MODEL"] == "glm"
+    assert values["PAPERTOOLS_FILTER_MODEL_CHAIN"] == "glm"
+    assert values["CLUSTER_MODEL"] == "glm"
+    assert values["PAPERTOOLS_CLUSTER_MODEL_CHAIN"] == "glm"
+    assert values["SUMMARY_MODEL"] == "glm"
+    assert values["SUMMARY_MODEL_CHAIN"] == "sjtu:glm"
     assert "deepseek-reasoner" not in values["SUMMARY_MODEL_CHAIN"]
     assert "prism:" not in values["SUMMARY_MODEL_CHAIN"]
     assert values["PAPERTOOLS_FILTER_RPM"] == "6"
@@ -148,12 +148,12 @@ def test_daily_full_runner_uses_same_daily_defaults(tmp_path):
         PAPERTOOLS_DAILY_SELF_REFRESH="0",
     )
 
-    assert values["FILTER_MODEL"] == "qwen"
-    assert values["PAPERTOOLS_FILTER_MODEL_CHAIN"] == "qwen,deepseek-chat,minimax"
-    assert values["CLUSTER_MODEL"] == "qwen"
-    assert values["PAPERTOOLS_CLUSTER_MODEL_CHAIN"] == "qwen,deepseek-chat,minimax"
+    assert values["FILTER_MODEL"] == "glm"
+    assert values["PAPERTOOLS_FILTER_MODEL_CHAIN"] == "glm"
+    assert values["CLUSTER_MODEL"] == "glm"
+    assert values["PAPERTOOLS_CLUSTER_MODEL_CHAIN"] == "glm"
     assert values["OPENAI_BASE_URL"] == "https://models.sjtu.edu.cn/api/v1/"
-    assert values["SUMMARY_MODEL_CHAIN"] == "sjtu:qwen,sjtu:deepseek-chat,sjtu:minimax"
+    assert values["SUMMARY_MODEL_CHAIN"] == "sjtu:glm"
     assert "deepseek-reasoner" not in values["SUMMARY_MODEL_CHAIN"]
     assert "prism:" not in values["SUMMARY_MODEL_CHAIN"]
     assert values["PAPERTOOLS_FILTER_RPM"] == "6"
@@ -237,8 +237,7 @@ def test_default_daily_update_writes_status_and_validates_before_staging():
         'export OPENAI_API_KEY="${PAPERTOOLS_DAILY_OPENAI_API_KEY:-$sjtu_api_key}"'
         in script
     )
-    assert "sjtu:qwen,sjtu:deepseek-chat,sjtu:minimax" in script
-    assert "sjtu:glm" not in script
+    assert "sjtu:glm" in script
     assert "prism:gpt-5.5" not in script
     assert (
         'export PAPERTOOLS_FILTER_ERROR_TOLERANCE_PERCENT="${PAPERTOOLS_DAILY_FILTER_ERROR_TOLERANCE_PERCENT:-0}"'
@@ -534,6 +533,21 @@ def test_preflight_remote_check_uses_unified_openai_client(monkeypatch, capsys):
     }
     assert fake_client.closed is True
     assert "Preflight OK" in capsys.readouterr().out
+
+
+def test_preflight_accepts_versioned_glm_for_stable_sjtu_alias():
+    from scripts.preflight_check import remote_model_is_available
+
+    assert remote_model_is_available(
+        "glm",
+        {"glm-5.1", "glm-5.2"},
+        "https://models.sjtu.edu.cn/api/v1/",
+    )
+    assert not remote_model_is_available(
+        "glm",
+        {"glm-5.2"},
+        "https://other.example/v1",
+    )
 
 
 def test_preflight_checks_stage_specific_model_endpoints(monkeypatch, capsys):

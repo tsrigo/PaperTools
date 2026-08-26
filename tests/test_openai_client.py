@@ -16,6 +16,21 @@ def test_config_preserves_explicit_environment_over_dotenv(monkeypatch):
         importlib.reload(config)
 
 
+def test_config_normalizes_versioned_glm_alias(monkeypatch):
+    import importlib
+
+    import src.utils.config as config
+
+    monkeypatch.setenv("FILTER_MODEL", "glm-5.2")
+    reloaded = importlib.reload(config)
+
+    try:
+        assert reloaded.FILTER_MODEL == "glm"
+    finally:
+        monkeypatch.delenv("FILTER_MODEL", raising=False)
+        importlib.reload(config)
+
+
 def test_openai_clients_ignore_proxy_env_by_default(monkeypatch):
     monkeypatch.delenv("PAPERTOOLS_OPENAI_TRUST_ENV", raising=False)
     monkeypatch.setenv("https_proxy", "http://127.0.0.1:9")

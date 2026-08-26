@@ -100,6 +100,8 @@ def _normalize_model_alias(model: str) -> str:
         "minimax/minimax-m2.7": "minimax",
         "glm-5.1": "glm",
         "glm5.1": "glm",
+        "glm-5.2": "glm",
+        "glm5.2": "glm",
         "qwen3.5-27b": "qwen",
         "qwen-3.5-27b": "qwen",
         "qwen/qwen3.5-27b": "qwen",
@@ -122,7 +124,7 @@ API_KEY = _get_env_str("OPENAI_API_KEY")
 BASE_URL = _get_env_str("OPENAI_BASE_URL")
 MODEL = _get_env_str("MODEL")
 FILTER_MODEL = _normalize_model_alias(
-    _get_env_str("FILTER_MODEL", "qwen")
+    _get_env_str("FILTER_MODEL", "glm")
 )  # 筛选用轻量模型
 CLUSTER_API_KEY = _get_env_str("CLUSTER_OPENAI_API_KEY", API_KEY)
 CLUSTER_BASE_URL = _get_env_str("CLUSTER_OPENAI_BASE_URL", BASE_URL)
@@ -130,13 +132,13 @@ CLUSTER_MODEL = _normalize_model_alias(
     _get_env_str("CLUSTER_MODEL", FILTER_MODEL or MODEL)
 )
 DEFAULT_SUMMARY_BASE_URL = BASE_URL or "https://models.sjtu.edu.cn/api/v1/"
-DEFAULT_SUMMARY_MODEL = _normalize_model_alias(MODEL or "minimax")
+DEFAULT_SUMMARY_MODEL = _normalize_model_alias(MODEL or "glm")
 DEFAULT_SUMMARY_MODEL_CHAIN = _get_env_str(
     "PAPERTOOLS_DEFAULT_SUMMARY_MODEL_CHAIN",
     # deepseek-reasoner removed: a single reasoner request exceeds the shared SJTU
     # token bucket, so it can never succeed and only causes 429 spin. Keep Prism
     # out of the default chain; operators can append it explicitly when funded.
-    "sjtu:qwen,sjtu:deepseek-chat,sjtu:minimax",
+    "sjtu:glm",
 )
 SUMMARY_API_KEY = _get_env_str("SUMMARY_OPENAI_API_KEY", API_KEY)
 SUMMARY_BASE_URL = _get_env_str("SUMMARY_OPENAI_BASE_URL", DEFAULT_SUMMARY_BASE_URL)

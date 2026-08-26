@@ -9,12 +9,12 @@ publishing invariant is the same as the rest of PaperTools: only validated
 The daily wrappers apply conservative OpenAI-compatible gateway defaults:
 
 - `OPENAI_BASE_URL=https://models.sjtu.edu.cn/api/v1/`
-- `FILTER_MODEL=qwen`
-- `PAPERTOOLS_FILTER_MODEL_CHAIN=qwen,deepseek-chat,minimax`
-- `CLUSTER_MODEL=qwen`
-- `PAPERTOOLS_CLUSTER_MODEL_CHAIN=qwen,deepseek-chat,minimax`
-- `SUMMARY_MODEL=qwen`
-- `SUMMARY_MODEL_CHAIN=sjtu:qwen,sjtu:deepseek-chat,sjtu:minimax`
+- `FILTER_MODEL=glm`
+- `PAPERTOOLS_FILTER_MODEL_CHAIN=glm`
+- `CLUSTER_MODEL=glm`
+- `PAPERTOOLS_CLUSTER_MODEL_CHAIN=glm`
+- `SUMMARY_MODEL=glm`
+- `SUMMARY_MODEL_CHAIN=sjtu:glm`
 - `FILTER_MAX_WORKERS=3`
 - `SUMMARY_MAX_WORKERS=3`
 - `PAPERTOOLS_FILTER_RPM=6`
