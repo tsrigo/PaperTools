@@ -1296,12 +1296,12 @@ for (const date in dailyOverviewsRaw) {
 
             // 各分析section的配置
             const sections = [
-                { key: 'intro_logic', id: `intro-logic-${aid}`, title: 'Introduction 逻辑链', color: 'yellow' },
-                { key: 'core_insight', id: `core-insight-${aid}`, title: '核心切入点 / Pain Point', color: 'orange' },
-                { key: 'methodology', id: `methodology-${aid}`, title: '方法论解读', color: 'purple' },
-                { key: 'additional_insights', id: `additional-insights-${aid}`, title: '延伸洞察', color: 'red' },
-                { key: 'research_value', id: `research-value-${aid}`, title: paper.research_value_source === 'reviewgrounder' ? 'ReviewGrounder 审稿' : '研究价值', color: 'teal' },
-                { key: 'filter_reason', id: `filter-reason-${aid}`, title: '筛选原因', color: 'blue' },
+                { key: 'intro_logic', id: `intro-logic-${aid}`, title: '研究问题与前人不足', color: 'yellow' },
+                { key: 'core_insight', id: `core-insight-${aid}`, title: '思考路径与核心直觉', color: 'orange' },
+                { key: 'methodology', id: `methodology-${aid}`, title: '方法、数学推导与实验', color: 'purple' },
+                { key: 'additional_insights', id: `additional-insights-${aid}`, title: '关键结论、脆弱假设与复现实验', color: 'red' },
+                { key: 'research_value', id: `research-value-${aid}`, title: paper.research_value_source === 'reviewgrounder' ? 'ReviewGrounder 审稿评价' : '最强反例与后续研究方向', color: 'teal' },
+                { key: 'filter_reason', id: `filter-reason-${aid}`, title: '入选依据', color: 'blue' },
             ];
 
             let renderedSections = 0;

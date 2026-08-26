@@ -264,6 +264,31 @@ def compact_generated_context(value, limit: int = 900) -> str:
     return text
 
 
+_METHODOLOGY_ASCII_RE = re.compile(
+    r"(?im)^#{0,6}\s*§\s*5[^\n]*\n\s*```text\s*\n(.*?)\n```",
+    re.DOTALL,
+)
+
+
+def methodology_has_ascii_pipeline(value: object) -> bool:
+    """Check that §5 opens with a compact, connected ASCII method diagram."""
+    if not has_valid_generated_text(value):
+        return False
+    match = _METHODOLOGY_ASCII_RE.search(strip_think_tags(str(value)))
+    if not match:
+        return False
+    lines = [line.rstrip() for line in match.group(1).splitlines() if line.strip()]
+    if not 3 <= len(lines) <= 24:
+        return False
+    if any(len(line) > 88 for line in lines):
+        return False
+    diagram = "\n".join(lines)
+    arrow_count = len(re.findall(r"(?:-{2,}>|<-{2,})", diagram))
+    node_count = len(re.findall(r"\[[^\]\n]{1,40}\]", diagram))
+    box_count = len(re.findall(r"\+[-+]{2,}\+", diagram))
+    return arrow_count >= 2 and (node_count >= 3 or box_count >= 2)
+
+
 def is_section_heading(line: str) -> bool:
     """Heuristic section-heading detector used for abstract extraction."""
     cleaned = re.sub(r"^[#>\-\s]+", "", line or "").strip()
@@ -974,7 +999,13 @@ def generate_methodology(
 请按以下部分回答，用中文，专业术语保留英文。
 
 ### § 5 具体方法与完整 Pipeline
-这篇论文的具体方法是什么？结合一个真实的例子讲解：输入、处理、输出完整的 pipeline。分点说明，清晰易懂。
+先画一张高信息密度 ASCII 方法图，再解释具体方法。图必须紧跟在 § 5 标题后面：
+- 使用 ```text 代码块；连接线只使用 ASCII 字符，节点可使用简短中文并保留关键英文术语。
+- 建议不超过 80 列、18 行；图本身要让读者看出输入或状态、核心模块、关键中间产物、输出，以及论文真实存在的回路或分支。
+- 箭头只表示有正文依据的数据流或控制流。不要把非线性系统硬画成直线，不要合并本质不同的阶段，不要虚构训练或反馈回路。
+- 输出前检查图中没有悬空线、歧义箭头和无法追踪的回边。
+
+图后严格沿用图中的节点名，结合一个真实例子，按输入、处理、输出解释完整 pipeline。
 
 ### § 6 核心数学推导（无形式化数学则跳过）
 这篇论文的核心数学推导过程是什么？如果有，请补充理论背景，面向数学基础较弱的读者，说明每个公式的 intuition；如果没有，说明并跳过这一节。
@@ -984,15 +1015,18 @@ def generate_methodology(
 
 § 5 的 pipeline 步骤可以分点说明，其余以流畅段落为主。每句话都要有信息量。"""
 
-    return _llm_generate(
+    result = _llm_generate(
         providers,
         temperature,
         "你是一个精确的学术阅读助手。用中文回复，专业术语保持英文。",
         prompt,
-        f"methodology_v3_{paper_title}",
+        f"methodology_v4_ascii_pipeline_{paper_title}",
         paper_content,
         cache_manager,
     )
+    if not methodology_has_ascii_pipeline(result):
+        raise ValueError("§ 5 缺少合格的 ASCII 方法图")
+    return result
 
 
 @retry_on_openai_error(max_retries=6, backoff_factor=2.0)
@@ -1026,19 +1060,24 @@ def repair_methodology_with_focused_prompt(
 上一次 methodology 字段为空或不合格。请只补齐这个字段，输出可直接展示给读者的中文内容。
 
 按以下结构输出：
-§ 5 具体方法与完整 Pipeline（输入、处理、输出分步说明，必须基于可确认的证据）
+§ 5 具体方法与完整 Pipeline（必须以 ```text ASCII 方法图开头，再按图中节点解释）
 § 7 实验设计与结论（提出什么问题 → 用什么实验验证 → 结论是什么；如果当前文本缺乏实验细节，明确说明并从摘要、引言推断）
 
+ASCII 图应使用可追踪的箭头呈现输入或状态、核心模块、中间产物和输出；只画材料能够确认的回路或分支。建议不超过 80 列、18 行，输出前检查没有悬空线或歧义箭头。
+
 不能输出"无""没有""生成失败"。不要编造数字或实验结论。专业术语保留英文。"""
-    return _llm_generate(
+    result = _llm_generate(
         providers,
         temperature,
         "你是一个负责修复论文网页必填字段的学术阅读助手。输出必须真实、有依据、非空。",
         prompt,
-        f"methodology_repair_v3_{paper_title}",
+        f"methodology_repair_v4_ascii_pipeline_{paper_title}",
         repair_context,
         cache_manager,
     )
+    if not methodology_has_ascii_pipeline(result):
+        raise ValueError("修复结果的 § 5 仍缺少合格的 ASCII 方法图")
+    return result
 
 
 def build_methodology_fallback(
@@ -1066,6 +1105,12 @@ def build_methodology_fallback(
     source_line = source_excerpt or abstract
 
     return (
+        "### § 5 具体方法与完整 Pipeline\n\n"
+        "```text\n"
+        "[问题与输入] ---> [核心机制] ---> [执行过程] ---> [任务输出]\n"
+        "                         |                 |\n"
+        "                         +----> [效果与证据]\n"
+        "```\n\n"
         f"{title_prefix}的方法可以从当前可提取文本中归纳为一条清晰链路：它先把论文要处理的任务和失败模式具体化，"
         f"再围绕核心洞察设计可执行的 agent / memory / workflow 机制，最后用任务表现或案例分析验证这个机制是否缓解原问题。\n\n"
         f"1. 输入与问题定位：系统首先面对的是论文摘要和引言中描述的目标场景。可确认的依据是：{problem_line}\n"
@@ -2084,7 +2129,8 @@ def main() -> int:
                             f"core_insight_v3_{paper_title}", cached_paper_content
                         )
                         cached_methodology = cache_manager.get_summary_cache(
-                            f"methodology_v3_{paper_title}", cached_paper_content
+                            f"methodology_v4_ascii_pipeline_{paper_title}",
+                            cached_paper_content,
                         )
                         cached_additional_insights = cache_manager.get_summary_cache(
                             f"additional_insights_v2_{paper_title}",
@@ -2094,7 +2140,7 @@ def main() -> int:
                             cached_intro_logic = None
                         if not has_valid_generated_text(cached_core_insight):
                             cached_core_insight = None
-                        if not has_valid_generated_text(cached_methodology):
+                        if not methodology_has_ascii_pipeline(cached_methodology):
                             cached_methodology = None
                         if not has_valid_generated_text(cached_additional_insights):
                             cached_additional_insights = None

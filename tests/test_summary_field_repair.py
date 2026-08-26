@@ -23,6 +23,61 @@ def _paper(**overrides):
     return paper
 
 
+def _methodology_with_ascii_pipeline() -> str:
+    return """### § 5 具体方法与完整 Pipeline
+
+```text
+[Task] ---> [Planner] ---> [Executor] ---> [Result]
+               ^               |
+               +--- [Feedback] <---+
+```
+
+按图中节点解释方法。
+
+### § 7 实验设计与结论
+
+实验验证该方法。
+"""
+
+
+def test_methodology_ascii_pipeline_quality_gate():
+    assert generate_summary.methodology_has_ascii_pipeline(
+        _methodology_with_ascii_pipeline()
+    )
+    assert not generate_summary.methodology_has_ascii_pipeline(
+        "### § 5 具体方法与完整 Pipeline\n\n只有文字，没有方法图。"
+    )
+    assert not generate_summary.methodology_has_ascii_pipeline(
+        "### § 5 具体方法与完整 Pipeline\n\n```text\n[Input] -> [Output]\n```"
+    )
+
+
+def test_generate_methodology_requires_ascii_pipeline(monkeypatch):
+    monkeypatch.setattr(
+        generate_summary,
+        "_llm_generate",
+        lambda *_args, **_kwargs: "### § 5 具体方法与完整 Pipeline\n\n只有文字。",
+    )
+
+    with pytest.raises(ValueError, match="ASCII 方法图"):
+        generate_summary.generate_methodology(
+            "paper content",
+            providers=[],
+            temperature=0.1,
+            paper_title="Diagram Paper",
+        )
+
+
+def test_methodology_fallback_starts_with_ascii_pipeline():
+    fallback = generate_summary.build_methodology_fallback(
+        _paper(summary="A grounded abstract."),
+        "paper content",
+        "Fallback Paper",
+    )
+
+    assert generate_summary.methodology_has_ascii_pipeline(fallback)
+
+
 def test_save_html_page_uses_atomic_text_writer(monkeypatch):
     calls = []
 

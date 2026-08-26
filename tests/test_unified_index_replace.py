@@ -144,6 +144,15 @@ def test_unified_index_html_uses_safe_render_helpers(tmp_path, monkeypatch):
     assert "sanitizeRenderedMarkdown(el)" in html
     assert "const titleHtml = escapeHtml(paper.title)" in html
     assert "formatAuthorsWithAffiliations(paper.authors, paper.affiliations)" in html
+    assert "研究问题与前人不足" in html
+    assert "思考路径与核心直觉" in html
+    assert "方法、数学推导与实验" in html
+    assert "关键结论、脆弱假设与复现实验" in html
+    assert "ReviewGrounder 审稿评价" in html
+    assert "最强反例与后续研究方向" in html
+    assert "入选依据" in html
+    assert "Introduction 逻辑链" not in html
+    assert "核心切入点 / Pain Point" not in html
 
 
 def test_generated_unified_index_embedded_data_passes_publish_validator(
