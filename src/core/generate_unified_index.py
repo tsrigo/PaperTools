@@ -1064,6 +1064,10 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 引入 Marked.js 用于 Markdown 渲染 -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- KaTeX 仅在已展开的 Markdown 段落中渲染公式 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
     <style>
         /* 微软雅黑字体 */
         body {{
@@ -2045,6 +2049,27 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
             }});
         }}
 
+        function renderMathEl(el) {{
+            if (!el || el.getAttribute('data-math-rendered')) return;
+            if (typeof renderMathInElement !== 'function') return;
+            try {{
+                renderMathInElement(el, {{
+                    delimiters: [
+                        {{ left: '$$', right: '$$', display: true }},
+                        {{ left: '\\\\[', right: '\\\\]', display: true }},
+                        {{ left: '\\\\(', right: '\\\\)', display: false }},
+                        {{ left: '$', right: '$', display: false }}
+                    ],
+                    throwOnError: false,
+                    strict: 'ignore',
+                    ignoredTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+                }});
+                el.setAttribute('data-math-rendered', '1');
+            }} catch (e) {{
+                console.warn('公式渲染失败:', e);
+            }}
+        }}
+
         // Parse markdown for a single element by id
         function renderMarkdownEl(el) {{
             if (!el || el.getAttribute('data-rendered')) return;
@@ -2053,6 +2078,9 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
                 try {{
                     el.innerHTML = marked.parse(escapeMarkdownHtml(raw));
                     sanitizeRenderedMarkdown(el);
+                    // This element belongs to the section the reader just opened;
+                    // closed sections remain untouched until their first expansion.
+                    renderMathEl(el);
                 }} catch (e) {{ el.textContent = raw; }}
                 el.setAttribute('data-rendered', '1');
             }}

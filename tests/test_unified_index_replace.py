@@ -121,6 +121,15 @@ def test_unified_index_html_uses_safe_render_helpers(tmp_path, monkeypatch):
     assert "今日速览 2026-05-31 <script>alert(4)</script>" not in html
     assert "\\u003C/script\\u003E\\u003Cscript\\u003Ealert" in html
     assert "marked.parse(escapeMarkdownHtml(raw))" in html
+    assert "katex@0.16.11/dist/katex.min.css" in html
+    assert "katex@0.16.11/dist/contrib/auto-render.min.js" in html
+    assert "function renderMathEl(el)" in html
+    assert "renderMathEl(el)" in html
+    assert "throwOnError: false" in html
+    assert (
+        "ignoredTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']"
+        in html
+    )
     assert "renderMarkdownAfterPaint(content)" in html
     assert "function afterNextPaint(callback)" in html
     assert "warmMarkdownDuringIdle" not in html
