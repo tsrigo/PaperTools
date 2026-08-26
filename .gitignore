@@ -72,4 +72,7 @@ arxiv_paper/
 domain_paper/
 summary/
 
+# Agent 原生模式的本地阅读结果
+agent_output/
+
 # webpages/ 目录需要保留用于 GitHub Pages 部署

@@ -1,11 +1,20 @@
 ---
 name: papertools
-description: Operate the PaperTools arXiv reading pipeline from setup through safe publication. Use when asked to install or configure PaperTools, browse its published reading pages, crawl and select arXiv papers, generate Chinese paper analyses and daily overviews, resume a failed stage, customize research filters, validate publication payloads, troubleshoot the daily pipeline, or deploy the generated website. Do not use for generic paper summarization that does not involve this repository or its workflow.
+description: Operate the PaperTools arXiv reading pipeline in either Codex-native agent mode or the full API-backed pipeline. Use when asked to install or configure PaperTools, crawl and select daily arXiv papers, summarize them with Codex or subagents, generate a lightweight reading result, browse published pages, run or recover the full PaperTools pipeline, customize research filters, validate publication payloads, troubleshoot daily generation, or deploy the website. Do not use for generic paper summarization that does not involve PaperTools or its crawl workflow.
 ---
 
 # PaperTools
 
-Use the repository containing this file as the PaperTools project root. Reuse its CLI, scripts, caches, tests, and documentation instead of recreating the pipeline.
+Use the repository containing this file as the PaperTools project root. Reuse its crawler, CLI, caches, tests, and documentation instead of recreating them.
+
+## Choose a mode first
+
+For any request that fetches or generates a new daily result, do not start external calls until the mode is known. If the user has not already chosen one, ask:
+
+1. **Agent-native mode** — crawl paper metadata with PaperTools, then use Codex and optional subagents to filter and summarize it. This needs no separate model API configuration.
+2. **Full pipeline mode** — run the repository's API-backed filter, cluster, summary, overview, and website stages with publication quality gates.
+
+Also obtain the target date, arXiv categories, research interests, and desired output when they are missing. Do not ask for information already supplied.
 
 ## Start safely
 
@@ -15,7 +24,51 @@ Use the repository containing this file as the PaperTools project root. Reuse it
 4. Treat model-backed generation as potentially costly. If the user did not request execution, explain the command without calling external model APIs.
 5. Never expose `.env`, API keys, provider tokens, webhook URLs, or masked credentials in output.
 
-## Choose the workflow
+## Agent-native mode
+
+Use this as a simplified reading workflow. It does not call the repository's external model providers and must not publish into `webpages/`.
+
+### Crawl the source papers
+
+Install the repository dependencies if needed, without creating or overwriting `.env`:
+
+```bash
+python -m pip install -e .
+```
+
+Run only the deterministic crawler for the requested date and categories:
+
+```bash
+python src/core/crawl_arxiv.py \
+  --categories cs.AI cs.CL cs.LG \
+  --output-dir arxiv_paper \
+  --date YYYY-MM-DD
+```
+
+Change the category list to match the user's request. Do not add `--allow-empty` unless the user explicitly needs an empty diagnostic artifact. If the source has no papers, report a healthy skip and stop. If any category fetch fails, stop instead of processing a partial crawl.
+
+Locate the generated `arxiv_paper/*_paper_YYYY-MM-DD.json`. Validate that it is a non-empty JSON array and that every item has `arxiv_id`, `title`, `summary`, `authors`, and `link` before delegation.
+
+### Filter and summarize with agents
+
+Treat the user's research interests as the selection rubric. If the rubric is vague, ask for the topics to include and exclude.
+
+For a large paper set, divide the papers into non-overlapping chunks and delegate independent chunks to subagents. Use `gpt-5.6-luna` for clear, high-volume filtering and concise summaries when it is available; otherwise use an available fast model and disclose the fallback. Adapt the number of agents to the available concurrency, keep assignments bounded, and wait for every assigned chunk.
+
+Require each paper result to contain:
+
+- `arxiv_id`, title, authors, link, and original abstract;
+- `selected: true|false` and a short reason tied to the user's rubric;
+- a concise Chinese summary for selected papers;
+- one short topic label for selected papers.
+
+Use only the crawled metadata by default. Fetch full text only when the user requests deeper analysis. Verify that every crawled `arxiv_id` was processed exactly once, merge duplicate papers by `arxiv_id`, and reject malformed subagent output instead of silently dropping it.
+
+Have the main agent consolidate selected papers into topic groups and write a brief daily overview. Default to presenting the result in chat or Markdown. If the user requests files, place simplified artifacts under `agent_output/`, for example `agent_output/YYYY-MM-DD.md` and `agent_output/YYYY-MM-DD.json`.
+
+Generate `agent_output/YYYY-MM-DD.html` only when the user requests a webpage and the current environment can create it. Keep it self-contained and clearly label it as an Agent-native result. Never copy this simplified output into `webpages/data/` or claim that it passed the full publication gate.
+
+## Full pipeline mode
 
 ### Browse existing pages
 
@@ -110,4 +163,4 @@ For a generated website, always run the publication validator even when the pipe
 
 ## Report the result
 
-Lead with whether the requested page, diagnosis, or publication is complete. Include the processed date, paper count when available, validation result, files changed, and any external calls or Git operations performed. If the date was skipped, identify the healthy skip status. If blocked, identify the exact failed stage and leave the date unpublished.
+Lead with the chosen mode and whether the requested reading result, page, diagnosis, or publication is complete. Include the processed date, crawled and selected paper counts when available, validation result, files changed, and any external calls, subagent work, model fallback, or Git operations performed. If the date was skipped, identify the healthy skip status. If blocked, identify the exact failed stage and leave the date unpublished.

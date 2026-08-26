@@ -12,12 +12,12 @@ PaperTools 是一个面向日常研究阅读的 arXiv 论文处理系统。它�
 
 ## 作为 SKILL 安装
 
-PaperTools 也是一个可以直接安装的 [Agent Skill](https://developers.openai.com/codex/skills/)。安装后，可以使用 `$papertools` 让 Codex 完成环境检查、指定日期生成、失败恢复、发布校验和部署排查。技能入口和完整执行规则位于 [`SKILL.md`](SKILL.md)。
+PaperTools 也是一个可以直接安装的 [Agent Skill](https://developers.openai.com/codex/skills/)。安装后，可以使用 `$papertools` 获取指定日期的 arXiv 论文，也可以运行仓库原有的完整流水线。技能入口和完整执行规则位于 [`SKILL.md`](SKILL.md)。
 
-在 Codex 中调用 `$skill-installer`，然后输入：
+在 Codex 中输入：
 
 ```text
-Install the PaperTools skill from https://github.com/tsrigo/PaperTools
+使用 $skill-installer 从 tsrigo/PaperTools 仓库根目录安装 PaperTools Skill，并将 Skill 命名为 papertools。
 ```
 
 也可以手动安装到用户级 Skills 目录：
@@ -29,10 +29,15 @@ git clone https://github.com/tsrigo/PaperTools.git "$HOME/.agents/skills/paperto
 安装完成后，在 Codex 中输入：
 
 ```text
-使用 $papertools 为 2026-08-25 生成并验证论文阅读页面。
+使用 $papertools 获取今天的 arXiv 论文并整理阅读结果。
 ```
 
-Codex 通常会自动发现新增的 SKILL；如果没有出现在技能列表中，请重新启动 Codex。SKILL 只包装仓库现有工作流，不会绕过 API 配置或发布质量门禁。
+Codex 会先询问使用哪一种模式：
+
+- **Agent 原生模式**：只运行 PaperTools 的论文抓取程序，不需要额外配置模型 API；Codex 使用自身能力完成筛选、简要总结和结果整理，论文较多时可以将独立批次交给 `gpt-5.6-luna` 子代理并行处理。默认返回 Markdown 或 JSON，也可以按需生成独立的静态 HTML。该模式会消耗 Codex 和子代理的 token，结果不等同于正式发布页面。
+- **完整 Pipeline 模式**：运行仓库原有的抓取、筛选、聚类、内容生成和网页流水线，需要配置兼容 OpenAI API 格式的模型服务，并执行完整的发布质量校验。
+
+Codex 通常会自动发现新增的 SKILL；如果没有出现在技能列表中，请重新启动 Codex。
 
 ## 项目包含什么
 

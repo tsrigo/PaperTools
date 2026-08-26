@@ -17,6 +17,7 @@ def test_skill_frontmatter_is_discoverable_and_focused() -> None:
     assert re.search(r"(?m)^description: .+", frontmatter)
     assert "PaperTools arXiv reading pipeline" in frontmatter
     assert "Do not use for generic paper summarization" in frontmatter
+    assert "Codex-native agent mode" in frontmatter
 
 
 def test_skill_ui_metadata_matches_skill_name() -> None:
@@ -27,6 +28,21 @@ def test_skill_ui_metadata_matches_skill_name() -> None:
     assert 'default_prompt: "使用 $papertools ' in content
 
 
+def test_skill_requires_mode_choice_and_defines_agent_native_pipeline() -> None:
+    content = (ROOT / "SKILL.md").read_text(encoding="utf-8")
+    gitignore = (ROOT / ".gitignore").read_text(encoding="utf-8")
+
+    assert "## Choose a mode first" in content
+    assert "Agent-native mode" in content
+    assert "Full pipeline mode" in content
+    assert "python src/core/crawl_arxiv.py" in content
+    assert "gpt-5.6-luna" in content
+    assert "processed exactly once" in content
+    assert "agent_output/YYYY-MM-DD.html" in content
+    assert "Never copy this simplified output into `webpages/data/`" in content
+    assert "agent_output/" in gitignore
+
+
 def test_readme_documents_skill_installation() -> None:
     content = (ROOT / "README.md").read_text(encoding="utf-8")
 
@@ -34,6 +50,9 @@ def test_readme_documents_skill_installation() -> None:
     assert "$skill-installer" in content
     assert "$papertools" in content
     assert "$HOME/.agents/skills/papertools" in content
+    assert "从 tsrigo/PaperTools 仓库根目录安装" in content
+    assert "Agent 原生模式" in content
+    assert "完整 Pipeline 模式" in content
 
 
 def test_readme_documents_custom_paper_interest_prompt() -> None:
