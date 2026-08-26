@@ -1117,7 +1117,7 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
         }}
         /* 论文项目样式 */
         .paper-item {{
-            transition: all 0.3s ease-in-out;
+            transition: opacity 0.2s ease-out, transform 0.2s ease-out;
         }}
         .paper-item.hidden-paper {{
             opacity: 0.3;
@@ -1151,6 +1151,7 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
             border-top: 1px solid #e2e8f0;
             margin-top: 8px;
             padding-top: 8px;
+            animation: detail-reveal 0.16s cubic-bezier(0.2, 0.8, 0.2, 1);
         }}
         .dark .paper-detail {{
             border-top-color: #334155;
@@ -1168,7 +1169,7 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
             padding: 8px 0;
             user-select: none;
             color: #1e40af;
-            transition: all 0.2s ease-in-out;
+            transition: color 0.15s ease-out, opacity 0.15s ease-out;
         }}
         .dark .collapsible-header {{
             color: #60a5fa;
@@ -1191,8 +1192,35 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
         .collapsible-content.open {{
             display: block;
         }}
+        .collapsible-content.open > .inner {{
+            animation: detail-reveal 0.14s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }}
         .collapsible-content .inner {{
             padding-top: 8px;
+        }}
+
+        @keyframes detail-reveal {{
+            from {{
+                opacity: 0;
+                transform: translateY(-2px);
+            }}
+            to {{
+                opacity: 1;
+                transform: translateY(0);
+            }}
+        }}
+
+        @media (prefers-reduced-motion: reduce) {{
+            .paper-detail,
+            .collapsible-content.open > .inner {{
+                animation: none;
+            }}
+            .paper-item,
+            .collapsible-header,
+            .collapsible-header::before,
+            .paper-expand-hint .expand-arrow {{
+                transition: none;
+            }}
         }}
 
         /* Markdown 内容样式 */
@@ -1967,8 +1995,8 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
             }} else {{
                 header.classList.add('open');
                 content.classList.add('open');
-                // Lazy render: parse markdown only when first opened
-                lazyRenderMarkdown(content);
+                // Commit the open state first, then render markdown after a paint.
+                renderMarkdownAfterPaint(content);
             }}
         }}
 
@@ -2047,6 +2075,48 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
         function lazyRenderMarkdown(container) {{
             if (typeof marked === 'undefined') return;
             container.querySelectorAll('.markdown-content:not([data-rendered])').forEach(renderMarkdownEl);
+        }}
+
+        // Keep markdown parsing out of the click handler so the open state paints first.
+        function renderMarkdownAfterPaint(container) {{
+            if (!container || typeof marked === 'undefined') return;
+            const pending = container.querySelectorAll('.markdown-content:not([data-rendered])');
+            if (!pending.length) return;
+
+            requestAnimationFrame(() => {{
+                setTimeout(() => lazyRenderMarkdown(container), 0);
+            }});
+        }}
+
+        // Warm closed sections one at a time while the browser is idle. By the time a
+        // reader opens the next section, its markdown is normally already rendered.
+        function warmMarkdownDuringIdle(container) {{
+            if (!container || typeof marked === 'undefined') return;
+            const pending = Array.from(
+                container.querySelectorAll('.markdown-content:not([data-rendered])')
+            );
+            let index = 0;
+
+            const renderNext = deadline => {{
+                while (index < pending.length) {{
+                    if (deadline && deadline.timeRemaining() < 4 && !deadline.didTimeout) break;
+                    renderMarkdownEl(pending[index]);
+                    index += 1;
+                    // The fallback has no idle deadline, so yield after every section.
+                    if (!deadline) break;
+                }}
+                if (index < pending.length) scheduleNext();
+            }};
+
+            const scheduleNext = () => {{
+                if ('requestIdleCallback' in window) {{
+                    window.requestIdleCallback(renderNext, {{ timeout: 500 }});
+                }} else {{
+                    setTimeout(() => renderNext(null), 16);
+                }}
+            }};
+
+            scheduleNext();
         }}
 
         function hasMeaningfulText(value) {{
@@ -2327,8 +2397,10 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
 
             container.innerHTML = html;
 
-            // Render the open summary section's markdown immediately
-            container.querySelectorAll('.collapsible-content.open').forEach(c => lazyRenderMarkdown(c));
+            // Reveal first. Markdown is rendered after paint, then the remaining
+            // closed sections are prepared during idle time.
+            container.querySelectorAll('.collapsible-content.open').forEach(renderMarkdownAfterPaint);
+            warmMarkdownDuringIdle(container);
 
             // Apply summary language setting
             if (showChineseSummary) {{
@@ -2769,7 +2841,7 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
 </body>
 </html>"""
 
-    return html_template
+    return html_template + "\n"
 
 
 def validate_required_date(require_date: str) -> None:

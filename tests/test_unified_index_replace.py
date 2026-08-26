@@ -115,11 +115,16 @@ def test_unified_index_html_uses_safe_render_helpers(tmp_path, monkeypatch):
 
     html = generate_unified_index.generate_complete_html()
 
+    assert html.endswith("\n")
     assert '</script><script>alert("title")</script>' not in html
     assert '</script><script>alert("tag")</script>' not in html
     assert "今日速览 2026-05-31 <script>alert(4)</script>" not in html
     assert "\\u003C/script\\u003E\\u003Cscript\\u003Ealert" in html
     assert "marked.parse(escapeMarkdownHtml(raw))" in html
+    assert "renderMarkdownAfterPaint(content)" in html
+    assert "warmMarkdownDuringIdle(container)" in html
+    assert "transition: opacity 0.2s ease-out, transform 0.2s ease-out" in html
+    assert "@media (prefers-reduced-motion: reduce)" in html
     assert "sanitizeRenderedMarkdown(el)" in html
     assert "const titleHtml = escapeHtml(paper.title)" in html
     assert "formatAuthorsWithAffiliations(paper.authors, paper.affiliations)" in html
