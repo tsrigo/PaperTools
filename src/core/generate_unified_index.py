@@ -1447,16 +1447,15 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
         }}
         .toc-paper {{
             cursor: pointer;
-            padding: 3px 8px;
+            padding: 5px 8px;
             border-radius: 3px;
             font-size: 0.8rem;
-            line-height: 1.4;
+            line-height: 1.35;
             color: #64748b;
             transition: background 0.15s, color 0.15s;
             display: block;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            white-space: normal;
+            overflow-wrap: anywhere;
             max-width: 100%;
         }}
         .toc-paper:hover {{
@@ -2930,10 +2929,9 @@ def generate_complete_html(replace_dates: Optional[Set[str]] = None) -> str:
                         html += `<button type="button" class="toc-expand-all" data-expand-all-date="${{dateHtml}}" onclick="toggleExpandAllForDate('${{dateArg}}')" aria-pressed="false">展开当天全部</button>`;
                     }}
                     papers.forEach(paper => {{
-                        const title = paper.title.length > 50 ? paper.title.substring(0, 47) + '...' : paper.title;
                         const aidHtml = escapeHtml(paper.arxiv_id);
                         const aidArg = escapeJsSingleQuotedAttr(paper.arxiv_id);
-                        html += `<div class="toc-paper" onclick="tocScrollToPaper('${{aidArg}}')" data-toc-paper="${{aidHtml}}" title="${{escapeHtml(paper.title)}}">${{escapeHtml(title)}}</div>`;
+                        html += `<div class="toc-paper" onclick="tocScrollToPaper('${{aidArg}}')" data-toc-paper="${{aidHtml}}" title="${{escapeHtml(paper.title)}}">${{escapeHtml(paper.title)}}</div>`;
                     }});
                 }} else {{
                     html += `<div class="toc-paper opacity-50" onclick="tocLoadAndScrollToDate('${{dateArg}}')">点击加载...</div>`;

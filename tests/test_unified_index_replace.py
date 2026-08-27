@@ -173,6 +173,9 @@ def test_unified_index_html_uses_safe_render_helpers(tmp_path, monkeypatch):
     assert 'class="lg:hidden px-2.5' in html
     assert 'id="content-column"' in html
     assert "width: min(1024px, calc(100% - 260px))" in html
+    assert "paper.title.substring" not in html
+    assert "white-space: normal" in html
+    assert "overflow-wrap: anywhere" in html
     assert "collapseBulkExpandedDate()" in html
 
 
