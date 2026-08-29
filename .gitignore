@@ -76,3 +76,9 @@ summary/
 agent_output/
 
 # webpages/ 目录需要保留用于 GitHub Pages 部署
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
